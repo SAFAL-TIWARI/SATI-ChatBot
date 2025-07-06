@@ -10,10 +10,14 @@ from groq import Groq
 # Load environment variables
 load_dotenv()
 
+
 # Check if running in production (Streamlit Cloud)
 def is_production():
     """Check if app is running in production (Streamlit Cloud)"""
-    return os.getenv("STREAMLIT_SHARING_MODE") is not None or "streamlit.app" in os.getenv("HOSTNAME", "")
+    return os.getenv(
+        "STREAMLIT_SHARING_MODE"
+    ) is not None or "streamlit.app" in os.getenv("HOSTNAME", "")
+
 
 # Set page configuration
 st.set_page_config(page_title="SATI Chatbot", page_icon="🤖", layout="centered")
@@ -35,7 +39,9 @@ if "is_typing" not in st.session_state:
 
 if "selected_model" not in st.session_state:
     # Default to Groq model both in production and locally
-    st.session_state.selected_model = "llama3-8b-8192"  # Default Groq model
+    st.session_state.selected_model = (
+        "llama-3.1-8b-instant"  # Default Groq model (updated)
+    )
 
 if "available_models" not in st.session_state:
     st.session_state.available_models = []
@@ -46,11 +52,14 @@ if "api_provider" not in st.session_state:
 
 if "groq_models" not in st.session_state:
     st.session_state.groq_models = [
+        # Production Models (Stable & Recommended)
+        "llama-3.1-8b-instant",
+        "llama-3.3-70b-versatile",
+        "gemma2-9b-it",
+        # Working Models
+        "deepseek-r1-distill-llama-70b",
         "llama3-8b-8192",
-        "llama3-70b-8192", 
-        "mixtral-8x7b-32768",
-        "gemma-7b-it",
-        "gemma2-9b-it"
+        "llama3-70b-8192",
     ]
 
 
@@ -62,7 +71,7 @@ def get_available_models():
     # Don't try to fetch Ollama models in production
     if is_production():
         return []
-        
+
     try:
         ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         response = requests.get(f"{ollama_base_url}/api/tags", timeout=5)
@@ -82,6 +91,33 @@ def get_available_models():
         return []
 
 
+# Helper function to clean DeepSeek response
+def clean_deepseek_response(response_text):
+    """
+    Remove <think></think> tags from DeepSeek model responses
+    to show only the final answer, not the thinking process.
+    """
+    import re
+    
+    # Remove everything between <think> and </think> tags (including the tags)
+    # Using re.DOTALL flag to match newlines as well
+    cleaned_response = re.sub(r'<think>.*?</think>', '', response_text, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Also handle cases where tags might be malformed or incomplete
+    cleaned_response = re.sub(r'<think>.*', '', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
+    cleaned_response = re.sub(r'.*</think>', '', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Clean up any extra whitespace and newlines
+    cleaned_response = re.sub(r'\n\s*\n', '\n', cleaned_response)  # Remove multiple empty lines
+    cleaned_response = cleaned_response.strip()
+    
+    # If the response is empty after cleaning, return a fallback message
+    if not cleaned_response:
+        return "I've processed your request. Please let me know if you need any clarification or have additional questions."
+    
+    return cleaned_response
+
+
 # GROQ API INTEGRATION
 def get_groq_response(user_message, model_name):
     """
@@ -96,9 +132,9 @@ def get_groq_response(user_message, model_name):
             groq_api_key = os.getenv("GROQ_API_KEY")
             if not groq_api_key:
                 return "❌ Error: GROQ_API_KEY not found in secrets or environment variables"
-        
+
         client = Groq(api_key=groq_api_key)
-        
+
         # Create chat completion
         chat_completion = client.chat.completions.create(
             messages=[
@@ -111,9 +147,15 @@ def get_groq_response(user_message, model_name):
             temperature=0.7,
             max_tokens=1024,
         )
+
+        response_content = chat_completion.choices[0].message.content.strip()
         
-        return chat_completion.choices[0].message.content.strip()
+        # Clean DeepSeek response if using DeepSeek model
+        if model_name == "deepseek-r1-distill-llama-70b":
+            response_content = clean_deepseek_response(response_content)
         
+        return response_content
+
     except Exception as e:
         return f"❌ Groq API Error: {str(e)}"
 
@@ -182,7 +224,9 @@ def get_bot_response(user_message, model_name, api_provider):
 
 # App Title
 st.title(f"🤖 SATI Chatbot - Hybrid AI")
-provider_display = "Groq Cloud" if st.session_state.api_provider == "groq" else "Ollama Local"
+provider_display = (
+    "Groq Cloud" if st.session_state.api_provider == "groq" else "Ollama Local"
+)
 st.markdown(f"*Powered by {provider_display} - Multi-Model Support*")
 
 # Main chat area
@@ -238,7 +282,9 @@ if send_button and user_input.strip():
 if st.session_state.is_typing:
     # Get bot response using selected model and API provider
     user_message = st.session_state.messages[-1]["content"]
-    bot_response = get_bot_response(user_message, st.session_state.selected_model, st.session_state.api_provider)
+    bot_response = get_bot_response(
+        user_message, st.session_state.selected_model, st.session_state.api_provider
+    )
 
     # Add bot response to chat
     current_time = datetime.now().strftime("%H:%M:%S")
@@ -284,7 +330,7 @@ if export_button:
 # Sidebar with info
 with st.sidebar:
     st.header("🔧 API Provider Selection")
-    
+
     # Determine available providers based on environment
     if is_production():
         # In production, only show Groq
@@ -293,17 +339,23 @@ with st.sidebar:
     else:
         # Locally, show both options (Groq first as default)
         available_providers = ["groq", "ollama"]
-    
+
     # API Provider selector
     api_provider = st.selectbox(
         "Choose API Provider:",
         options=available_providers,
-        index=available_providers.index(st.session_state.api_provider) if st.session_state.api_provider in available_providers else 0,
+        index=(
+            available_providers.index(st.session_state.api_provider)
+            if st.session_state.api_provider in available_providers
+            else 0
+        ),
         help="Select between Ollama (local) or Groq (cloud) API",
-        format_func=lambda x: "🏠 Ollama (Local)" if x == "ollama" else "☁️ Groq (Cloud)",
-        key="api_provider_selector"
+        format_func=lambda x: (
+            "🏠 Ollama (Local)" if x == "ollama" else "☁️ Groq (Cloud)"
+        ),
+        key="api_provider_selector",
     )
-    
+
     # Update API provider if changed
     if api_provider != st.session_state.api_provider:
         st.session_state.api_provider = api_provider
@@ -336,8 +388,11 @@ with st.sidebar:
                 "Choose Ollama Model:",
                 options=st.session_state.available_models,
                 index=(
-                    st.session_state.available_models.index(st.session_state.selected_model)
-                    if st.session_state.selected_model in st.session_state.available_models
+                    st.session_state.available_models.index(
+                        st.session_state.selected_model
+                    )
+                    if st.session_state.selected_model
+                    in st.session_state.available_models
                     else 0
                 ),
                 help="Select which Ollama model to use for responses",
@@ -370,9 +425,22 @@ with st.sidebar:
         else:
             st.error("❌ No Ollama models found")
             st.info("Pull a model: `ollama pull <model_name>`")
-    
+
     else:  # Groq API
         # Groq Model selector
+        def format_model_name(model_name):
+            """Format model names for better display"""
+            if model_name in [
+                "llama-3.1-8b-instant",
+                "llama-3.3-70b-versatile",
+                "gemma2-9b-it",
+            ]:
+                return f"🟢 {model_name} (Latest)"
+            elif model_name == "deepseek-r1-distill-llama-70b":
+                return f"🧠 {model_name} (Reasoning)"
+            else:
+                return f"🔵 {model_name} (Legacy)"
+
         selected_model = st.selectbox(
             "Choose Groq Model:",
             options=st.session_state.groq_models,
@@ -381,7 +449,8 @@ with st.sidebar:
                 if st.session_state.selected_model in st.session_state.groq_models
                 else 0
             ),
-            help="Select which Groq model to use for responses",
+            help="Select which Groq model to use for responses. Latest models are recommended for better performance.",
+            format_func=format_model_name,
         )
 
         # Update selected model if changed
@@ -391,7 +460,19 @@ with st.sidebar:
             st.rerun()
 
         st.info(f"**Current Model:** {st.session_state.selected_model}")
-        
+
+        # Show model type information
+        if st.session_state.selected_model in [
+            "llama-3.1-8b-instant",
+            "llama-3.3-70b-versatile",
+            "gemma2-9b-it",
+        ]:
+            st.success("🟢 **Production Model** - Latest & Recommended")
+        elif st.session_state.selected_model == "deepseek-r1-distill-llama-70b":
+            st.success("🧠 **Reasoning Model** - Advanced Math & Logic")
+        else:
+            st.info("🔵 **Legacy Model** - Stable & Working")
+
         # Check Groq API key
         groq_api_key = os.getenv("GROQ_API_KEY")
         if groq_api_key and groq_api_key != "your_actual_groq_api_key":
@@ -408,7 +489,9 @@ with st.sidebar:
         # Check Ollama connection
         if is_production():
             st.error("❌ Ollama not available in production")
-            st.info("Ollama requires local installation and cannot run on cloud servers")
+            st.info(
+                "Ollama requires local installation and cannot run on cloud servers"
+            )
         else:
             try:
                 ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -422,10 +505,10 @@ with st.sidebar:
             except:
                 st.error("❌ Ollama not running")
                 st.info("Start Ollama: `ollama serve`")
-    
+
     else:  # Groq API
         st.header("☁️ Groq API Status")
-        
+
         groq_api_key = os.getenv("GROQ_API_KEY")
         if groq_api_key and groq_api_key != "your_actual_groq_api_key":
             st.success("✅ Groq API key configured")
@@ -492,6 +575,8 @@ st.markdown(
     "**Instructions:** Select your preferred API provider (Ollama or Groq), choose a model, then type a message and click 'Send Message' to start chatting!"
 )
 if st.session_state.api_provider == "ollama":
-    st.markdown("*Note: Make sure Ollama is running locally with your selected model available.*")
+    st.markdown(
+        "*Note: Make sure Ollama is running locally with your selected model available.*"
+    )
 else:
     st.markdown("*Note: Make sure your Groq API key is configured in the .env file.*")
