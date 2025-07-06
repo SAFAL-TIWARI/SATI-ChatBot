@@ -83,9 +83,13 @@ def get_groq_response(user_message, model_name):
     """
     try:
         # Initialize Groq client
-        groq_api_key = os.getenv("GROQ_API_KEY")
-        if not groq_api_key:
-            return "❌ Error: GROQ_API_KEY not found in environment variables"
+        try:
+            groq_api_key = st.secrets["GROQ_API_KEY"]
+        except KeyError:
+            # Fallback to environment variable for local development
+            groq_api_key = os.getenv("GROQ_API_KEY")
+            if not groq_api_key:
+                return "❌ Error: GROQ_API_KEY not found in secrets or environment variables"
         
         client = Groq(api_key=groq_api_key)
         

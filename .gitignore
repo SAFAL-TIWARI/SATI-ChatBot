@@ -3,3 +3,4 @@
 .venv/
 zencoder/
 __pycache__/
+.streamlit/secrets.toml
