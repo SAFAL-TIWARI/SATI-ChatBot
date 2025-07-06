@@ -9,12 +9,11 @@ from groq import Groq
 
 # Load environment variables
 load_dotenv()
-import os
-from dotenv import load_dotenv
-from groq import Groq
 
-# Load environment variables
-load_dotenv()
+# Check if running in production (Streamlit Cloud)
+def is_production():
+    """Check if app is running in production (Streamlit Cloud)"""
+    return os.getenv("STREAMLIT_SHARING_MODE") is not None or "streamlit.app" in os.getenv("HOSTNAME", "")
 
 # Set page configuration
 st.set_page_config(page_title="SATI Chatbot", page_icon="🤖", layout="centered")
@@ -35,13 +34,15 @@ if "is_typing" not in st.session_state:
     st.session_state.is_typing = False
 
 if "selected_model" not in st.session_state:
-    st.session_state.selected_model = "phi3"  # Default model
+    # Default to Groq model both in production and locally
+    st.session_state.selected_model = "llama3-8b-8192"  # Default Groq model
 
 if "available_models" not in st.session_state:
     st.session_state.available_models = []
 
 if "api_provider" not in st.session_state:
-    st.session_state.api_provider = "ollama"  # Default to Ollama
+    # Default to Groq both in production and locally
+    st.session_state.api_provider = "groq"
 
 if "groq_models" not in st.session_state:
     st.session_state.groq_models = [
@@ -58,8 +59,13 @@ def get_available_models():
     """
     Fetch list of available models from Ollama
     """
+    # Don't try to fetch Ollama models in production
+    if is_production():
+        return []
+        
     try:
-        response = requests.get("http://localhost:11434/api/tags", timeout=5)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        response = requests.get(f"{ollama_base_url}/api/tags", timeout=5)
         if response.status_code == 200:
             data = response.json()
             models = []
@@ -120,8 +126,9 @@ def get_ollama_response(user_message, model_name):
     """
 
     try:
-        # Ollama API endpoint (default local)
-        ollama_url = "http://localhost:11434/api/generate"
+        # Ollama API endpoint (configurable via environment variable)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        ollama_url = f"{ollama_base_url}/api/generate"
 
         if model_name == "qwen3":
             model_name = "qwen3:0.6b"
@@ -149,7 +156,10 @@ def get_ollama_response(user_message, model_name):
             return f"Error: Ollama API returned status code {response.status_code}"
 
     except requests.exceptions.ConnectionError:
-        return "❌ Error: Cannot connect to Ollama. Make sure Ollama is running on localhost:11434"
+        if is_production():
+            return "❌ Error: Ollama is not available in production. Please use Groq API instead."
+        else:
+            return "❌ Error: Cannot connect to Ollama. Make sure Ollama is running on localhost:11434"
 
     except requests.exceptions.Timeout:
         return (
@@ -199,46 +209,6 @@ st.subheader("📝 Your Message")
 # Create a form for input to handle submission properly
 with st.form(key="chat_form", clear_on_submit=True):
     user_input = st.text_input("Type your message:", placeholder="Ask me anything...")
-
-    # if st.session_state.available_models:
-    #     # Model selector
-    #     selected_model = st.selectbox(
-    #         "Choose Model:",
-    #         options=st.session_state.available_models,
-    #         index=(
-    #             st.session_state.available_models.index(st.session_state.selected_model)
-    #             if st.session_state.selected_model in st.session_state.available_models
-    #             else 0
-    #         ),
-    #         # help="Select which AI model to use for responses",
-    #     )
-
-    #     # Update selected model if changed
-    #     if selected_model != st.session_state.selected_model:
-    #         st.session_state.selected_model = selected_model
-    #         st.success(f"✅ Switched to {selected_model}")
-    #         st.rerun()
-
-    #     st.info(f"**Current Model:** {st.session_state.selected_model}")
-
-    #     # Show model info if available
-    #     try:
-    #         model_info_response = requests.post(
-    #             "http://localhost:11434/api/show",
-    #             json={"name": st.session_state.selected_model},
-    #             timeout=5,
-    #         )
-    #         if model_info_response.status_code == 200:
-    #             model_data = model_info_response.json()
-    #             model_size = model_data.get("details", {}).get(
-    #                 "parameter_size", "Unknown"
-    #             )
-    #             st.caption(f"Parameters: {model_size}")
-    #     except:
-    #         pass
-    # else:
-    #     st.error("❌ No models found")
-    #     st.info("Pull a model: `ollama pull <model_name>`")
 
     # Form submit button
     send_button = st.form_submit_button("📤 Send Message", type="primary")
@@ -315,13 +285,23 @@ if export_button:
 with st.sidebar:
     st.header("🔧 API Provider Selection")
     
+    # Determine available providers based on environment
+    if is_production():
+        # In production, only show Groq
+        available_providers = ["groq"]
+        st.info("🌐 Running in production - Only cloud APIs available")
+    else:
+        # Locally, show both options (Groq first as default)
+        available_providers = ["groq", "ollama"]
+    
     # API Provider selector
     api_provider = st.selectbox(
         "Choose API Provider:",
-        options=["ollama", "groq"],
-        index=0 if st.session_state.api_provider == "ollama" else 1,
+        options=available_providers,
+        index=available_providers.index(st.session_state.api_provider) if st.session_state.api_provider in available_providers else 0,
         help="Select between Ollama (local) or Groq (cloud) API",
-        format_func=lambda x: "🏠 Ollama (Local)" if x == "ollama" else "☁️ Groq (Cloud)"
+        format_func=lambda x: "🏠 Ollama (Local)" if x == "ollama" else "☁️ Groq (Cloud)",
+        key="api_provider_selector"
     )
     
     # Update API provider if changed
@@ -373,8 +353,9 @@ with st.sidebar:
 
             # Show Ollama model info if available
             try:
+                ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
                 model_info_response = requests.post(
-                    "http://localhost:11434/api/show",
+                    f"{ollama_base_url}/api/show",
                     json={"name": st.session_state.selected_model},
                     timeout=5,
                 )
@@ -425,17 +406,22 @@ with st.sidebar:
         st.header("🔗 Ollama Status")
 
         # Check Ollama connection
-        try:
-            health_check = requests.get("http://localhost:11434/api/tags", timeout=5)
-            if health_check.status_code == 200:
-                st.success("✅ Ollama is running")
-                models_count = len(st.session_state.available_models)
-                st.success(f"✅ {models_count} models available")
-            else:
-                st.error("❌ Ollama not responding")
-        except:
-            st.error("❌ Ollama not running")
-            st.info("Start Ollama: `ollama serve`")
+        if is_production():
+            st.error("❌ Ollama not available in production")
+            st.info("Ollama requires local installation and cannot run on cloud servers")
+        else:
+            try:
+                ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+                health_check = requests.get(f"{ollama_base_url}/api/tags", timeout=5)
+                if health_check.status_code == 200:
+                    st.success("✅ Ollama is running")
+                    models_count = len(st.session_state.available_models)
+                    st.success(f"✅ {models_count} models available")
+                else:
+                    st.error("❌ Ollama not responding")
+            except:
+                st.error("❌ Ollama not running")
+                st.info("Start Ollama: `ollama serve`")
     
     else:  # Groq API
         st.header("☁️ Groq API Status")
