@@ -262,8 +262,84 @@ st.subheader("📝 Your Message")
 with st.form(key="chat_form", clear_on_submit=True):
     user_input = st.text_input("Type your message:", placeholder="Ask me anything...")
 
-    # Form submit button
-    send_button = st.form_submit_button("📤 Send Message", type="primary")
+    # Form submit button and model selector in the same row
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        send_button = st.form_submit_button("📤 Send Message", type="primary")
+    
+    with col2:
+        # Display current model info (read-only)
+        if st.session_state.api_provider == "groq":
+            if st.session_state.selected_model in ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "gemma2-9b-it"]:
+                model_display = f"🟢 {st.session_state.selected_model.split('-')[0].upper()}"
+            elif st.session_state.selected_model == "deepseek-r1-distill-llama-70b":
+                model_display = f"🧠 DeepSeek"
+            else:
+                model_display = f"🔵 {st.session_state.selected_model.split('-')[0].upper()}"
+        else:
+            model_display = f"🤖 {st.session_state.selected_model}"
+        
+        # st.info(f"**Current:** {model_display}")
+
+# Model selector outside the form for immediate response (positioned below the form)
+if st.session_state.api_provider == "groq":
+    # Format function for Groq models (same as sidebar)
+    def format_groq_model_name(model_name):
+        """Format model names for better display"""
+        if model_name in [
+            "llama-3.1-8b-instant",
+            "llama-3.3-70b-versatile",
+            "gemma2-9b-it",
+        ]:
+            return f"🟢 {model_name} (Latest)"
+        elif model_name == "deepseek-r1-distill-llama-70b":
+            return f"🧠 {model_name} (Reasoning)"
+        else:
+            return f"🔵 {model_name} (Legacy)"
+    
+    selected_model_main = st.selectbox(
+        "Choose Groq AI Model:",
+        options=st.session_state.groq_models,
+        index=(
+            st.session_state.groq_models.index(st.session_state.selected_model)
+            if st.session_state.selected_model in st.session_state.groq_models
+            else 0
+        ),
+        format_func=format_groq_model_name,
+        key="main_groq_model_selector"
+    )
+    
+    # Update selected model if changed
+    if selected_model_main != st.session_state.selected_model:
+        st.session_state.selected_model = selected_model_main
+        st.success(f"✅ Switched to {st.session_state.selected_model}")
+        st.rerun()
+        
+else:
+    # Ollama model selector
+    if not st.session_state.available_models:
+        st.session_state.available_models = get_available_models()
+    
+    if st.session_state.available_models:
+        selected_model_main = st.selectbox(
+            "Choose Ollama AI Model:",
+            options=st.session_state.available_models,
+            index=(
+                st.session_state.available_models.index(st.session_state.selected_model)
+                if st.session_state.selected_model in st.session_state.available_models
+                else 0
+            ),
+            key="main_ollama_model_selector"
+        )
+        
+        # Update selected model if changed
+        if selected_model_main != st.session_state.selected_model:
+            st.session_state.selected_model = selected_model_main
+            st.success(f"✅ Switched to {st.session_state.selected_model}")
+            st.rerun()
+    else:
+        st.error("No Ollama models available")
 
 # Other buttons outside the form
 col1, col2 = st.columns([1, 1])
@@ -404,6 +480,7 @@ with st.sidebar:
                     else 0
                 ),
                 help="Select which Ollama model to use for responses",
+                key="sidebar_ollama_model_selector"
             )
 
             # Update selected model if changed
@@ -459,6 +536,7 @@ with st.sidebar:
             ),
             help="Select which Groq model to use for responses. Latest models are recommended for better performance.",
             format_func=format_model_name,
+            key="sidebar_groq_model_selector"
         )
 
         # Update selected model if changed
