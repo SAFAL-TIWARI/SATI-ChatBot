@@ -1,0 +1,5 @@
+.env
+.vscode/
+.venv/
+zencoder/
+__pycache__/
