@@ -98,23 +98,31 @@ def clean_deepseek_response(response_text):
     to show only the final answer, not the thinking process.
     """
     import re
-    
+
     # Remove everything between <think> and </think> tags (including the tags)
     # Using re.DOTALL flag to match newlines as well
-    cleaned_response = re.sub(r'<think>.*?</think>', '', response_text, flags=re.DOTALL | re.IGNORECASE)
-    
+    cleaned_response = re.sub(
+        r"<think>.*?</think>", "", response_text, flags=re.DOTALL | re.IGNORECASE
+    )
+
     # Also handle cases where tags might be malformed or incomplete
-    cleaned_response = re.sub(r'<think>.*', '', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
-    cleaned_response = re.sub(r'.*</think>', '', cleaned_response, flags=re.DOTALL | re.IGNORECASE)
-    
+    cleaned_response = re.sub(
+        r"<think>.*", "", cleaned_response, flags=re.DOTALL | re.IGNORECASE
+    )
+    cleaned_response = re.sub(
+        r".*</think>", "", cleaned_response, flags=re.DOTALL | re.IGNORECASE
+    )
+
     # Clean up any extra whitespace and newlines
-    cleaned_response = re.sub(r'\n\s*\n', '\n', cleaned_response)  # Remove multiple empty lines
+    cleaned_response = re.sub(
+        r"\n\s*\n", "\n", cleaned_response
+    )  # Remove multiple empty lines
     cleaned_response = cleaned_response.strip()
-    
+
     # If the response is empty after cleaning, return a fallback message
     if not cleaned_response:
         return "I've processed your request. Please let me know if you need any clarification or have additional questions."
-    
+
     return cleaned_response
 
 
@@ -149,11 +157,11 @@ def get_groq_response(user_message, model_name):
         )
 
         response_content = chat_completion.choices[0].message.content.strip()
-        
+
         # Clean DeepSeek response if using DeepSeek model
         if model_name == "deepseek-r1-distill-llama-70b":
             response_content = clean_deepseek_response(response_content)
-        
+
         return response_content
 
     except Exception as e:
