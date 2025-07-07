@@ -8,9 +8,151 @@ from dotenv import load_dotenv
 from groq import Groq
 import google.generativeai as genai
 from prompt import get_contextual_prompt, get_default_prompt
+from urllib.parse import urlparse, parse_qs
 
 # Load environment variables
 load_dotenv()
+
+# Custom CSS for profile menu and settings popup
+def load_custom_css():
+    st.markdown("""
+    <style>
+    /* Profile Menu Styles */
+    .profile-menu {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    .profile-button {
+        background: #ff4b4b;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .profile-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 200px;
+        z-index: 1001;
+    }
+    
+    .profile-dropdown-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .profile-dropdown-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .profile-dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Settings Modal Styles */
+    .settings-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .settings-content {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 800px;
+        height: 80%;
+        max-height: 600px;
+        display: flex;
+        overflow: hidden;
+    }
+    
+    .settings-sidebar {
+        width: 250px;
+        background: #f8f9fa;
+        border-right: 1px solid #e9ecef;
+        padding: 20px 0;
+    }
+    
+    .settings-main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    
+    .settings-tab {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .settings-tab:hover {
+        background: #e9ecef;
+    }
+    
+    .settings-tab.active {
+        background: #e3f2fd;
+        border-left-color: #2196f3;
+        color: #1976d2;
+    }
+    
+    .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+    }
+    
+    .close-button:hover {
+        color: #000;
+    }
+    
+    /* Hide Streamlit default elements when settings is open */
+    .settings-open .main .block-container {
+        filter: blur(2px);
+        pointer-events: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 
 # Check if running in production (Streamlit Cloud)
@@ -28,6 +170,14 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="collapsed",
 )
+
+# Load custom CSS
+load_custom_css()
+
+# Handle URL parameters for settings
+query_params = st.query_params
+if "settings" in query_params or st.session_state.get("show_settings", False):
+    st.session_state.show_settings = True
 
 # Initialize session state for chat history
 if "messages" not in st.session_state:
@@ -68,6 +218,220 @@ if "groq_models" not in st.session_state:
         "llama3-8b-8192",
         "llama3-70b-8192",
     ]
+
+# Initialize user authentication state
+if "is_logged_in" not in st.session_state:
+    st.session_state.is_logged_in = False
+
+if "username" not in st.session_state:
+    st.session_state.username = ""
+
+if "show_settings" not in st.session_state:
+    st.session_state.show_settings = False
+
+if "settings_tab" not in st.session_state:
+    st.session_state.settings_tab = "customization"
+
+# Authentication functions
+def handle_login():
+    """Handle user login"""
+    st.session_state.is_logged_in = True
+    st.session_state.username = "User"  # In a real app, this would come from a form
+    st.rerun()
+
+def handle_logout():
+    """Handle user logout"""
+    st.session_state.is_logged_in = False
+    st.session_state.username = ""
+    st.rerun()
+
+def toggle_settings():
+    """Toggle settings modal"""
+    st.session_state.show_settings = not st.session_state.show_settings
+    if st.session_state.show_settings:
+        st.query_params["settings"] = "true"
+    else:
+        if "settings" in st.query_params:
+            del st.query_params["settings"]
+    st.rerun()
+
+def close_settings():
+    """Close settings modal"""
+    st.session_state.show_settings = False
+    if "settings" in st.query_params:
+        del st.query_params["settings"]
+    st.rerun()
+
+def render_profile_menu():
+    """Render the profile menu at top right"""
+    if st.session_state.is_logged_in:
+        profile_icon = "👤"
+        profile_text = st.session_state.username
+    else:
+        profile_icon = "🔐"
+        profile_text = "Guest"
+    
+    # Create columns for profile menu positioning
+    col1, col2, col3, col4 = st.columns([6, 1, 1, 1])
+    
+    with col2:
+        # Login/Logout button
+        if not st.session_state.is_logged_in:
+            if st.button("🔑 Login", key="login_btn", help="Login to access personalized features"):
+                handle_login()
+        else:
+            if st.button("🔓 Logout", key="logout_btn", help="Logout from your account"):
+                handle_logout()
+    
+    with col3:
+        # Settings button
+        if st.button("⚙️ Settings", key="settings_btn", help="Open settings panel"):
+            toggle_settings()
+    
+    with col4:
+        # Profile indicator
+        st.markdown(f"**{profile_icon} {profile_text}**")
+
+def render_settings_modal():
+    """Render the settings modal popup"""
+    if not st.session_state.show_settings:
+        return
+    
+    # Update URL to include settings parameter
+    st.query_params["settings"] = "true"
+    
+    # Settings modal using container
+    st.markdown("---")
+    st.markdown("## ⚙️ Settings Panel")
+    
+    # Close button
+    col1, col2 = st.columns([6, 1])
+    with col2:
+        if st.button("✕ Close Settings", key="close_settings_btn"):
+            close_settings()
+    
+    # Settings tabs
+    tab1, tab2 = st.tabs(["🎨 Customization", "🔧 Advanced"])
+    
+    with tab1:
+        render_customization_settings()
+    
+    with tab2:
+        st.write("🚧 Advanced settings coming soon...")
+        st.info("Future features: Theme customization, export settings, API rate limits, etc.")
+    
+    st.markdown("---")
+
+def render_customization_settings():
+    """Render customization settings tab"""
+    st.subheader("🎨 Customization")
+    
+    # API Provider Selection
+    st.markdown("#### Choose API Provider")
+    
+    # Determine available providers based on environment
+    if is_production():
+        available_providers = ["groq", "gemini"]
+        st.info("🌐 Running in production - Only cloud APIs available")
+    else:
+        available_providers = ["groq", "gemini", "ollama"]
+    
+    # API Provider selector
+    api_provider = st.selectbox(
+        "API Provider:",
+        options=available_providers,
+        index=(
+            available_providers.index(st.session_state.api_provider)
+            if st.session_state.api_provider in available_providers
+            else 0
+        ),
+        help="Select between Ollama (local), Groq (cloud), or Gemini (cloud) API",
+        format_func=lambda x: (
+            "🏠 Ollama (Local)"
+            if x == "ollama"
+            else "☁️ Groq (Cloud)" if x == "groq" else "🧠 Google Gemini (Cloud)"
+        ),
+        key="settings_api_provider_selector",
+    )
+    
+    # Update API provider if changed
+    if api_provider != st.session_state.api_provider:
+        st.session_state.api_provider = api_provider
+        # Reset model selection when switching providers
+        if api_provider == "groq":
+            st.session_state.selected_model = st.session_state.groq_models[0]
+        elif api_provider == "gemini":
+            st.session_state.selected_model = "gemini-1.5-flash"
+        else:  # ollama
+            st.session_state.available_models = get_available_models()
+            if st.session_state.available_models:
+                st.session_state.selected_model = st.session_state.available_models[0]
+        st.success(f"✅ Switched to {api_provider.upper()}")
+        st.rerun()
+    
+    st.markdown("---")
+    
+    # AI Model Selection
+    if st.session_state.api_provider != "gemini":
+        st.markdown("#### Choose AI Model")
+        
+        if st.session_state.api_provider == "groq":
+            # Format function for Groq models
+            def format_groq_model_name(model_name):
+                if model_name in [
+                    "llama-3.1-8b-instant",
+                    "llama-3.3-70b-versatile",
+                    "gemma2-9b-it",
+                ]:
+                    return f"🟢 {model_name} (Latest)"
+                elif model_name == "deepseek-r1-distill-llama-70b":
+                    return f"🧠 {model_name} (Reasoning)"
+                else:
+                    return f"🔵 {model_name} (Legacy)"
+            
+            selected_model = st.selectbox(
+                "Groq AI Model:",
+                options=st.session_state.groq_models,
+                index=(
+                    st.session_state.groq_models.index(st.session_state.selected_model)
+                    if st.session_state.selected_model in st.session_state.groq_models
+                    else 0
+                ),
+                format_func=format_groq_model_name,
+                key="settings_groq_model_selector",
+            )
+            
+            # Update selected model if changed
+            if selected_model != st.session_state.selected_model:
+                st.session_state.selected_model = selected_model
+                st.success(f"✅ Switched to {st.session_state.selected_model}")
+                st.rerun()
+        
+        elif st.session_state.api_provider == "ollama":
+            # Get available Ollama models
+            if not st.session_state.available_models:
+                st.session_state.available_models = get_available_models()
+            
+            if st.session_state.available_models:
+                selected_model = st.selectbox(
+                    "Ollama AI Model:",
+                    options=st.session_state.available_models,
+                    index=(
+                        st.session_state.available_models.index(st.session_state.selected_model)
+                        if st.session_state.selected_model in st.session_state.available_models
+                        else 0
+                    ),
+                    key="settings_ollama_model_selector",
+                )
+                
+                # Update selected model if changed
+                if selected_model != st.session_state.selected_model:
+                    st.session_state.selected_model = selected_model
+                    st.success(f"✅ Switched to {st.session_state.selected_model}")
+                    st.rerun()
+            else:
+                st.error("No Ollama models available")
+                st.info("Pull a model: `ollama pull <model_name>`")
 
 
 # Function to get available Ollama models
@@ -285,6 +649,13 @@ def get_bot_response(user_message, model_name, api_provider):
     else:
         return get_ollama_response(user_message, model_name)
 
+
+# Profile Menu (Top Right)
+render_profile_menu()
+
+# Settings Modal
+if st.session_state.show_settings:
+    render_settings_modal()
 
 # App Title
 st.title(f"🎓 SATI AI Assistant - Your Institute Guide")
