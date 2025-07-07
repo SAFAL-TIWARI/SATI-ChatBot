@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATI ChatBot - Your Institute Guide</title>
+    <!-- <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>"> -->
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
+    <meta name="description"
+        content="SATI - Hybrid AI Chatbot with dual API support (Google gemini + Groq cloud). Features dynamic model switching, real-time chat, export functionality, and modern Streamlit UI. Perfect for cloud-based AI interactions.">
+    <meta name="keywords"
+        content="SATI ChatBot, SATI, AI, chatbot, hybrid AI, dual API, dynamic model switching, real-time chat, export functionality, modern Streamlit UI, cloud-based AI interactions">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/images/preview.png">
+    <meta name="author" content="Team FluxoNauts">
+    <meta name="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Your custom styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="app-container" id="appContainer">
+        
+        <!-- Sidebar Toggle Button (Outside Sidebar) -->
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo">🎓</div>
+                    <h2 class="app-name">SATI ChatBot</h2>
+                </div>
+            </div>
+
+            <!-- New Chat Button -->
+            <div class="sidebar-section">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+
+            <!-- Resources Button -->
+            <div class="sidebar-section">
+                <button class="resources-btn" id="resourcesBtn">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </button>
+            </div>
+
+            <!-- Search Conversations -->
+            <div class="sidebar-section">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search conversations..." id="searchInput">
+                </div>
+            </div>
+
+            <!-- All Conversations -->
+            <div class="sidebar-section conversations-section">
+                <h3 class="section-title">
+                    <i class="fas fa-comments"></i>
+                    <span>All Conversations</span>
+                </h3>
+                <div class="conversations-list" id="conversationsList">
+                    <!-- Conversations will be populated here -->
+                </div>
+            </div>
+
+            <!-- Other Sidebar Items -->
+            <div class="sidebar-section sidebar-menu">
+                <div class="menu-item" id="savedChatsBtn">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved Chats</span>
+                </div>
+                <div class="menu-item" id="promptLibraryBtn">
+                    <i class="fas fa-flask"></i>
+                    <span>Prompt Library</span>
+                </div>
+                <div class="menu-item danger" id="clearAllBtn">
+                    <i class="fas fa-trash"></i>
+                    <span>Clear All Chats</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="chat-title-container">
+                    <h1 class="chat-title" id="chatTitle">New Chat</h1>
+                </div>
+                <div class="top-bar-actions">
+                    <button class="share-btn" id="shareBtn" title="Share chat">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <div class="profile-menu-container">
+                        <button class="profile-avatar" id="profileAvatar" title="Profile menu">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <!-- Profile Dropdown -->
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-item" id="myProfileBtn">
+                                <i class="fas fa-user"></i>
+                                <span>My Profile</span>
+                            </div>
+                            <div class="profile-dropdown-item" id="settingsDropdownBtn">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </div>
+                            <div class="profile-dropdown-item" id="customizeDropdownBtn">
+                                <i class="fas fa-palette"></i>
+                                <span>Customize Appearance</span>
+                            </div>
+                            <div class="profile-dropdown-item" id="languageBtn">
+                                <i class="fas fa-globe"></i>
+                                <span>Language</span>
+                            </div>
+                            <div class="profile-dropdown-item" id="themeToggleBtn">
+                                <i class="fas fa-sun"></i>
+                                <span>Light Mode</span>
+                            </div>
+                            <div class="profile-dropdown-item" id="loginLogoutBtn">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Chat Window -->
+            <div class="chat-window" id="chatWindow">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome Message -->
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <div class="bot-avatar">🎓</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">
+                                <h3>🎓 Hello! I'm your SATI AI Assistant</h3>
+                                <p>I'm specialized in providing information about <strong>Samrat Ashok Technological
+                                        Institute (SATI), Vidisha</strong>. I can help you with:</p>
+                                <ul>
+                                    <li>📚 Academic programs and courses</li>
+                                    <li>🏠 Hostel and campus facilities</li>
+                                    <li>💼 Placement statistics and career opportunities</li>
+                                    <li>🎯 Admission procedures and requirements</li>
+                                    <li>🏆 Student activities and clubs</li>
+                                    <li>📖 Institute history and achievements</li>
+                                </ul>
+                                <p><strong>What would you like to know about SATI?</strong></p>
+                            </div>
+                            <div class="message-timestamp">Just now</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <div class="bot-avatar">🎓</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <button class="attachment-btn" id="attachmentBtn" title="Attach file">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <div class="input-wrapper">
+                        <textarea id="messageInput" placeholder="Ask anything" rows="1"
+                            maxlength="2000"></textarea>
+                        <div class="input-actions">
+                            <select id="modelSelect" class="model-select" title="Select AI Model">
+                                <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
+                                <option value="llama-3.3-70b-versatile">🟢 Llama 3.3 70B (Latest)</option>
+                                <option value="gemma2-9b-it">🟢 Gemma2 9B (Latest)</option>
+                                <option value="deepseek-r1-distill-llama-70b">🧠 DeepSeek R1 (Reasoning)</option>
+                                <option value="llama3-8b-8192">🔵 Llama3 8B (Legacy)</option>
+                                <option value="llama3-70b-8192">🔵 Llama3 70B (Legacy)</option>
+                            </select>
+                            <button class="mic-btn" id="micBtn" title="Voice input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="send-btn" id="sendBtn" title="Send message">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-container settings-modal">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-btn" id="closeSettingsBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-sidebar">
+                    <div class="settings-tab active" data-tab="general">
+                        <i class="fas fa-cog"></i>
+                        <span>General Settings</span>
+                    </div>
+                    <div class="settings-tab" data-tab="chat">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat Settings</span>
+                    </div>
+                    <div class="settings-tab" data-tab="accessibility">
+                        <i class="fas fa-universal-access"></i>
+                        <span>Accessibility</span>
+                    </div>
+                    <div class="settings-tab" data-tab="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </div>
+                    <div class="settings-tab" data-tab="privacy">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Privacy & Data</span>
+                    </div>
+                </div>
+                <div class="settings-content">
+                    <div id="settingsContent">
+                        <!-- Settings content will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customize Appearance Modal -->
+    <div class="modal-overlay" id="customizeModal">
+        <div class="modal-container customize-modal">
+            <div class="modal-header">
+                <h2>🎨 Customize Appearance</h2>
+                <button class="close-btn" id="closeCustomizeBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="customizeContent">
+                    <!-- Customize content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-container login-modal">
+            <div class="modal-header">
+                <h2>🔐 Login to SATI ChatBot</h2>
+                <button class="close-btn" id="closeLoginBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="login-content">
+                    <div class="app-branding">
+                        <div class="logo-large">🎓</div>
+                        <h3>SATI ChatBot</h3>
+                        <p>Your Institute Guide</p>
+                    </div>
+                    <form class="login-form" id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required>
+                        </div>
+                        <button type="submit" class="login-btn">Login</button>
+                        <button type="button" class="guest-btn" id="guestBtn">Continue as Guest</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-container confirm-modal">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to proceed?</p>
+                <div class="confirm-actions">
+                    <button class="cancel-btn" id="confirmCancel">Cancel</button>
+                    <button class="confirm-btn" id="confirmOk">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer">
+        <!-- Toasts will be added here dynamically -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+
+</html>

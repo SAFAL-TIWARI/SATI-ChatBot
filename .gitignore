@@ -1,6 +1,6 @@
 .env
 .vscode/
 .venv/
-zencoder/
+.zencoder/
 __pycache__/
-.streamlit/secrets.toml
+.streamlit/
