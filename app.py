@@ -6,6 +6,8 @@ import json
 import os
 from dotenv import load_dotenv
 from groq import Groq
+import google.generativeai as genai
+from prompt import get_contextual_prompt, get_default_prompt
 
 # Load environment variables
 load_dotenv()
@@ -20,7 +22,12 @@ def is_production():
 
 
 # Set page configuration
-st.set_page_config(page_title="SATI Chatbot", page_icon="🤖", layout="centered")
+st.set_page_config(
+    page_title="SATI Chatbot",
+    page_icon="🤖",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 
 # Initialize session state for chat history
 if "messages" not in st.session_state:
@@ -29,7 +36,7 @@ if "messages" not in st.session_state:
     st.session_state.messages.append(
         {
             "role": "assistant",
-            "content": "Hello! I'm SATI AI assistant. How can I help you today?",
+            "content": "🎓 Hello! I'm your SATI AI Assistant, specialized in providing information about Samrat Ashok Technological Institute (SATI), Vidisha. I can help you with:\n\n• 📚 Academic programs and courses\n• 🏠 Hostel and campus facilities\n• 💼 Placement statistics and career opportunities\n• 🎯 Admission procedures and requirements\n• 🏆 Student activities and clubs\n• 📖 Institute history and achievements\n\nWhat would you like to know about SATI?",
             "timestamp": datetime.now().strftime("%H:%M:%S"),
         }
     )
@@ -143,13 +150,20 @@ def get_groq_response(user_message, model_name):
 
         client = Groq(api_key=groq_api_key)
 
-        # Create chat completion
+        # Get contextual prompt with SATI knowledge
+        contextual_prompt = get_contextual_prompt(user_message)
+
+        # Create chat completion with system prompt and user message
         chat_completion = client.chat.completions.create(
             messages=[
                 {
+                    "role": "system",
+                    "content": contextual_prompt,
+                },
+                {
                     "role": "user",
                     "content": user_message,
-                }
+                },
             ],
             model=model_name,
             temperature=0.7,
@@ -168,6 +182,41 @@ def get_groq_response(user_message, model_name):
         return f"❌ Groq API Error: {str(e)}"
 
 
+# GOOGLE GEMINI API INTEGRATION
+def get_gemini_response(user_message):
+    """
+    Function to get response from Google Gemini API.
+    Uses the free Gemini model (gemini-1.5-flash).
+    """
+    try:
+        # Get Gemini API key
+        try:
+            gemini_api_key = st.secrets["GEMINI_API_KEY"]
+        except KeyError:
+            # Fallback to environment variable for local development
+            gemini_api_key = os.getenv("GEMINI_API_KEY")
+            if not gemini_api_key:
+                return "❌ Error: GEMINI_API_KEY not found in secrets or environment variables"
+
+        # Configure Gemini API
+        genai.configure(api_key=gemini_api_key)
+
+        # Get contextual prompt with SATI knowledge
+        contextual_prompt = get_contextual_prompt(user_message)
+
+        # Use the free Gemini model
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        # Generate response with contextual prompt
+        full_prompt = f"{contextual_prompt}\n\nUser Query: {user_message}"
+        response = model.generate_content(full_prompt)
+
+        return response.text.strip()
+
+    except Exception as e:
+        return f"❌ Gemini API Error: {str(e)}"
+
+
 # OLLAMA INTEGRATION - DYNAMIC MODEL SELECTION
 def get_ollama_response(user_message, model_name):
     """
@@ -182,9 +231,14 @@ def get_ollama_response(user_message, model_name):
 
         if model_name == "qwen3":
             model_name = "qwen3:0.6b"
+
+        # Get contextual prompt with SATI knowledge
+        contextual_prompt = get_contextual_prompt(user_message)
+        full_prompt = f"{contextual_prompt}\n\nUser Query: {user_message}"
+
         payload = {
             "model": model_name,
-            "prompt": user_message,
+            "prompt": full_prompt,
             "stream": False,  # Set to False to get complete response at once
         }
         print(payload)
@@ -222,20 +276,30 @@ def get_ollama_response(user_message, model_name):
 
 def get_bot_response(user_message, model_name, api_provider):
     """
-    Unified function to get response from either Ollama or Groq API
+    Unified function to get response from Ollama, Groq, or Gemini API
     """
     if api_provider == "groq":
         return get_groq_response(user_message, model_name)
+    elif api_provider == "gemini":
+        return get_gemini_response(user_message)
     else:
         return get_ollama_response(user_message, model_name)
 
 
 # App Title
-st.title(f"🤖 SATI Chatbot - Hybrid AI")
-provider_display = (
-    "Groq Cloud" if st.session_state.api_provider == "groq" else "Ollama Local"
+st.title(f"🎓 SATI AI Assistant - Your Institute Guide")
+if st.session_state.api_provider == "groq":
+    provider_display = "Groq Cloud"
+elif st.session_state.api_provider == "gemini":
+    provider_display = "Google Gemini"
+else:
+    provider_display = "Ollama Local"
+st.markdown(
+    f"*Powered by {provider_display} - Specialized for Samrat Ashok Technological Institute*"
 )
-st.markdown(f"*Powered by {provider_display} - Multi-Model Support*")
+st.info(
+    "💡 Ask me anything about SATI - courses, admissions, facilities, placements, hostels, and more!"
+)
 
 # Main chat area
 st.subheader("💬 Chat")
@@ -264,25 +328,34 @@ with st.form(key="chat_form", clear_on_submit=True):
 
     # Form submit button and model selector in the same row
     col1, col2 = st.columns([2, 1])
-    
+
     with col1:
         send_button = st.form_submit_button("📤 Send Message", type="primary")
-    
+
     with col2:
         # Display current model info (read-only)
         if st.session_state.api_provider == "groq":
-            if st.session_state.selected_model in ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "gemma2-9b-it"]:
-                model_display = f"🟢 {st.session_state.selected_model.split('-')[0].upper()}"
+            if st.session_state.selected_model in [
+                "llama-3.1-8b-instant",
+                "llama-3.3-70b-versatile",
+                "gemma2-9b-it",
+            ]:
+                model_display = (
+                    f"🟢 {st.session_state.selected_model.split('-')[0].upper()}"
+                )
             elif st.session_state.selected_model == "deepseek-r1-distill-llama-70b":
                 model_display = f"🧠 DeepSeek"
             else:
-                model_display = f"🔵 {st.session_state.selected_model.split('-')[0].upper()}"
+                model_display = (
+                    f"🔵 {st.session_state.selected_model.split('-')[0].upper()}"
+                )
         else:
             model_display = f"🤖 {st.session_state.selected_model}"
-        
+
         # st.info(f"**Current:** {model_display}")
 
 # Model selector outside the form for immediate response (positioned below the form)
+# Only show model selector for Groq and Ollama, not for Gemini
 if st.session_state.api_provider == "groq":
     # Format function for Groq models (same as sidebar)
     def format_groq_model_name(model_name):
@@ -297,7 +370,7 @@ if st.session_state.api_provider == "groq":
             return f"🧠 {model_name} (Reasoning)"
         else:
             return f"🔵 {model_name} (Legacy)"
-    
+
     selected_model_main = st.selectbox(
         "Choose Groq AI Model:",
         options=st.session_state.groq_models,
@@ -307,20 +380,20 @@ if st.session_state.api_provider == "groq":
             else 0
         ),
         format_func=format_groq_model_name,
-        key="main_groq_model_selector"
+        key="main_groq_model_selector",
     )
-    
+
     # Update selected model if changed
     if selected_model_main != st.session_state.selected_model:
         st.session_state.selected_model = selected_model_main
         st.success(f"✅ Switched to {st.session_state.selected_model}")
         st.rerun()
-        
-else:
+
+elif st.session_state.api_provider == "ollama":
     # Ollama model selector
     if not st.session_state.available_models:
         st.session_state.available_models = get_available_models()
-    
+
     if st.session_state.available_models:
         selected_model_main = st.selectbox(
             "Choose Ollama AI Model:",
@@ -330,9 +403,9 @@ else:
                 if st.session_state.selected_model in st.session_state.available_models
                 else 0
             ),
-            key="main_ollama_model_selector"
+            key="main_ollama_model_selector",
         )
-        
+
         # Update selected model if changed
         if selected_model_main != st.session_state.selected_model:
             st.session_state.selected_model = selected_model_main
@@ -340,6 +413,8 @@ else:
             st.rerun()
     else:
         st.error("No Ollama models available")
+
+# For Gemini, no model selector is shown (it uses gemini-1.5-flash by default)
 
 # Other buttons outside the form
 col1, col2 = st.columns([1, 1])
@@ -417,12 +492,12 @@ with st.sidebar:
 
     # Determine available providers based on environment
     if is_production():
-        # In production, only show Groq
-        available_providers = ["groq"]
+        # In production, show cloud APIs (Groq and Gemini)
+        available_providers = ["groq", "gemini"]
         st.info("🌐 Running in production - Only cloud APIs available")
     else:
-        # Locally, show both options (Groq first as default)
-        available_providers = ["groq", "ollama"]
+        # Locally, show all options (Groq first as default)
+        available_providers = ["groq", "gemini", "ollama"]
 
     # API Provider selector
     api_provider = st.selectbox(
@@ -433,9 +508,11 @@ with st.sidebar:
             if st.session_state.api_provider in available_providers
             else 0
         ),
-        help="Select between Ollama (local) or Groq (cloud) API",
+        help="Select between Ollama (local), Groq (cloud), or Gemini (cloud) API",
         format_func=lambda x: (
-            "🏠 Ollama (Local)" if x == "ollama" else "☁️ Groq (Cloud)"
+            "🏠 Ollama (Local)"
+            if x == "ollama"
+            else "☁️ Groq (Cloud)" if x == "groq" else "🧠 Google Gemini (Cloud)"
         ),
         key="api_provider_selector",
     )
@@ -446,7 +523,9 @@ with st.sidebar:
         # Reset model selection when switching providers
         if api_provider == "groq":
             st.session_state.selected_model = st.session_state.groq_models[0]
-        else:
+        elif api_provider == "gemini":
+            st.session_state.selected_model = "gemini-1.5-flash"  # Default Gemini model
+        else:  # ollama
             st.session_state.available_models = get_available_models()
             if st.session_state.available_models:
                 st.session_state.selected_model = st.session_state.available_models[0]
@@ -454,7 +533,10 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    st.header("🤖 Model Selection")
+
+    # Only show model selection for Groq and Ollama, not for Gemini
+    if st.session_state.api_provider != "gemini":
+        st.header("🤖 Model Selection")
 
     if st.session_state.api_provider == "ollama":
         # Refresh models button for Ollama
@@ -480,7 +562,7 @@ with st.sidebar:
                     else 0
                 ),
                 help="Select which Ollama model to use for responses",
-                key="sidebar_ollama_model_selector"
+                key="sidebar_ollama_model_selector",
             )
 
             # Update selected model if changed
@@ -536,7 +618,7 @@ with st.sidebar:
             ),
             help="Select which Groq model to use for responses. Latest models are recommended for better performance.",
             format_func=format_model_name,
-            key="sidebar_groq_model_selector"
+            key="sidebar_groq_model_selector",
         )
 
         # Update selected model if changed
@@ -592,7 +674,7 @@ with st.sidebar:
                 st.error("❌ Ollama not running")
                 st.info("Start Ollama: `ollama serve`")
 
-    else:  # Groq API
+    elif st.session_state.api_provider == "groq":
         st.header("☁️ Groq API Status")
 
         groq_api_key = os.getenv("GROQ_API_KEY")
@@ -602,6 +684,17 @@ with st.sidebar:
         else:
             st.error("❌ Groq API key not configured")
             st.info("Set GROQ_API_KEY in .env file")
+
+    else:  # Gemini API
+        st.header("🧠 Google Gemini API Status")
+
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if gemini_api_key:
+            st.success("✅ Gemini API key configured")
+            st.success("✅ Using gemini-1.5-flash (Free Model)")
+        else:
+            st.error("❌ Gemini API key not configured")
+            st.info("Set GEMINI_API_KEY in .env file")
 
     st.markdown("---")
 
@@ -618,51 +711,80 @@ with st.sidebar:
 
     st.markdown("---")
 
-    st.header("📋 Available Models")
-    if st.session_state.api_provider == "ollama":
-        if st.session_state.available_models:
-            for i, model in enumerate(st.session_state.available_models, 1):
+    # Only show Available Models section for providers that have multiple models
+    if st.session_state.api_provider != "gemini":
+        st.header("📋 Available Models")
+        if st.session_state.api_provider == "ollama":
+            if st.session_state.available_models:
+                for i, model in enumerate(st.session_state.available_models, 1):
+                    if model == st.session_state.selected_model:
+                        st.write(f"{i}. **{model}** ← *Current*")
+                    else:
+                        st.write(f"{i}. {model}")
+            else:
+                st.write("No Ollama models found")
+        else:  # Groq API
+            for i, model in enumerate(st.session_state.groq_models, 1):
                 if model == st.session_state.selected_model:
                     st.write(f"{i}. **{model}** ← *Current*")
                 else:
                     st.write(f"{i}. {model}")
-        else:
-            st.write("No Ollama models found")
-    else:  # Groq API
-        for i, model in enumerate(st.session_state.groq_models, 1):
-            if model == st.session_state.selected_model:
-                st.write(f"{i}. **{model}** ← *Current*")
-            else:
-                st.write(f"{i}. {model}")
 
     st.markdown("---")
 
     st.header("⚙️ Configuration")
     st.write(f"**API Provider:** {st.session_state.api_provider.upper()}")
-    st.write(f"**Active Model:** {st.session_state.selected_model}")
+    if st.session_state.api_provider != "gemini":
+        st.write(f"**Active Model:** {st.session_state.selected_model}")
     if st.session_state.api_provider == "ollama":
         st.write("**Endpoint:** http://localhost:11434")
         st.write("**Timeout:** 60 seconds")
-    else:
+    elif st.session_state.api_provider == "groq":
         st.write("**Endpoint:** Groq Cloud API")
         st.write("**Max Tokens:** 1024")
+    else:  # gemini
+        st.write("**Model:** gemini-1.5-flash (Free)")
+        st.write("**Endpoint:** Google Gemini API")
 
     st.header("✨ Features")
-    st.write("✅ Hybrid API support (Ollama + Groq)")
+    st.write("✅ SATI-specialized knowledge base")
+    st.write("✅ Hybrid API support (Ollama + Groq + Gemini)")
     st.write("✅ Multi-model support")
     st.write("✅ Dynamic provider switching")
     st.write("✅ Dynamic model switching")
     st.write("✅ Real-time status monitoring")
     st.write("✅ Chat export functionality")
 
+    st.markdown("---")
+
+    st.header("🎓 About SATI")
+    st.write("**Samrat Ashok Technological Institute**")
+    st.write("📍 Vidisha, Madhya Pradesh")
+    st.write("📅 Established: 1960")
+    st.write("🏛️ Autonomous Engineering College")
+    st.write("🎯 85-acre campus")
+    st.write("👥 9 UG + 16 PG programs")
+    st.write("🏆 NAAC & NBA accredited")
+
+    with st.expander("🔍 Quick SATI Facts"):
+        st.write("• Founded by Maharaja Jiwajirao Scindia")
+        st.write("• Foundation stone by PM Nehru (1962)")
+        st.write("• Named after Emperor Ashoka")
+        st.write("• Alumni: Nobel laureate Kailash Satyarthi")
+        st.write("• Highest placement: ₹21 LPA")
+        st.write("• 6 hostels (325+200 capacity)")
+        st.write("• 70,000+ library volumes")
+
 # Footer
 st.markdown("---")
 st.markdown(
-    "**Instructions:** Select your preferred API provider (Ollama or Groq), choose a model, then type a message and click 'Send Message' to start chatting!"
+    "**Instructions:** Select your preferred AI provider, choose a model, then ask me anything about SATI - courses, admissions, facilities, placements, hostels, history, and more!"
 )
 if st.session_state.api_provider == "ollama":
     st.markdown(
         "*Note: Make sure Ollama is running locally with your selected model available.*"
     )
-else:
+elif st.session_state.api_provider == "groq":
     st.markdown("*Note: Make sure your Groq API key is configured in the .env file.*")
+else:  # gemini
+    st.markdown("*Note: Make sure your Gemini API key is configured in the .env file.*")
