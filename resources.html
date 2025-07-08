@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - SATI ChatBot</title>
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
+    <meta name="description"
+        content="SATI - Hybrid AI Chatbot with dual API support (Google gemini + Groq cloud). Resources provider.">
+    <meta name="keywords"
+        content="SATI ChatBot, SATI, AI, chatbot, hybrid AI, dual API, dynamic model switching, real-time chat, export functionality, modern Streamlit UI, cloud-based AI interactions, Resources, Student Helper">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/images/preview.png">
+    <meta name="author" content="Team FluxoNauts">
+    <meta name="og:url" content="https://safal-tiwari.github.io/SATI-ChatBot/resources">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="stylesheet" href="resources.css">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('light') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-robot"></i>
+                <span>SATI ChatBot</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="resources.html" class="nav-link active">Resources</a>
+                <a href="#" class="nav-link" onclick="showComingSoon('About')">About</a>
+                <a href="#" class="nav-link" onclick="showComingSoon('Contact Us')">Contact Us</a>
+                <div class="profile-dropdown">
+                    <div class="profile-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a href="#"><i class="fas fa-user"></i> Profile</a>
+                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                        <a href="#"><i class="fas fa-history"></i> History</a>
+                        <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                <button class="dark-mode-toggle" id="darkModeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <div class="sidebar-header">
+                <h2>Resources</h2>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" data-category="notes">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>Notes</span>
+                </div>
+                <div class="menu-item" data-category="practical">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Practical Assignment</span>
+                </div>
+                <div class="menu-item" data-category="test-papers">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Test Papers</span>
+                </div>
+                <div class="menu-item dropdown-item" data-category="syllabus">
+                    <i class="fas fa-book"></i>
+                    <span>Syllabus</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="dropdown-content" id="syllabusDropdown">
+                    <div class="sub-menu-item" data-branch="cse" data-category="syllabus">B.Tech CSE</div>
+                    <div class="sub-menu-item" data-branch="ece" data-category="syllabus">B.Tech ECE</div>
+                    <div class="sub-menu-item" data-branch="me" data-category="syllabus">B.Tech ME</div>
+                    <div class="sub-menu-item" data-branch="ee" data-category="syllabus">B.Tech EE</div>
+                    <div class="sub-menu-item" data-branch="ce" data-category="syllabus">B.Tech CE</div>
+                    <div class="sub-menu-item" data-branch="iot" data-category="syllabus">B.Tech IoT</div>
+                    <div class="sub-menu-item" data-branch="it" data-category="syllabus">B.Tech IT</div>
+                    <div class="sub-menu-item" data-branch="bct" data-category="syllabus">B.Tech BCT</div>
+                    <div class="sub-menu-item" data-branch="aiads" data-category="syllabus">B.Tech AIADS</div>
+                    <div class="sub-menu-item" data-branch="aiaml" data-category="syllabus">B.Tech AIAML</div>
+                </div>
+                <div class="menu-item dropdown-item" data-category="pyqs">
+                    <i class="fas fa-question-circle"></i>
+                    <span>PYQs</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="dropdown-content" id="pyqsDropdown">
+                    <div class="sub-menu-item" data-branch="cse" data-category="pyqs">B.Tech CSE</div>
+                    <div class="sub-menu-item" data-branch="ece" data-category="pyqs">B.Tech ECE</div>
+                    <div class="sub-menu-item" data-branch="me" data-category="pyqs">B.Tech ME</div>
+                    <div class="sub-menu-item" data-branch="ee" data-category="pyqs">B.Tech EE</div>
+                    <div class="sub-menu-item" data-branch="ce" data-category="pyqs">B.Tech CE</div>
+                    <div class="sub-menu-item" data-branch="iot" data-category="pyqs">B.Tech IoT</div>
+                    <div class="sub-menu-item" data-branch="it" data-category="pyqs">B.Tech IT</div>
+                    <div class="sub-menu-item" data-branch="bct" data-category="pyqs">B.Tech BCT</div>
+                    <div class="sub-menu-item" data-branch="aiads" data-category="pyqs">B.Tech AIADS</div>
+                    <div class="sub-menu-item" data-branch="aiaml" data-category="pyqs">B.Tech AIAML</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Preview Container -->
+        <main class="main-preview">
+            <div class="preview-header">
+                <h1 id="previewTitle">Object Oriented Programming - Notes</h1>
+            </div>
+            <div class="preview-container">
+                <div class="loading-spinner" id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading preview...</p>
+                </div>
+                <iframe id="pdfPreview" src="" frameborder="0"></iframe>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="downloadBtn">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </button>
+                <button class="btn btn-secondary" id="shareBtn">
+                    <i class="fas fa-share"></i>
+                    Share PDF
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search resources...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="resource-list" id="resourceList">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About SATI ChatBot</h3>
+                <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="#" onclick="showComingSoon('About')">About</a></li>
+                    <li><a href="#" onclick="showComingSoon('Contact')">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect with Us</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
+                            class="fab fa-linkedin"></i></a>
+                    <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SATI ChatBot. Made with ❤️ by Team FluxNauts.</p>
+        </div>
+    </footer>
+
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Resource</h3>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Share this resource with others:</p>
+                <div class="share-link-container">
+                    <input type="text" id="shareLink" readonly>
+                    <button class="btn btn-primary" id="copyLinkBtn">
+                        <i class="fas fa-copy"></i>
+                        Copy
+                    </button>
+                </div>
+                <div class="share-options">
+                    <button class="share-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        WhatsApp
+                    </button>
+                    <button class="share-btn telegram">
+                        <i class="fab fa-telegram"></i>
+                        Telegram
+                    </button>
+                    <button class="share-btn email">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="resources.js"></script>
+</body>
+
+</html>

@@ -15,7 +15,7 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="/images/preview.png">
     <meta name="author" content="Team FluxoNauts">
-    <meta name="og:url" content="">
+    <meta name="og:url" content="https://safal-tiwari.github.io/SATI-ChatBot/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="robots" content="index, follow">
     <!-- Font Awesome for icons -->
@@ -25,12 +25,20 @@
 
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Prevent theme flash by applying theme immediately -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('light') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 
 <body>
     <!-- Main Container -->
     <div class="app-container" id="appContainer">
-        
+
         <!-- Sidebar Toggle Button (Outside Sidebar) -->
         <button class="sidebar-toggle" id="sidebarToggle">
             <i class="fas fa-bars"></i>
@@ -196,8 +204,7 @@
                         <i class="fas fa-paperclip"></i>
                     </button>
                     <div class="input-wrapper">
-                        <textarea id="messageInput" placeholder="Ask anything" rows="1"
-                            maxlength="2000"></textarea>
+                        <textarea id="messageInput" placeholder="Ask anything" rows="1" maxlength="2000"></textarea>
                         <div class="input-actions">
                             <select id="modelSelect" class="model-select" title="Select AI Model">
                                 <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
