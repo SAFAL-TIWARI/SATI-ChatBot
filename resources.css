@@ -236,11 +236,12 @@ body {
 }
 
 .sub-menu-item {
-    padding: 10px 20px 10px 50px;
+    padding: 10px 1px;
     cursor: pointer;
     transition: var(--transition);
     font-size: 0.9rem;
     border-left: 3px solid transparent;
+    text-align: center;
 }
 
 .sub-menu-item:hover {
