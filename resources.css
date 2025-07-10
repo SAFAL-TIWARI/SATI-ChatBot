@@ -56,6 +56,7 @@ body {
     justify-content: space-between;
     align-items: center;
     height: 70px;
+    position: relative;
 }
 
 .nav-logo {
@@ -114,7 +115,7 @@ body {
     display: none;
     position: absolute;
     right: 0;
-    top: 100%;
+    top: 45%;
     background: var(--card-bg);
     min-width: 180px;
     box-shadow: var(--shadow);
@@ -173,6 +174,7 @@ body {
     top: 70px;
     height: calc(100vh - 70px);
     overflow-y: auto;
+    min-height: fit-content;
 }
 
 .sidebar-header {
@@ -225,23 +227,31 @@ body {
     transform: rotate(180deg);
 }
 
-.dropdown-content {
-    display: none;
+.sidebar-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
     background: var(--bg-color);
+    margin-left: 0;
+    padding-left: 0;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.sidebar-dropdown-content.show {
+    max-height: 500px;
     border-top: 1px solid var(--border-color);
 }
 
-.dropdown-content.show {
-    display: block;
-}
-
 .sub-menu-item {
-    padding: 10px 1px;
+    padding: 12px 20px;
     cursor: pointer;
     transition: var(--transition);
     font-size: 0.9rem;
     border-left: 3px solid transparent;
-    text-align: center;
+    text-align: left;
+    margin-left: 35px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .sub-menu-item:hover {
@@ -252,6 +262,16 @@ body {
 .sub-menu-item.active {
     background: rgba(0, 200, 83, 0.1);
     border-left-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.sub-menu-item i {
+    font-size: 1rem;
+    width: 20px;
+    color: var(--text-secondary);
+}
+
+.sub-menu-item.active i {
     color: var(--accent-color);
 }
 
@@ -651,21 +671,98 @@ body {
     }
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(25, 118, 210, 0.1);
+    color: var(--primary-color);
+}
+
+/* Mobile Navigation Menu */
+.mobile-nav-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+    background: rgba(25, 118, 210, 0.1);
+    color: var(--primary-color);
+}
+
+.mobile-nav-link:last-child {
+    border-bottom: none;
+}
+
+.mobile-nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+.mobile-nav-menu.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media (max-width: 768px) {
     .nav-container {
         padding: 0 15px;
     }
     
     .nav-menu {
-        gap: 10px;
+        gap: 15px;
     }
     
+    /* Hide desktop navigation links and profile dropdown on mobile */
     .nav-link {
         display: none;
     }
     
-    .nav-link.active {
+    .profile-dropdown {
+        display: none;
+    }
+    
+    /* Show mobile menu toggle and keep dark mode toggle */
+    .mobile-menu-toggle {
         display: block;
+    }
+    
+    .dark-mode-toggle {
+        display: block;
+        order: -1; /* Move dark mode toggle to the left of mobile menu toggle */
     }
     
     .preview-container {
@@ -689,6 +786,19 @@ body {
     
     .social-links {
         justify-content: center;
+    }
+    
+    /* Mobile-specific sidebar improvements */
+    .sub-menu-item {
+        margin-left: 20px;
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+    
+    .sidebar-dropdown-content {
+        border-left: 2px solid var(--accent-color);
+        margin-left: 10px;
+        border-top: none;
     }
 }
 
