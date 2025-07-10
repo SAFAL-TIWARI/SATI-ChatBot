@@ -1,0 +1,573 @@
+// SATI ChatBot - API Integration for Groq and Gemini
+// Direct API calls from JavaScript with smart response system
+
+class APIManager {
+    constructor() {
+        // API Configuration
+        this.groqConfig = {
+            baseURL: 'https://api.groq.com/openai/v1/chat/completions',
+            models: [
+                'llama-3.1-8b-instant',
+                'llama-3.3-70b-versatile', 
+                'gemma2-9b-it',
+                'deepseek-r1-distill-llama-70b',
+                'llama3-8b-8192',
+                'llama3-70b-8192'
+            ]
+        };
+
+        this.geminiConfig = {
+            baseURL: 'https://generativelanguage.googleapis.com/v1beta/models',
+            models: [
+                'gemini-1.5-flash',
+                'gemini-1.5-pro'
+            ]
+        };
+
+        // Get API keys from configuration
+        this.groqApiKey = window.API_CONFIG?.GROQ_API_KEY || '';
+        this.geminiApiKey = window.API_CONFIG?.GEMINI_API_KEY || '';
+        
+        // Default provider
+        this.currentProvider = localStorage.getItem('sati_api_provider') || window.API_CONFIG?.DEFAULT_PROVIDER || 'groq';
+        this.currentModel = localStorage.getItem('sati_selected_model') || window.API_CONFIG?.DEFAULT_MODEL || 'llama-3.1-8b-instant';
+        
+        // Debug information
+        console.log('API Manager initialized:', {
+            configAvailable: !!window.API_CONFIG,
+            groqKeyPresent: !!this.groqApiKey,
+            geminiKeyPresent: !!this.geminiApiKey,
+            groqConfigured: this.isGroqConfigured(),
+            geminiConfigured: this.isGeminiConfigured(),
+            currentProvider: this.currentProvider,
+            currentModel: this.currentModel
+        });
+        
+        // Warn if no API keys are configured
+        if (!this.isGroqConfigured() && !this.isGeminiConfigured()) {
+            console.warn('⚠️ No API keys configured! Please check your configuration.');
+        }
+    }
+
+    // API keys are now pre-configured in config.js
+    // These methods are kept for backward compatibility but don't store keys
+    setGroqApiKey(apiKey) {
+        console.log('API keys are pre-configured. This method is deprecated.');
+    }
+
+    setGeminiApiKey(apiKey) {
+        console.log('API keys are pre-configured. This method is deprecated.');
+    }
+
+    // Set current provider and model
+    setProvider(provider) {
+        this.currentProvider = provider;
+        localStorage.setItem('sati_api_provider', provider);
+    }
+
+    setModel(model) {
+        this.currentModel = model;
+        localStorage.setItem('sati_selected_model', model);
+    }
+
+    // Check if API keys are configured
+    isGroqConfigured() {
+        const configured = this.groqApiKey && this.groqApiKey.length > 0 && this.groqApiKey !== 'null' && this.groqApiKey !== 'undefined';
+        console.log('Groq configured check:', { 
+            key: this.groqApiKey ? `${this.groqApiKey.substring(0, 10)}...` : 'null',
+            length: this.groqApiKey?.length,
+            configured 
+        });
+        return configured;
+    }
+
+    isGeminiConfigured() {
+        const configured = this.geminiApiKey && this.geminiApiKey.length > 0 && this.geminiApiKey !== 'null' && this.geminiApiKey !== 'undefined';
+        console.log('Gemini configured check:', { 
+            key: this.geminiApiKey ? `${this.geminiApiKey.substring(0, 10)}...` : 'null',
+            length: this.geminiApiKey?.length,
+            configured 
+        });
+        return configured;
+    }
+
+    // Main function to send message with smart routing
+    async sendMessage(userMessage, controller = null) {
+        try {
+            // Determine if query is SATI-related
+            const isSATIQuery = isSATIRelated(userMessage);
+            
+            let prompt;
+            if (isSATIQuery) {
+                // Use SATI-specific context for SATI queries
+                prompt = getContextualPrompt(userMessage);
+            } else {
+                // Use general prompt for non-SATI queries
+                prompt = `You are a helpful AI assistant. Please provide a comprehensive and accurate response to the following question: ${userMessage}`;
+            }
+
+            // Route to appropriate API based on current provider
+            if (this.currentProvider === 'groq') {
+                return await this.sendGroqMessage(prompt, 0, controller);
+            } else if (this.currentProvider === 'gemini') {
+                return await this.sendGeminiMessage(prompt, controller);
+            } else {
+                throw new Error('Invalid API provider selected');
+            }
+
+        } catch (error) {
+            console.error('Error in sendMessage:', error);
+            
+            // Re-throw AbortError so it can be handled properly by the caller
+            if (error.name === 'AbortError') {
+                throw error;
+            }
+            
+            return this.getErrorResponse(error);
+        }
+    }
+
+    // Groq API integration with retry logic
+    async sendGroqMessage(prompt, retryCount = 0, controller = null) {
+        if (!this.isGroqConfigured()) {
+            throw new Error('Groq API key not configured. Please set your API key in settings.');
+        }
+
+        const maxRetries = 3;
+        const baseDelay = 1000; // 1 second
+
+        try {
+            console.log('Making Groq API call:', {
+                model: this.currentModel,
+                hasApiKey: !!this.groqApiKey,
+                keyPrefix: this.groqApiKey ? this.groqApiKey.substring(0, 10) + '...' : 'none'
+            });
+
+            const response = await fetch(this.groqConfig.baseURL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.groqApiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: this.currentModel,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 1024,
+                    stream: false
+                }),
+                signal: controller?.signal
+            });
+
+            console.log('Groq API response status:', response.status);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error?.message || 'Unknown error';
+                
+                console.error('Groq API error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                    errorMessage
+                });
+                
+                // Handle 503 Service Unavailable with retry
+                if (response.status === 503 && retryCount < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, retryCount);
+                    console.log(`Groq API unavailable (503), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    
+                    // Notify user about retry attempt
+                    if (window.toast) {
+                        window.toast.show(
+                            `🔄 Service unavailable, retrying in ${Math.round(delay/1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            'warning',
+                            delay
+                        );
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return await this.sendGroqMessage(prompt, retryCount + 1, controller);
+                }
+                
+                // Handle 429 Rate Limit with retry
+                if (response.status === 429 && retryCount < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, retryCount);
+                    console.log(`Groq API rate limited (429), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return await this.sendGroqMessage(prompt, retryCount + 1, controller);
+                }
+                
+                throw new Error(`Groq API Error: ${response.status} - ${errorMessage}`);
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content.trim();
+            
+        } catch (error) {
+            // If it's a network error and we haven't exceeded retries, try again
+            if (error.name === 'TypeError' && error.message.includes('fetch') && retryCount < maxRetries) {
+                const delay = baseDelay * Math.pow(2, retryCount);
+                console.log(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return await this.sendGroqMessage(prompt, retryCount + 1);
+            }
+            
+            throw error;
+        }
+    }
+
+    // Gemini API integration with retry logic
+    async sendGeminiMessage(prompt, controller = null, retryCount = 0) {
+        if (!this.isGeminiConfigured()) {
+            throw new Error('Gemini API key not configured. Please set your API key in settings.');
+        }
+
+        const model = this.currentModel.includes('gemini') ? this.currentModel : 'gemini-1.5-flash';
+        const url = `${this.geminiConfig.baseURL}/${model}:generateContent?key=${this.geminiApiKey}`;
+        const maxRetries = 3;
+        const baseDelay = 1000; // 1 second
+
+        try {
+            console.log('Making Gemini API call:', {
+                model,
+                hasApiKey: !!this.geminiApiKey,
+                keyPrefix: this.geminiApiKey ? this.geminiApiKey.substring(0, 10) + '...' : 'none'
+            });
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 1024
+                    }
+                }),
+                signal: controller?.signal
+            });
+
+            console.log('Gemini API response status:', response.status);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error?.message || 'Unknown error';
+                
+                console.error('Gemini API error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorData,
+                    errorMessage
+                });
+                
+                // Handle 503 Service Unavailable (overloaded) with retry
+                if (response.status === 503 && retryCount < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, retryCount); // Exponential backoff
+                    console.log(`Gemini API overloaded (503), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    
+                    // Notify user about retry attempt
+                    if (window.toast) {
+                        window.toast.show(
+                            `🔄 Model overloaded, retrying in ${Math.round(delay/1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            'warning',
+                            delay
+                        );
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
+                }
+                
+                // Handle 429 Rate Limit with retry
+                if (response.status === 429 && retryCount < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, retryCount);
+                    console.log(`Gemini API rate limited (429), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
+                }
+                
+                throw new Error(`Gemini API Error: ${response.status} - ${errorMessage}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                throw new Error('Invalid response from Gemini API');
+            }
+
+            return data.candidates[0].content.parts[0].text.trim();
+            
+        } catch (error) {
+            // If it's a network error and we haven't exceeded retries, try again
+            if (error.name === 'TypeError' && error.message.includes('fetch') && retryCount < maxRetries) {
+                const delay = baseDelay * Math.pow(2, retryCount);
+                console.log(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
+            }
+            
+            throw error;
+        }
+    }
+
+    // Test API connection
+    async testConnection(provider = null) {
+        const testProvider = provider || this.currentProvider;
+        
+        try {
+            if (testProvider === 'groq') {
+                await this.sendGroqMessage('Hello, this is a test message.', 0);
+                return { success: true, message: 'Groq API connection successful' };
+            } else if (testProvider === 'gemini') {
+                await this.sendGeminiMessage('Hello, this is a test message.', 0);
+                return { success: true, message: 'Gemini API connection successful' };
+            }
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    }
+
+    // Get available models for current provider
+    getAvailableModels() {
+        if (this.currentProvider === 'groq') {
+            return this.groqConfig.models;
+        } else if (this.currentProvider === 'gemini') {
+            return this.geminiConfig.models;
+        }
+        return [];
+    }
+
+    // Format model name for display
+    formatModelName(modelName) {
+        const modelInfo = {
+            'llama-3.1-8b-instant': '🟢 Llama 3.1 8B (Latest)',
+            'llama-3.3-70b-versatile': '🟢 Llama 3.3 70B (Latest)', 
+            'gemma2-9b-it': '🟢 Gemma2 9B (Latest)',
+            'deepseek-r1-distill-llama-70b': '🧠 DeepSeek R1 (Reasoning)',
+            'llama3-8b-8192': '🔵 Llama3 8B (Legacy)',
+            'llama3-70b-8192': '🔵 Llama3 70B (Legacy)',
+            'gemini-1.5-flash': '⚡ Gemini 1.5 Flash',
+            'gemini-1.5-pro': '🚀 Gemini 1.5 Pro'
+        };
+
+        return modelInfo[modelName] || modelName;
+    }
+
+    // Error response handler
+    getErrorResponse(error) {
+        const errorMessage = error.message || 'Unknown error occurred';
+        
+        // Handle AbortError (user stopped generation)
+        if (error.name === 'AbortError' || errorMessage.includes('aborted')) {
+            return null; // Return null to indicate this should be handled by the caller
+        }
+        
+        if (errorMessage.includes('API key')) {
+            // Provide detailed debug information for API key issues
+            const debugInfo = {
+                groqConfigured: this.isGroqConfigured(),
+                geminiConfigured: this.isGeminiConfigured(),
+                currentProvider: this.currentProvider,
+                configAvailable: !!window.API_CONFIG,
+                groqKeyPresent: !!this.groqApiKey,
+                geminiKeyPresent: !!this.geminiApiKey
+            };
+            
+            console.error('API Configuration Debug Info:', debugInfo);
+            
+            return `❌ **API Configuration Error**\n\n${errorMessage}\n\n**Debug Info:**\n- Groq API Key: ${debugInfo.groqKeyPresent ? 'Present' : 'Missing'}\n- Gemini API Key: ${debugInfo.geminiKeyPresent ? 'Present' : 'Missing'}\n- Current Provider: ${this.currentProvider}\n- Config Available: ${debugInfo.configAvailable ? 'Yes' : 'No'}\n\nPlease check the configuration file or contact support.`;
+        } else if (errorMessage.includes('503') && errorMessage.includes('overloaded')) {
+            const alternatives = this.getAlternativeModels();
+            let suggestionText = '';
+            
+            if (alternatives.length > 0) {
+                suggestionText = '\n\n**Recommended alternatives:**\n';
+                alternatives.slice(0, 3).forEach((alt, index) => {
+                    suggestionText += `${index + 1}. Switch to ${this.formatModelName(alt.model)} (${alt.reason})\n`;
+                });
+            }
+            
+            return `🔄 **Service Temporarily Overloaded**\n\nThe AI model is currently experiencing high demand and is overloaded. The system has automatically attempted to retry your request.\n\n**What you can do:**\n• Wait a few minutes and try again\n• Try one of the alternative models below${suggestionText}\n\nThis is a temporary issue on the provider's servers and should resolve shortly.`;
+        } else if (errorMessage.includes('503')) {
+            return `🔄 **Service Unavailable**\n\nThe AI service is temporarily unavailable. The system has automatically attempted to retry your request.\n\n**What you can do:**\n• Wait a few minutes and try again\n• Try switching to a different model or provider\n\nThis is usually a temporary issue that resolves quickly.`;
+        } else if (errorMessage.includes('rate limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
+            return `⏱️ **Rate Limit Exceeded**\n\nYou've reached the API rate limit. The system has automatically attempted to retry your request.\n\n**What you can do:**\n• Wait a moment before sending another message\n• Consider switching to a different provider if available`;
+        } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+            return `🌐 **Network Error**\n\nPlease check your internet connection and try again. The system has automatically attempted to retry your request.`;
+        } else {
+            return `❌ **Error**\n\n${errorMessage}\n\nPlease try again or contact support if the issue persists.`;
+        }
+    }
+
+    // Get provider status
+    getProviderStatus() {
+        return {
+            groq: {
+                configured: this.isGroqConfigured(),
+                available: this.groqConfig.models.length > 0
+            },
+            gemini: {
+                configured: this.isGeminiConfigured(),
+                available: this.geminiConfig.models.length > 0
+            },
+            current: this.currentProvider
+        };
+    }
+
+    // Get alternative models when current model is overloaded
+    getAlternativeModels() {
+        const alternatives = [];
+        
+        if (this.currentProvider === 'gemini') {
+            // If using Gemini Flash, suggest Pro
+            if (this.currentModel === 'gemini-1.5-flash') {
+                alternatives.push({
+                    provider: 'gemini',
+                    model: 'gemini-1.5-pro',
+                    reason: 'More stable, less likely to be overloaded'
+                });
+            }
+            
+            // Suggest Groq alternatives if configured
+            if (this.isGroqConfigured()) {
+                alternatives.push({
+                    provider: 'groq',
+                    model: 'llama-3.1-8b-instant',
+                    reason: 'Fast and reliable alternative'
+                });
+                alternatives.push({
+                    provider: 'groq',
+                    model: 'llama-3.3-70b-versatile',
+                    reason: 'More powerful alternative'
+                });
+            }
+        } else if (this.currentProvider === 'groq') {
+            // Suggest other Groq models
+            const otherGroqModels = this.groqConfig.models.filter(m => m !== this.currentModel);
+            otherGroqModels.slice(0, 2).forEach(model => {
+                alternatives.push({
+                    provider: 'groq',
+                    model: model,
+                    reason: 'Alternative Groq model'
+                });
+            });
+            
+            // Suggest Gemini if configured
+            if (this.isGeminiConfigured()) {
+                alternatives.push({
+                    provider: 'gemini',
+                    model: 'gemini-1.5-flash',
+                    reason: 'Google AI alternative'
+                });
+            }
+        }
+        
+        return alternatives;
+    }
+}
+
+// Initialize API Manager after DOM is loaded to ensure config is available
+let apiManager;
+
+// Function to initialize API Manager
+function initializeAPIManager(retryCount = 0) {
+    if (!apiManager) {
+        // Check if API config is available
+        if (!window.API_CONFIG || (!window.API_CONFIG.GROQ_API_KEY && !window.API_CONFIG.GEMINI_API_KEY)) {
+            if (retryCount < 5) {
+                console.log(`⏳ API keys not yet loaded, retrying in 200ms... (attempt ${retryCount + 1}/5)`);
+                setTimeout(() => initializeAPIManager(retryCount + 1), 200);
+                return;
+            } else {
+                console.error('❌ Failed to load API keys after 5 attempts');
+            }
+        }
+        
+        apiManager = new APIManager();
+        window.apiManager = apiManager;
+        console.log('✅ API Manager initialized successfully');
+    }
+}
+
+// Make initializeAPIManager available globally
+window.initializeAPIManager = initializeAPIManager;
+
+// Debug function to check API configuration
+window.debugAPIConfig = function() {
+    console.log('=== API Configuration Debug ===');
+    console.log('window.API_CONFIG:', window.API_CONFIG);
+    console.log('API Manager exists:', !!window.apiManager);
+    
+    if (window.apiManager) {
+        console.log('Groq configured:', window.apiManager.isGroqConfigured());
+        console.log('Gemini configured:', window.apiManager.isGeminiConfigured());
+        console.log('Current provider:', window.apiManager.currentProvider);
+        console.log('Current model:', window.apiManager.currentModel);
+        console.log('Provider status:', window.apiManager.getProviderStatus());
+    }
+    
+    return {
+        configExists: !!window.API_CONFIG,
+        apiManagerExists: !!window.apiManager,
+        groqKey: window.API_CONFIG?.GROQ_API_KEY ? 'Present' : 'Missing',
+        geminiKey: window.API_CONFIG?.GEMINI_API_KEY ? 'Present' : 'Missing'
+    };
+};
+
+// Initialize when DOM is ready and API keys are loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for API keys to be loaded before initializing
+        setTimeout(initializeAPIManager, 100);
+    });
+} else {
+    // DOM is already loaded, wait for API keys
+    setTimeout(initializeAPIManager, 100);
+}
+
+// Utility function to check API configuration
+function promptForApiKeys() {
+    // Check if API manager is available
+    if (!window.apiManager) {
+        return `⚠️ **System Loading**\n\nPlease wait a moment for the system to initialize and try again.`;
+    }
+    
+    const status = window.apiManager.getProviderStatus();
+    
+    // Since API keys are now pre-configured, only return error if there's a real configuration issue
+    if (!status.groq.configured && !status.gemini.configured) {
+        const message = `
+❌ **API Configuration Error**
+
+There seems to be an issue with the API configuration. Please check the configuration file or contact support.
+
+Debug Info:
+- Groq API Key: ${window.API_CONFIG?.GROQ_API_KEY ? 'Present' : 'Missing'}
+- Gemini API Key: ${window.API_CONFIG?.GEMINI_API_KEY ? 'Present' : 'Missing'}
+        `;
+        
+        return message;
+    }
+    
+    return null;
+}
+
+// Export for global use
+window.apiManager = apiManager;
+window.promptForApiKeys = promptForApiKeys;

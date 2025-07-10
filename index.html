@@ -24,6 +24,15 @@
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
 
+    <!-- SATI Knowledge Base -->
+    <script src="sati-knowledge.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- API Integration -->
+    <script src="api-integration.js"></script>
+
     <!-- Prevent theme flash by applying theme immediately -->
     <script>
         (function () {
@@ -228,6 +237,9 @@
                     </div>
                     <button class="send-btn" id="sendBtn" title="Send message">
                         <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button class="stop-btn" id="stopBtn" title="Stop generation" style="display: none;">
+                        <i class="fas fa-stop"></i>
                     </button>
                 </div>
             </div>

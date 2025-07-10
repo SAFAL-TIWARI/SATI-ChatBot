@@ -190,6 +190,26 @@ class ChatBotState {
 // Initialize global state
 const chatState = new ChatBotState();
 
+// Ensure API manager is initialized when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for all scripts to load
+    setTimeout(() => {
+        if (window.apiManager) {
+            console.log('✅ SATI ChatBot initialized successfully');
+            updateMainModelSelect(); // Initialize model selection
+        } else {
+            console.warn('⚠️ API Manager not yet available, retrying...');
+            // Retry after another second
+            setTimeout(() => {
+                if (window.apiManager) {
+                    console.log('✅ SATI ChatBot initialized successfully (retry)');
+                    updateMainModelSelect();
+                }
+            }, 1000);
+        }
+    }, 500);
+});
+
 // DOM Elements
 const elements = {
     // Sidebar
@@ -206,6 +226,7 @@ const elements = {
     typingIndicator: document.getElementById('typingIndicator'),
     messageInput: document.getElementById('messageInput'),
     sendBtn: document.getElementById('sendBtn'),
+    stopBtn: document.getElementById('stopBtn'),
     modelSelect: document.getElementById('modelSelect'),
 
     // Top bar
@@ -361,15 +382,45 @@ const modal = new ModalManager();
 // Chat Management
 class ChatManager {
     constructor() {
-        this.apiEndpoint = '/api/chat'; // This would be your backend endpoint
         this.isProcessing = false;
+        this.shouldStop = false;
+        this.currentController = null;
     }
 
     async sendMessage(content, model) {
         if (this.isProcessing) return;
 
+        // Ensure API manager is available
+        if (!window.apiManager) {
+            const errorMessage = {
+                id: utils.generateId(),
+                role: 'assistant',
+                content: '⚠️ **System Loading**\n\nPlease wait a moment for the system to initialize and try again.',
+                timestamp: new Date().toISOString()
+            };
+            chatState.currentMessages.push(errorMessage);
+            this.renderMessages();
+            return;
+        }
+
+        // Check if API is configured
+        const apiConfigMessage = promptForApiKeys();
+        if (apiConfigMessage) {
+            const errorMessage = {
+                id: utils.generateId(),
+                role: 'assistant',
+                content: apiConfigMessage,
+                timestamp: new Date().toISOString()
+            };
+            chatState.currentMessages.push(errorMessage);
+            this.renderMessages();
+            return;
+        }
+
         this.isProcessing = true;
         chatState.isTyping = true;
+        this.shouldStop = false;
+        this.showStopButton();
 
         // Add user message
         const userMessage = {
@@ -384,8 +435,16 @@ class ChatManager {
         this.showTypingIndicator();
 
         try {
-            // Simulate API call (replace with actual API integration)
-            const response = await this.simulateAPICall(content, model);
+            // Check if API manager is available
+            if (!window.apiManager) {
+                throw new Error('API manager is not initialized. Please wait a moment and try again.');
+            }
+            
+            // Create AbortController for this request
+            this.currentController = new AbortController();
+            
+            // Use the new API manager for real API calls
+            const response = await window.apiManager.sendMessage(content, this.currentController);
 
             // Add bot response
             const botMessage = {
@@ -401,99 +460,48 @@ class ChatManager {
         } catch (error) {
             console.error('Error sending message:', error);
 
-            const errorMessage = {
-                id: utils.generateId(),
-                role: 'assistant',
-                content: '❌ Sorry, I encountered an error while processing your request. Please try again.',
-                timestamp: new Date().toISOString()
-            };
+            // Handle abort error (user stopped generation)
+            if (error.name === 'AbortError' || this.shouldStop) {
+                console.log('Request was aborted by user');
+                return; // Don't show error message for user-initiated stops
+            }
 
-            chatState.currentMessages.push(errorMessage);
-            toast.show('Failed to send message', 'error');
+            // Use API manager's error response if available, otherwise use fallback
+            const errorResponse = window.apiManager ? 
+                window.apiManager.getErrorResponse(error) : 
+                `❌ **System Error**\n\n${error.message}\n\nPlease refresh the page and try again.`;
+            
+            // Only add error message if errorResponse is not null (null means it was an AbortError)
+            if (errorResponse) {
+                const errorMessage = {
+                    id: utils.generateId(),
+                    role: 'assistant',
+                    content: errorResponse,
+                    timestamp: new Date().toISOString()
+                };
+
+                chatState.currentMessages.push(errorMessage);
+            }
+            
+            // Handle model overload specifically
+            const wasOverloadHandled = handleModelOverload(error.message || '');
+            
+            if (!wasOverloadHandled) {
+                toast.show('Failed to send message', 'error');
+            }
         } finally {
             this.isProcessing = false;
             chatState.isTyping = false;
+            this.shouldStop = false;
+            this.currentController = null;
             this.hideTypingIndicator();
+            this.hideStopButton();
             this.renderMessages();
             this.updateConversationsList();
         }
     }
 
-    async simulateAPICall(content, model) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
-        // SATI-specific responses based on content
-        const responses = this.getSATIResponse(content);
-        return responses[Math.floor(Math.random() * responses.length)];
-    }
-
-    getSATIResponse(content) {
-        const lowerContent = content.toLowerCase();
-
-        if (lowerContent.includes('admission') || lowerContent.includes('eligibility')) {
-            return [
-                "🎓 **SATI Admission Information:**\n\n**Undergraduate Programs (B.Tech):**\n- Eligibility: 12th with Physics, Chemistry, Mathematics\n- Entrance: JEE Main scores accepted\n- Total Seats: 480 across all branches\n\n**Key Branches:**\n- Computer Science & Engineering (120 seats)\n- Civil Engineering (60 seats)\n- Mechanical Engineering (60 seats)\n- Electronics & Communication (60 seats)\n\n**Application Process:**\n1. Online application through RGPV portal\n2. Document verification\n3. Counseling and seat allotment\n\nWould you like specific information about any branch or the admission timeline?"
-            ];
-        }
-
-        if (lowerContent.includes('placement') || lowerContent.includes('job') || lowerContent.includes('career')) {
-            return [
-                "💼 **SATI Placement Highlights:**\n\n**Recent Statistics:**\n- Highest Package: ₹21 LPA\n- Average Package: ₹4.5 LPA\n- Placement Rate: 75%+\n\n**Top Recruiters:**\n- TCS, Infosys, Wipro\n- L&T, Bajaj Auto\n- Accenture, Cognizant\n- Various PSUs and Government organizations\n\n**Training & Development:**\n- Pre-placement training programs\n- Soft skills development\n- Technical interview preparation\n- Industry interaction sessions\n\nOur Training & Placement Cell works year-round to ensure students are industry-ready!"
-            ];
-        }
-
-        if (lowerContent.includes('hostel') || lowerContent.includes('accommodation')) {
-            return [
-                "🏠 **SATI Hostel Facilities:**\n\n**Accommodation Details:**\n- 6 Hostels on campus\n- Boys Hostels: 325 capacity\n- Girls Hostels: 200 capacity\n- Well-furnished rooms with basic amenities\n\n**Facilities:**\n- 24/7 security\n- Common rooms with TV and indoor games\n- Mess facilities with nutritious meals\n- Wi-Fi connectivity\n- Medical facilities nearby\n- Laundry services\n\n**Hostel Fees:** Approximately ₹25,000-30,000 per year\n\nThe hostels provide a safe and conducive environment for academic growth and personal development."
-            ];
-        }
-
-        if (lowerContent.includes('fee') || lowerContent.includes('cost') || lowerContent.includes('expense')) {
-            return [
-                "💰 **SATI Fee Structure:**\n\n**B.Tech Programs (Annual):**\n- Tuition Fee: ₹87,000\n- Development Fee: ₹10,000\n- Other Charges: ₹8,000\n- **Total: ₹1,05,000 per year**\n\n**Additional Costs:**\n- Hostel Fee: ₹25,000-30,000\n- Mess Charges: ₹30,000-35,000\n- Books & Supplies: ₹10,000-15,000\n\n**Scholarships Available:**\n- Merit-based scholarships\n- Government scholarships (SC/ST/OBC)\n- Financial assistance for economically weaker sections\n\nNote: Fees may vary slightly each year. Please check the official website for the most current information."
-            ];
-        }
-
-        if (lowerContent.includes('course') || lowerContent.includes('branch') || lowerContent.includes('program')) {
-            return [
-                "📚 **SATI Academic Programs:**\n\n**Undergraduate (B.Tech) - 4 Years:**\n- Computer Science & Engineering (120 seats)\n- Civil Engineering (60 seats)\n- Mechanical Engineering (60 seats)\n- Electronics & Communication Engineering (60 seats)\n- Electrical & Instrumentation Engineering (60 seats)\n- Information Technology (60 seats)\n- Electronics & Instrumentation Engineering (60 seats)\n- Automobile Engineering (60 seats)\n- Chemical Engineering (60 seats)\n\n**Postgraduate (M.Tech) - 2 Years:**\n- 16 specializations available\n- Research-oriented programs\n- Industry collaboration projects\n\n**Key Features:**\n- NAAC & NBA accredited programs\n- Industry-relevant curriculum\n- Experienced faculty\n- Modern laboratories and workshops"
-            ];
-        }
-
-        if (lowerContent.includes('faculty') || lowerContent.includes('teacher') || lowerContent.includes('professor')) {
-            return [
-                "👨‍🏫 **SATI Faculty Information:**\n\n**Faculty Strength:**\n- 150+ qualified faculty members\n- PhD holders: 60%+\n- Industry experience: 40%+\n- Student-faculty ratio: 15:1\n\n**Qualifications:**\n- Most faculty hold M.Tech/PhD degrees\n- Regular training and development programs\n- Research publications in reputed journals\n- Industry consultancy projects\n\n**Teaching Methodology:**\n- Interactive classroom sessions\n- Practical-oriented learning\n- Project-based assignments\n- Industry guest lectures\n- Modern teaching aids and technology\n\nOur faculty is committed to providing quality education and mentoring students for successful careers."
-            ];
-        }
-
-        if (lowerContent.includes('library') || lowerContent.includes('book')) {
-            return [
-                "📖 **SATI Library Facilities:**\n\n**Collection:**\n- 70,000+ books and volumes\n- 200+ national and international journals\n- Digital library with e-resources\n- Reference books and competitive exam materials\n\n**Facilities:**\n- Spacious reading halls\n- Computer terminals with internet\n- Photocopying services\n- Book bank facility for students\n- Separate sections for different subjects\n\n**Timings:**\n- Monday to Saturday: 9:00 AM - 8:00 PM\n- Sunday: 10:00 AM - 6:00 PM\n- Extended hours during exams\n\n**Services:**\n- Online catalog system\n- Inter-library loan facility\n- Research assistance\n- Digital repository access"
-            ];
-        }
-
-        if (lowerContent.includes('campus') || lowerContent.includes('facility') || lowerContent.includes('infrastructure')) {
-            return [
-                "🏛️ **SATI Campus & Infrastructure:**\n\n**Campus:**\n- 85-acre sprawling campus\n- Green and eco-friendly environment\n- Well-planned academic and residential blocks\n\n**Academic Infrastructure:**\n- Modern classrooms with smart boards\n- Well-equipped laboratories\n- Workshop facilities\n- Computer centers with latest software\n- Seminar halls and auditoriums\n\n**Other Facilities:**\n- Central library\n- Sports complex and gymnasium\n- Medical center\n- Cafeteria and food courts\n- Banking and ATM facilities\n- Transportation services\n- Wi-Fi enabled campus\n\n**Sports & Recreation:**\n- Cricket, football, basketball courts\n- Indoor games facilities\n- Annual sports meet and cultural events"
-            ];
-        }
-
-        if (lowerContent.includes('history') || lowerContent.includes('founder') || lowerContent.includes('established')) {
-            return [
-                "🏛️ **SATI History & Legacy:**\n\n**Foundation:**\n- Established: November 1, 1960\n- Founder: Late Maharaja Jiwajirao Scindia\n- Foundation Stone: Laid by PM Jawaharlal Nehru (1962)\n- Inaugurated by: Dr. Rajendra Prasad (President of India)\n\n**Named After:** Emperor Ashoka the Great, who was governor in Ujjain and Vidisha\n\n**Historical Significance:**\n- One of the oldest engineering colleges in MP\n- Built under the 'Open Door' policy of Government of India\n- Funded by Gitanjali Trust Fund of the Scindias\n\n**Evolution:**\n- Initially affiliated to Vikram University, Ujjain\n- Later to Bhopal University (now Barkatullah University)\n- Since 1998: Affiliated to RGPV Bhopal\n- 2016: Received NAAC certification\n\n**Notable Alumni:** Including Nobel laureate Kailash Satyarthi"
-            ];
-        }
-
-        // Default responses for general queries
-        return [
-            "Thank you for your question about SATI! I'm here to help you with information about Samrat Ashok Technological Institute. Could you please be more specific about what you'd like to know? I can provide details about:\n\n• 📚 Academic programs and courses\n• 🎯 Admission procedures\n• 💼 Placement statistics\n• 🏠 Hostel facilities\n• 💰 Fee structure\n• 🏛️ Campus infrastructure\n• 📖 Institute history\n• 👨‍🏫 Faculty information\n\nWhat specific aspect interests you most?",
-
-            "Hello! I'm your SATI AI Assistant, specialized in providing comprehensive information about Samrat Ashok Technological Institute, Vidisha. I have detailed knowledge about our institute's programs, facilities, admissions, and much more.\n\nHow can I assist you today? Feel free to ask about any aspect of SATI - from academic programs to campus life!",
-
-            "I'm here to help you learn more about SATI! As your dedicated institute guide, I can provide detailed information about:\n\n✅ All undergraduate and postgraduate programs\n✅ Admission requirements and procedures\n✅ Campus facilities and infrastructure\n✅ Placement opportunities and statistics\n✅ Student life and activities\n✅ Faculty and academic excellence\n\nWhat would you like to explore first?"
-        ];
-    }
 
     renderMessages() {
         const messagesContainer = elements.chatMessages;
@@ -538,6 +546,9 @@ class ChatManager {
                     <p><strong>What would you like to know about SATI?</strong></p>
                 </div>
                 <div class="message-timestamp">Just now</div>
+                <button class="copy-btn" title="Copy message" data-message-id="welcome">
+                    <i class="fas fa-copy"></i>
+                </button>
             </div>
         `;
         elements.chatMessages.appendChild(welcomeMessage);
@@ -558,6 +569,9 @@ class ChatManager {
             <div class="message-content">
                 <div class="message-text">${utils.parseMarkdown(utils.escapeHtml(message.content))}</div>
                 <div class="message-timestamp">${utils.formatTime(message.timestamp)}</div>
+                <button class="copy-btn" title="Copy message" data-message-id="${message.id}">
+                    <i class="fas fa-copy"></i>
+                </button>
             </div>
         `;
 
@@ -571,6 +585,90 @@ class ChatManager {
 
     hideTypingIndicator() {
         elements.typingIndicator.style.display = 'none';
+    }
+
+    showStopButton() {
+        if (elements.sendBtn && elements.stopBtn) {
+            elements.sendBtn.style.display = 'none';
+            elements.stopBtn.style.display = 'flex';
+        }
+    }
+
+    hideStopButton() {
+        if (elements.sendBtn && elements.stopBtn) {
+            elements.sendBtn.style.display = 'flex';
+            elements.stopBtn.style.display = 'none';
+        }
+    }
+
+    stopGeneration() {
+        this.shouldStop = true;
+        if (this.currentController) {
+            this.currentController.abort();
+        }
+        this.isProcessing = false;
+        chatState.isTyping = false;
+        this.hideTypingIndicator();
+        this.hideStopButton();
+        
+        // Add a stopped message
+        const stoppedMessage = {
+            id: utils.generateId(),
+            role: 'assistant',
+            content: '⏹️ **Generation stopped by user**',
+            timestamp: new Date().toISOString()
+        };
+        
+        chatState.currentMessages.push(stoppedMessage);
+        this.renderMessages();
+        this.updateConversationsList();
+        
+        toast.show('Generation stopped', 'info');
+    }
+
+    async copyMessage(messageId) {
+        let content = '';
+        
+        if (messageId === 'welcome') {
+            content = `Hello! I'm your SATI AI Assistant
+
+I'm specialized in providing information about Samrat Ashok Technological Institute (SATI), Vidisha. I can help you with:
+
+• Academic programs and courses
+• Hostel and campus facilities
+• Placement statistics and career opportunities
+• Admission procedures and requirements
+• Student activities and clubs
+• Institute history and achievements
+
+What would you like to know about SATI?`;
+        } else {
+            const message = chatState.currentMessages.find(m => m.id === messageId);
+            if (!message) return;
+            content = message.content;
+        }
+
+        try {
+            await navigator.clipboard.writeText(content);
+            
+            // Visual feedback
+            const copyBtn = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (copyBtn) {
+                const originalIcon = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalIcon;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }
+            
+            toast.show('Message copied to clipboard', 'success');
+        } catch (err) {
+            console.error('Failed to copy message:', err);
+            toast.show('Failed to copy message', 'error');
+        }
     }
 
     clearChat() {
@@ -795,6 +893,27 @@ function renderSettingsContent(tab) {
         case 'general':
             content.innerHTML = `
                 <div class="form-section">
+                    <h3>API Configuration</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>API Provider</label>
+                            <select class="form-control" id="apiProviderSetting">
+                                <option value="groq">☁️ Groq (Recommended)</option>
+                                <option value="gemini">🧠 Google Gemini</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label>AI Model</label>
+                            <select class="form-control" id="aiModelSetting">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+
+                </div>
+                
+                <div class="form-section">
                     <h3>General Settings</h3>
                     <div class="form-row">
                         <div class="form-col">
@@ -812,19 +931,10 @@ function renderSettingsContent(tab) {
                                 <option value="custom">Custom prefix</option>
                             </select>
                         </div>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label>API Provider</label>
-                            <select class="form-control" id="apiProviderSetting">
-                                <option value="groq">Groq</option>
-                                <option value="google">Google</option>
-                            </select>
-                        </div>
-                    </div>
                     </div>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="chatHistorySetting">
+                            <input type="checkbox" id="chatHistorySetting" checked>
                             <label for="chatHistorySetting">Enable chat history</label>
                         </div>
                     </div>
@@ -954,6 +1064,56 @@ function renderSettingsContent(tab) {
     addSettingsEventListeners();
 }
 
+// API Configuration Functions
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+
+
+function updateModelOptions() {
+    const providerSelect = document.getElementById('apiProviderSetting');
+    const modelSelect = document.getElementById('aiModelSetting');
+    
+    if (!providerSelect || !modelSelect || !window.apiManager) return;
+    
+    const provider = providerSelect.value;
+    window.apiManager.setProvider(provider);
+    
+    // Clear existing options
+    modelSelect.innerHTML = '';
+    
+    // Get available models for the selected provider
+    const models = window.apiManager.getAvailableModels();
+    
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = window.apiManager.formatModelName(model);
+        modelSelect.appendChild(option);
+    });
+    
+    // Set current model if available
+    if (models.includes(window.apiManager.currentModel)) {
+        modelSelect.value = window.apiManager.currentModel;
+    } else if (models.length > 0) {
+        modelSelect.value = models[0];
+        window.apiManager.setModel(models[0]);
+    }
+    
+
+}
+
 function loadSettingsValues() {
     // Load values from chatState.settings
     const settings = chatState.settings;
@@ -968,12 +1128,20 @@ function loadSettingsValues() {
     const chatHistorySetting = document.getElementById('chatHistorySetting');
     if (chatHistorySetting) chatHistorySetting.checked = settings.general?.chatHistory !== false;
 
+    // API settings
     const apiProviderSetting = document.getElementById('apiProviderSetting');
-    if (apiProviderSetting) {
-        apiProviderSetting.value = settings.general?.apiProvider || 'groq';
-        // Update model selection visibility when loading settings
-        updateModelSelectionVisibility();
+    if (apiProviderSetting && window.apiManager) {
+        apiProviderSetting.value = window.apiManager.currentProvider;
+        updateModelOptions();
     }
+    
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting && window.apiManager) {
+        aiModelSetting.value = window.apiManager.currentModel;
+    }
+    
+    // Load API keys
+
 
     // Chat settings
     const responseStyleSetting = document.getElementById('responseStyleSetting');
@@ -1018,8 +1186,48 @@ function addSettingsEventListeners() {
     const settingsControls = document.querySelectorAll('#settingsContent input, #settingsContent select');
 
     settingsControls.forEach(control => {
+        // Skip special controls that have their own handlers to prevent duplicate events
+        if (control.id === 'apiProviderSetting' || control.id === 'aiModelSetting' || control.id === 'fontStyleSetting') {
+            return;
+        }
         control.addEventListener('change', saveSettingsFromForm);
     });
+
+    // Special handling for API provider changes
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        apiProviderSetting.addEventListener('change', (e) => {
+            if (window.apiManager) {
+                window.apiManager.setProvider(e.target.value);
+                updateModelOptions();
+                updateMainModelSelect(); // Update main input area model select
+                saveSettingsFromForm();
+            }
+        });
+    }
+    
+    // Special handling for model changes
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting) {
+        aiModelSetting.addEventListener('change', (e) => {
+            if (window.apiManager) {
+                // Update API manager and chatState
+                window.apiManager.setModel(e.target.value);
+                chatState.selectedModel = e.target.value;
+                
+                // Sync with input area model select
+                updateMainModelSelect();
+                
+                // Save settings
+                saveSettingsFromForm();
+                
+                // Show confirmation
+                toast.show(`AI Model changed to ${window.apiManager.formatModelName(e.target.value)}`, 'success');
+            }
+        });
+    }
+    
+
 
     // Special handling for sliders - input event for real-time updates, change event for saving
     const behaviorSlider = document.getElementById('behaviorSlider');
@@ -1037,21 +1245,11 @@ function addSettingsEventListeners() {
             const selectedFont = e.target.value;
             document.documentElement.style.setProperty('--font-family', `'${selectedFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
             toast.show(`Font changed to ${selectedFont}`, 'success');
-            // Note: saveSettingsFromForm() is called by the general change event listener
+            saveSettingsFromForm();
         });
     }
 
-    // Special handling for API provider change
-    const apiProviderSetting = document.getElementById('apiProviderSetting');
-    if (apiProviderSetting) {
-        apiProviderSetting.addEventListener('change', (e) => {
-            // The general event listener will handle saving settings
-            // We just need to update model selection visibility
-            setTimeout(() => {
-                updateModelSelectionVisibility();
-            }, 50); // Small delay to ensure settings are saved first
-        });
-    }
+
 }
 
 function saveSettingsFromForm() {
@@ -1075,6 +1273,13 @@ function saveSettingsFromForm() {
         chatState.saveState();
         // Update model selection visibility
         updateModelSelectionVisibility();
+    }
+
+    // AI Model setting
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting && aiModelSetting.value) {
+        chatState.selectedModel = aiModelSetting.value;
+        chatState.saveState();
     }
 
     // Chat settings
@@ -1112,29 +1317,113 @@ function saveSettingsFromForm() {
     toast.show('Settings saved', 'success');
 }
 
-// Function to update model selection visibility based on API provider
-function updateModelSelectionVisibility() {
+// Function to update the main input area model select based on API provider
+function updateMainModelSelect() {
     const modelSelect = document.getElementById('modelSelect');
-    if (!modelSelect) return;
+    if (!modelSelect || !window.apiManager) return;
 
     const apiProvider = chatState.settings.general?.apiProvider || chatState.apiProvider || 'groq';
+    
+    // Clear existing options
+    modelSelect.innerHTML = '';
+    
+    // Get available models for the current provider
+    window.apiManager.setProvider(apiProvider);
+    const models = window.apiManager.getAvailableModels();
+    
+    // Populate model options
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = window.apiManager.formatModelName(model);
+        modelSelect.appendChild(option);
+    });
+    
+    // Set current model if available, otherwise set first available model
+    const currentModel = window.apiManager.currentModel || chatState.selectedModel;
+    
+    if (models.includes(currentModel)) {
+        modelSelect.value = currentModel;
+        chatState.selectedModel = currentModel;
+    } else if (models.length > 0) {
+        chatState.selectedModel = models[0];
+        modelSelect.value = models[0];
+        window.apiManager.setModel(models[0]);
+    }
+    
+    chatState.saveState();
+}
 
-    if (apiProvider === 'google') {
-        // Hide model selection for Google
-        modelSelect.style.display = 'none';
-        // Set a default Google model (this would be handled by your backend)
-        chatState.selectedModel = 'google-default';
-    } else {
-        // Show model selection for Groq
-        modelSelect.style.display = 'block';
-        // Ensure a valid Groq model is selected
-        if (chatState.selectedModel === 'google-default') {
-            chatState.selectedModel = 'llama-3.1-8b-instant';
-            modelSelect.value = chatState.selectedModel;
+// Function to handle model overload and suggest alternatives
+function handleModelOverload(errorMessage) {
+    if (!window.apiManager) return false;
+    
+    // Check if this is a 503 overloaded error
+    if (errorMessage.includes('503') && errorMessage.includes('overloaded')) {
+        const alternatives = window.apiManager.getAlternativeModels();
+        
+        if (alternatives.length > 0) {
+            // Show a toast with alternative suggestions
+            const firstAlt = alternatives[0];
+            toast.show(
+                `🔄 Model overloaded! Consider switching to ${window.apiManager.formatModelName(firstAlt.model)} for better reliability.`,
+                'warning',
+                8000
+            );
+            
+            // Optionally auto-switch to the first alternative after a delay
+            setTimeout(() => {
+                if (confirm(`Would you like to automatically switch to ${window.apiManager.formatModelName(firstAlt.model)} to avoid overload issues?`)) {
+                    switchToAlternativeModel(firstAlt);
+                }
+            }, 2000);
+            
+            return true;
         }
     }
+    
+    return false;
+}
 
-    chatState.saveState();
+// Function to switch to an alternative model
+function switchToAlternativeModel(alternative) {
+    if (!window.apiManager) return;
+    
+    try {
+        // Update API provider if different
+        if (alternative.provider !== chatState.apiProvider) {
+            chatState.apiProvider = alternative.provider;
+            chatState.settings.general.apiProvider = alternative.provider;
+            window.apiManager.setProvider(alternative.provider);
+        }
+        
+        // Update model
+        chatState.selectedModel = alternative.model;
+        window.apiManager.setModel(alternative.model);
+        
+        // Update UI
+        updateMainModelSelect();
+        
+        // Save state
+        chatState.saveState();
+        chatState.saveSettings();
+        
+        // Show success message
+        toast.show(
+            `✅ Switched to ${window.apiManager.formatModelName(alternative.model)}`,
+            'success',
+            3000
+        );
+        
+    } catch (error) {
+        console.error('Error switching model:', error);
+        toast.show('❌ Failed to switch model', 'error', 3000);
+    }
+}
+
+// Function to update model selection visibility based on API provider (legacy function - keeping for compatibility)
+function updateModelSelectionVisibility() {
+    updateMainModelSelect();
 }
 
 // Customize Appearance
@@ -1400,12 +1689,41 @@ function initializeEventListeners() {
         elements.sendBtn.addEventListener('click', sendMessage);
     }
 
+    // Stop button
+    if (elements.stopBtn) {
+        elements.stopBtn.addEventListener('click', () => {
+            chatManager.stopGeneration();
+        });
+    }
+
+    // Copy button event delegation
+    if (elements.chatMessages) {
+        elements.chatMessages.addEventListener('click', (e) => {
+            if (e.target.closest('.copy-btn')) {
+                const copyBtn = e.target.closest('.copy-btn');
+                const messageId = copyBtn.getAttribute('data-message-id');
+                if (messageId) {
+                    chatManager.copyMessage(messageId);
+                }
+            }
+        });
+    }
+
     // Model selection
     if (elements.modelSelect) {
         elements.modelSelect.addEventListener('change', (e) => {
             chatState.selectedModel = e.target.value;
+            if (window.apiManager) {
+                window.apiManager.setModel(e.target.value);
+                toast.show(`Switched to ${window.apiManager.formatModelName(e.target.value)}`, 'success');
+                
+                // Sync with settings model select
+                const aiModelSetting = document.getElementById('aiModelSetting');
+                if (aiModelSetting) {
+                    aiModelSetting.value = e.target.value;
+                }
+            }
             chatState.saveState();
-            toast.show(`Switched to ${e.target.value}`, 'success');
         });
     }
 
@@ -1961,10 +2279,20 @@ function updateThemeToggleButton() {
 // Initialize Application
 function initializeApp() {
     try {
-        // Set initial model selection
-        if (elements.modelSelect) {
-            elements.modelSelect.value = chatState.selectedModel;
-        }
+        // Wait for API manager to be ready before initializing model select
+        const initializeWithApiManager = () => {
+            if (window.apiManager) {
+                // Initialize main model select with proper options
+                updateMainModelSelect();
+                console.log('✅ Model selection initialized');
+            } else {
+                console.log('⚠️ API Manager not ready, retrying in 500ms...');
+                setTimeout(initializeWithApiManager, 500);
+            }
+        };
+        
+        // Start initialization
+        initializeWithApiManager();
 
         // Update login status
         updateLoginStatus();
@@ -1982,8 +2310,7 @@ function initializeApp() {
         // Initialize sidebar toggle button position
         initializeSidebarToggle();
 
-        // Update model selection visibility based on API provider
-        updateModelSelectionVisibility();
+
 
         // Mobile-specific initialization
         if (window.innerWidth <= 768) {

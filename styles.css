@@ -1226,6 +1226,81 @@ body {
     transform: none;
 }
 
+.stop-btn {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.stop-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, #c53030, #9c2626);
+}
+
+.stop-btn:active {
+    transform: translateY(0);
+}
+
+/* Copy button styles */
+.copy-btn {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    opacity: 0;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 12px;
+}
+
+.message-content {
+    position: relative;
+}
+
+.message-content:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+
+.copy-btn.copied {
+    background: #48bb78;
+    color: white;
+    border-color: #48bb78;
+}
+
+.copy-btn.copied:hover {
+    background: #38a169;
+    border-color: #38a169;
+}
+
 /* Modal Styles */
 .modal-overlay {
     position: fixed;
@@ -2325,4 +2400,110 @@ textarea:focus-visible {
         break-inside: avoid;
         margin-bottom: var(--spacing-4);
     }
+}
+
+/* API Configuration Styles */
+.api-key-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: var(--spacing-4);
+    margin: var(--spacing-4) 0;
+}
+
+.api-key-section h4 {
+    margin: 0 0 var(--spacing-3) 0;
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group .form-control {
+    flex: 1;
+    padding-right: 45px;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.btn-toggle-password:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.form-help {
+    display: block;
+    margin-top: var(--spacing-1);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.form-help a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.form-help a:hover {
+    text-decoration: underline;
+}
+
+.connection-status {
+    margin-left: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.status-success {
+    color: var(--success-color);
+}
+
+.status-error {
+    color: var(--danger-color);
+}
+
+.status-testing {
+    color: var(--warning-color);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-color);
+}
+
+.btn-secondary:active {
+    transform: translateY(1px);
+}
+
+.btn-secondary i {
+    font-size: var(--font-size-sm);
 }

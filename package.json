@@ -1,0 +1,26 @@
+{
+  "name": "sati-chatbot",
+  "version": "1.0.0",
+  "description": "SATI Chatbot - Hybrid AI assistant with secure API key management",
+  "main": "index.html",
+  "scripts": {
+    "generate-keys": "node generate-api-keys.js",
+    "setup": "node generate-api-keys.js",
+    "serve": "python -m http.server 8000",
+    "dev": "npm run generate-keys && npm run serve"
+  },
+  "keywords": [
+    "chatbot",
+    "ai",
+    "sati",
+    "groq",
+    "gemini",
+    "javascript"
+  ],
+  "author": "Team FluxoNauts",
+  "license": "MIT",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
