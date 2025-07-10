@@ -16,8 +16,18 @@ class ChatBotState {
         // Initialize default settings
         this.initializeDefaultSettings();
 
+        // Initialize API provider - sync with settings
+        this.apiProvider = this.settings.general?.apiProvider || localStorage.getItem('sati_api_provider') || 'groq';
+        // Ensure settings and state are in sync
+        if (this.settings.general) {
+            this.settings.general.apiProvider = this.apiProvider;
+        }
+
         // Apply theme
         this.applyTheme();
+        
+        // Apply font style
+        this.applyFontStyle();
     }
 
     initializeDefaultSettings() {
@@ -25,7 +35,8 @@ class ChatBotState {
             general: {
                 language: 'en',
                 defaultChatName: 'auto',
-                chatHistory: true
+                chatHistory: true,
+                apiProvider: 'groq'
             },
             chat: {
                 responseStyle: 'detailed',
@@ -33,7 +44,7 @@ class ChatBotState {
                 promptTone: 'friendly'
             },
             accessibility: {
-                fontSize: 16,
+                fontStyle: 'Inter',
                 voiceInput: false,
                 animations: true
             },
@@ -56,6 +67,7 @@ class ChatBotState {
         localStorage.setItem('sati_username', this.username);
         localStorage.setItem('sati_theme', this.theme);
         localStorage.setItem('sati_selected_model', this.selectedModel);
+        localStorage.setItem('sati_api_provider', this.apiProvider);
     }
 
     saveSettings() {
@@ -99,6 +111,11 @@ class ChatBotState {
 
         // Add listener for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addListener(this.systemThemeListener);
+    }
+
+    applyFontStyle() {
+        const fontStyle = this.settings.accessibility?.fontStyle || 'Inter';
+        document.documentElement.style.setProperty('--font-family', `'${fontStyle}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
     }
 
     createNewConversation(title = 'New Chat') {
@@ -148,6 +165,17 @@ class ChatBotState {
         this.saveState();
     }
 
+    renameConversation(id, newTitle) {
+        const conversation = this.conversations.find(c => c.id === id);
+        if (conversation) {
+            conversation.title = newTitle;
+            conversation.updatedAt = new Date().toISOString();
+            this.saveState();
+            return true;
+        }
+        return false;
+    }
+
     loadConversation(id) {
         const conversation = this.conversations.find(c => c.id === id);
         if (conversation) {
@@ -190,6 +218,7 @@ const elements = {
     customizeModal: document.getElementById('customizeModal'),
     loginModal: document.getElementById('loginModal'),
     confirmModal: document.getElementById('confirmModal'),
+    renameModal: document.getElementById('renameModal'),
 
     // Toast container
     toastContainer: document.getElementById('toastContainer')
@@ -490,7 +519,9 @@ class ChatManager {
         welcomeMessage.className = 'message bot-message';
         welcomeMessage.innerHTML = `
             <div class="message-avatar">
-                <div class="bot-avatar">🎓</div>
+                <div class="bot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
             </div>
             <div class="message-content">
                 <div class="message-text">
@@ -517,7 +548,7 @@ class ChatManager {
         messageDiv.className = `message ${message.role}-message`;
 
         const isUser = message.role === 'user';
-        const avatar = isUser ? '👤' : '🎓';
+        const avatar = isUser ? '👤' : '<i class="fas fa-robot"></i>';
         const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
 
         messageDiv.innerHTML = `
@@ -598,9 +629,19 @@ function updateConversationsList() {
         item.innerHTML = `
             <div class="conversation-title">${conversation.title}</div>
             <div class="conversation-actions">
-                <button class="conversation-action" onclick="deleteConversation('${conversation.id}')" title="Delete">
-                    <i class="fas fa-trash"></i>
+                <button class="conversation-menu-btn" onclick="toggleConversationMenu(event, '${conversation.id}')" title="More options">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
+                <div class="conversation-dropdown" id="dropdown-${conversation.id}">
+                    <button class="conversation-dropdown-item" onclick="renameConversation('${conversation.id}')">
+                        <i class="fas fa-edit"></i>
+                        <span>Rename</span>
+                    </button>
+                    <button class="conversation-dropdown-item danger" onclick="deleteConversation('${conversation.id}')">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
             </div>
         `;
 
@@ -646,9 +687,109 @@ async function deleteConversation(id) {
     }
 }
 
+// Conversation Menu Management
+function toggleConversationMenu(event, conversationId) {
+    event.stopPropagation();
+    
+    // Close all other dropdowns first
+    document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${conversationId}`) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    const dropdown = document.getElementById(`dropdown-${conversationId}`);
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('.conversation-actions')) {
+        document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    }
+});
+
+// Rename Conversation
+function renameConversation(conversationId) {
+    // Close the dropdown
+    const dropdown = document.getElementById(`dropdown-${conversationId}`);
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+    
+    // Find the conversation
+    const conversation = chatState.conversations.find(c => c.id === conversationId);
+    if (!conversation) return;
+    
+    // Set current values
+    const renameInput = document.getElementById('renameInput');
+    renameInput.value = conversation.title;
+    
+    // Store the conversation ID for later use
+    document.getElementById('renameModal').dataset.conversationId = conversationId;
+    
+    // Show the modal
+    modal.show('renameModal');
+    
+    // Focus and select the input
+    setTimeout(() => {
+        renameInput.focus();
+        renameInput.select();
+    }, 100);
+}
+
+// Handle rename form submission
+function handleRenameSubmit(event) {
+    event.preventDefault();
+    
+    const conversationId = document.getElementById('renameModal').dataset.conversationId;
+    const newTitle = document.getElementById('renameInput').value.trim();
+    
+    if (!newTitle) {
+        toast.show('Please enter a valid name', 'warning');
+        return;
+    }
+    
+    if (newTitle.length > 100) {
+        toast.show('Name is too long (max 100 characters)', 'warning');
+        return;
+    }
+    
+    // Rename the conversation
+    const success = chatState.renameConversation(conversationId, newTitle);
+    if (success) {
+        // Update UI
+        updateConversationsList();
+        
+        // Update chat title if this is the current conversation
+        if (chatState.currentConversationId === conversationId) {
+            elements.chatTitle.textContent = newTitle;
+        }
+        
+        toast.show('Conversation renamed successfully', 'success');
+    } else {
+        toast.show('Failed to rename conversation', 'error');
+    }
+    
+    // Close modal
+    modal.hide('renameModal');
+}
+
 // Settings Management
 function renderSettingsContent(tab) {
     const content = document.getElementById('settingsContent');
+    const settingsModal = document.querySelector('.settings-modal');
+
+    // Remove all tab-specific classes
+    if (settingsModal) {
+        settingsModal.classList.remove('tab-general', 'tab-chat', 'tab-accessibility', 'tab-notifications', 'tab-privacy');
+        // Add current tab class
+        settingsModal.classList.add(`tab-${tab}`);
+    }
 
     switch (tab) {
         case 'general':
@@ -671,6 +812,15 @@ function renderSettingsContent(tab) {
                                 <option value="custom">Custom prefix</option>
                             </select>
                         </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>API Provider</label>
+                            <select class="form-control" id="apiProviderSetting">
+                                <option value="groq">Groq</option>
+                                <option value="google">Google</option>
+                            </select>
+                        </div>
+                    </div>
                     </div>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
@@ -719,12 +869,24 @@ function renderSettingsContent(tab) {
             content.innerHTML = `
                 <div class="form-section">
                     <h3>Accessibility</h3>
-                    <div class="slider-group">
-                        <div class="slider-label">
-                            <span>Font Size</span>
-                            <span id="fontSizeValue">16px</span>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="fontStyleSetting">Font Style</label>
+                            <select class="form-control" id="fontStyleSetting">
+                                <option value="Inter">Inter (Default)</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                <option value="Tahoma">Tahoma</option>
+                                <option value="Palatino">Palatino</option>
+                                <option value="Garamond">Garamond</option>
+                                <option value="Comic Sans MS">Comic Sans MS</option>
+                            </select>
                         </div>
-                        <input type="range" class="slider" id="fontSizeSlider" min="12" max="24" value="16">
                     </div>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
@@ -806,6 +968,13 @@ function loadSettingsValues() {
     const chatHistorySetting = document.getElementById('chatHistorySetting');
     if (chatHistorySetting) chatHistorySetting.checked = settings.general?.chatHistory !== false;
 
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        apiProviderSetting.value = settings.general?.apiProvider || 'groq';
+        // Update model selection visibility when loading settings
+        updateModelSelectionVisibility();
+    }
+
     // Chat settings
     const responseStyleSetting = document.getElementById('responseStyleSetting');
     if (responseStyleSetting) responseStyleSetting.value = settings.chat?.responseStyle || 'detailed';
@@ -821,11 +990,9 @@ function loadSettingsValues() {
     }
 
     // Accessibility settings
-    const fontSizeSlider = document.getElementById('fontSizeSlider');
-    const fontSizeValue = document.getElementById('fontSizeValue');
-    if (fontSizeSlider && fontSizeValue) {
-        fontSizeSlider.value = settings.accessibility?.fontSize || 16;
-        fontSizeValue.textContent = fontSizeSlider.value + 'px';
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) {
+        fontStyleSetting.value = settings.accessibility?.fontStyle || 'Inter';
     }
 
     const voiceInputSetting = document.getElementById('voiceInputSetting');
@@ -854,21 +1021,35 @@ function addSettingsEventListeners() {
         control.addEventListener('change', saveSettingsFromForm);
     });
 
-    // Special handling for sliders
+    // Special handling for sliders - input event for real-time updates, change event for saving
     const behaviorSlider = document.getElementById('behaviorSlider');
     if (behaviorSlider) {
         behaviorSlider.addEventListener('input', (e) => {
             document.getElementById('behaviorValue').textContent = e.target.value;
-            saveSettingsFromForm();
+            // Note: saveSettingsFromForm() is called by the general change event listener
         });
     }
 
-    const fontSizeSlider = document.getElementById('fontSizeSlider');
-    if (fontSizeSlider) {
-        fontSizeSlider.addEventListener('input', (e) => {
-            document.getElementById('fontSizeValue').textContent = e.target.value + 'px';
-            document.documentElement.style.fontSize = e.target.value + 'px';
-            saveSettingsFromForm();
+    // Font style handling for accessibility
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) {
+        fontStyleSetting.addEventListener('change', (e) => {
+            const selectedFont = e.target.value;
+            document.documentElement.style.setProperty('--font-family', `'${selectedFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
+            toast.show(`Font changed to ${selectedFont}`, 'success');
+            // Note: saveSettingsFromForm() is called by the general change event listener
+        });
+    }
+
+    // Special handling for API provider change
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        apiProviderSetting.addEventListener('change', (e) => {
+            // The general event listener will handle saving settings
+            // We just need to update model selection visibility
+            setTimeout(() => {
+                updateModelSelectionVisibility();
+            }, 50); // Small delay to ensure settings are saved first
         });
     }
 }
@@ -887,6 +1068,15 @@ function saveSettingsFromForm() {
     const chatHistorySetting = document.getElementById('chatHistorySetting');
     if (chatHistorySetting) settings.general.chatHistory = chatHistorySetting.checked;
 
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        settings.general.apiProvider = apiProviderSetting.value;
+        chatState.apiProvider = apiProviderSetting.value;
+        chatState.saveState();
+        // Update model selection visibility
+        updateModelSelectionVisibility();
+    }
+
     // Chat settings
     const responseStyleSetting = document.getElementById('responseStyleSetting');
     if (responseStyleSetting) settings.chat.responseStyle = responseStyleSetting.value;
@@ -898,8 +1088,8 @@ function saveSettingsFromForm() {
     if (behaviorSlider) settings.chat.modelBehavior = parseFloat(behaviorSlider.value);
 
     // Accessibility settings
-    const fontSizeSlider = document.getElementById('fontSizeSlider');
-    if (fontSizeSlider) settings.accessibility.fontSize = parseInt(fontSizeSlider.value);
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) settings.accessibility.fontStyle = fontStyleSetting.value;
 
     const voiceInputSetting = document.getElementById('voiceInputSetting');
     if (voiceInputSetting) settings.accessibility.voiceInput = voiceInputSetting.checked;
@@ -920,6 +1110,31 @@ function saveSettingsFromForm() {
 
     chatState.saveSettings();
     toast.show('Settings saved', 'success');
+}
+
+// Function to update model selection visibility based on API provider
+function updateModelSelectionVisibility() {
+    const modelSelect = document.getElementById('modelSelect');
+    if (!modelSelect) return;
+
+    const apiProvider = chatState.settings.general?.apiProvider || chatState.apiProvider || 'groq';
+
+    if (apiProvider === 'google') {
+        // Hide model selection for Google
+        modelSelect.style.display = 'none';
+        // Set a default Google model (this would be handled by your backend)
+        chatState.selectedModel = 'google-default';
+    } else {
+        // Show model selection for Groq
+        modelSelect.style.display = 'block';
+        // Ensure a valid Groq model is selected
+        if (chatState.selectedModel === 'google-default') {
+            chatState.selectedModel = 'llama-3.1-8b-instant';
+            modelSelect.value = chatState.selectedModel;
+        }
+    }
+
+    chatState.saveState();
 }
 
 // Customize Appearance
@@ -960,14 +1175,6 @@ function renderCustomizeContent() {
         <div class="form-section">
             <h3>Font Options</h3>
             <div class="form-row">
-                <div class="form-col">
-                    <label>Font Style</label>
-                    <select class="form-control" id="fontStyleSetting">
-                        <option value="inter">Inter (Sans)</option>
-                        <option value="serif">Times (Serif)</option>
-                        <option value="mono">Monaco (Mono)</option>
-                    </select>
-                </div>
                 <div class="form-col">
                     <div class="slider-group">
                         <div class="slider-label">
@@ -1375,6 +1582,26 @@ function initializeEventListeners() {
         });
     }
 
+    // Rename modal event listeners
+    const closeRenameBtn = document.getElementById('closeRenameBtn');
+    if (closeRenameBtn) {
+        closeRenameBtn.addEventListener('click', () => {
+            modal.hide('renameModal');
+        });
+    }
+
+    const renameCancelBtn = document.getElementById('renameCancelBtn');
+    if (renameCancelBtn) {
+        renameCancelBtn.addEventListener('click', () => {
+            modal.hide('renameModal');
+        });
+    }
+
+    const renameForm = document.getElementById('renameForm');
+    if (renameForm) {
+        renameForm.addEventListener('submit', handleRenameSubmit);
+    }
+
     // Settings tabs - Use event delegation for dynamically created content
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('settings-tab') || e.target.closest('.settings-tab')) {
@@ -1503,27 +1730,17 @@ function toggleSidebar() {
 
 // Create hover trigger element for desktop sidebar
 function createHoverTrigger() {
-    // Remove existing trigger if any
-    removeHoverTrigger();
-
-    const hoverTrigger = document.createElement('div');
-    hoverTrigger.className = 'sidebar-hover-trigger';
-    hoverTrigger.id = 'sidebarHoverTrigger';
-
-    const appContainer = document.getElementById('appContainer');
-    appContainer.insertBefore(hoverTrigger, elements.sidebar);
-
-    // Add hover event listeners for toggle button movement
-    setupToggleHoverBehavior();
+    // Use existing hover trigger element from HTML
+    const hoverTrigger = document.getElementById('sidebarHoverTrigger');
+    if (hoverTrigger) {
+        // Add hover event listeners for toggle button movement
+        setupToggleHoverBehavior();
+    }
 }
 
 // Remove hover trigger element
 function removeHoverTrigger() {
-    const existingTrigger = document.getElementById('sidebarHoverTrigger');
-    if (existingTrigger) {
-        existingTrigger.remove();
-    }
-    // Clean up hover event listeners
+    // Clean up hover event listeners (don't remove the element since it's in HTML)
     cleanupToggleHoverBehavior();
 }
 
@@ -1765,14 +1982,82 @@ function initializeApp() {
         // Initialize sidebar toggle button position
         initializeSidebarToggle();
 
-        // Focus message input
+        // Update model selection visibility based on API provider
+        updateModelSelectionVisibility();
+
+        // Mobile-specific initialization
+        if (window.innerWidth <= 768) {
+            initializeMobileLayout();
+        }
+
+        // Focus message input (delay for mobile)
         if (elements.messageInput) {
-            elements.messageInput.focus();
+            if (window.innerWidth <= 768) {
+                // Small delay for mobile to ensure layout is stable
+                setTimeout(() => {
+                    elements.messageInput.focus();
+                }, 100);
+            } else {
+                elements.messageInput.focus();
+            }
         }
 
         console.log('SATI ChatBot initialized successfully');
     } catch (error) {
         console.error('Error initializing SATI ChatBot:', error);
+    }
+}
+
+// Mobile-specific initialization
+function initializeMobileLayout() {
+    try {
+        // Ensure all elements are visible
+        const topBar = document.querySelector('.top-bar');
+        const mainContent = document.querySelector('.main-content');
+        const inputArea = document.querySelector('.input-area');
+        const chatWindow = document.querySelector('.chat-window');
+        
+        if (topBar) {
+            topBar.style.display = 'flex';
+            topBar.style.visibility = 'visible';
+            topBar.style.opacity = '1';
+        }
+        
+        if (mainContent) {
+            mainContent.style.display = 'flex';
+            mainContent.style.visibility = 'visible';
+            mainContent.style.opacity = '1';
+        }
+        
+        if (inputArea) {
+            inputArea.style.display = 'block';
+            inputArea.style.visibility = 'visible';
+            inputArea.style.opacity = '1';
+        }
+        
+        if (chatWindow) {
+            chatWindow.style.display = 'flex';
+            chatWindow.style.visibility = 'visible';
+            chatWindow.style.opacity = '1';
+        }
+        
+        // Force layout recalculation
+        document.body.offsetHeight;
+        
+        // Ensure proper viewport height calculation
+        const setVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(setVH, 100);
+        });
+        
+    } catch (error) {
+        console.error('Error initializing mobile layout:', error);
     }
 }
 

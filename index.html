@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SATI ChatBot - Your Institute Guide</title>
-    <!-- <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>"> -->
     <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
     <meta name="description"
         content="SATI - Hybrid AI Chatbot with dual API support (Google gemini + Groq cloud). Features dynamic model switching, real-time chat, export functionality, and modern Streamlit UI. Perfect for cloud-based AI interactions.">
@@ -21,7 +19,7 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia:wght@400;700&family=Verdana:wght@400;700&family=Trebuchet+MS:wght@400;700&family=Tahoma:wght@400;700&family=Palatino:wght@400;700&family=Garamond:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
@@ -44,12 +42,17 @@
             <i class="fas fa-bars"></i>
         </button>
 
+        <!-- Hover trigger area for collapsed sidebar -->
+        <div class="sidebar-hover-trigger" id="sidebarHoverTrigger"></div>
+
         <!-- Left Sidebar -->
         <aside class="sidebar" id="sidebar">
             <!-- Sidebar Header -->
             <div class="sidebar-header">
                 <div class="logo-container">
-                    <div class="logo">🎓</div>
+                    <div class="logo">
+                        <i class="fas fa-robot"></i>
+                    </div>
                     <h2 class="app-name">SATI ChatBot</h2>
                 </div>
             </div>
@@ -158,11 +161,13 @@
                     <!-- Welcome Message -->
                     <div class="message bot-message">
                         <div class="message-avatar">
-                            <div class="bot-avatar">🎓</div>
+                            <div class="bot-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
                         </div>
                         <div class="message-content">
                             <div class="message-text">
-                                <h3>🎓 Hello! I'm your SATI AI Assistant</h3>
+                                <h3><i class="fas fa-robot"></i> Hello! I'm your SATI AI Assistant</h3>
                                 <p>I'm specialized in providing information about <strong>Samrat Ashok Technological
                                         Institute (SATI), Vidisha</strong>. I can help you with:</p>
                                 <ul>
@@ -184,7 +189,9 @@
                 <div class="typing-indicator" id="typingIndicator" style="display: none;">
                     <div class="message bot-message">
                         <div class="message-avatar">
-                            <div class="bot-avatar">🎓</div>
+                            <div class="bot-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
                         </div>
                         <div class="message-content">
                             <div class="typing-dots">
@@ -299,7 +306,9 @@
             <div class="modal-body">
                 <div class="login-content">
                     <div class="app-branding">
-                        <div class="logo-large">🎓</div>
+                        <div class="logo-large">
+                            <i class="fas fa-robot"></i>
+                        </div>
                         <h3>SATI ChatBot</h3>
                         <p>Your Institute Guide</p>
                     </div>
@@ -332,6 +341,27 @@
                     <button class="cancel-btn" id="confirmCancel">Cancel</button>
                     <button class="confirm-btn" id="confirmOk">Confirm</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div class="modal-overlay" id="renameModal">
+        <div class="modal-container rename-modal">
+            <div class="modal-header">
+                <h3>Rename Conversation</h3>
+                <button class="close-btn" id="closeRenameBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="rename-form" id="renameForm">
+                    <input type="text" class="rename-input" id="renameInput" placeholder="Enter new name..." maxlength="100">
+                    <div class="rename-actions">
+                        <button type="button" class="rename-btn secondary" id="renameCancelBtn">Cancel</button>
+                        <button type="submit" class="rename-btn primary" id="renameSaveBtn">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

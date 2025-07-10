@@ -103,6 +103,20 @@
     box-sizing: border-box;
 }
 
+/* Prevent flash of unstyled content */
+.app-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Ensure proper initial state for mobile */
+@media (max-width: 768px) {
+    .app-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
 html {
     font-size: 16px;
     scroll-behavior: smooth;
@@ -118,12 +132,55 @@ body {
     transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
+/* Prevent layout shifts on mobile */
+@media (max-width: 768px) {
+    body {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        /* Use dynamic viewport height */
+    }
+
+    /* Ensure elements are visible from start */
+    .top-bar {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
+    }
+
+    .input-area {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+    }
+
+    .main-content {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
+    }
+}
+
 /* App Container */
 .app-container {
     display: flex;
     height: 100vh;
     width: 100vw;
     position: relative;
+}
+
+/* Mobile app container fixes */
+@media (max-width: 768px) {
+    .app-container {
+        height: 100vh;
+        height: 100dvh;
+        /* Use dynamic viewport height */
+        width: 100vw;
+        overflow: hidden;
+        position: relative;
+    }
 }
 
 /* Sidebar Styles */
@@ -135,7 +192,7 @@ body {
     flex-direction: column;
     border-right: 1px solid var(--border-color);
     transition: transform var(--transition-normal), background-color var(--transition-normal), color var(--transition-normal), border-color var(--transition-normal);
-    z-index: 100;
+    z-index: 200;
     position: relative;
 }
 
@@ -186,10 +243,7 @@ body {
     }
 }
 
-.app-container.sidebar-collapsed .main-content {
-    margin-left: 0;
-    width: 100%;
-}
+
 
 /* Toggle button positioning when sidebar is expanded */
 .app-container:not(.sidebar-collapsed) .sidebar-toggle {
@@ -264,6 +318,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--accent-color);
+}
+
+.logo i {
+    font-size: 1.5rem;
 }
 
 .app-name {
@@ -438,15 +497,11 @@ body {
 }
 
 .conversation-actions {
-    display: none;
-    gap: var(--spacing-1);
-}
-
-.conversation-item:hover .conversation-actions {
     display: flex;
+    position: relative;
 }
 
-.conversation-action {
+.conversation-menu-btn {
     background: none;
     border: none;
     color: var(--sidebar-text-muted);
@@ -455,10 +510,79 @@ body {
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     transition: color var(--transition-fast);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.conversation-action:hover {
+.conversation-menu-btn:hover {
     color: var(--sidebar-text);
+    background-color: var(--sidebar-hover);
+}
+
+/* Conversation Dropdown Menu */
+.conversation-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    min-width: 120px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+}
+
+.conversation-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.conversation-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.conversation-dropdown-item:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.conversation-dropdown-item:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.conversation-dropdown-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.conversation-dropdown-item.danger {
+    color: var(--danger-color);
+}
+
+.conversation-dropdown-item.danger:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.conversation-dropdown-item i {
+    font-size: var(--font-size-xs);
+    width: 12px;
 }
 
 /* Sidebar Menu */
@@ -499,6 +623,38 @@ body {
     background-color: var(--bg-primary);
     position: relative;
     transition: background-color var(--transition-normal);
+    margin-left: 260px;
+    /* Default sidebar width */
+    width: calc(100% - 260px);
+}
+
+/* Main content adjustments for sidebar states - Desktop only */
+@media (min-width: 769px) {
+    .main-content {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 260px;
+        /* Start from sidebar edge */
+        margin-left: 0;
+        width: auto;
+        z-index: 50;
+        transition: left var(--transition-normal), background-color var(--transition-normal);
+    }
+
+    .app-container.sidebar-collapsed .main-content {
+        left: 0;
+        /* Expand to full width when sidebar is collapsed */
+    }
+
+    /* Handle hover expansion for collapsed sidebar */
+    .sidebar.collapsed:hover~.main-content,
+    .sidebar-hover-trigger:hover+.sidebar.collapsed+.main-content {
+        left: 260px;
+        /* Contract back to sidebar edge on hover */
+        transition: left var(--transition-normal);
+    }
 }
 
 /* Top Bar */
@@ -510,6 +666,31 @@ body {
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-primary);
     z-index: 50;
+    transition: padding var(--transition-normal), background-color var(--transition-normal);
+}
+
+/* Top bar responsive padding adjustments - Desktop only */
+@media (min-width: 769px) {
+    .app-container:not(.sidebar-collapsed) .top-bar {
+        padding-left: var(--spacing-6);
+        /* Normal padding when sidebar is open */
+        padding-right: var(--spacing-6);
+    }
+
+    .app-container.sidebar-collapsed .top-bar {
+        padding-left: 80px;
+        /* Account for toggle button space when collapsed */
+        padding-right: var(--spacing-6);
+    }
+
+    /* Handle hover expansion for collapsed sidebar */
+    .sidebar.collapsed:hover~.main-content .top-bar,
+    .sidebar-hover-trigger:hover+.sidebar.collapsed+.main-content .top-bar {
+        padding-left: var(--spacing-6);
+        /* Back to normal padding on hover */
+        padding-right: var(--spacing-6);
+        transition: padding var(--transition-normal);
+    }
 }
 
 .chat-title-container {
@@ -612,15 +793,41 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: all var(--transition-normal);
 }
 
 .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-6);
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
+    transition: padding var(--transition-normal);
 }
+
+/* Chat messages responsive padding adjustments - Desktop only */
+@media (min-width: 769px) {
+    .app-container:not(.sidebar-collapsed) .chat-messages {
+        padding-left: var(--spacing-6);
+        /* Normal padding when sidebar is open */
+        padding-right: var(--spacing-6);
+    }
+
+    .app-container.sidebar-collapsed .chat-messages {
+        padding-left: 80px;
+        /* Account for toggle button space when collapsed */
+        padding-right: var(--spacing-6);
+    }
+
+    /* Handle hover expansion for collapsed sidebar */
+    .sidebar.collapsed:hover~.main-content .chat-messages,
+    .sidebar-hover-trigger:hover+.sidebar.collapsed+.main-content .chat-messages {
+        padding-left: var(--spacing-6);
+        /* Back to normal padding on hover */
+        padding-right: var(--spacing-6);
+        transition: padding var(--transition-normal);
+    }
+}
+
+
 
 .chat-messages::-webkit-scrollbar {
     width: 6px;
@@ -681,6 +888,10 @@ body {
 .bot-avatar {
     background: linear-gradient(135deg, var(--info-color), #2b77cb);
     color: white;
+}
+
+.bot-avatar i {
+    font-size: 1.2rem;
 }
 
 .message-content {
@@ -795,6 +1006,31 @@ body {
     padding: var(--spacing-4) var(--spacing-6);
     border-top: 1px solid var(--border-color);
     background-color: var(--bg-primary);
+    transition: padding var(--transition-normal), background-color var(--transition-normal);
+}
+
+/* Input area responsive padding adjustments - Desktop only */
+@media (min-width: 769px) {
+    .app-container:not(.sidebar-collapsed) .input-area {
+        padding-left: var(--spacing-6);
+        /* Normal padding when sidebar is open */
+        padding-right: var(--spacing-6);
+    }
+
+    .app-container.sidebar-collapsed .input-area {
+        padding-left: 80px;
+        /* Account for toggle button space when collapsed */
+        padding-right: var(--spacing-6);
+    }
+
+    /* Handle hover expansion for collapsed sidebar */
+    .sidebar.collapsed:hover~.main-content .input-area,
+    .sidebar-hover-trigger:hover+.sidebar.collapsed+.main-content .input-area {
+        padding-left: var(--spacing-6);
+        /* Back to normal padding on hover */
+        padding-right: var(--spacing-6);
+        transition: padding var(--transition-normal);
+    }
 }
 
 .input-container {
@@ -870,9 +1106,9 @@ body {
 }
 
 .model-select {
-    background: none;
+    background-color: var(--input-bg);
     border: 1px solid var(--border-color);
-    color: var(--text-secondary);
+    color: var(--text-primary);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-md);
     font-size: var(--font-size-xs);
@@ -885,6 +1121,38 @@ body {
 .model-select:focus {
     border-color: var(--accent-color);
     outline: none;
+    background-color: var(--bg-secondary);
+}
+
+/* Style the dropdown options to match theme */
+.model-select option {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    padding: var(--spacing-2);
+}
+
+/* Ensure proper styling across different browsers */
+.model-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-2) center;
+    background-size: 16px;
+    padding-right: var(--spacing-6);
+}
+
+/* Dark theme specific adjustments for better contrast */
+[data-theme="dark"] .model-select option {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Light theme specific adjustments */
+[data-theme="light"] .model-select option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .mic-btn {
@@ -1034,6 +1302,72 @@ body {
     padding: var(--spacing-6);
 }
 
+/* Rename Modal */
+.rename-modal {
+    width: 400px;
+}
+
+.rename-modal .modal-body {
+    padding: var(--spacing-4);
+}
+
+.rename-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.rename-input {
+    width: 100%;
+    padding: var(--spacing-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-fast);
+}
+
+.rename-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.rename-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+}
+
+.rename-btn {
+    padding: var(--spacing-2) var(--spacing-4);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.rename-btn.primary {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.rename-btn.primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.rename-btn.secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.rename-btn.secondary:hover {
+    background-color: var(--bg-tertiary);
+}
+
 /* Settings Modal */
 .settings-modal {
     width: 800px;
@@ -1104,6 +1438,14 @@ body {
 .logo-large {
     font-size: 4rem;
     margin-bottom: var(--spacing-4);
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-large i {
+    font-size: 3.5rem;
 }
 
 .app-branding h3 {
@@ -1420,17 +1762,88 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+
+    /* Fix sidebar height and scrolling for mobile */
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
         height: 100vh;
+        height: 100dvh;
+        /* Use dynamic viewport height for better mobile support */
         z-index: 200;
         transform: translateX(-100%);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /* Handle safe area insets for mobile devices */
+        padding-top: env(safe-area-inset-top, 0);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-sizing: border-box;
     }
 
     .sidebar.show {
         transform: translateX(0);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(16, 163, 127, 0.3);
+        animation: slideInFromLeft 0.3s ease-out;
+        border-right: 2px solid var(--accent-color);
+    }
+
+    /* Sidebar slide-in animation */
+    @keyframes slideInFromLeft {
+        0% {
+            transform: translateX(-100%);
+            opacity: 0.8;
+        }
+
+        100% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Ensure conversations section doesn't take all space on mobile */
+    .conversations-section {
+        flex: 1;
+        min-height: 0;
+        /* Allow shrinking */
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 450px);
+        /* Reserve more space for other sections */
+        max-height: calc(var(--vh, 1vh) * 100 - 450px);
+        /* Use custom vh property */
+    }
+
+    /* Make conversations list scrollable with proper height */
+    .conversations-list {
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--sidebar-hover) transparent;
+        min-height: 0;
+        /* Allow shrinking */
+    }
+
+    /* Ensure sidebar menu is always visible at bottom */
+    .sidebar-menu {
+        margin-top: auto;
+        flex-shrink: 0;
+        /* Prevent shrinking */
+        padding-bottom: calc(var(--spacing-2) + env(safe-area-inset-bottom, 0));
+        /* Add bottom padding with safe area */
+    }
+
+    /* Ensure all sidebar sections have proper spacing */
+    .sidebar-section {
+        flex-shrink: 0;
+        /* Prevent shrinking of fixed sections */
+    }
+
+    /* Make sure the sidebar header doesn't shrink */
+    .sidebar-header {
+        flex-shrink: 0;
     }
 
     /* Disable hover trigger on mobile */
@@ -1456,6 +1869,16 @@ body {
         left: 280px !important;
         /* 260px sidebar width + 20px margin */
         transition: left var(--transition-normal) !important;
+        background-color: var(--bg-secondary) !important;
+        border-color: var(--accent-color) !important;
+        color: var(--accent-color) !important;
+        box-shadow: var(--shadow-lg) !important;
+    }
+
+    /* Rotate toggle button icon when sidebar is open */
+    .app-container.sidebar-open .sidebar-toggle i {
+        transform: rotate(180deg);
+        transition: transform var(--transition-fast);
     }
 
     .app-container.sidebar-open::after {
@@ -1467,18 +1890,165 @@ body {
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 150;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        animation: fadeInOverlay 0.3s ease-out;
     }
 
+    /* Overlay fade-in animation */
+    @keyframes fadeInOverlay {
+        0% {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+
+        100% {
+            opacity: 1;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    }
+
+    /* Add blur effect to main content when sidebar is open on mobile */
+    .app-container.sidebar-open .main-content {
+        filter: blur(4px);
+        -webkit-filter: blur(4px);
+        transform: scale(0.95);
+        -webkit-transform: scale(0.95);
+        transition: filter 0.3s ease, transform 0.3s ease;
+        -webkit-transition: -webkit-filter 0.3s ease, -webkit-transform 0.3s ease;
+        transform-origin: center center;
+        -webkit-transform-origin: center center;
+    }
+
+    /* Remove blur when sidebar is closed */
+    .app-container:not(.sidebar-open) .main-content {
+        filter: none;
+        -webkit-filter: none;
+        transform: scale(1);
+        -webkit-transform: scale(1);
+        transition: filter 0.3s ease, transform 0.3s ease;
+        -webkit-transition: -webkit-filter 0.3s ease, -webkit-transform 0.3s ease;
+    }
+
+    /* Fix main content positioning and height for mobile */
+    .main-content {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        /* Use dynamic viewport height */
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        /* Handle safe area insets */
+        padding-top: env(safe-area-inset-top, 0);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-sizing: border-box;
+    }
+
+    /* Ensure top bar is always visible */
     .top-bar {
-        padding: var(--spacing-3) var(--spacing-4);
+        padding: var(--spacing-3) var(--spacing-4) !important;
+        flex-shrink: 0 !important;
+        /* Prevent shrinking */
+        position: relative !important;
+        z-index: 10 !important;
+    }
+
+    /* Fix chat window height */
+    .chat-window {
+        flex: 1 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        /* Allow shrinking */
     }
 
     .chat-messages {
-        padding: var(--spacing-4);
+        padding: var(--spacing-4) !important;
+        flex: 1 !important;
+        overflow-y: auto !important;
+        min-height: 0 !important;
+        /* Allow shrinking */
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
     }
 
+    /* Fix input area positioning and visibility */
     .input-area {
-        padding: var(--spacing-3) var(--spacing-4);
+        padding: var(--spacing-3) var(--spacing-4) !important;
+        flex-shrink: 0 !important;
+        /* Prevent shrinking */
+        position: relative !important;
+        z-index: 10 !important;
+        background-color: var(--bg-primary) !important;
+        border-top: 1px solid var(--border-color) !important;
+        /* Ensure input area is always at bottom */
+        margin-top: auto !important;
+        /* Fix for viewport issues */
+        bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Additional fix for input container */
+    .input-container {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Ensure input wrapper takes full width */
+    .input-wrapper {
+        flex: 1 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Fix textarea sizing */
+    #messageInput {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        resize: none !important;
+    }
+
+    /* Additional mobile viewport fixes */
+    .app-container {
+        min-height: 100vh !important;
+        min-height: calc(var(--vh, 1vh) * 100) !important;
+        max-height: 100vh !important;
+        max-height: calc(var(--vh, 1vh) * 100) !important;
+    }
+
+    /* Use custom vh property for better mobile support */
+    .main-content {
+        height: calc(var(--vh, 1vh) * 100) !important;
+    }
+
+    .sidebar {
+        height: calc(var(--vh, 1vh) * 100) !important;
+    }
+
+    /* Force proper layout on mobile */
+    .chat-window {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    /* Ensure input area stays at bottom */
+    .input-area {
+        position: sticky !important;
+        bottom: 0 !important;
+        bottom: env(safe-area-inset-bottom, 0) !important;
     }
 
     .input-container {
@@ -1496,31 +2066,176 @@ body {
         padding-right: var(--spacing-4);
     }
 
+    /* Mobile-specific model select styling to ensure theme compliance */
+    .model-select {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        /* Force override mobile browser defaults */
+        -webkit-border-radius: var(--radius-md) !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .model-select:focus,
+    .model-select:active {
+        background-color: var(--bg-secondary) !important;
+        border-color: var(--accent-color) !important;
+        outline: none !important;
+    }
+
+    /* Mobile-specific option styling */
+    .model-select option {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        /* Some mobile browsers need explicit styling */
+    }
+
+    /* Mobile theme-specific overrides */
+    [data-theme="dark"] .model-select {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    [data-theme="dark"] .model-select option {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+    }
+
+    [data-theme="light"] .model-select {
+        background-color: var(--input-bg) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    [data-theme="light"] .model-select option {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+    }
+
+    /* Additional mobile browser compatibility */
+    .model-select {
+        /* iOS Safari specific fixes */
+        -webkit-tap-highlight-color: transparent !important;
+        /* Android Chrome specific fixes */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ececec' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right var(--spacing-2) center !important;
+        background-size: 16px !important;
+    }
+
+    /* Light theme arrow color */
+    [data-theme="light"] .model-select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232d3748' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    }
+
     .modal-container {
         max-width: 95vw;
         max-height: 95vh;
         margin: var(--spacing-4);
+        width: 90vw;
+        min-width: 90vw;
     }
 
     .settings-modal {
         width: auto;
         height: auto;
+        min-width: 90vw;
     }
 
     .settings-modal .modal-body {
         flex-direction: column;
         height: auto;
+        min-width: 100%;
     }
 
     .settings-sidebar {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
+    }
+
+    .settings-content {
+        min-width: 100%;
+        width: 100%;
+        flex-shrink: 0;
     }
 
     .form-row {
         flex-direction: column;
         gap: var(--spacing-3);
+    }
+
+    /* Ensure consistent width for all settings tabs on mobile */
+    .settings-modal .modal-container {
+        width: 90vw !important;
+        min-width: 90vw !important;
+    }
+
+    /* Prevent content shrinking for specific tabs */
+    .settings-content[data-tab="accessibility"],
+    .settings-content[data-tab="notifications"] {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Force consistent modal width regardless of content */
+    .settings-modal .modal-body {
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    /* Ensure all settings tabs maintain full width */
+    .settings-tab {
+        white-space: nowrap;
+        min-width: 0;
+        flex-shrink: 0;
+    }
+
+    /* Customize Modal - Mobile scrolling */
+    .customize-modal {
+        width: auto;
+        height: auto;
+        max-height: 90vh;
+    }
+
+    .customize-modal .modal-body {
+        max-height: calc(90vh - 80px);
+        overflow-y: auto;
+        padding: var(--spacing-4);
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
+    }
+
+    /* Ensure form sections in customize modal are properly spaced on mobile */
+    .customize-modal .form-section {
+        margin-bottom: var(--spacing-1);
+    }
+
+    .customize-modal .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Reduce height for General Settings and Chat Settings tabs only */
+    .settings-modal.tab-general .modal-container,
+    .settings-modal.tab-chat .modal-container {
+        max-height: 90vh !important;
+        height: auto !important;
+    }
+
+    .settings-modal.tab-general .modal-body,
+    .settings-modal.tab-chat .modal-body {
+        max-height: calc(80vh - 60px) !important;
+    }
+
+    .settings-modal.tab-general .settings-content,
+    .settings-modal.tab-chat .settings-content {
+        max-height: calc(70vh - 240px) !important;
+        overflow-y: auto;
     }
 }
 

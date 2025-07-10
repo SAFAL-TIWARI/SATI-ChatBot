@@ -1359,13 +1359,14 @@ const searchInput = document.getElementById('searchInput');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const mobileNavMenu = document.getElementById('mobileNavMenu');
+const blurOverlay = document.getElementById('blurOverlay');
 const shareModal = document.getElementById('shareModal');
 const closeModal = document.getElementById('closeModal');
 const shareLink = document.getElementById('shareLink');
 const copyLinkBtn = document.getElementById('copyLinkBtn');
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializePage();
     setupEventListeners();
     loadDefaultContent();
@@ -1411,14 +1412,14 @@ function setupEventListeners() {
     copyLinkBtn.addEventListener('click', copyShareLink);
 
     // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
+    window.addEventListener('click', function (event) {
         if (event.target === shareModal) {
             closeShareModal();
         }
     });
 
     // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         if (!event.target.closest('.nav-menu') && !event.target.closest('.mobile-nav-menu')) {
             closeMobileMenu();
         }
@@ -1431,10 +1432,15 @@ function setupEventListeners() {
 
     // Mobile navigation links
     document.querySelectorAll('.mobile-nav-link').forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             closeMobileMenu();
         });
     });
+
+    // Blur overlay click to close mobile menu
+    if (blurOverlay) {
+        blurOverlay.addEventListener('click', closeMobileMenu);
+    }
 }
 
 // Handle menu item clicks
@@ -1482,7 +1488,7 @@ function handleSubMenuClick(event) {
 function toggleDropdown(category) {
     const dropdown = document.getElementById(category + 'Dropdown');
     const menuItem = document.querySelector(`[data-category="${category}"]`);
-    
+
     if (dropdown.classList.contains('show')) {
         dropdown.classList.remove('show');
         menuItem.classList.remove('active');
@@ -1542,7 +1548,7 @@ function displayResources(resources) {
         const resourceItem = document.createElement('div');
         resourceItem.className = `resource-item ${index === 0 ? 'active' : ''}`;
         resourceItem.setAttribute('data-resource-id', resource.id);
-        
+
         resourceItem.innerHTML = `
             <h4 class="tooltip">${resource.title}
                 <span class="tooltiptext">${resource.description}</span>
@@ -1568,7 +1574,7 @@ function displayResources(resources) {
 // Load a specific resource in the preview area
 function loadResource(resource) {
     currentResource = resource;
-    
+
     // Update title
     previewTitle.textContent = resource.subject;
 
@@ -1597,7 +1603,7 @@ function showLoading() {
 // Load PDF preview
 function loadPDFPreview(url) {
     pdfPreview.src = url;
-    pdfPreview.onload = function() {
+    pdfPreview.onload = function () {
         loadingSpinner.style.display = 'none';
         pdfPreview.style.display = 'block';
     };
@@ -1646,13 +1652,13 @@ function updateActionButtons(resource) {
 // Handle search functionality
 function handleSearch(event) {
     const searchTerm = event.target.value.toLowerCase();
-    
+
     if (searchTerm === '') {
         displayResources(filteredResources);
         return;
     }
 
-    const filtered = filteredResources.filter(resource => 
+    const filtered = filteredResources.filter(resource =>
         resource.title.toLowerCase().includes(searchTerm) ||
         resource.description.toLowerCase().includes(searchTerm)
     );
@@ -1701,10 +1707,10 @@ function handleSocialShare(event) {
     const platform = event.currentTarget.classList[1];
     const url = shareLink.value;
     const title = currentResource ? currentResource.title : 'SATI Resource';
-    
+
     let shareUrl = '';
-    
-    switch(platform) {
+
+    switch (platform) {
         case 'whatsapp':
             shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' - ' + url)}`;
             break;
@@ -1715,7 +1721,7 @@ function handleSocialShare(event) {
             shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent('Check out this resource: ' + url)}`;
             break;
     }
-    
+
     if (shareUrl) {
         window.open(shareUrl, '_blank');
     }
@@ -1725,7 +1731,7 @@ function handleSocialShare(event) {
 function toggleDarkMode() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateDarkModeIcon(newTheme === 'dark');
@@ -1740,13 +1746,23 @@ function updateDarkModeIcon(isDark) {
 // Toggle mobile menu
 function toggleMobileMenu() {
     mobileNavMenu.classList.toggle('show');
-    
+
     // Update mobile menu toggle icon
     const icon = mobileMenuToggle.querySelector('i');
     if (mobileNavMenu.classList.contains('show')) {
         icon.className = 'fas fa-times';
+        // Add blur effect to body and show overlay
+        document.body.classList.add('mobile-menu-open');
+        if (blurOverlay) {
+            blurOverlay.classList.add('show');
+        }
     } else {
         icon.className = 'fas fa-bars';
+        // Remove blur effect from body and hide overlay
+        document.body.classList.remove('mobile-menu-open');
+        if (blurOverlay) {
+            blurOverlay.classList.remove('show');
+        }
     }
 }
 
@@ -1755,6 +1771,11 @@ function closeMobileMenu() {
     mobileNavMenu.classList.remove('show');
     const icon = mobileMenuToggle.querySelector('i');
     icon.className = 'fas fa-bars';
+    // Remove blur effect from body and hide overlay
+    document.body.classList.remove('mobile-menu-open');
+    if (blurOverlay) {
+        blurOverlay.classList.remove('show');
+    }
 }
 
 // Load default content on page load
@@ -1764,7 +1785,7 @@ function loadDefaultContent() {
     if (notesMenuItem) {
         notesMenuItem.classList.add('active');
     }
-    
+
     // Load notes resources
     loadResources('notes');
 }
@@ -1778,15 +1799,15 @@ function showNotification(message, type = 'info') {
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
         <span>${message}</span>
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Show notification
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
     // Remove notification after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
@@ -1880,9 +1901,9 @@ function updateResourceData(resourceId, previewUrl, downloadUrl) {
             });
         }
     }
-    
+
     findAndUpdate(resourcesData);
-    
+
     // If this is the currently loaded resource, update the preview
     if (currentResource && currentResource.id === resourceId) {
         currentResource.previewUrl = convertToEmbedUrl(previewUrl);
