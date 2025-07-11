@@ -131,7 +131,7 @@
                     </button>
                     <div class="profile-menu-container">
                         <button class="profile-avatar" id="profileAvatar" title="Profile menu">
-                            <i class="fas fa-user"></i>
+                            <span class="avatar-text">?</span>
                         </button>
                         <!-- Profile Dropdown -->
                         <div class="profile-dropdown" id="profileDropdown">
@@ -403,8 +403,8 @@
             <div class="modal-body">
                 <div class="profile-container">
                     <div class="profile-header">
-                        <div class="profile-avatar-large">
-                            <i class="fas fa-user"></i>
+                        <div class="profile-avatar-large" id="profileAvatarLarge">
+                            ?
                         </div>
                         <h3 id="profileUsername">Username</h3>
                         <p id="profileEmail">user@example.com</p>
@@ -441,12 +441,12 @@
                         </div>
                     </div>
                     
-                    <div class="profile-actions">
-                        <button class="btn primary-btn" id="editProfileBtn">
-                            <i class="fas fa-edit"></i> Edit Profile
-                        </button>
-                        <button class="btn secondary-btn" id="exportDataBtn">
+                    <div class="profile-actions" id="profileActions">
+                        <button class="btn btn-primary" onclick="exportUserData()">
                             <i class="fas fa-download"></i> Export Data
+                        </button>
+                        <button class="btn btn-secondary" id="editProfileBtn">
+                            <i class="fas fa-edit"></i> Edit Profile
                         </button>
                     </div>
                 </div>

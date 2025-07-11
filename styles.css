@@ -758,6 +758,16 @@ body {
     border: 2px solid var(--bg-primary);
 }
 
+.avatar-text {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.profile-avatar.logged-in .avatar-text {
+    color: white;
+}
+
 /* Profile Menu */
 .profile-menu-container {
     position: relative;

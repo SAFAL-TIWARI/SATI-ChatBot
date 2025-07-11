@@ -2686,20 +2686,53 @@ function updateLoginStatus() {
     const text = loginLogoutBtn.querySelector('span');
 
     if (chatState.isLoggedIn) {
+        // Update login button to show logout
         icon.className = 'fas fa-sign-out-alt';
         text.textContent = 'Logout';
         
         // Update profile avatar to show logged in state
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.add('logged-in');
+            
+            // Set the first letter of username as the avatar text
+            const avatarText = elements.profileAvatar.querySelector('.avatar-text');
+            if (avatarText && chatState.username) {
+                avatarText.textContent = chatState.username.charAt(0).toUpperCase();
+            }
+        }
+        
+        // Log user info to console
+        console.log('✅ User logged in successfully:');
+        console.log('👤 Username:', chatState.username);
+        console.log('📧 Email:', chatState.email || 'Not provided');
+        console.log('🔐 Auth Provider:', chatState.authProvider);
+        console.log('🕒 Login time:', new Date().toLocaleString());
+        
+        // Update My Profile button text to show username
+        const myProfileBtn = document.getElementById('myProfileBtn');
+        if (myProfileBtn) {
+            myProfileBtn.innerHTML = `<i class="fas fa-user"></i> <span>${chatState.username}'s Profile</span>`;
         }
     } else {
+        // Update login button to show login
         icon.className = 'fas fa-sign-in-alt';
         text.textContent = 'Login';
         
         // Update profile avatar to show logged out state
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.remove('logged-in');
+            
+            // Reset avatar text
+            const avatarText = elements.profileAvatar.querySelector('.avatar-text');
+            if (avatarText) {
+                avatarText.textContent = '?';
+            }
+        }
+        
+        // Reset My Profile button text
+        const myProfileBtn = document.getElementById('myProfileBtn');
+        if (myProfileBtn) {
+            myProfileBtn.innerHTML = `<i class="fas fa-user"></i> <span>My Profile</span>`;
         }
     }
 }
@@ -2715,12 +2748,20 @@ function showProfileModal() {
     const profileAccountType = document.getElementById('profileAccountType');
     const profileLoginMethod = document.getElementById('profileLoginMethod');
     const profileLastLogin = document.getElementById('profileLastLogin');
+    const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+    const profileActions = document.getElementById('profileActions');
     
     // Update profile information
     if (chatState.isLoggedIn) {
         // Set username and email
         profileUsername.textContent = chatState.username || 'User';
         profileEmail.textContent = chatState.email || 'No email provided';
+        
+        // Set avatar with first letter of username
+        if (profileAvatarLarge) {
+            profileAvatarLarge.textContent = chatState.username.charAt(0).toUpperCase();
+            profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
+        }
         
         // Calculate stats
         const chatCount = chatState.conversations.length;
@@ -2756,17 +2797,45 @@ function showProfileModal() {
         // Set last login date
         const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
         const lastLoginDate = new Date(lastLogin);
-        profileLastLogin.textContent = lastLoginDate.toLocaleDateString();
+        profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
+        
+        // Update profile actions to show logout button
+        if (profileActions) {
+            profileActions.innerHTML = `
+                <button class="btn btn-primary" onclick="exportUserData()">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+                <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            `;
+        }
     } else {
         // Default values for logged out state
         profileUsername.textContent = 'Guest';
         profileEmail.textContent = 'Not logged in';
+        
+        // Set default avatar
+        if (profileAvatarLarge) {
+            profileAvatarLarge.textContent = '?';
+            profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
+        }
+        
         profileChatCount.textContent = chatState.conversations.length;
         profileMessageCount.textContent = '0';
         profileLoginCount.textContent = '0';
         profileAccountType.textContent = 'Guest';
         profileLoginMethod.textContent = 'None';
         profileLastLogin.textContent = 'N/A';
+        
+        // Update profile actions to show login button
+        if (profileActions) {
+            profileActions.innerHTML = `
+                <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            `;
+        }
     }
     
     // Show the modal
