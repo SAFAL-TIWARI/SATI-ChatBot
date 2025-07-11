@@ -1719,24 +1719,6 @@ body {
     border-left: 4px solid var(--info-color);
 }
 
-.toast.welcome {
-    border-left: 4px solid var(--accent-color);
-    background-color: rgba(var(--accent-rgb), 0.1);
-    animation: welcome-pulse 2s infinite;
-}
-
-@keyframes welcome-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0);
-    }
-}
-
 .toast-icon {
     font-size: var(--font-size-lg);
 }

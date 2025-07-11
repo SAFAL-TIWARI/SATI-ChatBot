@@ -2535,7 +2535,10 @@ async function login() {
                 // Update UI
                 updateLoginStatus();
                 
-                // Show welcome message with a slight delay to ensure UI is ready
+                // Show welcome toast immediately
+                showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
+                
+                // Show welcome modal with a slight delay to ensure UI is ready
                 setTimeout(() => {
                     showWelcomeModal(chatState.username);
                 }, 500);
@@ -2575,7 +2578,10 @@ function fallbackLogin(email) {
     // Update UI
     updateLoginStatus();
     
-    // Show welcome message with a slight delay to ensure UI is ready
+    // Show welcome toast immediately
+    showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
+    
+    // Show welcome modal with a slight delay to ensure UI is ready
     setTimeout(() => {
         showWelcomeModal(chatState.username);
     }, 500);
@@ -2813,54 +2819,15 @@ function showWelcomeToast(username, isFirstLogin) {
     
     // Create different messages for first-time vs returning users
     let message = '';
-    let icon = '👋';
     
     if (isFirstLogin) {
-        message = `${timeGreeting}, ${username || 'User'}! Welcome to SATI ChatBot.`;
-        icon = '🎉';
+        message = `👋 ${timeGreeting}, ${username}! Welcome to SATI ChatBot`;
     } else {
-        // Get login count for personalized message
-        const loginCount = parseInt(localStorage.getItem('sati_login_count') || '1');
-        
-        if (loginCount > 10) {
-            message = `${timeGreeting}, ${username || 'User'}! Welcome back for your ${loginCount}th visit!`;
-            icon = '🏆';
-        } else {
-            message = `${timeGreeting}, ${username || 'User'}! Great to see you again!`;
-            icon = '👋';
-        }
+        message = `👋 ${timeGreeting}, ${username}! Welcome back`;
     }
     
-    // Create a custom welcome toast
-    const toastContainer = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast welcome';
-    
-    toast.innerHTML = `
-        <div class="toast-icon">${icon}</div>
-        <div class="toast-message">${message}</div>
-        <button class="toast-close">&times;</button>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Show toast with animation
-    setTimeout(() => toast.classList.add('show'), 100);
-    
-    // Auto remove after 6 seconds
-    const removeToast = () => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    };
-    
-    setTimeout(removeToast, 6000);
-    
-    // Manual close
-    toast.querySelector('.toast-close').addEventListener('click', removeToast);
+    // Show the toast with a longer duration (5 seconds)
+    toast.show(message, 'success', 5000);
 }
 
 // Initialize sidebar toggle button position
