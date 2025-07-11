@@ -2244,6 +2244,14 @@ function initializeEventListeners() {
                     chatState.authProvider = authProvider;
                     chatState.saveState();
                     
+                    // --- ADDED: Welcome console and popup ---
+                    console.log(`🎉 User '${chatState.username}' is now logged in!`);
+                    if (!window._satiWelcomeToastShown) {
+                        toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
+                        window._satiWelcomeToastShown = true;
+                    }
+                    // --- END ADDED ---
+                    
                     // Update login statistics
                     updateLoginStats();
                     
@@ -2252,9 +2260,6 @@ function initializeEventListeners() {
                     
                     // Update UI
                     updateLoginStatus();
-                    
-                    // Show welcome toast immediately
-                    showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
                     
                     // Show welcome modal with a slight delay to ensure UI is ready
                     setTimeout(() => {
@@ -2526,6 +2531,14 @@ async function login() {
                 chatState.authProvider = 'email';
                 chatState.saveState();
 
+                // --- ADDED: Welcome console and popup ---
+                console.log(`🎉 User '${chatState.username}' is now logged in!`);
+                if (!window._satiWelcomeToastShown) {
+                    toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
+                    window._satiWelcomeToastShown = true;
+                }
+                // --- END ADDED ---
+
                 // Update login statistics
                 updateLoginStats();
 
@@ -2534,9 +2547,6 @@ async function login() {
                 
                 // Update UI
                 updateLoginStatus();
-                
-                // Show welcome toast immediately
-                showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
                 
                 // Show welcome modal with a slight delay to ensure UI is ready
                 setTimeout(() => {
@@ -2569,6 +2579,14 @@ function fallbackLogin(email) {
     chatState.authProvider = 'email';
     chatState.saveState();
 
+    // --- ADDED: Welcome console and popup ---
+    console.log(`🎉 User '${chatState.username}' is now logged in!`);
+    if (!window._satiWelcomeToastShown) {
+        toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
+        window._satiWelcomeToastShown = true;
+    }
+    // --- END ADDED ---
+
     // Update login statistics
     updateLoginStats();
 
@@ -2577,9 +2595,6 @@ function fallbackLogin(email) {
     
     // Update UI
     updateLoginStatus();
-    
-    // Show welcome toast immediately
-    showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
     
     // Show welcome modal with a slight delay to ensure UI is ready
     setTimeout(() => {
@@ -2701,12 +2716,18 @@ function updateLoginStatus() {
             }
         }
         
-        // Log user info to console
-        console.log('✅ User logged in successfully:');
+        // Log user info to console (UPDATED)
+        console.log(`🎉 User '${chatState.username}' is now logged in!`);
         console.log('👤 Username:', chatState.username);
         console.log('📧 Email:', chatState.email || 'Not provided');
         console.log('🔐 Auth Provider:', chatState.authProvider);
         console.log('🕒 Login time:', new Date().toLocaleString());
+        
+        // Show welcome toast (only if not already shown by showWelcomeToast)
+        if (!window._satiWelcomeToastShown) {
+            toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
+            window._satiWelcomeToastShown = true;
+        }
         
         // Update My Profile button text to show username
         const myProfileBtn = document.getElementById('myProfileBtn');
