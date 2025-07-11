@@ -2,3 +2,5 @@
 .vscode/
 .zencoder/
 api-keys.json
+.vercel
+.env.local

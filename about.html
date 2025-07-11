@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - SATI ChatBot</title>
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
+    <meta name="description"
+        content="Learn about SATI ChatBot - Your intelligent assistant for Samrat Ashok Technological Institute resources and information.">
+    <meta name="keywords"
+        content="SATI ChatBot, About SATI, AI chatbot, hybrid AI, dual API, dynamic model switching, real-time chat, export functionality, modern Streamlit UI, cloud-based AI interactions">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/images/preview.png">
+    <meta name="author" content="Team FluxoNauts">
+    <meta name="og:url" content="https://sati-chatbot.vercel.app/about">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="resources.css">
+    <style>
+        /* Prevent flash of unstyled content */
+        html, body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html[data-theme="light"], 
+        html[data-theme="light"] body {
+            background-color: #f7f9fb !important;
+            color: #2c3e50 !important;
+        }
+        
+        :root {
+            --secondary-color: #00c853;
+            --primary-hover: #1565c0;
+            --hover-color: rgba(25, 118, 210, 0.1);
+        }
+        
+        /* Animation Keyframes */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Performance optimizations */
+        .info-card,
+        .feature-item,
+        .stat-card,
+        .team-member {
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            .info-card:nth-child(odd),
+            .info-card:nth-child(even),
+            .features-section,
+            .team-section,
+            .stats-section {
+                animation: none;
+            }
+            
+            .info-card,
+            .feature-item,
+            .stat-card,
+            .team-member {
+                transition: none;
+            }
+        }
+        
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            margin-top: 70px;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            color: white;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .hero-section p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Compact Info Section */
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:nth-child(odd) {
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+
+        .info-card:nth-child(even) {
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        /* Compact Stats */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.2rem 0.8rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Compact Features */
+        .features-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-2px);
+            background: var(--hover-color);
+        }
+
+        .feature-icon {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-primary);
+        }
+
+        .feature-item p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Compact Team Section */
+        .team-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            animation: slideInRight 0.8s ease-out forwards;
+            text-align: center;
+        }
+
+        .team-header {
+            margin-bottom: 2rem;
+        }
+
+        .team-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .team-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .team-member.lead {
+            background: linear-gradient(135deg, var(--bg-color), rgba(0, 200, 83, 0.05));
+            border-radius: 5%;
+        }
+        .team-member.lead:hover {
+            border-color: var(--secondary-color);
+        }
+
+
+        .member-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .team-member.lead .member-avatar {
+            border-color: var(--secondary-color);
+        }
+
+        .member-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .member-avatar img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Fallback for broken images */
+        .member-avatar img[src=""],
+        .member-avatar img:not([src]) {
+            display: none;
+        }
+
+        .member-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            content: '\f007';
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .member-avatar img[alt]::after {
+            content: attr(alt);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .member-avatar:hover img[alt]::after {
+            opacity: 1;
+        }
+
+        .member-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .member-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+        }
+
+        .team-member.lead .member-role {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .social-links a {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 0.3rem;
+            border-radius: 50%;
+        }
+
+        .social-links a:hover {
+            transform: scale(1.2);
+            background: var(--hover-color);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 1rem;
+                margin-top: 60px;
+            }
+
+            .hero-section {
+                padding: 2rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-section p {
+                font-size: 0.9rem;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .tech-stack {
+                font-size: 0.7rem;
+            }
+
+            .features-section,
+            .team-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .about-container {
+                padding: 0.8rem;
+            }
+
+            .hero-section {
+                padding: 1.5rem 0.8rem;
+            }
+
+            .hero-section h1 {
+                font-size: 1.6rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem 0.5rem;
+            }
+
+            .info-card,
+            .features-section,
+            .team-section {
+                padding: 1.2rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .member-avatar {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+    <script>
+        (function () {
+            // Get theme from localStorage - check multiple possible keys for compatibility
+            const savedTheme = localStorage.getItem('sati_theme') || 
+                              localStorage.getItem('light') || 
+                              localStorage.getItem('theme') || 
+                              'dark';
+            
+            // Apply theme immediately to prevent flash
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+            document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            
+            // Also apply to body when it's available
+            if (document.body) {
+                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+                document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            }
+            
+            // Ensure consistency across all storage keys
+            localStorage.setItem('sati_theme', savedTheme);
+            localStorage.setItem('light', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-robot"></i>
+                <span>SATI ChatBot</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="resources.html" class="nav-link">Resources</a>
+                <a href="about.html" class="nav-link active">About</a>
+                <a href="contact.html" class="nav-link">Contact Us</a>
+
+                <button class="dark-mode-toggle" id="darkModeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-nav-menu" id="mobileNavMenu">
+                <a href="index.html" class="mobile-nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="resources.html" class="mobile-nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </a>
+                <a href="about.html" class="mobile-nav-link active">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About</span>
+                </a>
+                <a href="contact.html" class="mobile-nav-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blur Overlay for Mobile Menu -->
+    <div class="blur-overlay" id="blurOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="about-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1>About SATI ChatBot</h1>
+            <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information, powered by advanced AI technology.</p>
+        </section>
+
+        <!-- Compact Info Section -->
+        <div class="info-section">
+            <div class="info-card">
+                <h3><i class="fas fa-university"></i> About SATI</h3>
+                <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr. Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-robot"></i> Our Mission</h3>
+                <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning experiences and simplifies access to institutional resources.</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-lightbulb"></i> Our Vision</h3>
+                <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology, making information discovery seamless and efficient.</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
+                <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering, technology, science, and management disciplines.</p>
+            </div>
+        </div>
+
+        <!-- Compact Statistics -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">60+</div>
+                <div class="stat-label">Years Excellence</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">B.Tech Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">85</div>
+                <div class="stat-label">Acres Campus</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Hostel Capacity</div>
+            </div>
+        </div>
+
+        <!-- Compact Features Section -->
+        <section class="features-section">
+            <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color); font-size: 1.4rem;">
+                <i class="fas fa-star"></i> Key Features
+            </h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                What makes SATI ChatBot your perfect academic companion
+            </p>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h4>AI Intelligence</h4>
+                    <p>Advanced AI models for accurate responses</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h4>Complete Resources</h4>
+                    <p>Notes, assignments, papers, syllabus & PYQs</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4>24/7 Available</h4>
+                    <p>Instant answers anytime, anywhere</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4>Mobile Ready</h4>
+                    <p>Works on all devices seamlessly</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4>Smart Search</h4>
+                    <p>Intelligent resource discovery</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h4>Easy Downloads</h4>
+                    <p>One-click material downloads</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="team-section">
+            <div class="team-header">
+                <h2><i class="fas fa-users"></i> Meet Team FluxoNauts</h2>
+                <p>Passionate developers creating innovative solutions for SATI students</p>
+                <div class="tech-stack">
+                    <span><i class="fab fa-html5"></i> Frontend</span>
+                    <span><i class="fas fa-server"></i> Node.js</span>
+                    <span><i class="fas fa-robot"></i> AI APIs</span>
+                    <span><i class="fas fa-cloud"></i> Vercel</span>
+                </div>
+            </div>
+            
+            <div class="team-grid">
+                <!-- Lead Developer -->
+                <div class="team-member lead">
+                    <div class="member-avatar">
+                        <img src="https://github.com/SAFAL-TIWARI.png" alt="Safal Tiwari" loading="lazy">
+                    </div>
+                    <div class="member-name">Safal Tiwari</div>
+                    <div class="member-role">Lead Developer</div>
+                    <div class="social-links">
+                        <a href="https://github.com/SAFAL-TIWARI" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank" title="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="https://www.instagram.com/itz_safal_/" target="_blank" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Team Member 1 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="https://github.com/UtkiVish.png" alt="Utkarsh Vishwakarma" loading="lazy">
+                    </div>
+                    <div class="member-name">Utkarsh Vishwakarma</div>
+                    <div class="member-role">Team Member</div>
+                    <div class="social-links">
+                        <a href="https://github.com/UtkiVish" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="https://github.com/thunder-thigh.png" alt="Aashutosh Singh Baghel" loading="lazy">
+                    </div>
+                    <div class="member-name">Aashutosh Singh Baghel</div>
+                    <div class="member-role">Team Member</div>
+                    <div class="social-links">
+                        <a href="https://github.com/thunder-thigh" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="https://github.com/HKSinha510.png" alt="Hardik Kumar Sinha" loading="lazy">
+                    </div>
+                    <div class="member-name">Hardik Kumar Sinha</div>
+                    <div class="member-role">Team Member</div>
+                    <div class="social-links">
+                        <a href="https://github.com/HKSinha510" target="_blank" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About SATI ChatBot</h3>
+                <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect with Us</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SATI ChatBot. Made with ❤️ by Team FluxoNauts.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Dark Mode Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileNavMenu = document.getElementById('mobileNavMenu');
+            const blurOverlay = document.getElementById('blurOverlay');
+
+            // Dark mode toggle
+            if (darkModeToggle) {
+                // Set initial icon based on current theme
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const icon = darkModeToggle.querySelector('i');
+                icon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                
+                darkModeToggle.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Apply theme
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    
+                    // Save to all possible localStorage keys for consistency
+                    localStorage.setItem('sati_theme', newTheme);
+                    localStorage.setItem('light', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    
+                    // Update icon
+                    icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                });
+            }
+
+            // Mobile menu toggle
+            if (mobileMenuToggle && mobileNavMenu && blurOverlay) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mobileNavMenu.classList.toggle('show');
+                    blurOverlay.classList.toggle('show');
+                    document.body.classList.toggle('mobile-menu-open');
+                    
+                    // Update mobile menu toggle icon
+                    const icon = mobileMenuToggle.querySelector('i');
+                    if (mobileNavMenu.classList.contains('show')) {
+                        icon.className = 'fas fa-times';
+                    } else {
+                        icon.className = 'fas fa-bars';
+                    }
+                });
+
+                blurOverlay.addEventListener('click', function() {
+                    mobileNavMenu.classList.remove('show');
+                    blurOverlay.classList.remove('show');
+                    document.body.classList.remove('mobile-menu-open');
+                    
+                    // Reset mobile menu toggle icon
+                    const icon = mobileMenuToggle.querySelector('i');
+                    icon.className = 'fas fa-bars';
+                });
+
+                // Close mobile menu when clicking on navigation links
+                document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileNavMenu.classList.remove('show');
+                        blurOverlay.classList.remove('show');
+                        document.body.classList.remove('mobile-menu-open');
+                        
+                        // Reset mobile menu toggle icon
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.className = 'fas fa-bars';
+                    });
+                });
+            }
+
+            // Scroll-triggered animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        entry.target.style.opacity = '1';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for animation
+            document.querySelectorAll('.info-card, .features-section, .team-section, .stats-section').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                el.style.opacity = '0';
+                observer.observe(el);
+            });
+
+            // Add staggered animation delays for info cards
+            document.querySelectorAll('.info-card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
+
+            // Add hover effects for stat cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05) rotate(2deg)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                });
+            });
+
+            // Add smooth scrolling for better UX
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Handle GitHub profile image loading errors
+            document.querySelectorAll('.member-avatar img').forEach(img => {
+                img.addEventListener('error', function() {
+                    // Create fallback icon
+                    const fallback = document.createElement('div');
+                    fallback.innerHTML = '<i class="fas fa-user"></i>';
+                    fallback.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        background: var(--primary-color);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 1.5rem;
+                    `;
+                    
+                    // Replace image with fallback
+                    this.parentNode.replaceChild(fallback, this);
+                });
+
+                // Add loading animation
+                img.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+
+                // Set initial opacity for loading effect
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s ease';
+            });
+
+            // Add team member card animations on scroll
+            const teamObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.team-member').forEach((member, index) => {
+                member.style.opacity = '0';
+                member.style.transform = 'translateY(20px)';
+                member.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
+                teamObserver.observe(member);
+            });
+        });
+    </script>
+</body>
+
+</html>

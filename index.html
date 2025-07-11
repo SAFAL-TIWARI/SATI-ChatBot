@@ -7,29 +7,37 @@
     <title>SATI ChatBot - Your Institute Guide</title>
     <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
     <meta name="description"
-        content="SATI - Hybrid AI Chatbot with dual API support (Google gemini + Groq cloud). Features dynamic model switching, real-time chat, export functionality, and modern Streamlit UI. Perfect for cloud-based AI interactions.">
+        content="Your intelligent assistant for Samrat Ashok Technological Institute resources and information.">
     <meta name="keywords"
         content="SATI ChatBot, SATI, AI, chatbot, hybrid AI, dual API, dynamic model switching, real-time chat, export functionality, modern Streamlit UI, cloud-based AI interactions">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/images/preview.png">
     <meta name="author" content="Team FluxoNauts">
-    <meta name="og:url" content="https://safal-tiwari.github.io/SATI-ChatBot/">
+    <meta name="og:url" content="https://sati-chatbot.vercel.app/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="robots" content="index, follow">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia:wght@400;700&family=Verdana:wght@400;700&family=Trebuchet+MS:wght@400;700&family=Tahoma:wght@400;700&family=Palatino:wght@400;700&family=Garamond:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia:wght@400;700&family=Verdana:wght@400;700&family=Trebuchet+MS:wght@400;700&family=Tahoma:wght@400;700&family=Palatino:wght@400;700&family=Garamond:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="KOi1bvu2tRkeojuYE0ABHOWsA8_frAbvSeMWsQGhBM4" />
 
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- SATI Knowledge Base -->
     <script src="sati-knowledge.js"></script>
-    
+
     <!-- Configuration -->
     <script src="config.js"></script>
-    
+
+    <!-- Localhost Configuration (for development) -->
+    <script src="localhost-config.js"></script>
+
     <!-- API Integration -->
     <script src="api-integration.js"></script>
 
@@ -381,7 +389,8 @@
             </div>
             <div class="modal-body">
                 <form class="rename-form" id="renameForm">
-                    <input type="text" class="rename-input" id="renameInput" placeholder="Enter new name..." maxlength="100">
+                    <input type="text" class="rename-input" id="renameInput" placeholder="Enter new name..."
+                        maxlength="100">
                     <div class="rename-actions">
                         <button type="button" class="rename-btn secondary" id="renameCancelBtn">Cancel</button>
                         <button type="submit" class="rename-btn primary" id="renameSaveBtn">Save</button>
