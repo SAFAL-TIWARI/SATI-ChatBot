@@ -1374,12 +1374,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Initialize page settings
 function initializePage() {
-    // Check for saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        updateDarkModeIcon(savedTheme === 'dark');
-    }
+    // Check for saved theme - check multiple possible keys for compatibility
+    const savedTheme = localStorage.getItem('sati_theme') || 
+                      localStorage.getItem('light') || 
+                      localStorage.getItem('theme') || 
+                      'dark';
+    
+    // Apply theme
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Ensure consistency across all storage keys
+    localStorage.setItem('sati_theme', savedTheme);
+    localStorage.setItem('light', savedTheme);
+    localStorage.setItem('theme', savedTheme);
+    
+    // Update dark mode icon
+    updateDarkModeIcon(savedTheme === 'dark');
 }
 
 // Setup all event listeners
@@ -1732,15 +1742,23 @@ function toggleDarkMode() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
+    // Apply theme
     document.documentElement.setAttribute('data-theme', newTheme);
+    
+    // Save to all possible localStorage keys for consistency across pages
+    localStorage.setItem('sati_theme', newTheme);
+    localStorage.setItem('light', newTheme);
     localStorage.setItem('theme', newTheme);
+    
     updateDarkModeIcon(newTheme === 'dark');
 }
 
 // Update dark mode icon
 function updateDarkModeIcon(isDark) {
     const icon = darkModeToggle.querySelector('i');
-    icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    if (icon) {
+        icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+    }
 }
 
 // Toggle mobile menu

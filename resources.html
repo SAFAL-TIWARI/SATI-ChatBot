@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -20,10 +20,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <link rel="stylesheet" href="resources.css">
+    <style>
+        /* Prevent flash of unstyled content */
+        html, body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html[data-theme="light"], 
+        html[data-theme="light"] body {
+            background-color: #f7f9fb !important;
+            color: #2c3e50 !important;
+        }
+    </style>
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('light') || 'dark';
+            // Get theme from localStorage - check multiple possible keys for compatibility
+            const savedTheme = localStorage.getItem('sati_theme') || 
+                              localStorage.getItem('light') || 
+                              localStorage.getItem('theme') || 
+                              'dark';
+            
+            // Apply theme immediately to prevent flash
             document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+            document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            
+            // Also apply to body when it's available
+            if (document.body) {
+                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+                document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            }
+            
+            // Ensure consistency across all storage keys
+            localStorage.setItem('sati_theme', savedTheme);
+            localStorage.setItem('light', savedTheme);
         })();
     </script>
 </head>
@@ -39,19 +72,9 @@
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="resources.html" class="nav-link active">Resources</a>
-                <a href="#" class="nav-link" onclick="showComingSoon('About')">About</a>
-                <a href="#" class="nav-link" onclick="showComingSoon('Contact Us')">Contact Us</a>
-                <div class="profile-dropdown">
-                    <div class="profile-icon">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="dropdown-content">
-                        <a href="#"><i class="fas fa-user"></i> Profile</a>
-                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                        <a href="#"><i class="fas fa-history"></i> History</a>
-                        <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </div>
-                </div>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact Us</a>
+
                 <button class="dark-mode-toggle" id="darkModeToggle">
                     <i class="fas fa-moon"></i>
                 </button>
@@ -69,11 +92,11 @@
                     <i class="fas fa-book"></i>
                     <span>Resources</span>
                 </a>
-                <a href="#" class="mobile-nav-link" onclick="showComingSoon('About')">
+                <a href="about.html" class="mobile-nav-link">
                     <i class="fas fa-info-circle"></i>
                     <span>About</span>
                 </a>
-                <a href="#" class="mobile-nav-link" onclick="showComingSoon('Contact Us')">
+                <a href="contact.html" class="mobile-nav-link">
                     <i class="fas fa-envelope"></i>
                     <span>Contact Us</span>
                 </a>
@@ -249,8 +272,8 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="resources.html">Resources</a></li>
-                    <li><a href="#" onclick="showComingSoon('About')">About</a></li>
-                    <li><a href="#" onclick="showComingSoon('Contact')">Contact</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-section">
