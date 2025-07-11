@@ -2458,7 +2458,7 @@ function initializeApp() {
                 setTimeout(initializeWithApiManager, 500);
             }
         };
-
+        
         // Start initialization
         initializeWithApiManager();
 
