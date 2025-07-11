@@ -1510,12 +1510,12 @@ body {
 }
 
 .app-branding {
-    margin-bottom: var(--spacing-8);
+    margin-bottom: var(--spacing-3);
 }
 
 .logo-large {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-4);
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-1);
     color: var(--accent-color);
     display: flex;
     align-items: center;
@@ -1523,7 +1523,7 @@ body {
 }
 
 .logo-large i {
-    font-size: 3.5rem;
+    font-size: 2rem;
 }
 
 .app-branding h3 {
@@ -1540,11 +1540,13 @@ body {
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
 }
 
 .form-group {
     text-align: left;
+    margin-bottom: var(--spacing-2);
 }
 
 .form-group label {
@@ -2348,23 +2350,28 @@ body {
     }
     .login-modal {
         max-width: 95vw;
-        padding: var(--spacing-2);
+        padding: var(--spacing-1);
     }
     .modal-body {
-        padding: var(--spacing-3);
+        padding: var(--spacing-2);
+    }
+    .login-content {
+        padding: 0;
+        margin: 0;
     }
     .app-branding {
-        margin-bottom: var(--spacing-4);
-    }
-    .logo-large {
-        font-size: 2.5rem;
         margin-bottom: var(--spacing-2);
     }
-    .logo-large i {
+    .logo-large {
         font-size: 2rem;
+        margin-bottom: 0.5rem;
     }
     .login-form {
-        gap: var(--spacing-2);
+        gap: var(--spacing-1);
+        margin-bottom: var(--spacing-1);
+    }
+    .form-group {
+        margin-bottom: var(--spacing-1);
     }
 }
 
