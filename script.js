@@ -15,8 +15,8 @@ function initializeSupabase() {
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 console.log('✅ Supabase client initialized successfully');
                 
-                // Set up auth state listener
-                listenForAuthChanges();
+                // Set up auth state listener (will be called later after function is defined)
+                // We'll set up the listener in initializeApp after all functions are defined
                 
                 return true;
             } else {
@@ -32,8 +32,8 @@ function initializeSupabase() {
                 supabase = window.supabase.createClient(url, key);
                 console.log('✅ Supabase client initialized with fallback method');
                 
-                // Set up auth state listener
-                listenForAuthChanges();
+                // Set up auth state listener (will be called later after function is defined)
+                // We'll set up the listener in initializeApp after all functions are defined
                 
                 return true;
             } else {
@@ -2834,6 +2834,16 @@ function initializeApp() {
             
             if (supabaseInitialized) {
                 console.log('✅ Supabase client initialized successfully');
+                
+                // Now that Supabase is initialized and all functions are defined,
+                // we can set up the auth state listener
+                if (typeof listenForAuthChanges === 'function') {
+                    listenForAuthChanges();
+                    console.log('✅ Supabase auth listener set up');
+                } else {
+                    console.warn('⚠️ Auth listener function not found');
+                }
+                
             } else if (retries > 0) {
                 console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
                 setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
