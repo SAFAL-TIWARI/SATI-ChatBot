@@ -70,11 +70,11 @@ function listenForAuthChanges() {
                 chatState.email = session.user.email || '';
                 chatState.authProvider = authProvider;
                 chatState.saveState();
-                // --- ADDED: Welcome console and popup ---
-                console.log(`🎉 User '${chatState.username}' is now logged in!`);
-                if (!window._satiWelcomeToastShown) {
+                // --- ADDED: Welcome console and popup (only on fresh login) ---
+                if (localStorage.getItem('sati_show_welcome') === '1') {
+                    console.log(`🎉 User '${chatState.username}' is now logged in!`);
                     toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-                    window._satiWelcomeToastShown = true;
+                    localStorage.removeItem('sati_show_welcome');
                 }
                 // --- END ADDED ---
                 // Update login statistics
@@ -2523,14 +2523,8 @@ async function login() {
                 chatState.email = data.user.email;
                 chatState.authProvider = 'email';
                 chatState.saveState();
-
-                // --- ADDED: Welcome console and popup ---
-                console.log(`🎉 User '${chatState.username}' is now logged in!`);
-                if (!window._satiWelcomeToastShown) {
-                    toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-                    window._satiWelcomeToastShown = true;
-                }
-                // --- END ADDED ---
+                // Set flag for welcome toast/console
+                localStorage.setItem('sati_show_welcome', '1');
 
                 // Update login statistics
                 updateLoginStats();
@@ -2571,14 +2565,8 @@ function fallbackLogin(email) {
     chatState.email = email;
     chatState.authProvider = 'email';
     chatState.saveState();
-
-    // --- ADDED: Welcome console and popup ---
-    console.log(`🎉 User '${chatState.username}' is now logged in!`);
-    if (!window._satiWelcomeToastShown) {
-        toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-        window._satiWelcomeToastShown = true;
-    }
-    // --- END ADDED ---
+    // Set flag for welcome toast/console
+    localStorage.setItem('sati_show_welcome', '1');
 
     // Update login statistics
     updateLoginStats();
@@ -2707,19 +2695,6 @@ function updateLoginStatus() {
             if (avatarText && chatState.username) {
                 avatarText.textContent = chatState.username.charAt(0).toUpperCase();
             }
-        }
-        
-        // Log user info to console (UPDATED)
-        console.log(`🎉 User '${chatState.username}' is now logged in!`);
-        console.log('👤 Username:', chatState.username);
-        console.log('📧 Email:', chatState.email || 'Not provided');
-        console.log('🔐 Auth Provider:', chatState.authProvider);
-        console.log('🕒 Login time:', new Date().toLocaleString());
-        
-        // Show welcome toast (only if not already shown by showWelcomeToast)
-        if (!window._satiWelcomeToastShown) {
-            toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-            window._satiWelcomeToastShown = true;
         }
         
         // Update My Profile button text to show username
