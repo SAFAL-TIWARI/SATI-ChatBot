@@ -2007,22 +2007,9 @@ function initializeEventListeners() {
     }
 
     // --- Supabase SSO Integration ---
-    // Add this after DOMContentLoaded or at the top if using CDN
-    if (typeof window.createClient === 'undefined') {
-        const supabaseScript = document.createElement('script');
-        supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js';
-        supabaseScript.onload = initializeSupabaseClient;
-        document.head.appendChild(supabaseScript);
-    } else {
-        initializeSupabaseClient();
-    }
-
-    let supabase;
-    function initializeSupabaseClient() {
-        const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co'; // <-- Replace with your Supabase URL
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo'; // <-- Replace with your Supabase anon key
-        supabase = window.createClient(supabaseUrl, supabaseKey);
-    }
+    const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo';
+    const supabase = window.createClient(supabaseUrl, supabaseKey);
 
     async function signInWithGoogle() {
         if (!supabase) return toast.show('Supabase not initialized', 'error');
