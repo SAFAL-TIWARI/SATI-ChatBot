@@ -1499,7 +1499,10 @@ body {
 
 /* Login Modal */
 .login-modal {
-    width: 400px;
+    width: 100%;
+    max-width: 360px;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .login-content {
@@ -2342,6 +2345,26 @@ body {
 
     .toast {
         min-width: 280px;
+    }
+    .login-modal {
+        max-width: 95vw;
+        padding: var(--spacing-2);
+    }
+    .modal-body {
+        padding: var(--spacing-3);
+    }
+    .app-branding {
+        margin-bottom: var(--spacing-4);
+    }
+    .logo-large {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-2);
+    }
+    .logo-large i {
+        font-size: 2rem;
+    }
+    .login-form {
+        gap: var(--spacing-2);
     }
 }
 
