@@ -8,7 +8,7 @@ let supabase = null;
 // Initialize Supabase if credentials are available
 function initializeSupabase() {
     try {
-        if (window.supabase && window.SUPABASE_CONFIG) {
+        if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.CONFIGURED) {
             const supabaseUrl = window.SUPABASE_CONFIG.URL;
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
             
@@ -25,26 +25,7 @@ function initializeSupabase() {
                 console.warn('⚠️ Supabase initialization failed - missing URL or KEY in SUPABASE_CONFIG');
             }
         } else {
-            // Direct initialization as fallback
-            if (window.supabase) {
-                // Fallback to config-based configuration (browser can't access process.env)
-                const url = window.SUPABASE_CONFIG?.URL;
-                const key = window.SUPABASE_CONFIG?.KEY;
-                
-                if (url && key) {
-                    supabase = window.supabase.createClient(url, key);
-                    console.log('✅ Supabase client initialized with environment config');
-                } else {
-                    console.warn('⚠️ Supabase credentials not found in environment or config');
-                }
-                
-                // Set up auth state listener (will be called later after function is defined)
-                // We'll set up the listener in initializeApp after all functions are defined
-                
-                return !!supabase;
-            } else {
-                console.warn('⚠️ Supabase initialization skipped - supabase library not loaded');
-            }
+            console.warn('⚠️ Supabase initialization skipped - configuration not loaded or not configured');
         }
         
         return false;
@@ -107,6 +88,9 @@ function listenForAuthChanges() {
         console.error('Error setting up auth listener:', err);
     }
 }
+
+// Make initializeSupabase available globally for config.js
+window.initializeSupabase = initializeSupabase;
 //DELETE HERE ABOVE
 
 

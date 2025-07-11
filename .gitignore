@@ -1,11 +1,7 @@
 .env
-.env.local
-.env.production
 .vscode/
 .zencoder/
 api-keys.json
-.vercel/
+.vercel
+.env.local
 node_modules/
-dist/
-build/
-*.log

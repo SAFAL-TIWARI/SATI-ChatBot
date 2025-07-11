@@ -3,12 +3,9 @@
   "version": "1.0.0",
   "description": "SATI Chatbot - Hybrid AI assistant with serverless API integration",
   "main": "index.html",
-
   "scripts": {
     "build": "echo 'Static site - no build needed'",
-    "start": "node -e \"console.log('Static site ready')\"",
-    "dev": "python -m http.server 8000",
-    "vercel-build": "echo 'No build step required for static site'"
+    "start": "python -m http.server 8000"
   },
   "keywords": [
     "chatbot",
@@ -22,7 +19,9 @@
   ],
   "author": "Team FluxoNauts",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@vercel/node": "^3.0.0"
+  },
   "devDependencies": {},
   "engines": {
     "node": ">=18.0.0"

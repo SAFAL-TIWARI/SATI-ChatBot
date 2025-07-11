@@ -16,17 +16,34 @@ const API_CONFIG = {
     GEMINI_CONFIGURED: true
 };
 
-// Supabase Configuration - Browser-safe approach
-const SUPABASE_CONFIG = {
-    // For production, these should be set via environment variables in your deployment
-    // For development, you can set them here temporarily (but don't commit them)
-    URL: null, // Set this in your deployment environment
-    KEY: null  // Set this in your deployment environment
-    
-    // Alternative: Use a configuration service or environment-specific config
-    // URL: window.SUPABASE_URL || null,
-    // KEY: window.SUPABASE_KEY || null,
+// Supabase Configuration - Loaded from serverless function
+let SUPABASE_CONFIG = {
+    URL: null,
+    KEY: null,
+    CONFIGURED: false
 };
+
+// Function to load Supabase configuration from serverless function
+async function loadSupabaseConfig() {
+    try {
+        const response = await fetch('/api/supabase-config');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.configured) {
+                SUPABASE_CONFIG.URL = data.config.url;
+                SUPABASE_CONFIG.KEY = data.config.key;
+                SUPABASE_CONFIG.CONFIGURED = true;
+                console.log('✅ Supabase configuration loaded successfully');
+                return true;
+            }
+        }
+        console.warn('⚠️ Supabase configuration not available');
+        return false;
+    } catch (error) {
+        console.warn('⚠️ Failed to load Supabase configuration:', error);
+        return false;
+    }
+}
 
 // Function to check API availability (serverless functions)
 async function checkAPIAvailability() {
@@ -51,6 +68,9 @@ window.SUPABASE_CONFIG = SUPABASE_CONFIG;
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Loading Serverless API Configuration...');
     
+    // Load Supabase configuration first
+    await loadSupabaseConfig();
+    
     // Check API availability
     const apiAvailable = await checkAPIAvailability();
     
@@ -58,10 +78,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('✅ Serverless API Configuration loaded successfully');
         console.log('Groq API configured:', API_CONFIG.GROQ_CONFIGURED);
         console.log('Gemini API configured:', API_CONFIG.GEMINI_CONFIGURED);
+        console.log('Supabase configured:', SUPABASE_CONFIG.CONFIGURED);
         
         // Initialize API Manager now that configuration is loaded
         if (window.initializeAPIManager) {
             window.initializeAPIManager();
+        }
+        
+        // Initialize Supabase if configuration was loaded
+        if (SUPABASE_CONFIG.CONFIGURED && window.initializeSupabase) {
+            window.initializeSupabase();
         }
         
         // Test API configuration after a short delay to ensure everything is loaded
