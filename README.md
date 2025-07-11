@@ -1,145 +1,110 @@
-# SATI Chatbot - Hybrid AI Assistant
+# SATI ChatBot - Your Institute Guide
 
-A powerful hybrid chatbot application that supports both **Ollama (local)** and **Groq (cloud)** API providers with dynamic model switching capabilities.
+A modern web-based AI chatbot for Samrat Ashok Technological Institute (SATI) with hybrid API support, secure key management, and comprehensive academic resources hub. Features dual AI providers (Google Gemini & Groq), real-time chat interface, and extensive collection of study materials including notes, assignments, test papers, syllabus, and PYQs for all departments.
 
 ## Features
 
-- 🔄 **Hybrid API Support**: Switch between Ollama (local) and Groq (cloud) APIs
-- 🤖 **Multi-Model Support**: Access multiple AI models from both providers
-- 🔧 **Dynamic Switching**: Change providers and models on-the-fly
-- 💬 **Real-time Chat**: Interactive chat interface with typing indicators
-- 📊 **Status Monitoring**: Real-time connection and model status
-- 💾 **Export Functionality**: Download chat history as text files
-- 🎨 **Modern UI**: Clean, responsive Streamlit interface
+- 🤖 **Dual AI Support**: Google Gemini & Groq cloud APIs
+- 📖 **Resources Hub**: Access to notes, assignments, test papers, syllabus & PYQs
+- 🔐 **Secure API Keys**: Client-side encrypted key storage
+- 💬 **Real-time Chat**: Interactive interface with typing indicators
+- 🎨 **Modern UI**: Dark/light themes with responsive design
+- 💾 **Chat History**: Persistent conversation storage
+- 📚 **SATI Knowledge**: Comprehensive institute information
+- 🔧 **Model Switching**: Dynamic AI model selection
 
-## Supported Models
+## Quick Start
 
-### Ollama Models (Local)
-- Any model you have installed locally (phi3, llama3, qwen3, etc.)
-- Automatically detects available models
-
-### Groq Models (Cloud)
-- llama3-8b-8192
-- llama3-70b-8192
-- mixtral-8x7b-32768
-- gemma-7b-it
-- gemma2-9b-it
-
-## Setup Instructions
-
-### 1. Clone the Repository
+### 1. Clone & Setup
 ```bash
-git clone <your-repo-url>
-cd SATI-AI
+git clone https://github.com/SAFAL-TIWARI/SATI-ChatBot/
+cd SATI-ChatBot
+npm run setup  # Generates secure API key storage
 ```
 
-### 2. Install Dependencies
+### 2. Configure API Keys
+Run the setup and add your API keys:
+- **Google Gemini**: Get from [Google AI Studio](https://aistudio.google.com/)
+- **Groq**: Get from [Groq Console](https://console.groq.com/)
+
+### 3. Run Locally
 ```bash
-pip install -r requirements.txt
+npm run serve
+# Opens at http://localhost:8000
 ```
 
-### 3. Configure Environment Variables
-Create a `.env` file in the project root:
-```env
-GROQ_API_KEY=your_actual_groq_api_key_here
-```
+## Deployment
 
-**To get a Groq API key:**
-1. Visit [Groq Console](https://console.groq.com/)
-2. Sign up/Login
-3. Navigate to API Keys section
-4. Create a new API key
-5. Copy and paste it in your `.env` file
+### GitHub Pages (Recommended)
+1. Push to GitHub repository
+2. Enable GitHub Pages in repository settings
+3. Configure API keys in the web interface
 
-### 4. Setup Ollama (Optional - for local models)
-If you want to use Ollama:
-1. Install Ollama from [ollama.ai](https://ollama.ai/)
-2. Start Ollama service: `ollama serve`
-3. Pull desired models: `ollama pull phi3` (or any other model)
-
-### 5. Run the Application
-```bash
-streamlit run app.py
-```
-
-## Usage
-
-1. **Select API Provider**: Choose between Ollama (local) or Groq (cloud) in the sidebar
-2. **Choose Model**: Select from available models for your chosen provider
-3. **Start Chatting**: Type your message and click "Send Message"
-4. **Switch Anytime**: Change providers or models during your conversation
-5. **Export Chat**: Download your conversation history when needed
+### Other Platforms
+- **Netlify**: Drag & drop deployment
+- **Vercel**: Connect GitHub repository
+- **Any static hosting**: Upload all files
 
 ## File Structure
 
 ```
-SATI-AI/
-├── app.py      # Main hybrid application
-├── requirements.txt   # Python dependencies
-├── .env              # Environment variables (create this)
-├── README.md         # This file
-└── ...
+SATI-ChatBot/
+├── index.html           # Main chatbot application
+├── resources.html       # Academic resources page
+├── script.js           # Core chatbot functionality
+├── resources.js        # Resources page functionality
+├── api-integration.js  # API management
+├── styles.css          # Main UI styling
+├── resources.css       # Resources page styling
+├── sati-knowledge.js   # Institute data & knowledge base
+├── config.js           # Configuration & API keys
+├── generate-api-keys.js # API key encryption utility
+├── package.json        # Project metadata
+└── images/             # Assets and icons
 ```
 
-## Deployment Options
+## API Keys Setup
 
-### For Groq-only Deployment (Recommended for cloud deployment):
+The application uses secure client-side encryption for API keys:
+1. Run `npm run setup` to generate encryption keys
+2. Add your API keys through the web interface
+3. Keys are encrypted and stored locally
 
-**Files needed:**
-- `app.py`
-- `requirements.txt`
-- `.env` (with your Groq API key)
+## Supported Models
 
-**Deployment Platforms:**
-1. **Streamlit Cloud** (Recommended)
-   - Connect your GitHub repository
-   - Add `GROQ_API_KEY` in secrets
-   - Deploy automatically
+- **Google Gemini**: gemini-1.5-flash, gemini-1.5-pro
+- **Groq**: llama-3.1-8b-instant, llama-3.3-70b-versatile, gemma2-9b-it, deepseek-r1-distill-llama-70b, llama3-8b-8192, llama3-70b-8192
 
-2. **Heroku**
-   - Add `GROQ_API_KEY` as config var
-   - Deploy via Git
+## Resources Hub
 
-3. **Railway**
-   - Add environment variables
-   - Deploy from GitHub
+Access comprehensive academic resources through the dedicated resources page:
 
-4. **Render**
-   - Add environment variables
-   - Deploy from GitHub
+### Available Resources
+- **📝 Notes**: Handwritten and faculty-prepared notes for various subjects
+- **💻 Practical Assignments**: Complete solutions and assignment files
+- **📄 Test Papers**: Previous year internal test papers
+- **📚 Syllabus**: Branch-wise syllabus for all departments (CSE, ECE, ME, EE, CE, IoT, IT, BCT, AIADS, AIAML)
+- **❓ PYQs**: Previous Year Questions organized by branch
 
-### For Local Development:
-- Use both Ollama and Groq for maximum flexibility
-- Ollama for privacy-focused local inference
-- Groq for fast cloud-based responses
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GROQ_API_KEY` | Your Groq API key | Yes (for Groq functionality) |
-
-## Troubleshooting
-
-### Ollama Issues:
-- Ensure Ollama is running: `ollama serve`
-- Check if models are installed: `ollama list`
-- Pull models if needed: `ollama pull <model-name>`
-
-### Groq Issues:
-- Verify API key is correct in `.env` file
-- Check internet connection
-- Ensure API key has sufficient credits
-
-### General Issues:
-- Restart the Streamlit app
-- Check console for error messages
-- Verify all dependencies are installed
+### Features
+- **PDF Preview**: View documents directly in browser
+- **Download Support**: One-click download functionality
+- **Search**: Find specific resources quickly
+- **Branch-wise Organization**: Resources categorized by department
+- **Mobile Responsive**: Access resources on any device
 
 ## Contributing
 
-Feel free to submit issues, feature requests, or pull requests to improve the application.
+Built by **Team FluxoNauts** for FluxWave Hackathon Organized by Flux club of [Samrat Ashok Technological Institute Vidisha](https://satiengg.in/).
+
+### Team Members
+- **Safal Tiwari** - [SAFAL-TIWARI](https://github.com/SAFAL-TIWARI)
+- **Utkarsh Vishwakarma** - [UtkiVish](https://github.com/UtkiVish)
+- **Aashutosh Singh Baghel** - [thunder-thigh](https://github.com/thunder-thigh)
+- **Hardik Kumar Sinha** - [HKSinha510](https://github.com/HKSinha510)
+
+Contributions and feedback are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 
-This project is open source and available under the MIT License.
+MIT License
