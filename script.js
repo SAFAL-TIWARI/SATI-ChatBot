@@ -1749,7 +1749,7 @@ function initializeEventListeners() {
     const myProfileBtn = document.getElementById('myProfileBtn');
     if (myProfileBtn) {
         myProfileBtn.addEventListener('click', () => {
-            toast.show('Profile feature coming soon', 'info');
+            showProfileModal();
             if (elements.profileDropdown) {
                 elements.profileDropdown.classList.remove('show');
             }
@@ -1963,6 +1963,47 @@ function initializeEventListeners() {
             }
         });
     });
+    
+    // Profile modal event listeners
+    const closeProfileBtn = document.getElementById('closeProfileBtn');
+    if (closeProfileBtn) {
+        closeProfileBtn.addEventListener('click', () => {
+            modal.hide('profileModal');
+        });
+    }
+    
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', () => {
+            toast.show('Profile editing coming soon', 'info');
+        });
+    }
+    
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', () => {
+            exportUserData();
+        });
+    }
+    
+    // Welcome modal event listeners
+    const closeWelcomeBtn = document.getElementById('closeWelcomeBtn');
+    if (closeWelcomeBtn) {
+        closeWelcomeBtn.addEventListener('click', () => {
+            modal.hide('welcomeModal');
+        });
+    }
+    
+    const startChattingBtn = document.getElementById('startChattingBtn');
+    if (startChattingBtn) {
+        startChattingBtn.addEventListener('click', () => {
+            modal.hide('welcomeModal');
+            // Focus on chat input
+            if (elements.messageInput) {
+                elements.messageInput.focus();
+            }
+        });
+    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -2026,7 +2067,17 @@ function initializeEventListeners() {
             
             if (error) {
                 console.error('Google login error:', error);
-                toast.show('Google login failed: ' + error.message, 'error');
+                
+                // Check for the specific provider not enabled error
+                if (error.message && error.message.includes('provider is not enabled')) {
+                    toast.show('Google login is not enabled in Supabase project settings. Please contact the administrator.', 'error', 8000);
+                    
+                    // Show a more detailed message in the console for developers
+                    console.warn('CONFIGURATION REQUIRED: Google OAuth provider needs to be enabled in Supabase dashboard.');
+                    console.warn('Go to: Supabase Dashboard > Authentication > Providers > Google > Enable');
+                } else {
+                    toast.show('Google login failed: ' + error.message, 'error');
+                }
             } else {
                 console.log('Google SSO initiated:', data);
             }
@@ -2053,7 +2104,17 @@ function initializeEventListeners() {
             
             if (error) {
                 console.error('GitHub login error:', error);
-                toast.show('GitHub login failed: ' + error.message, 'error');
+                
+                // Check for the specific provider not enabled error
+                if (error.message && error.message.includes('provider is not enabled')) {
+                    toast.show('GitHub login is not enabled in Supabase project settings. Please contact the administrator.', 'error', 8000);
+                    
+                    // Show a more detailed message in the console for developers
+                    console.warn('CONFIGURATION REQUIRED: GitHub OAuth provider needs to be enabled in Supabase dashboard.');
+                    console.warn('Go to: Supabase Dashboard > Authentication > Providers > GitHub > Enable');
+                } else {
+                    toast.show('GitHub login failed: ' + error.message, 'error');
+                }
             } else {
                 console.log('GitHub SSO initiated:', data);
             }
@@ -2066,13 +2127,51 @@ function initializeEventListeners() {
     function addSSOEventListeners() {
         const googleBtn = document.getElementById('googleSSOBtn');
         const githubBtn = document.getElementById('githubSSOBtn');
-        if (googleBtn && !googleBtn.hasListener) {
-            googleBtn.addEventListener('click', signInWithGoogle);
-            googleBtn.hasListener = true;
+        
+        // Add tooltips to explain SSO configuration if needed
+        if (googleBtn) {
+            googleBtn.title = "Sign in with Google";
+            if (!googleBtn.hasListener) {
+                googleBtn.addEventListener('click', signInWithGoogle);
+                googleBtn.hasListener = true;
+            }
         }
-        if (githubBtn && !githubBtn.hasListener) {
-            githubBtn.addEventListener('click', signInWithGithub);
-            githubBtn.hasListener = true;
+        
+        if (githubBtn) {
+            githubBtn.title = "Sign in with GitHub";
+            if (!githubBtn.hasListener) {
+                githubBtn.addEventListener('click', signInWithGithub);
+                githubBtn.hasListener = true;
+            }
+        }
+        
+        // Check if we should show a message about SSO configuration
+        checkSSOConfiguration();
+    }
+    
+    // Check if SSO providers are properly configured
+    async function checkSSOConfiguration() {
+        if (!supabase) return;
+        
+        try {
+            // Try to get the list of enabled auth providers
+            const { data, error } = await supabase.auth.getSession();
+            
+            // If we can't get the session, we'll assume SSO might not be configured
+            if (error) {
+                console.warn('Could not verify SSO configuration:', error);
+                
+                // Add a note to the login form about possible SSO configuration issues
+                const ssoSection = document.querySelector('.sso-buttons');
+                if (ssoSection) {
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'sso-note';
+                    noteElement.innerHTML = '<small>Note: SSO login requires additional configuration. Email/password login is always available.</small>';
+                    ssoSection.after(noteElement);
+                }
+            }
+        } catch (err) {
+            console.error('Error checking SSO configuration:', err);
         }
     }
 
@@ -2089,12 +2188,34 @@ function initializeEventListeners() {
                 console.log('Auth state changed:', event, session);
                 
                 if (event === 'SIGNED_IN') {
+                    // Determine auth provider
+                    let authProvider = 'email';
+                    if (session.user.app_metadata && session.user.app_metadata.provider) {
+                        authProvider = session.user.app_metadata.provider;
+                    }
+                    
+                    // Update user state
                     chatState.isLoggedIn = true;
-                    chatState.username = session.user.email || session.user.id;
+                    chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
+                    chatState.email = session.user.email || '';
+                    chatState.authProvider = authProvider;
                     chatState.saveState();
+                    
+                    // Update login statistics
+                    updateLoginStats();
+                    
+                    // Hide login modal
                     modal.hide('loginModal');
+                    
+                    // Update UI
                     updateLoginStatus();
+                    
+                    // Show welcome message
+                    showWelcomeModal(chatState.username);
+                    
+                    // Show success toast
                     toast.show('Logged in successfully', 'success');
+                    
                 } else if (event === 'SIGNED_OUT') {
                     console.log('User signed out');
                 } else if (event === 'USER_UPDATED') {
@@ -2305,31 +2426,146 @@ async function sendMessage() {
     await chatManager.sendMessage(content, chatState.selectedModel);
 }
 
-function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+async function login() {
+    try {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    // Simple validation (replace with actual authentication)
-    if (email && password) {
-        chatState.isLoggedIn = true;
-        chatState.username = email.split('@')[0];
-        chatState.saveState();
+        // Basic validation
+        if (!email || !password) {
+            return toast.show('Please enter both email and password', 'error');
+        }
 
-        modal.hide('loginModal');
-        updateLoginStatus();
-        toast.show('Logged in successfully', 'success');
-    } else {
-        toast.show('Please enter valid credentials', 'error');
+        // Check if Supabase is available
+        if (supabase) {
+            // Try to use Supabase authentication
+            try {
+                toast.show('Logging in...', 'info', 2000);
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    console.error('Supabase login error:', error);
+                    
+                    // If it's a "user not found" error, offer to sign up
+                    if (error.message.includes('Invalid login credentials')) {
+                        if (confirm('Account not found. Would you like to create a new account?')) {
+                            // Try to sign up
+                            const { data: signupData, error: signupError } = await supabase.auth.signUp({
+                                email: email,
+                                password: password
+                            });
+                            
+                            if (signupError) {
+                                console.error('Signup error:', signupError);
+                                toast.show('Signup failed: ' + signupError.message, 'error');
+                            } else {
+                                toast.show('Account created! Please check your email to confirm your account.', 'success', 5000);
+                            }
+                        }
+                    } else {
+                        toast.show('Login failed: ' + error.message, 'error');
+                    }
+                    return;
+                }
+
+                // Login successful
+                chatState.isLoggedIn = true;
+                chatState.username = data.user.email.split('@')[0];
+                chatState.email = data.user.email;
+                chatState.authProvider = 'email';
+                chatState.saveState();
+
+                // Update login statistics
+                updateLoginStats();
+
+                // Hide login modal
+                modal.hide('loginModal');
+                
+                // Update UI
+                updateLoginStatus();
+                
+                // Show welcome message
+                showWelcomeModal(chatState.username);
+                
+                // Show success toast
+                toast.show('Logged in successfully', 'success');
+                
+            } catch (err) {
+                console.error('Supabase auth error:', err);
+                // Fall back to simple login if Supabase auth fails
+                fallbackLogin(email);
+            }
+        } else {
+            // Fall back to simple login if Supabase is not available
+            fallbackLogin(email);
+        }
+    } catch (err) {
+        console.error('Login error:', err);
+        toast.show('Login error: ' + err.message, 'error');
     }
 }
 
-function logout() {
-    chatState.isLoggedIn = false;
-    chatState.username = '';
+// Simple fallback login when Supabase is not available
+function fallbackLogin(email) {
+    chatState.isLoggedIn = true;
+    chatState.username = email.split('@')[0];
+    chatState.email = email;
+    chatState.authProvider = 'email';
     chatState.saveState();
 
+    // Update login statistics
+    updateLoginStats();
+
+    // Hide login modal
+    modal.hide('loginModal');
+    
+    // Update UI
     updateLoginStatus();
-    toast.show('Logged out successfully', 'success');
+    
+    // Show welcome message
+    showWelcomeModal(chatState.username);
+    
+    // Show success toast
+    toast.show('Logged in as guest with username: ' + chatState.username, 'success');
+}
+
+// Update login statistics
+function updateLoginStats() {
+    // Update last login time
+    localStorage.setItem('sati_last_login', new Date().toISOString());
+    
+    // Increment login count
+    const currentCount = parseInt(localStorage.getItem('sati_login_count') || '0');
+    localStorage.setItem('sati_login_count', (currentCount + 1).toString());
+}
+
+async function logout() {
+    try {
+        // Try to sign out with Supabase if available
+        if (supabase) {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Supabase signout error:', error);
+                }
+            } catch (err) {
+                console.error('Supabase signout exception:', err);
+            }
+        }
+        
+        // Always update local state regardless of Supabase result
+        chatState.isLoggedIn = false;
+        chatState.username = '';
+        chatState.saveState();
+        updateLoginStatus();
+        toast.show('Logged out successfully', 'success');
+    } catch (err) {
+        console.error('Logout error:', err);
+        toast.show('Logout error: ' + err.message, 'error');
+    }
 }
 
 function updateLoginStatus() {
@@ -2340,10 +2576,113 @@ function updateLoginStatus() {
     if (chatState.isLoggedIn) {
         icon.className = 'fas fa-sign-out-alt';
         text.textContent = 'Logout';
+        
+        // Update profile avatar to show logged in state
+        if (elements.profileAvatar) {
+            elements.profileAvatar.classList.add('logged-in');
+        }
     } else {
         icon.className = 'fas fa-sign-in-alt';
         text.textContent = 'Login';
+        
+        // Update profile avatar to show logged out state
+        if (elements.profileAvatar) {
+            elements.profileAvatar.classList.remove('logged-in');
+        }
     }
+}
+
+// Show profile modal with user information
+function showProfileModal() {
+    // Get profile elements
+    const profileUsername = document.getElementById('profileUsername');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileChatCount = document.getElementById('profileChatCount');
+    const profileMessageCount = document.getElementById('profileMessageCount');
+    const profileLoginCount = document.getElementById('profileLoginCount');
+    const profileAccountType = document.getElementById('profileAccountType');
+    const profileLoginMethod = document.getElementById('profileLoginMethod');
+    const profileLastLogin = document.getElementById('profileLastLogin');
+    
+    // Update profile information
+    if (chatState.isLoggedIn) {
+        // Set username and email
+        profileUsername.textContent = chatState.username || 'User';
+        profileEmail.textContent = chatState.email || 'No email provided';
+        
+        // Calculate stats
+        const chatCount = chatState.conversations.length;
+        let messageCount = 0;
+        chatState.conversations.forEach(conv => {
+            if (conv.messages) {
+                messageCount += conv.messages.length;
+            }
+        });
+        
+        // Update stats
+        profileChatCount.textContent = chatCount;
+        profileMessageCount.textContent = messageCount;
+        
+        // Get login count from local storage or set default
+        const loginCount = localStorage.getItem('sati_login_count') || 1;
+        profileLoginCount.textContent = loginCount;
+        
+        // Set account details
+        profileAccountType.textContent = 'Standard';
+        
+        // Determine login method
+        let loginMethod = 'Email';
+        if (chatState.authProvider) {
+            if (chatState.authProvider === 'google') {
+                loginMethod = 'Google';
+            } else if (chatState.authProvider === 'github') {
+                loginMethod = 'GitHub';
+            }
+        }
+        profileLoginMethod.textContent = loginMethod;
+        
+        // Set last login date
+        const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
+        const lastLoginDate = new Date(lastLogin);
+        profileLastLogin.textContent = lastLoginDate.toLocaleDateString();
+    } else {
+        // Default values for logged out state
+        profileUsername.textContent = 'Guest';
+        profileEmail.textContent = 'Not logged in';
+        profileChatCount.textContent = chatState.conversations.length;
+        profileMessageCount.textContent = '0';
+        profileLoginCount.textContent = '0';
+        profileAccountType.textContent = 'Guest';
+        profileLoginMethod.textContent = 'None';
+        profileLastLogin.textContent = 'N/A';
+    }
+    
+    // Show the modal
+    modal.show('profileModal');
+}
+
+// Show welcome modal with personalized greeting
+function showWelcomeModal(username) {
+    const welcomeUsername = document.getElementById('welcomeUsername');
+    const welcomeHeading = document.getElementById('welcomeHeading');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    
+    // Set username
+    welcomeUsername.textContent = username || 'User';
+    
+    // Determine if this is first login or return user
+    const isFirstLogin = !localStorage.getItem('sati_last_login');
+    
+    if (isFirstLogin) {
+        welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
+        welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
+    } else {
+        welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
+        welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
+    }
+    
+    // Show the modal
+    modal.show('welcomeModal');
 }
 
 // Initialize sidebar toggle button position

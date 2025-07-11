@@ -2599,3 +2599,236 @@ textarea:focus-visible {
     height: 28px;
     object-fit: contain;
 }
+
+.sso-note {
+    margin-top: 10px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 0 15px;
+}
+
+/* Profile Modal Styles */
+.profile-modal {
+    max-width: 500px;
+    width: 90%;
+}
+
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 20px;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-header h3 {
+    margin: 0 0 5px;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.profile-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 25px;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 15px 0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.profile-details {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.profile-details h4 {
+    margin: 0 0 15px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.profile-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-actions .primary-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+.profile-actions .secondary-btn {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.profile-actions .primary-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.profile-actions .secondary-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Welcome Modal Styles */
+.welcome-modal {
+    max-width: 450px;
+    width: 90%;
+}
+
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 20px;
+    text-align: center;
+}
+
+.welcome-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.welcome-container h3 {
+    margin: 0 0 10px;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+}
+
+.welcome-container p {
+    margin: 0 0 20px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.welcome-features {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.feature-item i {
+    font-size: 24px;
+    color: var(--accent-color);
+}
+
+.feature-item span {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.welcome-container .primary-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.welcome-container .primary-btn:hover {
+    background-color: var(--accent-hover);
+}
