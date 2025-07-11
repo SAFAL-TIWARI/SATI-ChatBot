@@ -2253,7 +2253,10 @@ function initializeEventListeners() {
                     // Update UI
                     updateLoginStatus();
                     
-                    // Show welcome message with a slight delay to ensure UI is ready
+                    // Show welcome toast immediately
+                    showWelcomeToast(chatState.username, !localStorage.getItem('sati_last_login'));
+                    
+                    // Show welcome modal with a slight delay to ensure UI is ready
                     setTimeout(() => {
                         showWelcomeModal(chatState.username);
                     }, 500);
@@ -2779,13 +2782,85 @@ function showWelcomeModal(username) {
     if (isFirstLogin) {
         welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
         welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
+        
+        // Show a welcome toast for first-time users
+        showWelcomeToast(username, true);
     } else {
         welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
         welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
+        
+        // Show a welcome back toast for returning users
+        showWelcomeToast(username, false);
     }
     
     // Show the modal
     modal.show('welcomeModal');
+}
+
+// Show welcome toast notification
+function showWelcomeToast(username, isFirstLogin) {
+    // Get the current time to personalize the greeting
+    const currentHour = new Date().getHours();
+    let timeGreeting = 'Hello';
+    
+    if (currentHour < 12) {
+        timeGreeting = 'Good morning';
+    } else if (currentHour < 18) {
+        timeGreeting = 'Good afternoon';
+    } else {
+        timeGreeting = 'Good evening';
+    }
+    
+    // Create different messages for first-time vs returning users
+    let message = '';
+    let icon = '👋';
+    
+    if (isFirstLogin) {
+        message = `${timeGreeting}, ${username || 'User'}! Welcome to SATI ChatBot.`;
+        icon = '🎉';
+    } else {
+        // Get login count for personalized message
+        const loginCount = parseInt(localStorage.getItem('sati_login_count') || '1');
+        
+        if (loginCount > 10) {
+            message = `${timeGreeting}, ${username || 'User'}! Welcome back for your ${loginCount}th visit!`;
+            icon = '🏆';
+        } else {
+            message = `${timeGreeting}, ${username || 'User'}! Great to see you again!`;
+            icon = '👋';
+        }
+    }
+    
+    // Create a custom welcome toast
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast welcome';
+    
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close">&times;</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Show toast with animation
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Auto remove after 6 seconds
+    const removeToast = () => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    };
+    
+    setTimeout(removeToast, 6000);
+    
+    // Manual close
+    toast.querySelector('.toast-close').addEventListener('click', removeToast);
 }
 
 // Initialize sidebar toggle button position
