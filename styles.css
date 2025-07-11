@@ -732,6 +732,30 @@ body {
     color: var(--accent-color);
 }
 
+.profile-avatar.logged-in {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    position: relative;
+}
+
+.profile-avatar.logged-in:hover {
+    background-color: var(--accent-hover);
+    color: white;
+}
+
+.profile-avatar.logged-in::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+}
+
 /* Profile Menu */
 .profile-menu-container {
     position: relative;

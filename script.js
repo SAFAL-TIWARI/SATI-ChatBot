@@ -11,20 +11,39 @@ function initializeSupabase() {
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
             
             if (supabaseUrl && supabaseKey) {
+                // Create Supabase client
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                console.log('Supabase client initialized');
+                console.log('✅ Supabase client initialized successfully');
                 
                 // Set up auth state listener
                 listenForAuthChanges();
                 
                 return true;
+            } else {
+                console.warn('⚠️ Supabase initialization failed - missing URL or KEY in SUPABASE_CONFIG');
+            }
+        } else {
+            // Direct initialization as fallback
+            if (window.supabase) {
+                // Fallback to direct initialization with obfuscated credentials
+                const url = 'https://zewtfqbomdqtaviipwhe.supabase.co';
+                const key = atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5wbGQzUm1jV0p2YldSeGRHRjJhV2x3ZDJobElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRJeU5URTBPVEFzSW1WNGNDSTZNakEyTnpneU56UTVNSDAuR24wUWFTMkRHR0lOVkFxd2pwWVVYekg0SENuejdCeGgzRWdQdF9JalZKbw==');
+                
+                supabase = window.supabase.createClient(url, key);
+                console.log('✅ Supabase client initialized with fallback method');
+                
+                // Set up auth state listener
+                listenForAuthChanges();
+                
+                return true;
+            } else {
+                console.warn('⚠️ Supabase initialization skipped - supabase library not loaded');
             }
         }
         
-        console.warn('Supabase initialization skipped - missing dependencies or credentials');
         return false;
     } catch (err) {
-        console.error('Failed to initialize Supabase client:', err);
+        console.error('❌ Failed to initialize Supabase client:', err);
         return false;
     }
 }
@@ -2234,8 +2253,10 @@ function initializeEventListeners() {
                     // Update UI
                     updateLoginStatus();
                     
-                    // Show welcome message
-                    showWelcomeModal(chatState.username);
+                    // Show welcome message with a slight delay to ensure UI is ready
+                    setTimeout(() => {
+                        showWelcomeModal(chatState.username);
+                    }, 500);
                     
                     // Show success toast
                     toast.show('Logged in successfully', 'success');
@@ -2511,8 +2532,10 @@ async function login() {
                 // Update UI
                 updateLoginStatus();
                 
-                // Show welcome message
-                showWelcomeModal(chatState.username);
+                // Show welcome message with a slight delay to ensure UI is ready
+                setTimeout(() => {
+                    showWelcomeModal(chatState.username);
+                }, 500);
                 
                 // Show success toast
                 toast.show('Logged in successfully', 'success');
@@ -2549,8 +2572,10 @@ function fallbackLogin(email) {
     // Update UI
     updateLoginStatus();
     
-    // Show welcome message
-    showWelcomeModal(chatState.username);
+    // Show welcome message with a slight delay to ensure UI is ready
+    setTimeout(() => {
+        showWelcomeModal(chatState.username);
+    }, 500);
     
     // Show success toast
     toast.show('Logged in as guest with username: ' + chatState.username, 'success');
@@ -2564,6 +2589,60 @@ function updateLoginStats() {
     // Increment login count
     const currentCount = parseInt(localStorage.getItem('sati_login_count') || '0');
     localStorage.setItem('sati_login_count', (currentCount + 1).toString());
+}
+
+// Export user data from profile
+function exportUserData() {
+    try {
+        // Collect user data
+        const userData = {
+            profile: {
+                username: chatState.username || 'Guest',
+                email: chatState.email || 'No email provided',
+                isLoggedIn: chatState.isLoggedIn,
+                authProvider: chatState.authProvider || 'none',
+                lastLogin: localStorage.getItem('sati_last_login') || new Date().toISOString(),
+                loginCount: parseInt(localStorage.getItem('sati_login_count') || '0')
+            },
+            stats: {
+                conversationCount: chatState.conversations.length,
+                messageCount: chatState.conversations.reduce((total, conv) => {
+                    return total + (conv.messages ? conv.messages.length : 0);
+                }, 0),
+                modelUsage: {}
+            },
+            settings: chatState.settings,
+            theme: chatState.theme,
+            exportDate: new Date().toISOString()
+        };
+        
+        // Count model usage
+        chatState.conversations.forEach(conv => {
+            if (conv.messages) {
+                conv.messages.forEach(msg => {
+                    if (msg.model) {
+                        userData.stats.modelUsage[msg.model] = (userData.stats.modelUsage[msg.model] || 0) + 1;
+                    }
+                });
+            }
+        });
+        
+        // Create JSON file
+        const dataStr = JSON.stringify(userData, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        // Create download link
+        const exportFileDefaultName = `sati_user_data_${chatState.username || 'guest'}_${new Date().toISOString().split('T')[0]}.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        
+        toast.show('User data exported successfully', 'success');
+    } catch (err) {
+        console.error('Error exporting user data:', err);
+        toast.show('Failed to export user data', 'error');
+    }
 }
 
 async function logout() {
@@ -2747,12 +2826,24 @@ function updateThemeToggleButton() {
 function initializeApp() {
     try {
         // Initialize Supabase client
-        const supabaseInitialized = initializeSupabase();
-        if (supabaseInitialized) {
-            console.log('✅ Supabase client initialized');
-        } else {
-            console.warn('⚠️ Supabase client not initialized - SSO login may not work');
-        }
+        let supabaseInitialized = false;
+        
+        // Try to initialize Supabase with a retry mechanism
+        const initSupabaseWithRetry = (retries = 3) => {
+            supabaseInitialized = initializeSupabase();
+            
+            if (supabaseInitialized) {
+                console.log('✅ Supabase client initialized successfully');
+            } else if (retries > 0) {
+                console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
+                setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
+            } else {
+                console.error('❌ Supabase client initialization failed after multiple attempts - SSO login may not work');
+            }
+        };
+        
+        // Start initialization with retries
+        initSupabaseWithRetry();
         
         // Wait for API manager to be ready before initializing model select
         const initializeWithApiManager = () => {
