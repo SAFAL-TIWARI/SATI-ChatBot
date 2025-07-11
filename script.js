@@ -2040,6 +2040,19 @@ function initializeEventListeners() {
         }
     }
 
+    function addSSOEventListeners() {
+        const googleBtn = document.getElementById('googleSSOBtn');
+        const githubBtn = document.getElementById('githubSSOBtn');
+        if (googleBtn && !googleBtn.hasListener) {
+            googleBtn.addEventListener('click', signInWithGoogle);
+            googleBtn.hasListener = true;
+        }
+        if (githubBtn && !githubBtn.hasListener) {
+            githubBtn.addEventListener('click', signInWithGithub);
+            githubBtn.hasListener = true;
+        }
+    }
+
     // Listen for Supabase auth state changes to show login success toast
     function listenForAuthChanges() {
         if (!supabase) return;
