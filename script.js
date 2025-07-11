@@ -47,6 +47,61 @@ function initializeSupabase() {
         return false;
     }
 }
+
+// Move listenForAuthChanges to global scope
+function listenForAuthChanges() {
+    try {
+        if (!supabase) {
+            console.error('Cannot listen for auth changes - Supabase not initialized');
+            return;
+        }
+        console.log('Setting up Supabase auth listener');
+        supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth state changed:', event, session);
+            if (event === 'SIGNED_IN') {
+                // Determine auth provider
+                let authProvider = 'email';
+                if (session.user.app_metadata && session.user.app_metadata.provider) {
+                    authProvider = session.user.app_metadata.provider;
+                }
+                // Update user state
+                chatState.isLoggedIn = true;
+                chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
+                chatState.email = session.user.email || '';
+                chatState.authProvider = authProvider;
+                chatState.saveState();
+                // --- ADDED: Welcome console and popup ---
+                console.log(`🎉 User '${chatState.username}' is now logged in!`);
+                if (!window._satiWelcomeToastShown) {
+                    toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
+                    window._satiWelcomeToastShown = true;
+                }
+                // --- END ADDED ---
+                // Update login statistics
+                updateLoginStats();
+                // Hide login modal
+                modal.hide('loginModal');
+                // Update UI
+                updateLoginStatus();
+                // Show welcome modal with a slight delay to ensure UI is ready
+                setTimeout(() => {
+                    showWelcomeModal(chatState.username);
+                }, 500);
+                // Show success toast
+                toast.show('Logged in successfully', 'success');
+            } else if (event === 'SIGNED_OUT') {
+                console.log('User signed out');
+            } else if (event === 'USER_UPDATED') {
+                console.log('User updated');
+            } else if (event === 'TOKEN_REFRESHED') {
+                console.log('Token refreshed');
+            }
+        });
+    } catch (err) {
+        console.error('Error setting up auth listener:', err);
+    }
+}
+
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -2219,68 +2274,6 @@ function initializeEventListeners() {
     }
 
     // Listen for Supabase auth state changes to show login success toast
-    function listenForAuthChanges() {
-        try {
-            if (!supabase) {
-                console.error('Cannot listen for auth changes - Supabase not initialized');
-                return;
-            }
-            
-            console.log('Setting up Supabase auth listener');
-            supabase.auth.onAuthStateChange((event, session) => {
-                console.log('Auth state changed:', event, session);
-                
-                if (event === 'SIGNED_IN') {
-                    // Determine auth provider
-                    let authProvider = 'email';
-                    if (session.user.app_metadata && session.user.app_metadata.provider) {
-                        authProvider = session.user.app_metadata.provider;
-                    }
-                    
-                    // Update user state
-                    chatState.isLoggedIn = true;
-                    chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
-                    chatState.email = session.user.email || '';
-                    chatState.authProvider = authProvider;
-                    chatState.saveState();
-                    
-                    // --- ADDED: Welcome console and popup ---
-                    console.log(`🎉 User '${chatState.username}' is now logged in!`);
-                    if (!window._satiWelcomeToastShown) {
-                        toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-                        window._satiWelcomeToastShown = true;
-                    }
-                    // --- END ADDED ---
-                    
-                    // Update login statistics
-                    updateLoginStats();
-                    
-                    // Hide login modal
-                    modal.hide('loginModal');
-                    
-                    // Update UI
-                    updateLoginStatus();
-                    
-                    // Show welcome modal with a slight delay to ensure UI is ready
-                    setTimeout(() => {
-                        showWelcomeModal(chatState.username);
-                    }, 500);
-                    
-                    // Show success toast
-                    toast.show('Logged in successfully', 'success');
-                    
-                } else if (event === 'SIGNED_OUT') {
-                    console.log('User signed out');
-                } else if (event === 'USER_UPDATED') {
-                    console.log('User updated');
-                } else if (event === 'TOKEN_REFRESHED') {
-                    console.log('Token refreshed');
-                }
-            });
-        } catch (err) {
-            console.error('Error setting up auth listener:', err);
-        }
-    }
     document.addEventListener('DOMContentLoaded', listenForAuthChanges);
 }
 
