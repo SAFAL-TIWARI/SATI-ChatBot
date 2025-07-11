@@ -502,7 +502,15 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
+        // Make Supabase available globally
         window.supabase = supabase;
+        
+        // Load Supabase key from environment if available
+        // This will be replaced during build process in production
+        if (typeof SUPABASE_KEY !== 'undefined') {
+            window.SUPABASE_CONFIG = window.SUPABASE_CONFIG || {};
+            window.SUPABASE_CONFIG.KEY = SUPABASE_KEY;
+        }
     </script>
     <script src="script.js"></script>
 </body>

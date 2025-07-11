@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         // Get API key from environment variables
         const apiKey = process.env.GROQ_API_KEY;
         if (!apiKey) {
+            console.error('Groq API key not found in environment variables');
             return res.status(500).json({ error: 'Groq API key not configured' });
         }
 

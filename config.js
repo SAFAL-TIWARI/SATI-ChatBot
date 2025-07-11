@@ -16,6 +16,17 @@ const API_CONFIG = {
     GEMINI_CONFIGURED: true
 };
 
+// Supabase Configuration
+const SUPABASE_CONFIG = {
+    URL: 'https://zewtfqbomdqtaviipwhe.supabase.co',
+    KEY: '', // This will be populated from server-side during build
+    
+    // Feature flags
+    ENABLE_SSO: true,
+    ENABLE_PROFILE: true,
+    ENABLE_WELCOME_MODAL: true
+};
+
 // Function to check API availability (serverless functions)
 async function checkAPIAvailability() {
     try {
@@ -33,6 +44,7 @@ async function checkAPIAvailability() {
 
 // Make config available globally
 window.API_CONFIG = API_CONFIG;
+window.SUPABASE_CONFIG = SUPABASE_CONFIG;
 
 // Initialize API configuration when DOM is loaded
 document.addEventListener('DOMContentLoaded', async function() {

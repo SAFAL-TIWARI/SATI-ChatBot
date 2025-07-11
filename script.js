@@ -1,9 +1,33 @@
 // SATI ChatBot - Main JavaScript File
 
 // Global State Management
-const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+let supabase = null;
+
+// Initialize Supabase if credentials are available
+function initializeSupabase() {
+    try {
+        if (window.supabase && window.SUPABASE_CONFIG) {
+            const supabaseUrl = window.SUPABASE_CONFIG.URL;
+            const supabaseKey = window.SUPABASE_CONFIG.KEY;
+            
+            if (supabaseUrl && supabaseKey) {
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('Supabase client initialized');
+                
+                // Set up auth state listener
+                listenForAuthChanges();
+                
+                return true;
+            }
+        }
+        
+        console.warn('Supabase initialization skipped - missing dependencies or credentials');
+        return false;
+    } catch (err) {
+        console.error('Failed to initialize Supabase client:', err);
+        return false;
+    }
+}
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -2722,6 +2746,14 @@ function updateThemeToggleButton() {
 // Initialize Application
 function initializeApp() {
     try {
+        // Initialize Supabase client
+        const supabaseInitialized = initializeSupabase();
+        if (supabaseInitialized) {
+            console.log('✅ Supabase client initialized');
+        } else {
+            console.warn('⚠️ Supabase client not initialized - SSO login may not work');
+        }
+        
         // Wait for API manager to be ready before initializing model select
         const initializeWithApiManager = () => {
             if (window.apiManager) {
