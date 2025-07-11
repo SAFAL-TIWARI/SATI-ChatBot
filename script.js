@@ -1,5 +1,7 @@
 // SATI ChatBot - Main JavaScript File
 
+
+//DELETE HERE BELOW
 // Global State Management
 let supabase = null;
 
@@ -101,7 +103,10 @@ function listenForAuthChanges() {
         console.error('Error setting up auth listener:', err);
     }
 }
+//DELETE HERE ABOVE
 
+
+//delete here below
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -287,6 +292,7 @@ class ChatBotState {
         return null;
     }
 }
+//delete here above
 
 // Initialize global state
 const chatState = new ChatBotState();
@@ -311,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
+//delete here below
 // DOM Elements
 const elements = {
     // Sidebar
@@ -345,7 +352,9 @@ const elements = {
     // Toast container
     toastContainer: document.getElementById('toastContainer')
 };
+//delete here above
 
+//delete here above
 // Utility Functions
 const utils = {
     formatTime: (date) => {
@@ -384,7 +393,10 @@ const utils = {
             .replace(/\n/g, '<br>');
     }
 };
+//delete here above
 
+
+//delete here below
 // Toast Notification System
 class ToastManager {
     show(message, type = 'info', duration = 3000) {
@@ -425,9 +437,11 @@ class ToastManager {
         toast.querySelector('.toast-close').addEventListener('click', removeToast);
     }
 }
+//delete here above
 
 const toast = new ToastManager();
 
+//delete here below
 // Modal Management
 class ModalManager {
     show(modalId) {
@@ -477,9 +491,13 @@ class ModalManager {
         });
     }
 }
+//delete here above
 
 const modal = new ModalManager();
+//delete here above
 
+
+//delete here below
 // Chat Management
 class ChatManager {
     constructor() {
@@ -810,7 +828,10 @@ What would you like to know about SATI?`;
 }
 
 const chatManager = new ChatManager();
+//delete here above
 
+
+//delete here below
 // Conversation Management
 function updateConversationsList() {
     const container = elements.conversationsList;
@@ -853,7 +874,10 @@ function updateConversationsList() {
         container.appendChild(item);
     });
 }
+//delete here above
 
+
+//delete here below
 function loadConversation(id) {
     const conversation = chatState.loadConversation(id);
     if (conversation) {
@@ -867,7 +891,10 @@ function loadConversation(id) {
         }
     }
 }
+//delete here above
 
+
+//delete here below
 async function deleteConversation(id) {
     const confirmed = await modal.confirm(
         'Delete Conversation',
@@ -885,7 +912,9 @@ async function deleteConversation(id) {
         toast.show('Conversation deleted', 'success');
     }
 }
+//delete here above
 
+//delete here below
 // Conversation Menu Management
 function toggleConversationMenu(event, conversationId) {
     event.stopPropagation();
@@ -902,6 +931,8 @@ function toggleConversationMenu(event, conversationId) {
         dropdown.classList.toggle('show');
     }
 }
+//delete here above
+
 
 // Close dropdown when clicking outside
 document.addEventListener('click', (event) => {
@@ -912,6 +943,8 @@ document.addEventListener('click', (event) => {
     }
 });
 
+
+//delete here below
 // Rename Conversation
 function renameConversation(conversationId) {
     // Close the dropdown
@@ -940,7 +973,9 @@ function renameConversation(conversationId) {
         renameInput.select();
     }, 100);
 }
+//delete here above
 
+//delete here below
 // Handle rename form submission
 function handleRenameSubmit(event) {
     event.preventDefault();
@@ -977,7 +1012,10 @@ function handleRenameSubmit(event) {
     // Close modal
     modal.hide('renameModal');
 }
+//delete here above
 
+
+//delete here below
 // Settings Management
 function renderSettingsContent(tab) {
     const content = document.getElementById('settingsContent');
@@ -1164,6 +1202,8 @@ function renderSettingsContent(tab) {
     // Add event listeners for settings changes
     addSettingsEventListeners();
 }
+//delete here above
+
 
 // API Configuration Functions
 function togglePasswordVisibility(inputId) {
@@ -1181,7 +1221,7 @@ function togglePasswordVisibility(inputId) {
 }
 
 
-
+//delete here below
 function updateModelOptions() {
     const providerSelect = document.getElementById('apiProviderSetting');
     const modelSelect = document.getElementById('aiModelSetting');
@@ -1214,7 +1254,10 @@ function updateModelOptions() {
     
 
 }
+//delete here above
 
+
+//delete here below
 function loadSettingsValues() {
     // Load values from chatState.settings
     const settings = chatState.settings;
@@ -1281,7 +1324,10 @@ function loadSettingsValues() {
     const dataCollectionSetting = document.getElementById('dataCollectionSetting');
     if (dataCollectionSetting) dataCollectionSetting.checked = settings.privacy?.dataCollection || false;
 }
+//delete here above
 
+
+//delete here below
 function addSettingsEventListeners() {
     // Add event listeners for all settings controls
     const settingsControls = document.querySelectorAll('#settingsContent input, #settingsContent select');
@@ -1352,7 +1398,10 @@ function addSettingsEventListeners() {
 
 
 }
+//delete here above
 
+
+//delete here below
 function saveSettingsFromForm() {
     // Save all settings from form to chatState.settings
     const settings = chatState.settings;
@@ -1417,7 +1466,10 @@ function saveSettingsFromForm() {
     chatState.saveSettings();
     toast.show('Settings saved', 'success');
 }
+//delete here above
 
+
+//delete here below
 // Function to update the main input area model select based on API provider
 function updateMainModelSelect() {
     const modelSelect = document.getElementById('modelSelect');
@@ -1454,6 +1506,7 @@ function updateMainModelSelect() {
     
     chatState.saveState();
 }
+//delete here above
 
 // Function to handle model overload and suggest alternatives
 function handleModelOverload(errorMessage) {
@@ -1522,11 +1575,16 @@ function switchToAlternativeModel(alternative) {
     }
 }
 
+
+//delete here below
 // Function to update model selection visibility based on API provider (legacy function - keeping for compatibility)
 function updateModelSelectionVisibility() {
     updateMainModelSelect();
 }
+//delete here above
 
+
+//delete here below
 // Customize Appearance
 function renderCustomizeContent() {
     const content = document.getElementById('customizeContent');
@@ -1599,7 +1657,10 @@ function renderCustomizeContent() {
     // Add event listeners
     addCustomizeEventListeners();
 }
+//delete here above
 
+
+//delete here below
 function addCustomizeEventListeners() {
     // Theme selection
     const themeRadios = document.querySelectorAll('input[name="theme"]');
@@ -1641,6 +1702,8 @@ function addCustomizeEventListeners() {
         });
     }
 }
+//delete here above
+
 
 // Utility Functions for Settings
 async function clearAllConversations() {
@@ -1699,6 +1762,8 @@ function exportAllChats() {
     toast.show('All chats exported successfully', 'success');
 }
 
+
+//delete here below
 // Event Listeners
 function initializeEventListeners() {
     // Sidebar toggle
@@ -2276,6 +2341,7 @@ function initializeEventListeners() {
     // Listen for Supabase auth state changes to show login success toast
     document.addEventListener('DOMContentLoaded', listenForAuthChanges);
 }
+//delete here above
 
 // Core Functions
 function toggleSidebar() {
