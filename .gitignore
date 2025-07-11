@@ -1,7 +1,4 @@
 .env
 .vscode/
-.venv/
 .zencoder/
-__pycache__/
-.streamlit/
 api-keys.json

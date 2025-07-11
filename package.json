@@ -1,13 +1,11 @@
 {
   "name": "sati-chatbot",
   "version": "1.0.0",
-  "description": "SATI Chatbot - Hybrid AI assistant with secure API key management",
+  "description": "SATI Chatbot - Hybrid AI assistant with serverless API integration",
   "main": "index.html",
   "scripts": {
-    "generate-keys": "node generate-api-keys.js",
-    "setup": "node generate-api-keys.js",
-    "serve": "python -m http.server 8000",
-    "dev": "npm run generate-keys && npm run serve"
+    "build": "echo 'Static site - no build needed'",
+    "start": "python -m http.server 8000"
   },
   "keywords": [
     "chatbot",
@@ -15,12 +13,15 @@
     "sati",
     "groq",
     "gemini",
-    "javascript"
+    "javascript",
+    "serverless",
+    "vercel"
   ],
   "author": "Team FluxoNauts",
   "license": "MIT",
+  "dependencies": {},
   "devDependencies": {},
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   }
 }

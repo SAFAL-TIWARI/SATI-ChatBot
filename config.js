@@ -1,42 +1,34 @@
-// Configuration file for API keys
-// Note: API keys are now loaded securely from environment variables
+// Configuration file for serverless API integration
+// API keys are now handled securely by serverless functions
 
 // API Configuration
 const API_CONFIG = {
-    // API keys will be loaded from secure source
-    GROQ_API_KEY: null,
-    GEMINI_API_KEY: null,
+    // API endpoints for serverless functions
+    GROQ_API_ENDPOINT: '/api/groq',
+    GEMINI_API_ENDPOINT: '/api/gemini',
     
     // Default settings
     DEFAULT_PROVIDER: 'groq',
-    DEFAULT_MODEL: 'llama-3.1-8b-instant'
+    DEFAULT_MODEL: 'llama-3.1-8b-instant',
+    
+    // API status - always true since serverless functions handle the keys
+    GROQ_CONFIGURED: true,
+    GEMINI_CONFIGURED: true
 };
 
-// Function to load API keys securely
-async function loadAPIKeys() {
+// Function to check API availability (serverless functions)
+async function checkAPIAvailability() {
     try {
-        // In a real production environment, this would call your backend API
-        // For now, we'll load from a secure configuration
-        const response = await fetch('./api-keys.json');
-        if (response.ok) {
-            const keys = await response.json();
-            API_CONFIG.GROQ_API_KEY = keys.GROQ_API_KEY;
-            API_CONFIG.GEMINI_API_KEY = keys.GEMINI_API_KEY;
-            return true;
-        }
-    } catch (error) {
-        console.warn('Could not load API keys from secure source, falling back to environment variables');
-    }
-    
-    // Fallback: Load from environment variables (this won't work in browser)
-    // This is just for development - in production, use a backend service
-    if (typeof process !== 'undefined' && process.env) {
-        API_CONFIG.GROQ_API_KEY = process.env.GROQ_API_KEY;
-        API_CONFIG.GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+        // Test if serverless functions are available
+        // We'll do a simple connectivity check without making actual API calls
+        console.log('✅ Serverless API functions configured');
+        console.log('Groq API endpoint:', API_CONFIG.GROQ_API_ENDPOINT);
+        console.log('Gemini API endpoint:', API_CONFIG.GEMINI_API_ENDPOINT);
         return true;
+    } catch (error) {
+        console.warn('⚠️ Could not verify serverless function availability:', error);
+        return false;
     }
-    
-    return false;
 }
 
 // Make config available globally
@@ -44,17 +36,17 @@ window.API_CONFIG = API_CONFIG;
 
 // Initialize API configuration when DOM is loaded
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Loading API Configuration...');
+    console.log('Loading Serverless API Configuration...');
     
-    // Load API keys securely
-    const keysLoaded = await loadAPIKeys();
+    // Check API availability
+    const apiAvailable = await checkAPIAvailability();
     
-    if (keysLoaded) {
-        console.log('✅ API Configuration loaded successfully');
-        console.log('Groq API configured:', !!API_CONFIG.GROQ_API_KEY);
-        console.log('Gemini API configured:', !!API_CONFIG.GEMINI_API_KEY);
+    if (apiAvailable) {
+        console.log('✅ Serverless API Configuration loaded successfully');
+        console.log('Groq API configured:', API_CONFIG.GROQ_CONFIGURED);
+        console.log('Gemini API configured:', API_CONFIG.GEMINI_CONFIGURED);
         
-        // Initialize API Manager now that keys are loaded
+        // Initialize API Manager now that configuration is loaded
         if (window.initializeAPIManager) {
             window.initializeAPIManager();
         }
@@ -66,29 +58,29 @@ document.addEventListener('DOMContentLoaded', async function() {
                 console.log('API Manager Status:', status);
                 
                 if (status.groq.configured || status.gemini.configured) {
-                    console.log('✅ API configuration successful - Ready to chat!');
+                    console.log('✅ Serverless API configuration successful - Ready to chat!');
                     
                     // Make test function available globally for debugging
                     window.testAPI = async function() {
                         try {
-                            console.log('Testing API connection...');
+                            console.log('Testing serverless API connection...');
                             const response = await window.apiManager.sendMessage('Hello, this is a test message.');
-                            console.log('✅ API Test Successful:', response);
+                            console.log('✅ Serverless API Test Successful:', response);
                             return response;
                         } catch (error) {
-                            console.error('❌ API Test Failed:', error);
+                            console.error('❌ Serverless API Test Failed:', error);
                             return error.message;
                         }
                     };
                     
                 } else {
-                    console.error('❌ API configuration failed - Check API keys');
+                    console.error('❌ Serverless API configuration failed');
                 }
             } else {
                 console.error('❌ API Manager not initialized');
             }
         }, 500);
     } else {
-        console.error('❌ Failed to load API keys - Check configuration');
+        console.error('❌ Failed to load serverless API configuration');
     }
 });

@@ -3,9 +3,9 @@
 
 class APIManager {
     constructor() {
-        // API Configuration
+        // Serverless API Configuration
         this.groqConfig = {
-            baseURL: 'https://api.groq.com/openai/v1/chat/completions',
+            endpoint: window.API_CONFIG?.GROQ_API_ENDPOINT || '/api/groq',
             models: [
                 'llama-3.1-8b-instant',
                 'llama-3.3-70b-versatile', 
@@ -17,35 +17,35 @@ class APIManager {
         };
 
         this.geminiConfig = {
-            baseURL: 'https://generativelanguage.googleapis.com/v1beta/models',
+            endpoint: window.API_CONFIG?.GEMINI_API_ENDPOINT || '/api/gemini',
             models: [
                 'gemini-1.5-flash',
                 'gemini-1.5-pro'
             ]
         };
 
-        // Get API keys from configuration
-        this.groqApiKey = window.API_CONFIG?.GROQ_API_KEY || '';
-        this.geminiApiKey = window.API_CONFIG?.GEMINI_API_KEY || '';
+        // Serverless functions handle API keys securely
+        this.groqConfigured = window.API_CONFIG?.GROQ_CONFIGURED || true;
+        this.geminiConfigured = window.API_CONFIG?.GEMINI_CONFIGURED || true;
         
         // Default provider
         this.currentProvider = localStorage.getItem('sati_api_provider') || window.API_CONFIG?.DEFAULT_PROVIDER || 'groq';
         this.currentModel = localStorage.getItem('sati_selected_model') || window.API_CONFIG?.DEFAULT_MODEL || 'llama-3.1-8b-instant';
         
         // Debug information
-        console.log('API Manager initialized:', {
+        console.log('Serverless API Manager initialized:', {
             configAvailable: !!window.API_CONFIG,
-            groqKeyPresent: !!this.groqApiKey,
-            geminiKeyPresent: !!this.geminiApiKey,
-            groqConfigured: this.isGroqConfigured(),
-            geminiConfigured: this.isGeminiConfigured(),
+            groqEndpoint: this.groqConfig.endpoint,
+            geminiEndpoint: this.geminiConfig.endpoint,
+            groqConfigured: this.groqConfigured,
+            geminiConfigured: this.geminiConfigured,
             currentProvider: this.currentProvider,
             currentModel: this.currentModel
         });
         
-        // Warn if no API keys are configured
-        if (!this.isGroqConfigured() && !this.isGeminiConfigured()) {
-            console.warn('⚠️ No API keys configured! Please check your configuration.');
+        // Serverless functions should always be available
+        if (!this.groqConfigured && !this.geminiConfigured) {
+            console.warn('⚠️ Serverless API functions not configured properly!');
         }
     }
 
@@ -70,25 +70,15 @@ class APIManager {
         localStorage.setItem('sati_selected_model', model);
     }
 
-    // Check if API keys are configured
+    // Check if serverless functions are configured
     isGroqConfigured() {
-        const configured = this.groqApiKey && this.groqApiKey.length > 0 && this.groqApiKey !== 'null' && this.groqApiKey !== 'undefined';
-        console.log('Groq configured check:', { 
-            key: this.groqApiKey ? `${this.groqApiKey.substring(0, 10)}...` : 'null',
-            length: this.groqApiKey?.length,
-            configured 
-        });
-        return configured;
+        console.log('Groq serverless function configured:', this.groqConfigured);
+        return this.groqConfigured;
     }
 
     isGeminiConfigured() {
-        const configured = this.geminiApiKey && this.geminiApiKey.length > 0 && this.geminiApiKey !== 'null' && this.geminiApiKey !== 'undefined';
-        console.log('Gemini configured check:', { 
-            key: this.geminiApiKey ? `${this.geminiApiKey.substring(0, 10)}...` : 'null',
-            length: this.geminiApiKey?.length,
-            configured 
-        });
-        return configured;
+        console.log('Gemini serverless function configured:', this.geminiConfigured);
+        return this.geminiConfigured;
     }
 
     // Main function to send message with smart routing
@@ -127,50 +117,40 @@ class APIManager {
         }
     }
 
-    // Groq API integration with retry logic
+    // Groq serverless function integration with retry logic
     async sendGroqMessage(prompt, retryCount = 0, controller = null) {
         if (!this.isGroqConfigured()) {
-            throw new Error('Groq API key not configured. Please set your API key in settings.');
+            throw new Error('Groq serverless function not configured.');
         }
 
         const maxRetries = 3;
         const baseDelay = 1000; // 1 second
 
         try {
-            console.log('Making Groq API call:', {
-                model: this.currentModel,
-                hasApiKey: !!this.groqApiKey,
-                keyPrefix: this.groqApiKey ? this.groqApiKey.substring(0, 10) + '...' : 'none'
+            console.log('Making Groq serverless API call:', {
+                endpoint: this.groqConfig.endpoint,
+                model: this.currentModel
             });
 
-            const response = await fetch(this.groqConfig.baseURL, {
+            const response = await fetch(this.groqConfig.endpoint, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.groqApiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: this.currentModel,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 1024,
-                    stream: false
+                    prompt: prompt,
+                    model: this.currentModel
                 }),
                 signal: controller?.signal
             });
 
-            console.log('Groq API response status:', response.status);
+            console.log('Groq serverless API response status:', response.status);
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error?.message || 'Unknown error';
+                const errorMessage = errorData.error || 'Unknown error';
                 
-                console.error('Groq API error:', {
+                console.error('Groq serverless API error:', {
                     status: response.status,
                     statusText: response.statusText,
                     errorData,
@@ -204,11 +184,16 @@ class APIManager {
                     return await this.sendGroqMessage(prompt, retryCount + 1, controller);
                 }
                 
-                throw new Error(`Groq API Error: ${response.status} - ${errorMessage}`);
+                throw new Error(`Groq Serverless API Error: ${response.status} - ${errorMessage}`);
             }
 
             const data = await response.json();
-            return data.choices[0].message.content.trim();
+            
+            if (!data.success || !data.response) {
+                throw new Error('Invalid response from Groq serverless function');
+            }
+
+            return data.response;
             
         } catch (error) {
             // If it's a network error and we haven't exceeded retries, try again
@@ -217,57 +202,48 @@ class APIManager {
                 console.log(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
                 
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return await this.sendGroqMessage(prompt, retryCount + 1);
+                return await this.sendGroqMessage(prompt, retryCount + 1, controller);
             }
             
             throw error;
         }
     }
 
-    // Gemini API integration with retry logic
+    // Gemini serverless function integration with retry logic
     async sendGeminiMessage(prompt, controller = null, retryCount = 0) {
         if (!this.isGeminiConfigured()) {
-            throw new Error('Gemini API key not configured. Please set your API key in settings.');
+            throw new Error('Gemini serverless function not configured.');
         }
 
         const model = this.currentModel.includes('gemini') ? this.currentModel : 'gemini-1.5-flash';
-        const url = `${this.geminiConfig.baseURL}/${model}:generateContent?key=${this.geminiApiKey}`;
         const maxRetries = 3;
         const baseDelay = 1000; // 1 second
 
         try {
-            console.log('Making Gemini API call:', {
-                model,
-                hasApiKey: !!this.geminiApiKey,
-                keyPrefix: this.geminiApiKey ? this.geminiApiKey.substring(0, 10) + '...' : 'none'
+            console.log('Making Gemini serverless API call:', {
+                endpoint: this.geminiConfig.endpoint,
+                model
             });
 
-            const response = await fetch(url, {
+            const response = await fetch(this.geminiConfig.endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 1024
-                    }
+                    prompt: prompt,
+                    model: model
                 }),
                 signal: controller?.signal
             });
 
-            console.log('Gemini API response status:', response.status);
+            console.log('Gemini serverless API response status:', response.status);
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error?.message || 'Unknown error';
+                const errorMessage = errorData.error || 'Unknown error';
                 
-                console.error('Gemini API error:', {
+                console.error('Gemini serverless API error:', {
                     status: response.status,
                     statusText: response.statusText,
                     errorData,
@@ -301,16 +277,16 @@ class APIManager {
                     return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
                 }
                 
-                throw new Error(`Gemini API Error: ${response.status} - ${errorMessage}`);
+                throw new Error(`Gemini Serverless API Error: ${response.status} - ${errorMessage}`);
             }
 
             const data = await response.json();
             
-            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                throw new Error('Invalid response from Gemini API');
+            if (!data.success || !data.response) {
+                throw new Error('Invalid response from Gemini serverless function');
             }
 
-            return data.candidates[0].content.parts[0].text.trim();
+            return data.response;
             
         } catch (error) {
             // If it's a network error and we haven't exceeded retries, try again
@@ -378,20 +354,20 @@ class APIManager {
             return null; // Return null to indicate this should be handled by the caller
         }
         
-        if (errorMessage.includes('API key')) {
-            // Provide detailed debug information for API key issues
+        if (errorMessage.includes('API key') || errorMessage.includes('serverless function not configured')) {
+            // Provide detailed debug information for serverless function issues
             const debugInfo = {
                 groqConfigured: this.isGroqConfigured(),
                 geminiConfigured: this.isGeminiConfigured(),
                 currentProvider: this.currentProvider,
                 configAvailable: !!window.API_CONFIG,
-                groqKeyPresent: !!this.groqApiKey,
-                geminiKeyPresent: !!this.geminiApiKey
+                groqEndpoint: this.groqConfig.endpoint,
+                geminiEndpoint: this.geminiConfig.endpoint
             };
             
-            console.error('API Configuration Debug Info:', debugInfo);
+            console.error('Serverless API Configuration Debug Info:', debugInfo);
             
-            return `❌ **API Configuration Error**\n\n${errorMessage}\n\n**Debug Info:**\n- Groq API Key: ${debugInfo.groqKeyPresent ? 'Present' : 'Missing'}\n- Gemini API Key: ${debugInfo.geminiKeyPresent ? 'Present' : 'Missing'}\n- Current Provider: ${this.currentProvider}\n- Config Available: ${debugInfo.configAvailable ? 'Yes' : 'No'}\n\nPlease check the configuration file or contact support.`;
+            return `❌ **Serverless API Configuration Error**\n\n${errorMessage}\n\n**Debug Info:**\n- Groq Function: ${debugInfo.groqConfigured ? 'Configured' : 'Not Configured'}\n- Gemini Function: ${debugInfo.geminiConfigured ? 'Configured' : 'Not Configured'}\n- Current Provider: ${this.currentProvider}\n- Config Available: ${debugInfo.configAvailable ? 'Yes' : 'No'}\n\nPlease check if the serverless functions are deployed properly.`;
         } else if (errorMessage.includes('503') && errorMessage.includes('overloaded')) {
             const alternatives = this.getAlternativeModels();
             let suggestionText = '';
