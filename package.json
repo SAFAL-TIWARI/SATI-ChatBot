@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "SATI Chatbot - Hybrid AI assistant with serverless API integration",
   "main": "index.html",
+
   "scripts": {
     "build": "echo 'Static site - no build needed'",
-    "start": "python -m http.server 8000"
+    "start": "node -e \"console.log('Static site ready')\"",
+    "dev": "python -m http.server 8000",
+    "vercel-build": "echo 'No build step required for static site'"
   },
   "keywords": [
     "chatbot",
@@ -22,6 +25,6 @@
   "dependencies": {},
   "devDependencies": {},
   "engines": {
-    "node": "18.x"
+    "node": ">=18.0.0"
   }
 }

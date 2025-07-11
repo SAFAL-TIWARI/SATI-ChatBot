@@ -27,9 +27,9 @@ function initializeSupabase() {
         } else {
             // Direct initialization as fallback
             if (window.supabase) {
-                // Fallback to environment-based configuration
-                const url = process.env.SUPABASE_URL || window.SUPABASE_CONFIG?.URL;
-                const key = process.env.SUPABASE_KEY || window.SUPABASE_CONFIG?.KEY;
+                // Fallback to config-based configuration (browser can't access process.env)
+                const url = window.SUPABASE_CONFIG?.URL;
+                const key = window.SUPABASE_CONFIG?.KEY;
                 
                 if (url && key) {
                     supabase = window.supabase.createClient(url, key);

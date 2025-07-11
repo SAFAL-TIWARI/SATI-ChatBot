@@ -4,8 +4,7 @@
 .vscode/
 .zencoder/
 api-keys.json
-.vercel/
-node_modules/
-dist/
-build/
 *.log
+node_modules/
+.git/
+README.md
