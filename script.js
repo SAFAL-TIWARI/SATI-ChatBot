@@ -1,6 +1,9 @@
 // SATI ChatBot - Main JavaScript File
 
 // Global State Management
+const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo';
+const supabase = window.createClient(supabaseUrl, supabaseKey);
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -2005,11 +2008,6 @@ function initializeEventListeners() {
     if (window.innerWidth <= 768 && elements.sidebar && elements.sidebar.classList.contains('show')) {
         setupMobileClickOutside();
     }
-
-    // --- Supabase SSO Integration ---
-    const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo';
-    const supabase = window.createClient(supabaseUrl, supabaseKey);
 
     async function signInWithGoogle() {
         if (!supabase) return toast.show('Supabase not initialized', 'error');
