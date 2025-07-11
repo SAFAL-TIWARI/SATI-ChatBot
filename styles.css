@@ -1155,6 +1155,27 @@ body {
     color: var(--text-primary);
 }
 
+/* Disabled option styles */
+.model-select option:disabled,
+.form-control option:disabled {
+    color: var(--text-muted) !important;
+    background-color: var(--bg-tertiary) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+[data-theme="dark"] .model-select option:disabled,
+[data-theme="dark"] .form-control option:disabled {
+    color: #666 !important;
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="light"] .model-select option:disabled,
+[data-theme="light"] .form-control option:disabled {
+    color: #999 !important;
+    background-color: #f5f5f5 !important;
+}
+
 .mic-btn {
     background: none;
     border: 1px solid var(--border-color);

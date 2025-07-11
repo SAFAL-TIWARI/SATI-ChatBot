@@ -28,6 +28,9 @@ class ChatBotState {
         
         // Apply font style
         this.applyFontStyle();
+        
+        // Validate model selection - prevent Gemini 1.5 Pro from being selected
+        this.validateModelSelection();
     }
 
     initializeDefaultSettings() {
@@ -116,6 +119,16 @@ class ChatBotState {
     applyFontStyle() {
         const fontStyle = this.settings.accessibility?.fontStyle || 'Inter';
         document.documentElement.style.setProperty('--font-family', `'${fontStyle}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
+    }
+
+    validateModelSelection() {
+        // Check if current model is Gemini 1.5 Pro with Gemini provider
+        if (this.selectedModel === 'gemini-1.5-pro' && this.apiProvider === 'gemini') {
+            // Switch to Gemini 1.5 Flash instead
+            this.selectedModel = 'gemini-1.5-flash';
+            this.saveState();
+            console.log('⚠️ Gemini 1.5 Pro is not available yet. Switched to Gemini 1.5 Flash.');
+        }
     }
 
     createNewConversation(title = 'New Chat') {
@@ -1100,15 +1113,40 @@ function updateModelOptions() {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = window.apiManager.formatModelName(model);
+        
+        // Disable Gemini 1.5 Pro if it's a Gemini provider
+        if (model === 'gemini-1.5-pro' && provider === 'gemini') {
+            option.disabled = true;
+            option.textContent += ' (Coming Soon)';
+            option.style.color = '#888';
+        }
+        
         modelSelect.appendChild(option);
     });
     
-    // Set current model if available
-    if (models.includes(window.apiManager.currentModel)) {
+    // Add click event listener to handle disabled option clicks
+    modelSelect.addEventListener('click', (e) => {
+        if (e.target.tagName === 'OPTION' && e.target.disabled) {
+            e.preventDefault();
+            if (e.target.value === 'gemini-1.5-pro') {
+                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+            }
+        }
+    });
+    
+    // Set current model if available, but avoid setting disabled model
+    if (models.includes(window.apiManager.currentModel) && 
+        !(window.apiManager.currentModel === 'gemini-1.5-pro' && provider === 'gemini')) {
         modelSelect.value = window.apiManager.currentModel;
     } else if (models.length > 0) {
-        modelSelect.value = models[0];
-        window.apiManager.setModel(models[0]);
+        // Find first available (non-disabled) model
+        const availableModel = models.find(model => 
+            !(model === 'gemini-1.5-pro' && provider === 'gemini')
+        );
+        if (availableModel) {
+            modelSelect.value = availableModel;
+            window.apiManager.setModel(availableModel);
+        }
     }
     
 
@@ -1198,7 +1236,16 @@ function addSettingsEventListeners() {
     if (apiProviderSetting) {
         apiProviderSetting.addEventListener('change', (e) => {
             if (window.apiManager) {
-                window.apiManager.setProvider(e.target.value);
+                const newProvider = e.target.value;
+                window.apiManager.setProvider(newProvider);
+                
+                // If switching to Gemini and current model is Gemini 1.5 Pro, switch to Flash
+                if (newProvider === 'gemini' && window.apiManager.currentModel === 'gemini-1.5-pro') {
+                    window.apiManager.setModel('gemini-1.5-flash');
+                    chatState.selectedModel = 'gemini-1.5-flash';
+                    toast.show('🚀 Gemini 1.5 Pro model will add soon. Switched to Gemini 1.5 Flash.', 'info', 4000);
+                }
+                
                 updateModelOptions();
                 updateMainModelSelect(); // Update main input area model select
                 saveSettingsFromForm();
@@ -1211,6 +1258,26 @@ function addSettingsEventListeners() {
     if (aiModelSetting) {
         aiModelSetting.addEventListener('change', (e) => {
             if (window.apiManager) {
+                // Check if user tried to select disabled Gemini 1.5 Pro
+                if (e.target.value === 'gemini-1.5-pro' && 
+                    window.apiManager.currentProvider === 'gemini') {
+                    // Show coming soon message
+                    toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                    
+                    // Reset to previous valid selection
+                    const availableModels = window.apiManager.getAvailableModels();
+                    const fallbackModel = availableModels.find(model => 
+                        model !== 'gemini-1.5-pro'
+                    ) || availableModels[0];
+                    
+                    if (fallbackModel) {
+                        e.target.value = fallbackModel;
+                        window.apiManager.setModel(fallbackModel);
+                        chatState.selectedModel = fallbackModel;
+                    }
+                    return;
+                }
+                
                 // Update API manager and chatState
                 window.apiManager.setModel(e.target.value);
                 chatState.selectedModel = e.target.value;
@@ -1336,19 +1403,44 @@ function updateMainModelSelect() {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = window.apiManager.formatModelName(model);
+        
+        // Disable Gemini 1.5 Pro if it's a Gemini provider
+        if (model === 'gemini-1.5-pro' && apiProvider === 'gemini') {
+            option.disabled = true;
+            option.textContent += ' (Coming Soon)';
+            option.style.color = '#888';
+        }
+        
         modelSelect.appendChild(option);
+    });
+    
+    // Add click event listener to handle disabled option clicks
+    modelSelect.addEventListener('click', (e) => {
+        if (e.target.tagName === 'OPTION' && e.target.disabled) {
+            e.preventDefault();
+            if (e.target.value === 'gemini-1.5-pro') {
+                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+            }
+        }
     });
     
     // Set current model if available, otherwise set first available model
     const currentModel = window.apiManager.currentModel || chatState.selectedModel;
     
-    if (models.includes(currentModel)) {
+    if (models.includes(currentModel) && 
+        !(currentModel === 'gemini-1.5-pro' && apiProvider === 'gemini')) {
         modelSelect.value = currentModel;
         chatState.selectedModel = currentModel;
     } else if (models.length > 0) {
-        chatState.selectedModel = models[0];
-        modelSelect.value = models[0];
-        window.apiManager.setModel(models[0]);
+        // Find first available (non-disabled) model
+        const availableModel = models.find(model => 
+            !(model === 'gemini-1.5-pro' && apiProvider === 'gemini')
+        );
+        if (availableModel) {
+            chatState.selectedModel = availableModel;
+            modelSelect.value = availableModel;
+            window.apiManager.setModel(availableModel);
+        }
     }
     
     chatState.saveState();
@@ -1712,6 +1804,29 @@ function initializeEventListeners() {
     // Model selection
     if (elements.modelSelect) {
         elements.modelSelect.addEventListener('change', (e) => {
+            // Check if user tried to select disabled Gemini 1.5 Pro
+            if (e.target.value === 'gemini-1.5-pro' && 
+                chatState.apiProvider === 'gemini') {
+                // Show coming soon message
+                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                
+                // Reset to previous valid selection
+                const availableModels = window.apiManager ? window.apiManager.getAvailableModels() : [];
+                const fallbackModel = availableModels.find(model => 
+                    model !== 'gemini-1.5-pro'
+                ) || availableModels[0] || chatState.selectedModel;
+                
+                if (fallbackModel && fallbackModel !== 'gemini-1.5-pro') {
+                    e.target.value = fallbackModel;
+                    chatState.selectedModel = fallbackModel;
+                    if (window.apiManager) {
+                        window.apiManager.setModel(fallbackModel);
+                    }
+                }
+                chatState.saveState();
+                return;
+            }
+            
             chatState.selectedModel = e.target.value;
             if (window.apiManager) {
                 window.apiManager.setModel(e.target.value);
