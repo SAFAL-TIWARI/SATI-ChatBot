@@ -25,10 +25,10 @@ class ChatBotState {
 
         // Apply theme
         this.applyTheme();
-        
+
         // Apply font style
         this.applyFontStyle();
-        
+
         // Validate model selection - prevent Gemini 1.5 Pro from being selected
         this.validateModelSelection();
     }
@@ -204,7 +204,7 @@ class ChatBotState {
 const chatState = new ChatBotState();
 
 // Ensure API manager is initialized when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Wait a bit for all scripts to load
     setTimeout(() => {
         if (window.apiManager) {
@@ -452,10 +452,10 @@ class ChatManager {
             if (!window.apiManager) {
                 throw new Error('API manager is not initialized. Please wait a moment and try again.');
             }
-            
+
             // Create AbortController for this request
             this.currentController = new AbortController();
-            
+
             // Use the new API manager for real API calls
             const response = await window.apiManager.sendMessage(content, this.currentController);
 
@@ -480,10 +480,10 @@ class ChatManager {
             }
 
             // Use API manager's error response if available, otherwise use fallback
-            const errorResponse = window.apiManager ? 
-                window.apiManager.getErrorResponse(error) : 
+            const errorResponse = window.apiManager ?
+                window.apiManager.getErrorResponse(error) :
                 `❌ **System Error**\n\n${error.message}\n\nPlease refresh the page and try again.`;
-            
+
             // Only add error message if errorResponse is not null (null means it was an AbortError)
             if (errorResponse) {
                 const errorMessage = {
@@ -495,10 +495,10 @@ class ChatManager {
 
                 chatState.currentMessages.push(errorMessage);
             }
-            
+
             // Handle model overload specifically
             const wasOverloadHandled = handleModelOverload(error.message || '');
-            
+
             if (!wasOverloadHandled) {
                 toast.show('Failed to send message', 'error');
             }
@@ -623,7 +623,7 @@ class ChatManager {
         chatState.isTyping = false;
         this.hideTypingIndicator();
         this.hideStopButton();
-        
+
         // Add a stopped message
         const stoppedMessage = {
             id: utils.generateId(),
@@ -631,17 +631,17 @@ class ChatManager {
             content: '⏹️ **Generation stopped by user**',
             timestamp: new Date().toISOString()
         };
-        
+
         chatState.currentMessages.push(stoppedMessage);
         this.renderMessages();
         this.updateConversationsList();
-        
+
         toast.show('Generation stopped', 'info');
     }
 
     async copyMessage(messageId) {
         let content = '';
-        
+
         if (messageId === 'welcome') {
             content = `Hello! I'm your SATI AI Assistant
 
@@ -663,20 +663,20 @@ What would you like to know about SATI?`;
 
         try {
             await navigator.clipboard.writeText(content);
-            
+
             // Visual feedback
             const copyBtn = document.querySelector(`[data-message-id="${messageId}"]`);
             if (copyBtn) {
                 const originalIcon = copyBtn.innerHTML;
                 copyBtn.innerHTML = '<i class="fas fa-check"></i>';
                 copyBtn.classList.add('copied');
-                
+
                 setTimeout(() => {
                     copyBtn.innerHTML = originalIcon;
                     copyBtn.classList.remove('copied');
                 }, 2000);
             }
-            
+
             toast.show('Message copied to clipboard', 'success');
         } catch (err) {
             console.error('Failed to copy message:', err);
@@ -801,14 +801,14 @@ async function deleteConversation(id) {
 // Conversation Menu Management
 function toggleConversationMenu(event, conversationId) {
     event.stopPropagation();
-    
+
     // Close all other dropdowns first
     document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
         if (dropdown.id !== `dropdown-${conversationId}`) {
             dropdown.classList.remove('show');
         }
     });
-    
+
     const dropdown = document.getElementById(`dropdown-${conversationId}`);
     if (dropdown) {
         dropdown.classList.toggle('show');
@@ -831,21 +831,21 @@ function renameConversation(conversationId) {
     if (dropdown) {
         dropdown.classList.remove('show');
     }
-    
+
     // Find the conversation
     const conversation = chatState.conversations.find(c => c.id === conversationId);
     if (!conversation) return;
-    
+
     // Set current values
     const renameInput = document.getElementById('renameInput');
     renameInput.value = conversation.title;
-    
+
     // Store the conversation ID for later use
     document.getElementById('renameModal').dataset.conversationId = conversationId;
-    
+
     // Show the modal
     modal.show('renameModal');
-    
+
     // Focus and select the input
     setTimeout(() => {
         renameInput.focus();
@@ -856,36 +856,36 @@ function renameConversation(conversationId) {
 // Handle rename form submission
 function handleRenameSubmit(event) {
     event.preventDefault();
-    
+
     const conversationId = document.getElementById('renameModal').dataset.conversationId;
     const newTitle = document.getElementById('renameInput').value.trim();
-    
+
     if (!newTitle) {
         toast.show('Please enter a valid name', 'warning');
         return;
     }
-    
+
     if (newTitle.length > 100) {
         toast.show('Name is too long (max 100 characters)', 'warning');
         return;
     }
-    
+
     // Rename the conversation
     const success = chatState.renameConversation(conversationId, newTitle);
     if (success) {
         // Update UI
         updateConversationsList();
-        
+
         // Update chat title if this is the current conversation
         if (chatState.currentConversationId === conversationId) {
             elements.chatTitle.textContent = newTitle;
         }
-        
+
         toast.show('Conversation renamed successfully', 'success');
     } else {
         toast.show('Failed to rename conversation', 'error');
     }
-    
+
     // Close modal
     modal.hide('renameModal');
 }
@@ -1082,7 +1082,7 @@ function togglePasswordVisibility(inputId) {
     const input = document.getElementById(inputId);
     const button = input.nextElementSibling;
     const icon = button.querySelector('i');
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         icon.className = 'fas fa-eye-slash';
@@ -1097,33 +1097,33 @@ function togglePasswordVisibility(inputId) {
 function updateModelOptions() {
     const providerSelect = document.getElementById('apiProviderSetting');
     const modelSelect = document.getElementById('aiModelSetting');
-    
+
     if (!providerSelect || !modelSelect || !window.apiManager) return;
-    
+
     const provider = providerSelect.value;
     window.apiManager.setProvider(provider);
-    
+
     // Clear existing options
     modelSelect.innerHTML = '';
-    
+
     // Get available models for the selected provider
     const models = window.apiManager.getAvailableModels();
-    
+
     models.forEach(model => {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = window.apiManager.formatModelName(model);
-        
+
         // Disable Gemini 1.5 Pro if it's a Gemini provider
         if (model === 'gemini-1.5-pro' && provider === 'gemini') {
             option.disabled = true;
             option.textContent += ' (Coming Soon)';
             option.style.color = '#888';
         }
-        
+
         modelSelect.appendChild(option);
     });
-    
+
     // Add click event listener to handle disabled option clicks
     modelSelect.addEventListener('click', (e) => {
         if (e.target.tagName === 'OPTION' && e.target.disabled) {
@@ -1133,14 +1133,14 @@ function updateModelOptions() {
             }
         }
     });
-    
+
     // Set current model if available, but avoid setting disabled model
-    if (models.includes(window.apiManager.currentModel) && 
+    if (models.includes(window.apiManager.currentModel) &&
         !(window.apiManager.currentModel === 'gemini-1.5-pro' && provider === 'gemini')) {
         modelSelect.value = window.apiManager.currentModel;
     } else if (models.length > 0) {
         // Find first available (non-disabled) model
-        const availableModel = models.find(model => 
+        const availableModel = models.find(model =>
             !(model === 'gemini-1.5-pro' && provider === 'gemini')
         );
         if (availableModel) {
@@ -1148,7 +1148,7 @@ function updateModelOptions() {
             window.apiManager.setModel(availableModel);
         }
     }
-    
+
 
 }
 
@@ -1172,12 +1172,12 @@ function loadSettingsValues() {
         apiProviderSetting.value = window.apiManager.currentProvider;
         updateModelOptions();
     }
-    
+
     const aiModelSetting = document.getElementById('aiModelSetting');
     if (aiModelSetting && window.apiManager) {
         aiModelSetting.value = window.apiManager.currentModel;
     }
-    
+
     // Load API keys
 
 
@@ -1238,38 +1238,38 @@ function addSettingsEventListeners() {
             if (window.apiManager) {
                 const newProvider = e.target.value;
                 window.apiManager.setProvider(newProvider);
-                
+
                 // If switching to Gemini and current model is Gemini 1.5 Pro, switch to Flash
                 if (newProvider === 'gemini' && window.apiManager.currentModel === 'gemini-1.5-pro') {
                     window.apiManager.setModel('gemini-1.5-flash');
                     chatState.selectedModel = 'gemini-1.5-flash';
                     toast.show('🚀 Gemini 1.5 Pro model will add soon. Switched to Gemini 1.5 Flash.', 'info', 4000);
                 }
-                
+
                 updateModelOptions();
                 updateMainModelSelect(); // Update main input area model select
                 saveSettingsFromForm();
             }
         });
     }
-    
+
     // Special handling for model changes
     const aiModelSetting = document.getElementById('aiModelSetting');
     if (aiModelSetting) {
         aiModelSetting.addEventListener('change', (e) => {
             if (window.apiManager) {
                 // Check if user tried to select disabled Gemini 1.5 Pro
-                if (e.target.value === 'gemini-1.5-pro' && 
+                if (e.target.value === 'gemini-1.5-pro' &&
                     window.apiManager.currentProvider === 'gemini') {
                     // Show coming soon message
                     toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
-                    
+
                     // Reset to previous valid selection
                     const availableModels = window.apiManager.getAvailableModels();
-                    const fallbackModel = availableModels.find(model => 
+                    const fallbackModel = availableModels.find(model =>
                         model !== 'gemini-1.5-pro'
                     ) || availableModels[0];
-                    
+
                     if (fallbackModel) {
                         e.target.value = fallbackModel;
                         window.apiManager.setModel(fallbackModel);
@@ -1277,23 +1277,23 @@ function addSettingsEventListeners() {
                     }
                     return;
                 }
-                
+
                 // Update API manager and chatState
                 window.apiManager.setModel(e.target.value);
                 chatState.selectedModel = e.target.value;
-                
+
                 // Sync with input area model select
                 updateMainModelSelect();
-                
+
                 // Save settings
                 saveSettingsFromForm();
-                
+
                 // Show confirmation
                 toast.show(`AI Model changed to ${window.apiManager.formatModelName(e.target.value)}`, 'success');
             }
         });
     }
-    
+
 
 
     // Special handling for sliders - input event for real-time updates, change event for saving
@@ -1390,30 +1390,30 @@ function updateMainModelSelect() {
     if (!modelSelect || !window.apiManager) return;
 
     const apiProvider = chatState.settings.general?.apiProvider || chatState.apiProvider || 'groq';
-    
+
     // Clear existing options
     modelSelect.innerHTML = '';
-    
+
     // Get available models for the current provider
     window.apiManager.setProvider(apiProvider);
     const models = window.apiManager.getAvailableModels();
-    
+
     // Populate model options
     models.forEach(model => {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = window.apiManager.formatModelName(model);
-        
+
         // Disable Gemini 1.5 Pro if it's a Gemini provider
         if (model === 'gemini-1.5-pro' && apiProvider === 'gemini') {
             option.disabled = true;
             option.textContent += ' (Coming Soon)';
             option.style.color = '#888';
         }
-        
+
         modelSelect.appendChild(option);
     });
-    
+
     // Add click event listener to handle disabled option clicks
     modelSelect.addEventListener('click', (e) => {
         if (e.target.tagName === 'OPTION' && e.target.disabled) {
@@ -1423,17 +1423,17 @@ function updateMainModelSelect() {
             }
         }
     });
-    
+
     // Set current model if available, otherwise set first available model
     const currentModel = window.apiManager.currentModel || chatState.selectedModel;
-    
-    if (models.includes(currentModel) && 
+
+    if (models.includes(currentModel) &&
         !(currentModel === 'gemini-1.5-pro' && apiProvider === 'gemini')) {
         modelSelect.value = currentModel;
         chatState.selectedModel = currentModel;
     } else if (models.length > 0) {
         // Find first available (non-disabled) model
-        const availableModel = models.find(model => 
+        const availableModel = models.find(model =>
             !(model === 'gemini-1.5-pro' && apiProvider === 'gemini')
         );
         if (availableModel) {
@@ -1442,18 +1442,18 @@ function updateMainModelSelect() {
             window.apiManager.setModel(availableModel);
         }
     }
-    
+
     chatState.saveState();
 }
 
 // Function to handle model overload and suggest alternatives
 function handleModelOverload(errorMessage) {
     if (!window.apiManager) return false;
-    
+
     // Check if this is a 503 overloaded error
     if (errorMessage.includes('503') && errorMessage.includes('overloaded')) {
         const alternatives = window.apiManager.getAlternativeModels();
-        
+
         if (alternatives.length > 0) {
             // Show a toast with alternative suggestions
             const firstAlt = alternatives[0];
@@ -1462,25 +1462,25 @@ function handleModelOverload(errorMessage) {
                 'warning',
                 8000
             );
-            
+
             // Optionally auto-switch to the first alternative after a delay
             setTimeout(() => {
                 if (confirm(`Would you like to automatically switch to ${window.apiManager.formatModelName(firstAlt.model)} to avoid overload issues?`)) {
                     switchToAlternativeModel(firstAlt);
                 }
             }, 2000);
-            
+
             return true;
         }
     }
-    
+
     return false;
 }
 
 // Function to switch to an alternative model
 function switchToAlternativeModel(alternative) {
     if (!window.apiManager) return;
-    
+
     try {
         // Update API provider if different
         if (alternative.provider !== chatState.apiProvider) {
@@ -1488,25 +1488,25 @@ function switchToAlternativeModel(alternative) {
             chatState.settings.general.apiProvider = alternative.provider;
             window.apiManager.setProvider(alternative.provider);
         }
-        
+
         // Update model
         chatState.selectedModel = alternative.model;
         window.apiManager.setModel(alternative.model);
-        
+
         // Update UI
         updateMainModelSelect();
-        
+
         // Save state
         chatState.saveState();
         chatState.saveSettings();
-        
+
         // Show success message
         toast.show(
             `✅ Switched to ${window.apiManager.formatModelName(alternative.model)}`,
             'success',
             3000
         );
-        
+
     } catch (error) {
         console.error('Error switching model:', error);
         toast.show('❌ Failed to switch model', 'error', 3000);
@@ -1805,17 +1805,17 @@ function initializeEventListeners() {
     if (elements.modelSelect) {
         elements.modelSelect.addEventListener('change', (e) => {
             // Check if user tried to select disabled Gemini 1.5 Pro
-            if (e.target.value === 'gemini-1.5-pro' && 
+            if (e.target.value === 'gemini-1.5-pro' &&
                 chatState.apiProvider === 'gemini') {
                 // Show coming soon message
                 toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
-                
+
                 // Reset to previous valid selection
                 const availableModels = window.apiManager ? window.apiManager.getAvailableModels() : [];
-                const fallbackModel = availableModels.find(model => 
+                const fallbackModel = availableModels.find(model =>
                     model !== 'gemini-1.5-pro'
                 ) || availableModels[0] || chatState.selectedModel;
-                
+
                 if (fallbackModel && fallbackModel !== 'gemini-1.5-pro') {
                     e.target.value = fallbackModel;
                     chatState.selectedModel = fallbackModel;
@@ -1826,12 +1826,12 @@ function initializeEventListeners() {
                 chatState.saveState();
                 return;
             }
-            
+
             chatState.selectedModel = e.target.value;
             if (window.apiManager) {
                 window.apiManager.setModel(e.target.value);
                 toast.show(`Switched to ${window.apiManager.formatModelName(e.target.value)}`, 'success');
-                
+
                 // Sync with settings model select
                 const aiModelSetting = document.getElementById('aiModelSetting');
                 if (aiModelSetting) {
@@ -2405,7 +2405,7 @@ function initializeApp() {
                 setTimeout(initializeWithApiManager, 500);
             }
         };
-        
+
         // Start initialization
         initializeWithApiManager();
 
@@ -2458,46 +2458,46 @@ function initializeMobileLayout() {
         const mainContent = document.querySelector('.main-content');
         const inputArea = document.querySelector('.input-area');
         const chatWindow = document.querySelector('.chat-window');
-        
+
         if (topBar) {
             topBar.style.display = 'flex';
             topBar.style.visibility = 'visible';
             topBar.style.opacity = '1';
         }
-        
+
         if (mainContent) {
             mainContent.style.display = 'flex';
             mainContent.style.visibility = 'visible';
             mainContent.style.opacity = '1';
         }
-        
+
         if (inputArea) {
             inputArea.style.display = 'block';
             inputArea.style.visibility = 'visible';
             inputArea.style.opacity = '1';
         }
-        
+
         if (chatWindow) {
             chatWindow.style.display = 'flex';
             chatWindow.style.visibility = 'visible';
             chatWindow.style.opacity = '1';
         }
-        
+
         // Force layout recalculation
         document.body.offsetHeight;
-        
+
         // Ensure proper viewport height calculation
         const setVH = () => {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
         };
-        
+
         setVH();
         window.addEventListener('resize', setVH);
         window.addEventListener('orientationchange', () => {
             setTimeout(setVH, 100);
         });
-        
+
     } catch (error) {
         console.error('Error initializing mobile layout:', error);
     }
