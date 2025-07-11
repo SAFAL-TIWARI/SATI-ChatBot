@@ -3,7 +3,7 @@
 // Global State Management
 const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo';
-const supabase = window.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -2010,18 +2010,56 @@ function initializeEventListeners() {
     }
 
     async function signInWithGoogle() {
-        if (!supabase) return toast.show('Supabase not initialized', 'error');
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-        if (error) {
-            toast.show('Google login failed: ' + error.message, 'error');
+        try {
+            if (!supabase) {
+                console.error('Supabase client not initialized');
+                return toast.show('Supabase not initialized', 'error');
+            }
+            
+            console.log('Attempting Google SSO login...');
+            const { data, error } = await supabase.auth.signInWithOAuth({ 
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            
+            if (error) {
+                console.error('Google login error:', error);
+                toast.show('Google login failed: ' + error.message, 'error');
+            } else {
+                console.log('Google SSO initiated:', data);
+            }
+        } catch (err) {
+            console.error('Google SSO exception:', err);
+            toast.show('Google login error: ' + err.message, 'error');
         }
     }
 
     async function signInWithGithub() {
-        if (!supabase) return toast.show('Supabase not initialized', 'error');
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'github' });
-        if (error) {
-            toast.show('GitHub login failed: ' + error.message, 'error');
+        try {
+            if (!supabase) {
+                console.error('Supabase client not initialized');
+                return toast.show('Supabase not initialized', 'error');
+            }
+            
+            console.log('Attempting GitHub SSO login...');
+            const { data, error } = await supabase.auth.signInWithOAuth({ 
+                provider: 'github',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            
+            if (error) {
+                console.error('GitHub login error:', error);
+                toast.show('GitHub login failed: ' + error.message, 'error');
+            } else {
+                console.log('GitHub SSO initiated:', data);
+            }
+        } catch (err) {
+            console.error('GitHub SSO exception:', err);
+            toast.show('GitHub login error: ' + err.message, 'error');
         }
     }
 
@@ -2040,17 +2078,34 @@ function initializeEventListeners() {
 
     // Listen for Supabase auth state changes to show login success toast
     function listenForAuthChanges() {
-        if (!supabase) return;
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                chatState.isLoggedIn = true;
-                chatState.username = session.user.email || session.user.id;
-                chatState.saveState();
-                modal.hide('loginModal');
-                updateLoginStatus();
-                toast.show('Logged in successfully', 'success');
+        try {
+            if (!supabase) {
+                console.error('Cannot listen for auth changes - Supabase not initialized');
+                return;
             }
-        });
+            
+            console.log('Setting up Supabase auth listener');
+            supabase.auth.onAuthStateChange((event, session) => {
+                console.log('Auth state changed:', event, session);
+                
+                if (event === 'SIGNED_IN') {
+                    chatState.isLoggedIn = true;
+                    chatState.username = session.user.email || session.user.id;
+                    chatState.saveState();
+                    modal.hide('loginModal');
+                    updateLoginStatus();
+                    toast.show('Logged in successfully', 'success');
+                } else if (event === 'SIGNED_OUT') {
+                    console.log('User signed out');
+                } else if (event === 'USER_UPDATED') {
+                    console.log('User updated');
+                } else if (event === 'TOKEN_REFRESHED') {
+                    console.log('Token refreshed');
+                }
+            });
+        } catch (err) {
+            console.error('Error setting up auth listener:', err);
+        }
     }
     document.addEventListener('DOMContentLoaded', listenForAuthChanges);
 }
