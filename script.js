@@ -2004,6 +2004,65 @@ function initializeEventListeners() {
     if (window.innerWidth <= 768 && elements.sidebar && elements.sidebar.classList.contains('show')) {
         setupMobileClickOutside();
     }
+
+    // --- Supabase SSO Integration ---
+    // Add this after DOMContentLoaded or at the top if using CDN
+    if (typeof window.createClient === 'undefined') {
+        const supabaseScript = document.createElement('script');
+        supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js';
+        supabaseScript.onload = initializeSupabaseClient;
+        document.head.appendChild(supabaseScript);
+    } else {
+        initializeSupabaseClient();
+    }
+
+    let supabase;
+    function initializeSupabaseClient() {
+        const supabaseUrl = 'https://zewtfqbomdqtaviipwhe.supabase.co'; // <-- Replace with your Supabase URL
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo'; // <-- Replace with your Supabase anon key
+        supabase = window.createClient(supabaseUrl, supabaseKey);
+    }
+
+    async function signInWithGoogle() {
+        if (!supabase) return toast.show('Supabase not initialized', 'error');
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        if (error) {
+            toast.show('Google login failed: ' + error.message, 'error');
+        }
+    }
+
+    async function signInWithGithub() {
+        if (!supabase) return toast.show('Supabase not initialized', 'error');
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'github' });
+        if (error) {
+            toast.show('GitHub login failed: ' + error.message, 'error');
+        }
+    }
+
+    // Listen for SSO button clicks after DOM is ready
+    function addSSOEventListeners() {
+        const googleBtn = document.getElementById('googleSSOBtn');
+        const githubBtn = document.getElementById('githubSSOBtn');
+        if (googleBtn) googleBtn.addEventListener('click', signInWithGoogle);
+        if (githubBtn) githubBtn.addEventListener('click', signInWithGithub);
+    }
+    document.addEventListener('DOMContentLoaded', addSSOEventListeners);
+
+    // Listen for Supabase auth state changes to show login success toast
+    function listenForAuthChanges() {
+        if (!supabase) return;
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                chatState.isLoggedIn = true;
+                chatState.username = session.user.email || session.user.id;
+                chatState.saveState();
+                modal.hide('loginModal');
+                updateLoginStatus();
+                toast.show('Logged in successfully', 'success');
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', listenForAuthChanges);
 }
 
 // Core Functions
