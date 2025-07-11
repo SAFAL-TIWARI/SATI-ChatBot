@@ -16,16 +16,16 @@ const API_CONFIG = {
     GEMINI_CONFIGURED: true
 };
 
-// Supabase Configuration
+// Supabase Configuration - Browser-safe approach
 const SUPABASE_CONFIG = {
-    URL: 'https://zewtfqbomdqtaviipwhe.supabase.co',
-    // Using a secure method to store the key - this is obfuscated but still usable
-    KEY: atob('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5wbGQzUm1jV0p2YldSeGRHRjJhV2x3ZDJobElpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTlRJeU5URTBPVEFzSW1WNGNDSTZNakEyTnpneU56UTVNSDAuR24wUWFTMkRHR0lOVkFxd2pwWVVYekg0SENuejdCeGgzRWdQdF9JalZKbw=='),
+    // For production, these should be set via environment variables in your deployment
+    // For development, you can set them here temporarily (but don't commit them)
+    URL: null, // Set this in your deployment environment
+    KEY: null  // Set this in your deployment environment
     
-    // Feature flags
-    ENABLE_SSO: true,
-    ENABLE_PROFILE: true,
-    ENABLE_WELCOME_MODAL: true
+    // Alternative: Use a configuration service or environment-specific config
+    // URL: window.SUPABASE_URL || null,
+    // KEY: window.SUPABASE_KEY || null,
 };
 
 // Function to check API availability (serverless functions)

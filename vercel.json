@@ -1,6 +1,17 @@
 {
-  "buildCommand": null,
-  "outputDirectory": ".",
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -19,5 +30,11 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_KEY": "@supabase_key",
+    "GROQ_API_KEY": "@groq_api_key",
+    "GEMINI_API_KEY": "@gemini_api_key"
+  }
 }
