@@ -1820,6 +1820,7 @@ function initializeEventListeners() {
                 logout();
             } else {
                 modal.show('loginModal');
+                setTimeout(addSSOEventListeners, 0); // Ensure DOM is updated before attaching listeners
             }
             if (elements.profileDropdown) {
                 elements.profileDropdown.classList.remove('show');
@@ -2038,15 +2039,6 @@ function initializeEventListeners() {
             toast.show('GitHub login failed: ' + error.message, 'error');
         }
     }
-
-    // Listen for SSO button clicks after DOM is ready
-    function addSSOEventListeners() {
-        const googleBtn = document.getElementById('googleSSOBtn');
-        const githubBtn = document.getElementById('githubSSOBtn');
-        if (googleBtn) googleBtn.addEventListener('click', signInWithGoogle);
-        if (githubBtn) githubBtn.addEventListener('click', signInWithGithub);
-    }
-    document.addEventListener('DOMContentLoaded', addSSOEventListeners);
 
     // Listen for Supabase auth state changes to show login success toast
     function listenForAuthChanges() {
