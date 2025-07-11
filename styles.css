@@ -2525,35 +2525,37 @@ textarea:focus-visible {
     font-size: var(--font-size-sm);
     font-weight: 500;
 }
+.sso-row {
+    flex-direction: row !important;
+    justify-content: center;
+    gap: var(--spacing-6);
+}
 .sso-buttons {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
+    align-items: center;
     margin-top: var(--spacing-2);
 }
-.sso-btn {
+.sso-btn.sso-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    padding: 0;
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-4);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    font-size: var(--font-size-base);
-    font-weight: 500;
-    cursor: pointer;
-    transition: background var(--transition-fast), box-shadow var(--transition-fast);
     box-shadow: var(--shadow-sm);
+    transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
-.sso-btn:hover {
+.sso-btn.sso-circle:hover {
     background: var(--bg-tertiary);
+    border-color: var(--accent-color);
     box-shadow: var(--shadow-md);
 }
 .sso-logo-circle {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #fff;
     display: flex;
@@ -2563,7 +2565,7 @@ textarea:focus-visible {
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 .sso-logo-circle img {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
 }
