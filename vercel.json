@@ -1,18 +1,4 @@
 {
-  "functions": {
-    "api/groq.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/gemini.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",
