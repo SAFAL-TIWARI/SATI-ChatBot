@@ -617,7 +617,6 @@ class ChatManager {
             this.hideTypingIndicator();
             this.hideStopButton();
             this.renderMessages();
-            this.updateConversationsList();
         }
     }
 
@@ -741,7 +740,6 @@ class ChatManager {
 
         chatState.currentMessages.push(stoppedMessage);
         this.renderMessages();
-        this.updateConversationsList();
 
         toast.show('Generation stopped', 'info');
     }
@@ -830,6 +828,694 @@ What would you like to know about SATI?`;
 
 const chatManager = new ChatManager();
 
+// Conversation Management
+function updateConversationsList() {
+    const container = elements.conversationsList;
+    container.innerHTML = '';
+
+    if (chatState.conversations.length === 0) {
+        container.innerHTML = '<div class="no-conversations">No conversations yet</div>';
+        return;
+    }
+
+    chatState.conversations.forEach(conversation => {
+        const item = document.createElement('div');
+        item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
+
+        item.innerHTML = `
+            <div class="conversation-title">${conversation.title}</div>
+            <div class="conversation-actions">
+                <button class="conversation-menu-btn" onclick="toggleConversationMenu(event, '${conversation.id}')" title="More options">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="conversation-dropdown" id="dropdown-${conversation.id}">
+                    <button class="conversation-dropdown-item" onclick="renameConversation('${conversation.id}')">
+                        <i class="fas fa-edit"></i>
+                        <span>Rename</span>
+                    </button>
+                    <button class="conversation-dropdown-item danger" onclick="deleteConversation('${conversation.id}')">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.conversation-action')) {
+                loadConversation(conversation.id);
+            }
+        });
+
+        container.appendChild(item);
+    });
+}
+//delete here above
+
+
+//delete here below
+function loadConversation(id) {
+    const conversation = chatState.loadConversation(id);
+    if (conversation) {
+        elements.chatTitle.textContent = conversation.title;
+        chatManager.renderMessages();
+        updateConversationsList();
+
+        // Close sidebar on mobile
+        if (window.innerWidth <= 768) {
+            toggleSidebar();
+        }
+    }
+}
+//delete here above
+
+
+//delete here below
+async function deleteConversation(id) {
+    const confirmed = await modal.confirm(
+        'Delete Conversation',
+        'Are you sure you want to delete this conversation? This action cannot be undone.'
+    );
+
+    if (confirmed) {
+        chatState.deleteConversation(id);
+        updateConversationsList();
+
+        if (chatState.currentConversationId === id) {
+            chatManager.clearChat();
+        }
+
+        toast.show('Conversation deleted', 'success');
+    }
+}
+//delete here above
+
+//delete here below
+// Conversation Menu Management
+function toggleConversationMenu(event, conversationId) {
+    event.stopPropagation();
+
+    // Close all other dropdowns first
+    document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${conversationId}`) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    const dropdown = document.getElementById(`dropdown-${conversationId}`);
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+//delete here above
+
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('.conversation-actions')) {
+        document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    }
+});
+
+
+//delete here below
+// Rename Conversation
+function renameConversation(conversationId) {
+    // Close the dropdown
+    const dropdown = document.getElementById(`dropdown-${conversationId}`);
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+
+    // Find the conversation
+    const conversation = chatState.conversations.find(c => c.id === conversationId);
+    if (!conversation) return;
+
+    // Set current values
+    const renameInput = document.getElementById('renameInput');
+    renameInput.value = conversation.title;
+
+    // Store the conversation ID for later use
+    document.getElementById('renameModal').dataset.conversationId = conversationId;
+
+    // Show the modal
+    modal.show('renameModal');
+
+    // Focus and select the input
+    setTimeout(() => {
+        renameInput.focus();
+        renameInput.select();
+    }, 100);
+}
+//delete here above
+
+//delete here below
+// Handle rename form submission
+function handleRenameSubmit(event) {
+    event.preventDefault();
+
+    const conversationId = document.getElementById('renameModal').dataset.conversationId;
+    const newTitle = document.getElementById('renameInput').value.trim();
+
+    if (!newTitle) {
+        toast.show('Please enter a valid name', 'warning');
+        return;
+    }
+
+    if (newTitle.length > 100) {
+        toast.show('Name is too long (max 100 characters)', 'warning');
+        return;
+    }
+
+    // Rename the conversation
+    const success = chatState.renameConversation(conversationId, newTitle);
+    if (success) {
+        // Update UI
+        updateConversationsList();
+
+        // Update chat title if this is the current conversation
+        if (chatState.currentConversationId === conversationId) {
+            elements.chatTitle.textContent = newTitle;
+        }
+
+        toast.show('Conversation renamed successfully', 'success');
+    } else {
+        toast.show('Failed to rename conversation', 'error');
+    }
+
+    // Close modal
+    modal.hide('renameModal');
+}
+//delete here above
+
+
+//delete here below
+// Settings Management
+function renderSettingsContent(tab) {
+    const content = document.getElementById('settingsContent');
+    const settingsModal = document.querySelector('.settings-modal');
+
+    // Remove all tab-specific classes
+    if (settingsModal) {
+        settingsModal.classList.remove('tab-general', 'tab-chat', 'tab-accessibility', 'tab-notifications', 'tab-privacy');
+        // Add current tab class
+        settingsModal.classList.add(`tab-${tab}`);
+    }
+
+    switch (tab) {
+        case 'general':
+            content.innerHTML = `
+                <div class="form-section">
+                    <h3>API Configuration</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>API Provider</label>
+                            <select class="form-control" id="apiProviderSetting">
+                                <option value="groq">☁️ Groq (Recommended)</option>
+                                <option value="gemini">🧠 Google Gemini</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label>AI Model</label>
+                            <select class="form-control" id="aiModelSetting">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+
+                </div>
+                
+                <div class="form-section">
+                    <h3>General Settings</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>Preferred Language</label>
+                            <select class="form-control" id="languageSetting">
+                                <option value="en">English</option>
+                                <option value="hi">Hindi</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label>Default Chat Name</label>
+                            <select class="form-control" id="chatNameSetting">
+                                <option value="auto">Auto-generate</option>
+                                <option value="timestamp">Use timestamp</option>
+                                <option value="custom">Custom prefix</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="chatHistorySetting" checked>
+                            <label for="chatHistorySetting">Enable chat history</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'chat':
+            content.innerHTML = `
+                <div class="form-section">
+                    <h3>Chat Settings</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label>Response Style</label>
+                            <select class="form-control" id="responseStyleSetting">
+                                <option value="concise">Concise</option>
+                                <option value="detailed">Detailed</option>
+                                <option value="comprehensive">Comprehensive</option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label>Prompt Tone</label>
+                            <select class="form-control" id="promptToneSetting">
+                                <option value="friendly">Friendly</option>
+                                <option value="professional">Professional</option>
+                                <option value="casual">Casual</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Model Behavior (Creativity vs Accuracy)</span>
+                            <span id="behaviorValue">0.7</span>
+                        </div>
+                        <input type="range" class="slider" id="behaviorSlider" min="0" max="1" step="0.1" value="0.7">
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'accessibility':
+            content.innerHTML = `
+                <div class="form-section">
+                    <h3>Accessibility</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <label for="fontStyleSetting">Font Style</label>
+                            <select class="form-control" id="fontStyleSetting">
+                                <option value="Inter">Inter (Default)</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                <option value="Tahoma">Tahoma</option>
+                                <option value="Palatino">Palatino</option>
+                                <option value="Garamond">Garamond</option>
+                                <option value="Comic Sans MS">Comic Sans MS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="voiceInputSetting">
+                            <label for="voiceInputSetting">Enable voice input</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="animationsSetting" checked>
+                            <label for="animationsSetting">Enable animations</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'notifications':
+            content.innerHTML = `
+                <div class="form-section">
+                    <h3>Notification Settings</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="soundOnReplySetting">
+                            <label for="soundOnReplySetting">Sound on reply</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="chatHighlightSetting" checked>
+                            <label for="chatHighlightSetting">Chat highlight notifications</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'privacy':
+            content.innerHTML = `
+                <div class="form-section">
+                    <h3>Privacy & Data</h3>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="dataCollectionSetting">
+                            <label for="dataCollectionSetting">Allow data collection for improvements</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <button class="form-control" onclick="clearAllConversations()" style="background-color: var(--danger-color); color: white; border: none;">
+                                Clear All Conversation History
+                            </button>
+                        </div>
+                        <div class="form-col">
+                            <button class="form-control" onclick="exportAllChats()" style="background-color: var(--accent-color); color: white; border: none;">
+                                Export All Chat History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+    }
+
+    // Load current settings
+    loadSettingsValues();
+
+    // Add event listeners for settings changes
+    addSettingsEventListeners();
+}
+//delete here above
+
+
+// API Configuration Functions
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+
+//delete here below
+function updateModelOptions() {
+    const providerSelect = document.getElementById('apiProviderSetting');
+    const modelSelect = document.getElementById('aiModelSetting');
+
+    if (!providerSelect || !modelSelect || !window.apiManager) return;
+
+    const provider = providerSelect.value;
+    window.apiManager.setProvider(provider);
+
+    // Clear existing options
+    modelSelect.innerHTML = '';
+
+    // Get available models for the selected provider
+    const models = window.apiManager.getAvailableModels();
+
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = window.apiManager.formatModelName(model);
+
+        // Disable Gemini 1.5 Pro if it's a Gemini provider
+        if (model === 'gemini-1.5-pro' && provider === 'gemini') {
+            option.disabled = true;
+            option.textContent += ' (Coming Soon)';
+            option.style.color = '#888';
+        }
+
+        modelSelect.appendChild(option);
+    });
+
+    // Add click event listener to handle disabled option clicks
+    modelSelect.addEventListener('click', (e) => {
+        if (e.target.tagName === 'OPTION' && e.target.disabled) {
+            e.preventDefault();
+            if (e.target.value === 'gemini-1.5-pro') {
+                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+            }
+        }
+    });
+
+    // Set current model if available, but avoid setting disabled model
+    if (models.includes(window.apiManager.currentModel) &&
+        !(window.apiManager.currentModel === 'gemini-1.5-pro' && provider === 'gemini')) {
+        modelSelect.value = window.apiManager.currentModel;
+    } else if (models.length > 0) {
+        // Find first available (non-disabled) model
+        const availableModel = models.find(model =>
+            !(model === 'gemini-1.5-pro' && provider === 'gemini')
+        );
+        if (availableModel) {
+            modelSelect.value = availableModel;
+            window.apiManager.setModel(availableModel);
+        }
+    }
+
+
+}
+//delete here above
+
+
+//delete here below
+function loadSettingsValues() {
+    // Load values from chatState.settings
+    const settings = chatState.settings;
+
+    // General settings
+    const languageSetting = document.getElementById('languageSetting');
+    if (languageSetting) languageSetting.value = settings.general?.language || 'en';
+
+    const chatNameSetting = document.getElementById('chatNameSetting');
+    if (chatNameSetting) chatNameSetting.value = settings.general?.defaultChatName || 'auto';
+
+    const chatHistorySetting = document.getElementById('chatHistorySetting');
+    if (chatHistorySetting) chatHistorySetting.checked = settings.general?.chatHistory !== false;
+
+    // API settings
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting && window.apiManager) {
+        apiProviderSetting.value = window.apiManager.currentProvider;
+        updateModelOptions();
+    }
+
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting && window.apiManager) {
+        aiModelSetting.value = window.apiManager.currentModel;
+    }
+
+    // Load API keys
+
+
+    // Chat settings
+    const responseStyleSetting = document.getElementById('responseStyleSetting');
+    if (responseStyleSetting) responseStyleSetting.value = settings.chat?.responseStyle || 'detailed';
+
+    const promptToneSetting = document.getElementById('promptToneSetting');
+    if (promptToneSetting) promptToneSetting.value = settings.chat?.promptTone || 'friendly';
+
+    const behaviorSlider = document.getElementById('behaviorSlider');
+    const behaviorValue = document.getElementById('behaviorValue');
+    if (behaviorSlider && behaviorValue) {
+        behaviorSlider.value = settings.chat?.modelBehavior || 0.7;
+        behaviorValue.textContent = behaviorSlider.value;
+    }
+
+    // Accessibility settings
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) {
+        fontStyleSetting.value = settings.accessibility?.fontStyle || 'Inter';
+    }
+
+    const voiceInputSetting = document.getElementById('voiceInputSetting');
+    if (voiceInputSetting) voiceInputSetting.checked = settings.accessibility?.voiceInput || false;
+
+    const animationsSetting = document.getElementById('animationsSetting');
+    if (animationsSetting) animationsSetting.checked = settings.accessibility?.animations !== false;
+
+    // Notification settings
+    const soundOnReplySetting = document.getElementById('soundOnReplySetting');
+    if (soundOnReplySetting) soundOnReplySetting.checked = settings.notifications?.soundOnReply || false;
+
+    const chatHighlightSetting = document.getElementById('chatHighlightSetting');
+    if (chatHighlightSetting) chatHighlightSetting.checked = settings.notifications?.chatHighlight !== false;
+
+    // Privacy settings
+    const dataCollectionSetting = document.getElementById('dataCollectionSetting');
+    if (dataCollectionSetting) dataCollectionSetting.checked = settings.privacy?.dataCollection || false;
+}
+//delete here above
+
+
+//delete here below
+function addSettingsEventListeners() {
+    // Add event listeners for all settings controls
+    const settingsControls = document.querySelectorAll('#settingsContent input, #settingsContent select');
+
+    settingsControls.forEach(control => {
+        // Skip special controls that have their own handlers to prevent duplicate events
+        if (control.id === 'apiProviderSetting' || control.id === 'aiModelSetting' || control.id === 'fontStyleSetting') {
+            return;
+        }
+        control.addEventListener('change', saveSettingsFromForm);
+    });
+
+    // Special handling for API provider changes
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        apiProviderSetting.addEventListener('change', (e) => {
+            if (window.apiManager) {
+                const newProvider = e.target.value;
+                window.apiManager.setProvider(newProvider);
+
+                // If switching to Gemini and current model is Gemini 1.5 Pro, switch to Flash
+                if (newProvider === 'gemini' && window.apiManager.currentModel === 'gemini-1.5-pro') {
+                    window.apiManager.setModel('gemini-1.5-flash');
+                    chatState.selectedModel = 'gemini-1.5-flash';
+                    toast.show('🚀 Gemini 1.5 Pro model will add soon. Switched to Gemini 1.5 Flash.', 'info', 4000);
+                }
+
+                updateModelOptions();
+                updateMainModelSelect(); // Update main input area model select
+                saveSettingsFromForm();
+            }
+        });
+    }
+
+    // Special handling for model changes
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting) {
+        aiModelSetting.addEventListener('change', (e) => {
+            if (window.apiManager) {
+                // Check if user tried to select disabled Gemini 1.5 Pro
+                if (e.target.value === 'gemini-1.5-pro' &&
+                    window.apiManager.currentProvider === 'gemini') {
+                    // Show coming soon message
+                    toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+
+                    // Reset to previous valid selection
+                    const availableModels = window.apiManager.getAvailableModels();
+                    const fallbackModel = availableModels.find(model =>
+                        model !== 'gemini-1.5-pro'
+                    ) || availableModels[0];
+
+                    if (fallbackModel) {
+                        e.target.value = fallbackModel;
+                        window.apiManager.setModel(fallbackModel);
+                        chatState.selectedModel = fallbackModel;
+                    }
+                    return;
+                }
+
+                // Update API manager and chatState
+                window.apiManager.setModel(e.target.value);
+                chatState.selectedModel = e.target.value;
+
+                // Sync with input area model select
+                updateMainModelSelect();
+
+                // Save settings
+                saveSettingsFromForm();
+
+                // Show confirmation
+                toast.show(`AI Model changed to ${window.apiManager.formatModelName(e.target.value)}`, 'success');
+            }
+        });
+    }
+
+
+
+    // Special handling for sliders - input event for real-time updates, change event for saving
+    const behaviorSlider = document.getElementById('behaviorSlider');
+    if (behaviorSlider) {
+        behaviorSlider.addEventListener('input', (e) => {
+            document.getElementById('behaviorValue').textContent = e.target.value;
+            // Note: saveSettingsFromForm() is called by the general change event listener
+        });
+    }
+
+    // Font style handling for accessibility
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) {
+        fontStyleSetting.addEventListener('change', (e) => {
+            const selectedFont = e.target.value;
+            document.documentElement.style.setProperty('--font-family', `'${selectedFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
+            toast.show(`Font changed to ${selectedFont}`, 'success');
+            saveSettingsFromForm();
+        });
+    }
+
+
+}
+//delete here above
+
+
+//delete here below
+function saveSettingsFromForm() {
+    // Save all settings from form to chatState.settings
+    const settings = chatState.settings;
+
+    // General settings
+    const languageSetting = document.getElementById('languageSetting');
+    if (languageSetting) settings.general.language = languageSetting.value;
+
+    const chatNameSetting = document.getElementById('chatNameSetting');
+    if (chatNameSetting) settings.general.defaultChatName = chatNameSetting.value;
+
+    const chatHistorySetting = document.getElementById('chatHistorySetting');
+    if (chatHistorySetting) settings.general.chatHistory = chatHistorySetting.checked;
+
+    const apiProviderSetting = document.getElementById('apiProviderSetting');
+    if (apiProviderSetting) {
+        settings.general.apiProvider = apiProviderSetting.value;
+        chatState.apiProvider = apiProviderSetting.value;
+        chatState.saveState();
+        // Update model selection visibility
+        updateModelSelectionVisibility();
+    }
+
+    // AI Model setting
+    const aiModelSetting = document.getElementById('aiModelSetting');
+    if (aiModelSetting && aiModelSetting.value) {
+        chatState.selectedModel = aiModelSetting.value;
+        chatState.saveState();
+    }
+
+    // Chat settings
+    const responseStyleSetting = document.getElementById('responseStyleSetting');
+    if (responseStyleSetting) settings.chat.responseStyle = responseStyleSetting.value;
+
+    const promptToneSetting = document.getElementById('promptToneSetting');
+    if (promptToneSetting) settings.chat.promptTone = promptToneSetting.value;
+
+    const behaviorSlider = document.getElementById('behaviorSlider');
+    if (behaviorSlider) settings.chat.modelBehavior = parseFloat(behaviorSlider.value);
+
+    // Accessibility settings
+    const fontStyleSetting = document.getElementById('fontStyleSetting');
+    if (fontStyleSetting) settings.accessibility.fontStyle = fontStyleSetting.value;
+
+    const voiceInputSetting = document.getElementById('voiceInputSetting');
+    if (voiceInputSetting) settings.accessibility.voiceInput = voiceInputSetting.checked;
+
+    const animationsSetting = document.getElementById('animationsSetting');
+    if (animationsSetting) settings.accessibility.animations = animationsSetting.checked;
+
+    // Notification settings
+    const soundOnReplySetting = document.getElementById('soundOnReplySetting');
+    if (soundOnReplySetting) settings.notifications.soundOnReply = soundOnReplySetting.checked;
+
+    const chatHighlightSetting = document.getElementById('chatHighlightSetting');
+    if (chatHighlightSetting) settings.notifications.chatHighlight = chatHighlightSetting.checked;
+
+    // Privacy settings
+    const dataCollectionSetting = document.getElementById('dataCollectionSetting');
+    if (dataCollectionSetting) settings.privacy.dataCollection = dataCollectionSetting.checked;
+
+    chatState.saveSettings();
+    toast.show('Settings saved', 'success');
+}
 
 //delete here below
 // Function to update the main input area model select based on API provider

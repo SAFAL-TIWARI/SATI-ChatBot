@@ -491,13 +491,6 @@ body {
     background-color: var(--sidebar-active);
 }
 
-.conversation-title {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .conversation-actions {
     display: flex;
     position: relative;
