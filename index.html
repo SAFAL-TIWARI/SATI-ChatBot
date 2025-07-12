@@ -511,8 +511,10 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        // Make Supabase available globally
+        // Make Supabase available globally and add debug info
         window.supabase = supabase;
+        console.log('✅ Supabase CDN loaded:', !!window.supabase);
+        console.log('Supabase version:', window.supabase?.VERSION || 'unknown');
     </script>
     <script src="script.js"></script>
 </body>

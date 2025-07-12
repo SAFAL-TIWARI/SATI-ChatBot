@@ -8,14 +8,25 @@ let supabase = null;
 // Initialize Supabase if credentials are available
 function initializeSupabase() {
     try {
+        console.log('🔄 Attempting to initialize Supabase...');
+        console.log('window.supabase available:', !!window.supabase);
+        console.log('SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
+        
         if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.CONFIGURED) {
             const supabaseUrl = window.SUPABASE_CONFIG.URL;
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
+            
+            console.log('Supabase URL:', supabaseUrl);
+            console.log('Supabase Key available:', !!supabaseKey);
             
             if (supabaseUrl && supabaseKey) {
                 // Create Supabase client
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 console.log('✅ Supabase client initialized successfully');
+                console.log('Supabase client instance:', supabase);
+                
+                // Make supabase available globally for debugging
+                window.supabaseClient = supabase;
                 
                 // Set up auth state listener (will be called later after function is defined)
                 // We'll set up the listener in initializeApp after all functions are defined
@@ -23,9 +34,13 @@ function initializeSupabase() {
                 return true;
             } else {
                 console.warn('⚠️ Supabase initialization failed - missing URL or KEY in SUPABASE_CONFIG');
+                console.log('URL:', supabaseUrl, 'KEY:', supabaseKey ? 'present' : 'missing');
             }
         } else {
             console.warn('⚠️ Supabase initialization skipped - configuration not loaded or not configured');
+            console.log('window.supabase:', !!window.supabase);
+            console.log('SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
+            console.log('CONFIGURED:', window.SUPABASE_CONFIG?.CONFIGURED);
         }
         
         return false;
@@ -2311,21 +2326,34 @@ function initializeEventListeners() {
 
     async function signInWithGoogle() {
         try {
+            console.log('🔄 Google sign-in clicked');
+            console.log('Supabase client status:', !!supabase);
+            
+            // Try to initialize Supabase if not already done
             if (!supabase) {
-                console.error('Supabase client not initialized');
+                console.log('🔄 Supabase not initialized, attempting to force initialize...');
+                const initialized = window.forceInitializeSupabase ? window.forceInitializeSupabase() : initializeSupabase();
+                if (!initialized) {
+                    console.error('❌ Failed to initialize Supabase for Google login');
+                    return toast.show('Authentication service not available. Please refresh the page.', 'error');
+                }
+            }
+            
+            if (!supabase) {
+                console.error('❌ Supabase client still not initialized after retry');
                 return toast.show('Supabase not initialized', 'error');
             }
             
-            console.log('Attempting Google SSO login...');
+            console.log('✅ Supabase client available, attempting Google SSO login...');
             const { data, error } = await supabase.auth.signInWithOAuth({ 
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://sati-chatbot.vercel.app/'
+                    redirectTo: window.location.origin + '/'
                 }
             });
             
             if (error) {
-                console.error('Google login error:', error);
+                console.error('❌ Google login error:', error);
                 
                 // Check for the specific provider not enabled error
                 if (error.message && error.message.includes('provider is not enabled')) {
@@ -2338,31 +2366,51 @@ function initializeEventListeners() {
                     toast.show('Google login failed: ' + error.message, 'error');
                 }
             } else {
-                console.log('Google SSO initiated:', data);
+                console.log('✅ Google SSO initiated:', data);
+                toast.show('Redirecting to Google...', 'info');
             }
         } catch (err) {
-            console.error('Google SSO exception:', err);
+            console.error('❌ Google SSO exception:', err);
             toast.show('Google login error: ' + err.message, 'error');
         }
     }
 
     async function signInWithGithub() {
         try {
+            console.log('🔄 GitHub sign-in clicked');
+            console.log('Supabase client status:', !!supabase);
+            
+            // Try to initialize Supabase if not already done
             if (!supabase) {
-                console.error('Supabase client not initialized');
+                console.log('🔄 Supabase not initialized, attempting to force initialize...');
+                const initialized = window.forceInitializeSupabase ? window.forceInitializeSupabase() : initializeSupabase();
+                if (!initialized) {
+                    console.error('❌ Failed to initialize Supabase for GitHub login');
+                    return toast.show('Authentication service not available. Please refresh the page.', 'error');
+                }
+            }
+            
+            if (!supabase) {
+                console.error('❌ Supabase client still not initialized after retry');
                 return toast.show('Supabase not initialized', 'error');
             }
             
-            console.log('Attempting GitHub SSO login...');
+            console.log('✅ Supabase client available, attempting GitHub SSO login...');
             const { data, error } = await supabase.auth.signInWithOAuth({ 
                 provider: 'github',
                 options: {
-                    redirectTo: 'https://sati-chatbot.vercel.app/'
+                    redirectTo: window.location.origin + '/'
                 }
             });
             
             if (error) {
-                console.error('GitHub login error:', error);
+                console.error('❌ GitHub login error:', error);
+                console.log('Error details:', {
+                    message: error.message,
+                    status: error.status,
+                    statusCode: error.statusCode,
+                    details: error
+                });
                 
                 // Check for the specific provider not enabled error
                 if (error.message && error.message.includes('provider is not enabled')) {
@@ -2371,14 +2419,24 @@ function initializeEventListeners() {
                     // Show a more detailed message in the console for developers
                     console.warn('CONFIGURATION REQUIRED: GitHub OAuth provider needs to be enabled in Supabase dashboard.');
                     console.warn('Go to: Supabase Dashboard > Authentication > Providers > GitHub > Enable');
+                    console.warn('Required steps:');
+                    console.warn('1. Go to Supabase Dashboard');
+                    console.warn('2. Navigate to Authentication > Providers');
+                    console.warn('3. Find GitHub provider and click Enable');
+                    console.warn('4. Add your GitHub OAuth App credentials');
+                    console.warn('5. Set redirect URL to: ' + window.location.origin + '/');
+                } else if (error.message && error.message.includes('redirect')) {
+                    toast.show('GitHub login redirect error. Please check configuration.', 'error');
+                    console.warn('REDIRECT ERROR: Check if redirect URL is properly configured in both Supabase and GitHub OAuth app');
                 } else {
                     toast.show('GitHub login failed: ' + error.message, 'error');
                 }
             } else {
-                console.log('GitHub SSO initiated:', data);
+                console.log('✅ GitHub SSO initiated:', data);
+                toast.show('Redirecting to GitHub...', 'info');
             }
         } catch (err) {
-            console.error('GitHub SSO exception:', err);
+            console.error('❌ GitHub SSO exception:', err);
             toast.show('GitHub login error: ' + err.message, 'error');
         }
     }
@@ -3300,4 +3358,265 @@ window.SATIChatBot = {
     modal: modal,
     toast: toast,
     utils: utils
+};
+
+// Debug function to test Supabase connection
+window.debugSupabase = function() {
+    console.log('=== SUPABASE DEBUG INFO ===');
+    console.log('window.supabase (CDN):', !!window.supabase);
+    console.log('supabase client instance:', !!supabase);
+    console.log('window.supabaseClient:', !!window.supabaseClient);
+    console.log('Supabase config:', window.SUPABASE_CONFIG);
+    console.log('Current hostname:', window.location.hostname);
+    console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    console.log('Current URL:', window.location.href);
+    
+    // Try to initialize if not done
+    if (!supabase && window.SUPABASE_CONFIG?.CONFIGURED) {
+        console.log('🔄 Attempting manual initialization...');
+        const result = initializeSupabase();
+        console.log('Manual initialization result:', result);
+    }
+    
+    if (supabase) {
+        console.log('✅ Supabase client is initialized');
+        console.log('Supabase client object:', supabase);
+        // Test connection
+        supabase.auth.getSession().then(({ data, error }) => {
+            if (error) {
+                console.log('❌ Supabase connection error:', error);
+            } else {
+                console.log('✅ Supabase connection successful');
+                console.log('Current session:', data.session);
+            }
+        }).catch(err => {
+            console.log('❌ Error testing connection:', err);
+        });
+    } else {
+        console.log('❌ Supabase client is NOT initialized');
+        console.log('Trying to initialize now...');
+        if (window.initializeSupabase) {
+            const result = window.initializeSupabase();
+            console.log('Initialization attempt result:', result);
+        }
+    }
+    
+    console.log('=== END DEBUG INFO ===');
+};
+
+// Manual initialization function for debugging
+window.forceInitializeSupabase = function() {
+    console.log('🔄 Force initializing Supabase...');
+    
+    // Set fallback config if not already set
+    if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
+        window.SUPABASE_CONFIG = {
+            URL: 'https://zewtfqbomdqtaviipwhe.supabase.co',
+            KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo',
+            CONFIGURED: true
+        };
+        console.log('✅ Fallback config set');
+    }
+    
+    // Force initialize
+    const result = initializeSupabase();
+    console.log('Force initialization result:', result);
+    
+    if (supabase) {
+        console.log('✅ Supabase is now available:', supabase);
+        window.supabaseClient = supabase;
+    } else {
+        console.log('❌ Supabase still not available');
+    }
+    
+    return !!supabase;
+};
+
+// Test login function for debugging
+window.testLogin = async function(email = 'test@example.com', password = 'testpassword123') {
+    console.log('=== TESTING LOGIN ===');
+    console.log('Email:', email);
+    console.log('Password:', password);
+    
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
+            return;
+        }
+    }
+    
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (error) {
+            console.log('❌ Login error:', error);
+            if (error.message.includes('Invalid login credentials')) {
+                console.log('🔄 Trying to sign up instead...');
+                const { data: signupData, error: signupError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                
+                if (signupError) {
+                    console.log('❌ Signup error:', signupError);
+                } else {
+                    console.log('✅ Signup successful:', signupData);
+                }
+            }
+        } else {
+            console.log('✅ Login successful:', data);
+        }
+    } catch (err) {
+        console.log('❌ Unexpected error:', err);
+    }
+    
+    console.log('=== END TEST LOGIN ===');
+};
+
+// Test SSO function
+window.testGoogleSSO = async function() {
+    console.log('=== TESTING GOOGLE SSO ===');
+    
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
+            return;
+        }
+    }
+    
+    try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/'
+            }
+        });
+        
+        if (error) {
+            console.log('❌ Google SSO error:', error);
+        } else {
+            console.log('✅ Google SSO initiated:', data);
+        }
+    } catch (err) {
+        console.log('❌ Google SSO exception:', err);
+    }
+    
+    console.log('=== END GOOGLE SSO TEST ===');
+};
+
+// Test GitHub SSO function
+window.testGitHubSSO = async function() {
+    console.log('=== TESTING GITHUB SSO ===');
+    
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
+            return;
+        }
+    }
+    
+    try {
+        console.log('🔄 Attempting GitHub OAuth...');
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'github',
+            options: {
+                redirectTo: window.location.origin + '/'
+            }
+        });
+        
+        if (error) {
+            console.log('❌ GitHub SSO error:', error);
+            console.log('Error details:', {
+                message: error.message,
+                status: error.status,
+                statusCode: error.statusCode
+            });
+        } else {
+            console.log('✅ GitHub SSO initiated:', data);
+        }
+    } catch (err) {
+        console.log('❌ GitHub SSO exception:', err);
+    }
+    
+    console.log('=== END GITHUB SSO TEST ===');
+};
+
+// Test API endpoint
+window.testSupabaseAPI = async function() {
+    console.log('=== TESTING SUPABASE API ENDPOINT ===');
+    
+    try {
+        console.log('Testing /api/supabase-config...');
+        const response = await fetch('/api/supabase-config');
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ API Response:', data);
+        } else {
+            const text = await response.text();
+            console.log('❌ API Error Response:', text);
+        }
+    } catch (error) {
+        console.log('❌ API Request Failed:', error);
+    }
+    
+    console.log('=== END API TEST ===');
+};
+
+// Check which OAuth providers are available
+window.checkOAuthProviders = async function() {
+    console.log('=== CHECKING OAUTH PROVIDERS ===');
+    
+    if (!supabase) {
+        console.log('❌ Supabase not initialized');
+        return;
+    }
+    
+    try {
+        // Try to get session to test connection
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        console.log('Session check:', sessionError ? 'Failed' : 'Success');
+        
+        // Test Google OAuth
+        console.log('🔄 Testing Google OAuth availability...');
+        try {
+            const googleTest = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+            });
+            console.log('Google OAuth test result:', googleTest.error ? 'Failed' : 'Available');
+            if (googleTest.error) console.log('Google error:', googleTest.error.message);
+        } catch (e) {
+            console.log('Google OAuth test failed:', e.message);
+        }
+        
+        // Test GitHub OAuth
+        console.log('🔄 Testing GitHub OAuth availability...');
+        try {
+            const githubTest = await supabase.auth.signInWithOAuth({
+                provider: 'github',
+                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+            });
+            console.log('GitHub OAuth test result:', githubTest.error ? 'Failed' : 'Available');
+            if (githubTest.error) console.log('GitHub error:', githubTest.error.message);
+        } catch (e) {
+            console.log('GitHub OAuth test failed:', e.message);
+        }
+        
+    } catch (error) {
+        console.log('❌ Provider check failed:', error);
+    }
+    
+    console.log('=== END PROVIDER CHECK ===');
 };

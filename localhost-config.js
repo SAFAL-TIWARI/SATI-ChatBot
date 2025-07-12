@@ -17,6 +17,28 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         console.log('Groq API:', window.API_CONFIG.GROQ_API_ENDPOINT);
         console.log('Gemini API:', window.API_CONFIG.GEMINI_API_ENDPOINT);
     }
+
+    // Override Supabase configuration loading for localhost
+    window.loadSupabaseConfigForLocalhost = async function() {
+        try {
+            const response = await fetch(`${VERCEL_URL}/api/supabase-config`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.configured) {
+                    window.SUPABASE_CONFIG.URL = data.config.url;
+                    window.SUPABASE_CONFIG.KEY = data.config.key;
+                    window.SUPABASE_CONFIG.CONFIGURED = true;
+                    console.log('✅ Supabase configuration loaded from Vercel for localhost');
+                    return true;
+                }
+            }
+            console.warn('⚠️ Failed to load Supabase config from Vercel');
+            return false;
+        } catch (error) {
+            console.warn('⚠️ Error loading Supabase config from Vercel:', error);
+            return false;
+        }
+    };
 }
 
 // Make this available globally

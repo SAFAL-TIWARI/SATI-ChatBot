@@ -16,32 +16,78 @@ const API_CONFIG = {
     GEMINI_CONFIGURED: true
 };
 
-// Supabase Configuration - Loaded from serverless function
+// Supabase Configuration - Loaded from serverless function or fallback
 let SUPABASE_CONFIG = {
     URL: null,
     KEY: null,
     CONFIGURED: false
 };
 
+// Fallback configuration for development/testing
+const FALLBACK_SUPABASE_CONFIG = {
+    URL: 'https://zewtfqbomdqtaviipwhe.supabase.co',
+    KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo'
+};
+
 // Function to load Supabase configuration from serverless function
 async function loadSupabaseConfig() {
     try {
-        const response = await fetch('/api/supabase-config');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.configured) {
-                SUPABASE_CONFIG.URL = data.config.url;
-                SUPABASE_CONFIG.KEY = data.config.key;
-                SUPABASE_CONFIG.CONFIGURED = true;
-                console.log('✅ Supabase configuration loaded successfully');
-                return true;
-            }
+        console.log('🔄 Loading Supabase configuration...');
+        
+        // Check if we're on localhost and use the special localhost loader
+        if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.loadSupabaseConfigForLocalhost) {
+            console.log('🔧 Loading Supabase config for localhost...');
+            const result = await window.loadSupabaseConfigForLocalhost();
+          if (result) return true;
         }
-        console.warn('⚠️ Supabase configuration not available');
-        return false;
+
+        // Try to load from serverless function
+        try {
+            console.log('🔄 Attempting to load from /api/supabase-config...');
+            const response = await fetch('/api/supabase-config');
+            console.log('API response status:', response.status);
+            
+              if (response.ok) {
+                const data = await response.json();
+                console.log('API response data:', data);
+                
+                if (data.success && data.configured) {
+                    SUPABASE_CONFIG.URL = data.config.url;
+                    SUPABASE_CONFIG.KEY = data.config.key;
+                    SUPABASE_CONFIG.CONFIGURED = true;
+                    console.log('✅ Supabase configuration loaded from API successfully');
+                    return true;
+                }
+            } else {
+                console.warn('⚠️ API response not ok:', response.status, response.statusText);
+            }
+        } catch (apiError) {
+            console.warn('⚠️ API request failed:', apiError);
+        }
+
+        // Fallback to hardcoded configuration
+        console.log('🔄 Using fallback Supabase configuration...');
+        SUPABASE_CONFIG.URL = FALLBACK_SUPABASE_CONFIG.URL;
+        SUPABASE_CONFIG.KEY = FALLBACK_SUPABASE_CONFIG.KEY;
+        SUPABASE_CONFIG.CONFIGURED = true;
+        console.log('✅ Supabase configuration loaded from fallback');
+        return true;
+        
     } catch (error) {
-        console.warn('⚠️ Failed to load Supabase configuration:', error);
-        return false;
+        console.error('❌ Failed to load Supabase configuration:', error);
+        
+        // Last resort - try fallback
+        try {
+            console.log('🔄 Last resort: Using fallback configuration...');
+            SUPABASE_CONFIG.URL = FALLBACK_SUPABASE_CONFIG.URL;
+            SUPABASE_CONFIG.KEY = FALLBACK_SUPABASE_CONFIG.KEY;
+            SUPABASE_CONFIG.CONFIGURED = true;
+            console.log('✅ Fallback Supabase configuration applied');
+            return true;
+        } catch (fallbackError) {
+            console.error('❌ Even fallback failed:', fallbackError);
+            return false;
+        }
     }
 }
 
@@ -87,7 +133,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Initialize Supabase if configuration was loaded
         if (SUPABASE_CONFIG.CONFIGURED && window.initializeSupabase) {
-            window.initializeSupabase();
+            console.log('🔄 Attempting to initialize Supabase from config.js...');
+            const supabaseInitialized = window.initializeSupabase();
+            if (supabaseInitialized) {
+                console.log('✅ Supabase initialized successfully from config.js');
+            } else {
+                console.warn('⚠️ Supabase initialization failed from config.js');
+            }
+        } else {
+            console.warn('⚠️ Supabase initialization skipped:', {
+                configured: SUPABASE_CONFIG.CONFIGURED,
+                initFunction: !!window.initializeSupabase
+            });
         }
         
         // Test API configuration after a short delay to ensure everything is loaded
