@@ -40,6 +40,54 @@ const resourcesData = {
             previewUrl: 'https://drive.google.com/file/d/1yWepsX-tuouTkQW_lUnR4JsvMZX4OMLt/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1yWepsX-tuouTkQW_lUnR4JsvMZX4OMLt',
             subject: 'Computer System Organization - Notes'
+        },
+        {
+            id: 'mab-204-notes-unit-1-4',
+            title: 'MAB 204 Notes Unit 1-4',
+            description: 'MAB 204 notes from unit 1-4',
+            previewUrl: 'https://drive.google.com/file/d/1MWTChdXKEvFapitfDcqyXCW77D5LVDYS/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1MWTChdXKEvFapitfDcqyXCW77D5LVDYS',
+            subject: 'MAB 204 - Discrete Mathematics - Notes'
+        },
+        {
+            id: 'mab-204-notes-unit-1-4-2',
+            title: 'MAB 204 Notes Unit 1-4 (2)',
+            description: 'MAB 204 notes from unit 1-4 (alternative version)',
+            previewUrl: 'https://drive.google.com/file/d/1oDRX2YCsOR07hULYhgCHwxb-TVe0cb6l/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1oDRX2YCsOR07hULYhgCHwxb-TVe0cb6l',
+            subject: 'MAB 204 - Discrete Mathematics - Notes'
+        },
+        {
+            id: 'mab-204-notes-unit-5',
+            title: 'MAB 204 Notes Unit 5',
+            description: 'MAB 204 Notes unit 5',
+            previewUrl: 'https://drive.google.com/file/d/1_RhT5EYvY5WdHJvsmViimSAKW6fUh3oM/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1_RhT5EYvY5WdHJvsmViimSAKW6fUh3oM',
+            subject: 'MAB 204 - Discrete Mathematics - Notes'
+        },
+        {
+            id: 'oop-notes',
+            title: 'OOP Notes',
+            description: 'Object-Oriented Programming comprehensive notes',
+            previewUrl: 'https://drive.google.com/file/d/1Pl4FPS4pc4WAFFFSID_vD_P8x_ezaq0l/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1Pl4FPS4pc4WAFFFSID_vD_P8x_ezaq0l',
+            subject: 'Object-Oriented Programming - Notes'
+        },
+        {
+            id: 'oop-notes-rgpv',
+            title: 'OOP Notes By RGPV',
+            description: 'Object-Oriented Programming notes as per RGPV syllabus',
+            previewUrl: 'https://drive.google.com/file/d/1x-0YZzObE3I4MAUdzgn9N4UbHxD2P4ol/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1x-0YZzObE3I4MAUdzgn9N4UbHxD2P4ol',
+            subject: 'Object-Oriented Programming - Notes'
+        },
+        {
+            id: 'os-notes-unit-1-2-3',
+            title: 'OS Notes Unit 1,2,3',
+            description: 'Operating System notes covering units 1, 2, and 3',
+            previewUrl: 'https://drive.google.com/file/d/1ROeOawTiBxfy4LZYUi8r_Slutn6-UE9Y/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1ROeOawTiBxfy4LZYUi8r_Slutn6-UE9Y',
+            subject: 'Operating System - Notes'
         }
     ],
     practical: [
@@ -58,6 +106,70 @@ const resourcesData = {
             previewUrl: 'https://drive.google.com/file/d/1T483bx1uFkABhVrLxaBruEfTa28YhVR0/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1T483bx1uFkABhVrLxaBruEfTa28YhVR0',
             subject: 'Analysis and Design of Algorithm - Practical Assignment'
+        },
+        {
+            id: 'mab-204-assignment',
+            title: 'MAB 204 Assignment',
+            description: 'MAB 204 assignment',
+            previewUrl: 'https://drive.google.com/file/d/1bWWLxkxH5nIVsVvafLrDpjuxby3PSFcW/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1bWWLxkxH5nIVsVvafLrDpjuxby3PSFcW',
+            subject: 'MAB 204 - Discrete Mathematics - Practical Assignment'
+        },
+        {
+            id: 'oop-theory-assignment',
+            title: 'OOP Theory Assignment',
+            description: 'Object-Oriented Programming theory assignment',
+            previewUrl: 'https://drive.google.com/file/d/19bwqXMWhwlE1CPF4mh-fShdAhC8tCeep/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=19bwqXMWhwlE1CPF4mh-fShdAhC8tCeep',
+            subject: 'Object-Oriented Programming - Theory Assignment'
+        },
+        {
+            id: 'oop-theory-assignment-solution',
+            title: 'OOP Theory Assignment Solution',
+            description: 'Object-Oriented Programming theory assignment solution',
+            previewUrl: 'https://drive.google.com/file/d/14APjMfcNdyR80_ALU484DMisNmk2xyJG/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=14APjMfcNdyR80_ALU484DMisNmk2xyJG',
+            subject: 'Object-Oriented Programming - Theory Assignment Solution'
+        },
+        {
+            id: 'oop-practical-assignment-solution',
+            title: 'OOP Practical Assignment Solution',
+            description: 'Object-Oriented Programming practical assignment solution',
+            previewUrl: 'https://drive.google.com/file/d/11dim2BeG0Q3FtZ1ZbQU3uhTamVQIAEor/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=11dim2BeG0Q3FtZ1ZbQU3uhTamVQIAEor',
+            subject: 'Object-Oriented Programming - Practical Assignment Solution'
+        },
+        {
+            id: 'oop-lab-assignment',
+            title: 'OOP Lab Assignment',
+            description: 'Object-Oriented Programming lab assignment',
+            previewUrl: 'https://drive.google.com/file/d/1W_kb0-lWgZg1hsZg7AaaggUeZ3LVCj7W/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1W_kb0-lWgZg1hsZg7AaaggUeZ3LVCj7W',
+            subject: 'Object-Oriented Programming - Lab Assignment'
+        },
+        {
+            id: 'oop-lab-assignment-solution',
+            title: 'OOP Lab Assignment Solution',
+            description: 'Object-Oriented Programming lab assignment solution',
+            previewUrl: 'https://drive.google.com/file/d/1B8XlkQ1G834q8QU4elqSoXy7gispSx4e/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1B8XlkQ1G834q8QU4elqSoXy7gispSx4e',
+            subject: 'Object-Oriented Programming - Lab Assignment Solution'
+        },
+        {
+            id: 'os-assignment',
+            title: 'OS Assignment',
+            description: 'Operating System assignment',
+            previewUrl: 'https://drive.google.com/file/d/1l-RCsILnOx49ElNMG2QGR2OdpwITezR3/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1l-RCsILnOx49ElNMG2QGR2OdpwITezR3',
+            subject: 'Operating System - Assignment'
+        },
+        {
+            id: 'os-assignment-solution',
+            title: 'OS Assignment Solution',
+            description: 'Operating System assignment solution',
+            previewUrl: 'https://drive.google.com/file/d/1C16AsBuGxTrYRtWFBmHJh1svXTrc5J1m/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1C16AsBuGxTrYRtWFBmHJh1svXTrc5J1m',
+            subject: 'Operating System - Assignment Solution'
         }
     ],
     'test-papers': [
@@ -68,6 +180,14 @@ const resourcesData = {
             previewUrl: 'https://drive.google.com/file/d/1a9kbFf8FQwvyHVLWUh_gXWvrGpmwmxv-/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1a9kbFf8FQwvyHVLWUh_gXWvrGpmwmxv-',
             subject: 'Test Paper 2023'
+        },
+        {
+            id: 'os-objective-type',
+            title: 'OS Objective Type',
+            description: 'Operating System objective type questions',
+            previewUrl: 'https://drive.google.com/file/d/1j6IFGhpdlMXePDV4_v_k5e3RS7fu-8nG/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1j6IFGhpdlMXePDV4_v_k5e3RS7fu-8nG',
+            subject: 'Operating System - Objective Type Questions'
         }
     ],
     syllabus: {
@@ -121,7 +241,7 @@ const resourcesData = {
                 subject: 'OE 305 - Computer System Organization Syllabus'
             }
         ],
-        ece: [
+        ec: [
             {
                 id: 'ec-301-syllabus',
                 title: 'EC 301 Syllabus',
@@ -743,7 +863,7 @@ const resourcesData = {
                 subject: 'CS 304 &BC 304 May (2024) - Previous Year Question Paper'
             }
         ],
-        ece: [
+        ec: [
             {
                 id: 'all-branch-305-dec-2023-ece',
                 title: 'All Branch 305 Dec (2023)',
