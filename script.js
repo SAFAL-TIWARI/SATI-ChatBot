@@ -2737,11 +2737,22 @@ async function signup() {
 
         toast.show('Creating account...', 'info', 2000);
         
-        // Try to sign up with Supabase
+        // Try to sign up with Supabase with additional options
         const { data, error } = await supabase.auth.signUp({
             email: email,
-            password: password
+            password: password,
+            options: {
+                // Set data for the user
+                data: {
+                    username: email.split('@')[0],
+                    full_name: email.split('@')[0]
+                },
+                // Make sure email confirmation is enabled
+                emailRedirectTo: window.location.origin
+            }
         });
+        
+        console.log('Signup response:', data);
         
         if (error) {
             console.error('Signup error:', error);
@@ -2755,6 +2766,7 @@ async function signup() {
             return;
         }
         
+        // Check if email confirmation is required
         if (data?.user?.confirmed_at || data?.session) {
             // Auto-login if confirmation not required
             toast.show('Account created successfully! Logging you in...', 'success', 3000);
@@ -2783,8 +2795,42 @@ async function signup() {
                 showWelcomeModal(chatState.username);
             }, 500);
         } else {
-            // Email confirmation required
-            toast.show('Account created! Please check your email to confirm your account.', 'success', 5000);
+            // Show detailed confirmation instructions
+            modal.hide('loginModal');
+            
+            // Create and show a custom confirmation modal
+            const confirmationModal = document.createElement('div');
+            confirmationModal.className = 'modal-overlay';
+            confirmationModal.id = 'emailConfirmationModal';
+            confirmationModal.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h2>📧 Check Your Email</h2>
+                        <button class="close-btn" onclick="modal.hide('emailConfirmationModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center; padding: 20px;">
+                            <i class="fas fa-envelope-open-text" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                            <h3>Confirmation Email Sent</h3>
+                            <p>We've sent a confirmation link to: <strong>${email}</strong></p>
+                            <p>Please check your inbox (and spam folder) and click the confirmation link to activate your account.</p>
+                            <div style="margin-top: 20px;">
+                                <button class="login-btn" onclick="window.open('https://mail.google.com', '_blank')">Open Gmail</button>
+                                <button class="guest-btn" onclick="modal.hide('emailConfirmationModal')">I'll Check Later</button>
+                            </div>
+                            <p style="margin-top: 20px; font-size: 0.9em;">Didn't receive the email? Check your spam folder or <a href="#" onclick="resendConfirmationEmail('${email}')">click here to resend</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmationModal);
+            
+            // Show the modal
+            setTimeout(() => {
+                modal.show('emailConfirmationModal');
+            }, 500);
         }
     } catch (err) {
         console.error('Signup error:', err);
@@ -2958,6 +3004,45 @@ function exportUserData() {
         toast.show('Failed to export user data', 'error');
     }
 }
+
+// Function to resend confirmation email
+async function resendConfirmationEmail(email) {
+    if (!email) {
+        toast.show('Email address is required', 'error');
+        return;
+    }
+    
+    if (!supabase) {
+        toast.show('Authentication service not available', 'error');
+        return;
+    }
+    
+    try {
+        toast.show('Resending confirmation email...', 'info');
+        
+        const { data, error } = await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+            options: {
+                emailRedirectTo: window.location.origin
+            }
+        });
+        
+        if (error) {
+            console.error('Error resending confirmation:', error);
+            toast.show('Failed to resend: ' + error.message, 'error');
+            return;
+        }
+        
+        toast.show('Confirmation email resent! Please check your inbox.', 'success', 5000);
+    } catch (err) {
+        console.error('Resend confirmation error:', err);
+        toast.show('Error: ' + err.message, 'error');
+    }
+}
+
+// Make the function available globally
+window.resendConfirmationEmail = resendConfirmationEmail;
 
 async function logout() {
     try {
@@ -3266,6 +3351,60 @@ async function checkExistingSession() {
     }
 }
 
+// Handle email verification when user returns from email link
+async function handleEmailVerification() {
+    if (!supabase) return false;
+    
+    try {
+        // Check if we have a hash in the URL that might be from email verification
+        const hash = window.location.hash;
+        if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
+            console.log('Detected auth hash in URL, processing...');
+            
+            // Process the hash
+            const { data, error } = await supabase.auth.getSession();
+            
+            if (error) {
+                console.error('Error processing verification:', error);
+                toast.show('Verification failed: ' + error.message, 'error', 5000);
+                return false;
+            }
+            
+            if (data?.session) {
+                console.log('✅ Email verified successfully!');
+                
+                // Set user state
+                chatState.isLoggedIn = true;
+                chatState.username = data.session.user.email.split('@')[0];
+                chatState.email = data.session.user.email;
+                chatState.authProvider = 'email';
+                chatState.saveState();
+                
+                // Update login statistics
+                updateLoginStats();
+                
+                // Update UI
+                updateLoginStatus();
+                
+                // Show welcome modal
+                setTimeout(() => {
+                    showWelcomeModal(chatState.username);
+                    toast.show('Email verified successfully! Welcome to SATI ChatBot.', 'success', 5000);
+                }, 500);
+                
+                // Clear the hash from URL to prevent reprocessing
+                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+                
+                return true;
+            }
+        }
+        return false;
+    } catch (err) {
+        console.error('Email verification error:', err);
+        return false;
+    }
+}
+
 // Initialize Application
 function initializeApp() {
     try {
@@ -3285,9 +3424,14 @@ function initializeApp() {
                     listenForAuthChanges();
                     console.log('✅ Supabase auth listener set up');
                     
-                    // Check if user is already logged in
-                    checkExistingSession().then(isLoggedIn => {
-                        console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
+                    // Check for email verification first
+                    handleEmailVerification().then(verified => {
+                        if (!verified) {
+                            // If not verified, check if user is already logged in
+                            checkExistingSession().then(isLoggedIn => {
+                                console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
+                            });
+                        }
                     });
                 } else {
                     console.warn('⚠️ Auth listener function not found');
