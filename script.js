@@ -3167,7 +3167,8 @@ function getLoginAttempts(email) {
         count: 0,
         lockUntil: 0,
         resetEmailSent: false,
-        inputBlocked: false
+        inputBlocked: false,
+        lastAttempt: 0
     };
 }
 
@@ -3229,8 +3230,11 @@ async function login() {
         // We no longer need to check for blocked input on page load
         // as we want to allow retries after page refresh
         
-        // Just show a warning if there were previous failed attempts
-        if (attempts.count >= 3) {
+        // Only show warnings if there were actual failed attempts
+        // and they happened recently (within the last hour)
+        const oneHourAgo = now - (60 * 60 * 1000);
+        
+        if (attempts.count >= 3 && attempts.lastAttempt && attempts.lastAttempt > oneHourAgo) {
             // Add warning message below password field
             addPasswordResetMessage(email, `Previous login attempts failed. Please enter the correct password or reset it.`);
             
@@ -3265,6 +3269,7 @@ async function login() {
                     // Increment failed attempts
                     if (error.message.includes('Invalid login credentials')) {
                         attempts.count++;
+                        attempts.lastAttempt = Date.now();
                         
                         // Update the attempts in localStorage
                         updateLoginAttempts(email, attempts);
@@ -3317,8 +3322,28 @@ async function login() {
                     return;
                 }
 
-                // Login successful - reset attempts
-                localStorage.removeItem('sati_login_attempts');
+                // Login successful - reset attempts for this email
+                try {
+                    // Clear from session storage
+                    const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
+                    let sessionAttemptsObj = JSON.parse(sessionAttempts);
+                    if (sessionAttemptsObj[email]) {
+                        delete sessionAttemptsObj[email];
+                        sessionStorage.setItem('sati_login_attempts', JSON.stringify(sessionAttemptsObj));
+                    }
+                    
+                    // Clear from local storage
+                    const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
+                    let attemptsObj = JSON.parse(storedAttempts);
+                    if (attemptsObj[email]) {
+                        delete attemptsObj[email];
+                        localStorage.setItem('sati_login_attempts', JSON.stringify(attemptsObj));
+                    }
+                } catch (err) {
+                    console.error('Error clearing login attempts:', err);
+                    // Fallback to simple removal
+                    localStorage.removeItem('sati_login_attempts');
+                }
                 
                 // Remove any password reset message
                 removePasswordResetMessage();
@@ -3380,8 +3405,11 @@ function checkLoginFormState(email = '') {
     // Only show warnings for previous attempts, but don't disable the input
     // on initial form load (this allows retry after page refresh)
     
-    // Check if there were previous failed attempts
-    if (attempts.count >= 3) {
+    // Only show warnings if there were actual failed attempts
+    // and they happened recently (within the last hour)
+    const oneHourAgo = now - (60 * 60 * 1000);
+    
+    if (attempts.count >= 3 && attempts.lastAttempt && attempts.lastAttempt > oneHourAgo) {
         // Just show a warning message below the password field
         addPasswordResetMessage(email, `Previous login attempts failed. Please enter the correct password or reset it.`);
         
@@ -3436,6 +3464,22 @@ function removePasswordResetMessage() {
         existingMessage.parentNode.removeChild(existingMessage);
     }
 }
+
+// Debug function to clear all login attempts (for troubleshooting)
+function clearAllLoginAttempts() {
+    try {
+        sessionStorage.removeItem('sati_login_attempts');
+        localStorage.removeItem('sati_login_attempts');
+        console.log('All login attempts cleared');
+        return true;
+    } catch (err) {
+        console.error('Error clearing login attempts:', err);
+        return false;
+    }
+}
+
+// Make the debug function available globally
+window.clearAllLoginAttempts = clearAllLoginAttempts;
 
 // Function to show password reset modal
 function showPasswordResetModal(email) {
