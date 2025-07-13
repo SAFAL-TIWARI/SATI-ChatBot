@@ -89,6 +89,27 @@ function listenForAuthChanges() {
                 chatState.authProvider = authProvider;
                 chatState.saveState();
                 
+                // Initialize Supabase storage for authenticated user
+                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                    window.supabaseDB.setCurrentUserEmail(session.user.email);
+                    chatState.initSupabaseStorage();
+                    
+                    // Load conversations from Supabase
+                    chatState.loadConversationsFromSupabase();
+                    
+                    // Set up real-time subscriptions
+                    if (window.supabaseDB.subscribeToConversations) {
+                        const subscription = window.supabaseDB.subscribeToConversations((payload) => {
+                            console.log('Real-time update received:', payload);
+                            // Refresh conversations list when changes occur
+                            chatState.loadConversationsFromSupabase();
+                        });
+                        
+                        // Store subscription for cleanup
+                        chatState.supabaseSubscription = subscription;
+                    }
+                }
+                
                 // Update login statistics
                 updateLoginStats();
                 
@@ -116,6 +137,23 @@ function listenForAuthChanges() {
                 }
             } else if (event === 'SIGNED_OUT') {
                 console.log('User signed out');
+                
+                // Clean up Supabase storage and subscriptions
+                if (chatState.supabaseSubscription) {
+                    chatState.supabaseSubscription.unsubscribe();
+                    chatState.supabaseSubscription = null;
+                }
+                
+                // Reset Supabase storage
+                chatState.useSupabaseStorage = false;
+                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                    window.supabaseDB.setCurrentUserEmail(null);
+                }
+                
+                // Clear conversations from UI (they'll be reloaded from localStorage)
+                chatState.conversations = [];
+                updateConversationsList();
+                
             } else if (event === 'USER_UPDATED') {
                 console.log('User updated');
             } else if (event === 'TOKEN_REFRESHED') {
@@ -167,7 +205,8 @@ class ChatBotState {
     
     // Initialize Supabase storage if user is logged in with Supabase
     initSupabaseStorage() {
-        if (!supabase || !this.isLoggedIn || this.authProvider !== 'email') {
+        if (!supabase || !this.isLoggedIn) {
+            console.log('❌ Supabase storage not initialized - not logged in or Supabase not available');
             this.useSupabaseStorage = false;
             return false;
         }
@@ -176,10 +215,11 @@ class ChatBotState {
         if (window.supabaseDB && window.supabaseDB.initialize) {
             const initialized = window.supabaseDB.initialize(supabase);
             this.useSupabaseStorage = initialized;
-            console.log('Supabase storage initialized:', initialized);
+            console.log('✅ Supabase storage initialized:', initialized);
             return initialized;
         }
         
+        console.log('❌ Supabase DB operations not available');
         this.useSupabaseStorage = false;
         return false;
     }
@@ -284,16 +324,26 @@ class ChatBotState {
     }
 
     async createNewConversation(title = 'New Chat') {
+        console.log('🔄 Creating new conversation:', {
+            useSupabaseStorage: this.useSupabaseStorage,
+            supabaseDB: !!window.supabaseDB,
+            isLoggedIn: this.isLoggedIn,
+            email: this.email
+        });
+        
         // If using Supabase storage and user is logged in
         if (this.useSupabaseStorage && window.supabaseDB) {
             try {
+                console.log('✅ Creating conversation in Supabase...');
                 const { data, error } = await window.supabaseDB.createConversation(title);
                 
                 if (error) {
-                    console.error('Error creating conversation in Supabase:', error);
+                    console.error('❌ Error creating conversation in Supabase:', error);
                     // Fall back to local storage
                     return this.createLocalConversation(title);
                 }
+                
+                console.log('✅ Conversation created in Supabase:', data);
                 
                 // Use the conversation from Supabase
                 const conversation = {
@@ -312,11 +362,12 @@ class ChatBotState {
                 return conversation;
                 
             } catch (err) {
-                console.error('Error in createNewConversation:', err);
+                console.error('❌ Error in createNewConversation:', err);
                 // Fall back to local storage
                 return this.createLocalConversation(title);
             }
         } else {
+            console.log('📱 Using local storage for conversation');
             // Use local storage
             return this.createLocalConversation(title);
         }
@@ -339,7 +390,7 @@ class ChatBotState {
         return conversation;
     }
 
-    updateConversation(messages) {
+    async updateConversation(messages) {
         if (!this.currentConversationId) return;
 
         const conversation = this.conversations.find(c => c.id === this.currentConversationId);
@@ -351,9 +402,56 @@ class ChatBotState {
             if (conversation.title === 'New Chat' && messages.length > 0) {
                 const firstUserMessage = messages.find(m => m.role === 'user');
                 if (firstUserMessage) {
-                    conversation.title = firstUserMessage.content.substring(0, 50) +
+                    const newTitle = firstUserMessage.content.substring(0, 50) +
                         (firstUserMessage.content.length > 50 ? '...' : '');
+                    conversation.title = newTitle;
+                    
+                    // Update title in Supabase if using Supabase storage
+                    if (this.useSupabaseStorage && window.supabaseDB) {
+                        try {
+                            await window.supabaseDB.updateConversationTitle(this.currentConversationId, newTitle);
+                        } catch (err) {
+                            console.error('Error updating conversation title in Supabase:', err);
+                        }
+                    }
                 }
+            }
+
+            // Save messages to Supabase if using Supabase storage
+            if (this.useSupabaseStorage && window.supabaseDB && messages.length > 0) {
+                try {
+                    // Get the latest message (the one that was just added)
+                    const latestMessage = messages[messages.length - 1];
+                    
+                    console.log('💾 Saving message to Supabase:', {
+                        conversationId: this.currentConversationId,
+                        role: latestMessage.role,
+                        contentLength: latestMessage.content.length,
+                        model: latestMessage.model || chatState.selectedModel
+                    });
+                    
+                    // Save to Supabase
+                    const result = await window.supabaseDB.addMessage(
+                        this.currentConversationId,
+                        latestMessage.role,
+                        latestMessage.content,
+                        latestMessage.model || chatState.selectedModel
+                    );
+                    
+                    if (result.error) {
+                        console.error('❌ Error saving message to Supabase:', result.error);
+                    } else {
+                        console.log('✅ Message saved to Supabase:', result.data);
+                    }
+                } catch (err) {
+                    console.error('❌ Error saving message to Supabase:', err);
+                }
+            } else {
+                console.log('📱 Message not saved to Supabase:', {
+                    useSupabaseStorage: this.useSupabaseStorage,
+                    supabaseDB: !!window.supabaseDB,
+                    messagesLength: messages.length
+                });
             }
 
             this.saveState();
@@ -875,7 +973,7 @@ class ChatManager {
             };
 
             chatState.currentMessages.push(botMessage);
-            chatState.updateConversation(chatState.currentMessages);
+            await chatState.updateConversation(chatState.currentMessages);
 
         } catch (error) {
             console.error('Error sending message:', error);
