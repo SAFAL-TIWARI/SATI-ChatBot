@@ -1644,6 +1644,16 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+.auth-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+}
+
+.auth-actions .login-btn {
+    flex: 1;
+}
+
 .guest-btn {
     background: none;
     color: var(--text-secondary);

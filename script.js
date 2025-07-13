@@ -12,6 +12,21 @@ function initializeSupabase() {
         console.log('window.supabase available:', !!window.supabase);
         console.log('SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
         
+        // Ensure Supabase JS library is loaded
+        if (!window.supabase) {
+            console.error('❌ Supabase JS library not loaded');
+            // Try to load it dynamically if not available
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+            script.onload = () => {
+                console.log('✅ Supabase JS library loaded dynamically');
+                // Retry initialization after script loads
+                setTimeout(initializeSupabase, 500);
+            };
+            document.head.appendChild(script);
+            return false;
+        }
+        
         if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.CONFIGURED) {
             const supabaseUrl = window.SUPABASE_CONFIG.URL;
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
@@ -2220,6 +2235,14 @@ function initializeEventListeners() {
         });
     }
 
+    // Sign up button
+    const signupBtn = document.getElementById('signupBtn');
+    if (signupBtn) {
+        signupBtn.addEventListener('click', () => {
+            signup();
+        });
+    }
+    
     const guestBtn = document.getElementById('guestBtn');
     if (guestBtn) {
         guestBtn.addEventListener('click', () => {
@@ -2692,6 +2715,83 @@ async function sendMessage() {
     await chatManager.sendMessage(content, chatState.selectedModel);
 }
 
+async function signup() {
+    try {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Basic validation
+        if (!email || !password) {
+            return toast.show('Please enter both email and password', 'error');
+        }
+        
+        if (password.length < 6) {
+            return toast.show('Password must be at least 6 characters', 'error');
+        }
+
+        // Check if Supabase is available
+        if (!supabase) {
+            console.error('Supabase not initialized');
+            return toast.show('Authentication service not available. Please try again later.', 'error');
+        }
+
+        toast.show('Creating account...', 'info', 2000);
+        
+        // Try to sign up with Supabase
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password
+        });
+        
+        if (error) {
+            console.error('Signup error:', error);
+            toast.show('Signup failed: ' + error.message, 'error');
+            return;
+        }
+        
+        // Check if email confirmation is required
+        if (data?.user?.identities?.length === 0) {
+            toast.show('This email is already registered. Please login instead.', 'info', 5000);
+            return;
+        }
+        
+        if (data?.user?.confirmed_at || data?.session) {
+            // Auto-login if confirmation not required
+            toast.show('Account created successfully! Logging you in...', 'success', 3000);
+            
+            // Set user state
+            chatState.isLoggedIn = true;
+            chatState.username = data.user.email.split('@')[0];
+            chatState.email = data.user.email;
+            chatState.authProvider = 'email';
+            chatState.saveState();
+            
+            // Set flag for welcome toast/console
+            localStorage.setItem('sati_show_welcome', '1');
+            
+            // Update login statistics
+            updateLoginStats();
+            
+            // Hide login modal
+            modal.hide('loginModal');
+            
+            // Update UI
+            updateLoginStatus();
+            
+            // Show welcome modal
+            setTimeout(() => {
+                showWelcomeModal(chatState.username);
+            }, 500);
+        } else {
+            // Email confirmation required
+            toast.show('Account created! Please check your email to confirm your account.', 'success', 5000);
+        }
+    } catch (err) {
+        console.error('Signup error:', err);
+        toast.show('Signup error: ' + err.message, 'error');
+    }
+}
+
 async function login() {
     try {
         const email = document.getElementById('email').value;
@@ -2715,22 +2815,11 @@ async function login() {
                 if (error) {
                     console.error('Supabase login error:', error);
                     
-                    // If it's a "user not found" error, offer to sign up
+                    // Handle different error types
                     if (error.message.includes('Invalid login credentials')) {
-                        if (confirm('Account not found. Would you like to create a new account?')) {
-                            // Try to sign up
-                            const { data: signupData, error: signupError } = await supabase.auth.signUp({
-                                email: email,
-                                password: password
-                            });
-                            
-                            if (signupError) {
-                                console.error('Signup error:', signupError);
-                                toast.show('Signup failed: ' + signupError.message, 'error');
-                            } else {
-                                toast.show('Account created! Please check your email to confirm your account.', 'success', 5000);
-                            }
-                        }
+                        toast.show('Invalid email or password. Please try again or sign up for a new account.', 'error', 4000);
+                    } else if (error.message.includes('Email not confirmed')) {
+                        toast.show('Please confirm your email address before logging in. Check your inbox for a confirmation link.', 'warning', 5000);
                     } else {
                         toast.show('Login failed: ' + error.message, 'error');
                     }
@@ -3142,6 +3231,41 @@ function updateThemeToggleButton() {
     }
 }
 
+// Check if user is already logged in with Supabase
+async function checkExistingSession() {
+    if (!supabase) return false;
+    
+    try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.error('Error checking session:', error);
+            return false;
+        }
+        
+        if (data.session) {
+            console.log('✅ User already has an active session');
+            
+            // Set user state
+            chatState.isLoggedIn = true;
+            chatState.username = data.session.user.email.split('@')[0];
+            chatState.email = data.session.user.email;
+            chatState.authProvider = 'email';
+            chatState.saveState();
+            
+            // Update UI
+            updateLoginStatus();
+            
+            return true;
+        }
+        
+        return false;
+    } catch (err) {
+        console.error('Session check error:', err);
+        return false;
+    }
+}
+
 // Initialize Application
 function initializeApp() {
     try {
@@ -3160,6 +3284,11 @@ function initializeApp() {
                 if (typeof listenForAuthChanges === 'function') {
                     listenForAuthChanges();
                     console.log('✅ Supabase auth listener set up');
+                    
+                    // Check if user is already logged in
+                    checkExistingSession().then(isLoggedIn => {
+                        console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
+                    });
                 } else {
                     console.warn('⚠️ Auth listener function not found');
                 }
