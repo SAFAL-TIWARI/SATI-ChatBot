@@ -187,7 +187,6 @@ class ChatBotState {
     initializeDefaultSettings() {
         const defaultSettings = {
             general: {
-                language: 'en',
                 defaultChatName: 'auto',
                 chatHistory: true,
                 apiProvider: 'groq'
@@ -1353,13 +1352,6 @@ function renderSettingsContent(tab) {
                     <h3>General Settings</h3>
                     <div class="form-row">
                         <div class="form-col">
-                            <label>Preferred Language</label>
-                            <select class="form-control" id="languageSetting">
-                                <option value="en">English</option>
-                                <option value="hi">Hindi</option>
-                            </select>
-                        </div>
-                        <div class="form-col">
                             <label>Default Chat Name</label>
                             <select class="form-control" id="chatNameSetting">
                                 <option value="auto">Auto-generate</option>
@@ -1585,9 +1577,6 @@ function loadSettingsValues() {
     const settings = chatState.settings;
 
     // General settings
-    const languageSetting = document.getElementById('languageSetting');
-    if (languageSetting) languageSetting.value = settings.general?.language || 'en';
-
     const chatNameSetting = document.getElementById('chatNameSetting');
     if (chatNameSetting) chatNameSetting.value = settings.general?.defaultChatName || 'auto';
 
@@ -1758,9 +1747,6 @@ function saveSettingsFromForm() {
     const settings = chatState.settings;
 
     // General settings
-    const languageSetting = document.getElementById('languageSetting');
-    if (languageSetting) settings.general.language = languageSetting.value;
-
     const chatNameSetting = document.getElementById('chatNameSetting');
     if (chatNameSetting) settings.general.defaultChatName = chatNameSetting.value;
 
@@ -2338,15 +2324,7 @@ function initializeEventListeners() {
         });
     }
 
-    const languageBtn = document.getElementById('languageBtn');
-    if (languageBtn) {
-        languageBtn.addEventListener('click', () => {
-            toast.show('Language selection coming soon', 'info');
-            if (elements.profileDropdown) {
-                elements.profileDropdown.classList.remove('show');
-            }
-        });
-    }
+
 
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     if (themeToggleBtn) {
