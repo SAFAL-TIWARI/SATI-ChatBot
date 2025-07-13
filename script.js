@@ -205,7 +205,8 @@ class ChatBotState {
     
     // Initialize Supabase storage if user is logged in with Supabase
     initSupabaseStorage() {
-        if (!supabase || !this.isLoggedIn || this.authProvider !== 'email') {
+        if (!supabase || !this.isLoggedIn) {
+            console.log('❌ Supabase storage not initialized - not logged in or Supabase not available');
             this.useSupabaseStorage = false;
             return false;
         }
@@ -214,10 +215,11 @@ class ChatBotState {
         if (window.supabaseDB && window.supabaseDB.initialize) {
             const initialized = window.supabaseDB.initialize(supabase);
             this.useSupabaseStorage = initialized;
-            console.log('Supabase storage initialized:', initialized);
+            console.log('✅ Supabase storage initialized:', initialized);
             return initialized;
         }
         
+        console.log('❌ Supabase DB operations not available');
         this.useSupabaseStorage = false;
         return false;
     }
@@ -322,16 +324,26 @@ class ChatBotState {
     }
 
     async createNewConversation(title = 'New Chat') {
+        console.log('🔄 Creating new conversation:', {
+            useSupabaseStorage: this.useSupabaseStorage,
+            supabaseDB: !!window.supabaseDB,
+            isLoggedIn: this.isLoggedIn,
+            email: this.email
+        });
+        
         // If using Supabase storage and user is logged in
         if (this.useSupabaseStorage && window.supabaseDB) {
             try {
+                console.log('✅ Creating conversation in Supabase...');
                 const { data, error } = await window.supabaseDB.createConversation(title);
                 
                 if (error) {
-                    console.error('Error creating conversation in Supabase:', error);
+                    console.error('❌ Error creating conversation in Supabase:', error);
                     // Fall back to local storage
                     return this.createLocalConversation(title);
                 }
+                
+                console.log('✅ Conversation created in Supabase:', data);
                 
                 // Use the conversation from Supabase
                 const conversation = {
@@ -350,11 +362,12 @@ class ChatBotState {
                 return conversation;
                 
             } catch (err) {
-                console.error('Error in createNewConversation:', err);
+                console.error('❌ Error in createNewConversation:', err);
                 // Fall back to local storage
                 return this.createLocalConversation(title);
             }
         } else {
+            console.log('📱 Using local storage for conversation');
             // Use local storage
             return this.createLocalConversation(title);
         }
@@ -410,16 +423,35 @@ class ChatBotState {
                     // Get the latest message (the one that was just added)
                     const latestMessage = messages[messages.length - 1];
                     
+                    console.log('💾 Saving message to Supabase:', {
+                        conversationId: this.currentConversationId,
+                        role: latestMessage.role,
+                        contentLength: latestMessage.content.length,
+                        model: latestMessage.model || chatState.selectedModel
+                    });
+                    
                     // Save to Supabase
-                    await window.supabaseDB.addMessage(
+                    const result = await window.supabaseDB.addMessage(
                         this.currentConversationId,
                         latestMessage.role,
                         latestMessage.content,
                         latestMessage.model || chatState.selectedModel
                     );
+                    
+                    if (result.error) {
+                        console.error('❌ Error saving message to Supabase:', result.error);
+                    } else {
+                        console.log('✅ Message saved to Supabase:', result.data);
+                    }
                 } catch (err) {
-                    console.error('Error saving message to Supabase:', err);
+                    console.error('❌ Error saving message to Supabase:', err);
                 }
+            } else {
+                console.log('📱 Message not saved to Supabase:', {
+                    useSupabaseStorage: this.useSupabaseStorage,
+                    supabaseDB: !!window.supabaseDB,
+                    messagesLength: messages.length
+                });
             }
 
             this.saveState();
