@@ -94,8 +94,10 @@ function listenForAuthChanges() {
                     window.supabaseDB.setCurrentUserEmail(session.user.email);
                     chatState.initSupabaseStorage();
                     
-                    // Load conversations from Supabase
-                    chatState.loadConversationsFromSupabase();
+                    // Load conversations from Supabase and update UI
+                    chatState.loadConversationsFromSupabase().then(() => {
+                        console.log('✅ Conversations loaded after login');
+                    });
                     
                     // Set up real-time subscriptions
                     if (window.supabaseDB.subscribeToConversations) {
@@ -578,18 +580,22 @@ class ChatBotState {
     // Load all conversations from Supabase
     async loadConversationsFromSupabase() {
         if (!this.useSupabaseStorage || !window.supabaseDB) {
+            console.log('📱 Not using Supabase storage or DB not available');
             return false;
         }
         
         try {
+            console.log('🔄 Loading conversations from Supabase...');
             const { data, error } = await window.supabaseDB.getUserConversations();
             
             if (error) {
-                console.error('Error loading conversations from Supabase:', error);
+                console.error('❌ Error loading conversations from Supabase:', error);
                 return false;
             }
             
             if (data && data.length > 0) {
+                console.log('✅ Found conversations in Supabase:', data.length);
+                
                 // Convert to app format
                 const conversations = data.map(conv => ({
                     id: conv.id,
@@ -602,12 +608,23 @@ class ChatBotState {
                 // Replace local conversations with Supabase ones
                 this.conversations = conversations;
                 this.saveState();
+                
+                // Update the UI to show the loaded conversations
+                updateConversationsList();
+                
+                console.log('✅ Conversations loaded and UI updated');
+                return true;
+            } else {
+                console.log('📝 No conversations found in Supabase');
+                // Clear local conversations if none in Supabase
+                this.conversations = [];
+                this.saveState();
+                updateConversationsList();
                 return true;
             }
             
-            return true;
         } catch (err) {
-            console.error('Error in loadConversationsFromSupabase:', err);
+            console.error('❌ Error in loadConversationsFromSupabase:', err);
             return false;
         }
     }
@@ -4082,6 +4099,17 @@ async function checkExistingSession() {
             chatState.email = data.session.user.email;
             chatState.authProvider = 'email';
             chatState.saveState();
+            
+            // Initialize Supabase storage and load conversations
+            if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                window.supabaseDB.setCurrentUserEmail(data.session.user.email);
+                chatState.initSupabaseStorage();
+                
+                // Load conversations from Supabase
+                chatState.loadConversationsFromSupabase().then(() => {
+                    console.log('✅ Conversations loaded for existing session');
+                });
+            }
             
             // Update UI
             updateLoginStatus();
