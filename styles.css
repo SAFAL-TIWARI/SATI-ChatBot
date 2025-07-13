@@ -1623,12 +1623,7 @@ body {
     border-color: var(--accent-color);
 }
 
-/* Password input blocked styling */
-.form-group input.input-blocked {
-    border-color: var(--danger-color);
-    background-color: rgba(255, 100, 100, 0.05);
-    color: var(--danger-color);
-}
+/* We've removed the password input blocking functionality */
 
 /* Password reset message */
 .password-reset-message {
