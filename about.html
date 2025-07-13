@@ -137,12 +137,27 @@
             line-height: 1.5;
         }
 
-        /* Compact Info Section */
-        .info-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        /* Scroll Velocity Animation Styles */
+        .scroll-velocity-container {
+            position: relative;
+            overflow: hidden;
+            margin-top:4rem;
+            margin-bottom: 1rem;
+            height: 220px;
+            mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+            -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+        }
+
+        .scroll-velocity-track {
+            display: flex;
+            white-space: nowrap;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            animation: scrollVelocity 10s linear infinite alternate;
+            will-change: transform;
+        }
+
+        .scroll-velocity-track:hover {
+            animation-play-state: paused;
         }
 
         .info-card {
@@ -151,14 +166,11 @@
             padding: 1.5rem;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
-        }
-
-        .info-card:nth-child(odd) {
-            animation: slideInLeft 0.8s ease-out forwards;
-        }
-
-        .info-card:nth-child(even) {
-            animation: slideInRight 0.8s ease-out forwards;
+            flex-shrink: 0;
+            width: 360px;
+            height: 200px;
+            white-space: normal;
+            overflow: hidden;
         }
 
         .info-card:hover {
@@ -179,6 +191,20 @@
             color: var(--text-secondary);
             line-height: 1.5;
             font-size: 0.9rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 10;
+            line-clamp: 10;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @keyframes scrollVelocity {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         /* Compact Stats */
@@ -473,9 +499,23 @@
                 font-size: 0.9rem;
             }
 
-            .info-section {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .scroll-velocity-container {
+                height: 230px;
+                bottom: 20px;
+            }
+            
+            .info-card {
+                width: 230px;
+                height: 230px;
+                padding: 1.2rem;
+            }
+            
+            .info-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .info-card p {
+                font-size: 0.85rem;
             }
 
             .stats-section {
@@ -623,28 +663,52 @@
                 advanced AI technology.</p>
         </section>
 
-        <!-- Compact Info Section -->
-        <div class="info-section">
-            <div class="info-card">
-                <h3><i class="fas fa-university"></i> About SATI</h3>
-                <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr.
-                    Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.
-                </p>
-            </div>
-            <div class="info-card">
-                <h3><i class="fas fa-robot"></i> Our Mission</h3>
-                <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning
-                    experiences and simplifies access to institutional resources.</p>
-            </div>
-            <div class="info-card">
-                <h3><i class="fas fa-lightbulb"></i> Our Vision</h3>
-                <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology,
-                    making information discovery seamless and efficient.</p>
-            </div>
-            <div class="info-card">
-                <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
-                <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering,
-                    technology, science, and management disciplines.</p>
+        <!-- Compact Info Section with Scroll Velocity Animation -->
+        <div class="scroll-velocity-container">
+            <div class="scroll-velocity-track" id="scrollVelocityTrack">
+                <div class="info-card">
+                    <h3><i class="fas fa-university"></i> About SATI</h3>
+                    <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr.
+                        Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-robot"></i> Our Mission</h3>
+                    <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning
+                        experiences and simplifies access to institutional resources.</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-lightbulb"></i> Our Vision</h3>
+                    <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology,
+                        making information discovery seamless and efficient.</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
+                    <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering,
+                        technology, science, and management disciplines.</p>
+                </div>
+                <!-- Duplicate cards for seamless loop -->
+                <div class="info-card">
+                    <h3><i class="fas fa-university"></i> About SATI</h3>
+                    <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr.
+                        Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-robot"></i> Our Mission</h3>
+                    <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning
+                        experiences and simplifies access to institutional resources.</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-lightbulb"></i> Our Vision</h3>
+                    <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology,
+                        making information discovery seamless and efficient.</p>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
+                    <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering,
+                        technology, science, and management disciplines.</p>
+                </div>
             </div>
         </div>
 
@@ -1013,6 +1077,76 @@
                 member.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
                 teamObserver.observe(member);
             });
+
+            // Scroll Velocity Animation
+            const scrollVelocityTrack = document.getElementById('scrollVelocityTrack');
+            if (scrollVelocityTrack) {
+                let baseVelocity = 1;
+                let scrollVelocity = 0;
+                let smoothVelocity = 0;
+                let lastScrollY = window.scrollY;
+                let animationId;
+                let currentX = 0;
+
+                // Calculate the width of one set of cards
+                const cardWidth = 300 + 24; // card width + gap
+                const numCards = 4;
+                const totalWidth = cardWidth * numCards;
+
+                function updateAnimation() {
+                    // Calculate scroll velocity
+                    const currentScrollY = window.scrollY;
+                    scrollVelocity = (currentScrollY - lastScrollY) * 0.1;
+                    lastScrollY = currentScrollY;
+
+                    // Smooth the velocity
+                    smoothVelocity += (scrollVelocity - smoothVelocity) * 0.1;
+
+                    // Calculate movement
+                    const velocityFactor = Math.min(Math.abs(smoothVelocity), 5);
+                    const direction = smoothVelocity > 0 ? 1 : -1;
+                    
+                    // Base movement + velocity-based movement
+                    currentX -= (baseVelocity + velocityFactor * direction) * 0.5;
+
+                    // Wrap around when we've moved one full set
+                    if (currentX <= -totalWidth) {
+                        currentX = 0;
+                    } else if (currentX > 0) {
+                        currentX = -totalWidth;
+                    }
+
+                    // Apply transform
+                    scrollVelocityTrack.style.transform = `translateX(${currentX}px)`;
+
+                    animationId = requestAnimationFrame(updateAnimation);
+                }
+
+                // Start animation
+                updateAnimation();
+
+                // Pause on hover
+                scrollVelocityTrack.addEventListener('mouseenter', () => {
+                    if (animationId) {
+                        cancelAnimationFrame(animationId);
+                    }
+                });
+
+                scrollVelocityTrack.addEventListener('mouseleave', () => {
+                    updateAnimation();
+                });
+
+                // Handle visibility change
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                        }
+                    } else {
+                        updateAnimation();
+                    }
+                });
+            }
         });
     </script>
 </body>
