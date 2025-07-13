@@ -3214,22 +3214,8 @@ async function login() {
         const attempts = getLoginAttempts(email);
         const now = Date.now();
         
-        // Only show warnings if there were actual failed attempts
-        // and they happened recently (within the last hour)
-        const oneHourAgo = now - (60 * 60 * 1000);
-        
-        if (attempts.count >= 3 && attempts.lastAttempt && attempts.lastAttempt > oneHourAgo) {
-            // Add warning message below password field
-            addPasswordResetMessage(email, `${attempts.count} failed login attempts. Consider resetting your password.`);
-            
-            return toast.show(`You've had ${attempts.count} failed login attempts. Please make sure you're using the correct password.`, 'warning', 5000,
-                [
-                    {
-                        text: 'Reset Password',
-                        onClick: () => showPasswordResetModal(email)
-                    }
-                ]);
-        }
+        // We no longer show any warnings on initial form load
+        // Errors will only be shown during actual login attempts
         
         // Reset lock if it has expired
         if (attempts.lockUntil > 0 && attempts.lockUntil < now) {
@@ -3263,7 +3249,7 @@ async function login() {
                             // Add message below password field
                             addPasswordResetMessage(email, `${attempts.count} failed login attempts. Consider resetting your password.`);
                             
-                            return toast.show(`${attempts.count} failed login attempts. Please make sure you're using the correct password.`, 'warning', 5000, 
+                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000, 
                                 [
                                     {
                                         text: 'Reset Password',
@@ -3276,7 +3262,7 @@ async function login() {
                         if (attempts.count === 1) {
                             toast.show('Invalid email or password. Please try again.', 'error', 4000);
                         } else {
-                            toast.show(`Invalid password. ${3 - (attempts.count % 3)} attempt${(attempts.count % 3) === 2 ? '' : 's'} remaining before temporary lockout.`, 'error', 4000, 
+                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000, 
                                 [
                                     {
                                         text: 'Forgot Password?',
@@ -3298,8 +3284,10 @@ async function login() {
                     return;
                 }
 
-                // Login successful - reset attempts for this email
+                // Login successful - completely reset attempts for this email
                 try {
+                    console.log('Login successful, clearing attempts for:', email);
+                    
                     // Clear from session storage
                     const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
                     let sessionAttemptsObj = JSON.parse(sessionAttempts);
@@ -3318,7 +3306,12 @@ async function login() {
                 } catch (err) {
                     console.error('Error clearing login attempts:', err);
                     // Fallback to simple removal
-                    localStorage.removeItem('sati_login_attempts');
+                    try {
+                        localStorage.removeItem('sati_login_attempts');
+                        sessionStorage.removeItem('sati_login_attempts');
+                    } catch (e) {
+                        console.error('Failed to remove login attempts:', e);
+                    }
                 }
                 
                 // Remove any password reset message
@@ -3328,6 +3321,7 @@ async function login() {
                 localStorage.setItem('sati_fresh_login', '1');
                 
                 // The auth state change listener will handle the rest of the login process
+                console.log('Login successful, auth state change listener will handle the rest');
                 
             } catch (err) {
                 console.error('Supabase auth error:', err);
@@ -3358,27 +3352,8 @@ function checkLoginFormState(email = '') {
     // Remove any existing reset message
     removePasswordResetMessage();
     
-    // Get stored login attempts for this email
-    const attempts = getLoginAttempts(email);
-    const now = Date.now();
-    
-    // Only show warnings if there were actual failed attempts
-    // and they happened recently (within the last hour)
-    const oneHourAgo = now - (60 * 60 * 1000);
-    
-    if (attempts.count >= 3 && attempts.lastAttempt && attempts.lastAttempt > oneHourAgo) {
-        // Just show a warning message below the password field
-        addPasswordResetMessage(email, `${attempts.count} failed login attempts. Consider resetting your password.`);
-        
-        // Show toast message
-        toast.show(`You've had ${attempts.count} failed login attempts. Please make sure you're using the correct password.`, 'warning', 5000,
-            [
-                {
-                    text: 'Reset Password',
-                    onClick: () => showPasswordResetModal(email)
-                }
-            ]);
-    }
+    // We no longer show any warnings on initial form load
+    // Errors will only be shown during actual login attempts
 }
 
 // Function to add password reset message below password field
@@ -3422,7 +3397,7 @@ function removePasswordResetMessage() {
     }
 }
 
-// Debug function to clear all login attempts (for troubleshooting)
+// Debug functions to help troubleshoot login issues
 function clearAllLoginAttempts() {
     try {
         sessionStorage.removeItem('sati_login_attempts');
@@ -3435,8 +3410,20 @@ function clearAllLoginAttempts() {
     }
 }
 
-// Make the debug function available globally
+function showLoginAttempts() {
+    try {
+        const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
+        const localAttempts = localStorage.getItem('sati_login_attempts') || '{}';
+        console.log('Session storage login attempts:', JSON.parse(sessionAttempts));
+        console.log('Local storage login attempts:', JSON.parse(localAttempts));
+    } catch (err) {
+        console.error('Error showing login attempts:', err);
+    }
+}
+
+// Make the debug functions available globally
 window.clearAllLoginAttempts = clearAllLoginAttempts;
+window.showLoginAttempts = showLoginAttempts;
 
 // Function to show password reset modal
 function showPasswordResetModal(email) {
