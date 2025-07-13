@@ -707,6 +707,27 @@ class ModalManager {
         if (modal) {
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
+            
+            // Special handling for login modal
+            if (modalId === 'loginModal') {
+                // Wait for modal to be fully visible before checking state
+                setTimeout(() => {
+                    checkLoginFormState();
+                    
+                    // Add event listener to email input to check state when email changes
+                    const emailInput = document.getElementById('email');
+                    if (emailInput) {
+                        // Remove any existing listeners to prevent duplicates
+                        emailInput.removeEventListener('blur', this._emailBlurHandler);
+                        
+                        // Store the handler so we can remove it later
+                        this._emailBlurHandler = () => checkLoginFormState(emailInput.value);
+                        
+                        // Add the listener
+                        emailInput.addEventListener('blur', this._emailBlurHandler);
+                    }
+                }, 100);
+            }
         }
     }
 
@@ -715,6 +736,21 @@ class ModalManager {
         if (modal) {
             modal.classList.remove('show');
             document.body.style.overflow = '';
+            
+            // Clean up event listeners for login modal
+            if (modalId === 'loginModal') {
+                const emailInput = document.getElementById('email');
+                if (emailInput && this._emailBlurHandler) {
+                    emailInput.removeEventListener('blur', this._emailBlurHandler);
+                }
+                
+                // Reset password input state
+                const passwordInput = document.getElementById('password');
+                if (passwordInput) {
+                    passwordInput.disabled = false;
+                    passwordInput.placeholder = "Password";
+                }
+            }
         }
     }
 
@@ -3073,35 +3109,92 @@ async function signup() {
     }
 }
 
-// Track login attempts
-const loginAttempts = {
-    count: 0,
-    email: '',
-    lockUntil: 0
-};
+// Track login attempts using localStorage to persist across refreshes
+function getLoginAttempts(email) {
+    try {
+        const storedAttempts = localStorage.getItem('sati_login_attempts');
+        if (storedAttempts) {
+            const attempts = JSON.parse(storedAttempts);
+            // If we have data for this email, return it
+            if (attempts[email]) {
+                return attempts[email];
+            }
+        }
+    } catch (err) {
+        console.error('Error reading login attempts:', err);
+    }
+    
+    // Default values if no data exists
+    return {
+        count: 0,
+        lockUntil: 0,
+        resetEmailSent: false,
+        inputBlocked: false
+    };
+}
+
+function updateLoginAttempts(email, data) {
+    try {
+        // Get all attempts
+        const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
+        const attempts = JSON.parse(storedAttempts);
+        
+        // Update for this email
+        attempts[email] = data;
+        
+        // Save back to localStorage
+        localStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
+    } catch (err) {
+        console.error('Error updating login attempts:', err);
+    }
+}
 
 async function login() {
     try {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const passwordInput = document.getElementById('password');
 
         // Basic validation
         if (!email || !password) {
             return toast.show('Please enter both email and password', 'error');
         }
         
-        // Check if login is locked
+        // Get stored login attempts for this email
+        const attempts = getLoginAttempts(email);
         const now = Date.now();
-        if (loginAttempts.email === email && loginAttempts.lockUntil > now) {
-            const remainingMinutes = Math.ceil((loginAttempts.lockUntil - now) / 60000);
-            return toast.show(`Too many failed attempts. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`, 'error', 5000);
+        
+        // Check if input is blocked
+        if (attempts.inputBlocked) {
+            // Disable the password input
+            passwordInput.disabled = true;
+            passwordInput.placeholder = "Password input blocked";
+            
+            return toast.show('Password input blocked due to too many failed attempts. Please reset your password to continue.', 'error', 8000, 
+                [
+                    {
+                        text: 'Reset Password',
+                        onClick: () => showPasswordResetModal(email)
+                    }
+                ]);
         }
         
-        // Reset lock if it's a different email or the lock has expired
-        if (loginAttempts.email !== email || loginAttempts.lockUntil < now) {
-            loginAttempts.count = 0;
-            loginAttempts.email = email;
-            loginAttempts.lockUntil = 0;
+        // Check if login is locked
+        if (attempts.lockUntil > now) {
+            const remainingMinutes = Math.ceil((attempts.lockUntil - now) / 60000);
+            return toast.show(`Too many failed attempts. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''} or reset your password.`, 'error', 5000,
+                [
+                    {
+                        text: 'Reset Password',
+                        onClick: () => showPasswordResetModal(email)
+                    }
+                ]);
+        }
+        
+        // Reset lock if it has expired
+        if (attempts.lockUntil > 0 && attempts.lockUntil < now) {
+            attempts.lockUntil = 0;
+            // Don't reset count - we still want to track total attempts
         }
 
         // Check if Supabase is available
@@ -3119,12 +3212,44 @@ async function login() {
                     
                     // Increment failed attempts
                     if (error.message.includes('Invalid login credentials')) {
-                        loginAttempts.count++;
+                        attempts.count++;
                         
-                        // Check if we should lock the account
-                        if (loginAttempts.count >= 3) {
-                            // Lock for 3 minutes
-                            loginAttempts.lockUntil = now + (3 * 60 * 1000);
+                        // Update the attempts in localStorage
+                        updateLoginAttempts(email, attempts);
+                        
+                        // Determine action based on attempt count
+                        if (attempts.count >= 10) {
+                            // Block password input after 10 total attempts
+                            attempts.inputBlocked = true;
+                            updateLoginAttempts(email, attempts);
+                            
+                            // Disable the password input
+                            passwordInput.disabled = true;
+                            passwordInput.placeholder = "Password input blocked";
+                            
+                            return toast.show('Password input blocked due to too many failed attempts. Please reset your password to continue.', 'error', 8000, 
+                                [
+                                    {
+                                        text: 'Reset Password',
+                                        onClick: () => showPasswordResetModal(email)
+                                    }
+                                ]);
+                        }
+                        else if (attempts.count >= 6) {
+                            // After 6 attempts, strongly suggest password reset
+                            return toast.show('Multiple failed login attempts detected. We strongly recommend resetting your password.', 'error', 8000, 
+                                [
+                                    {
+                                        text: 'Reset Password',
+                                        onClick: () => showPasswordResetModal(email)
+                                    }
+                                ]);
+                        }
+                        else if (attempts.count >= 3) {
+                            // Lock for 3 minutes after 3 consecutive attempts
+                            attempts.lockUntil = now + (3 * 60 * 1000);
+                            updateLoginAttempts(email, attempts);
+                            
                             return toast.show('Too many failed attempts. Please try again in 3 minutes or reset your password.', 'error', 5000, 
                                 [
                                     {
@@ -3135,10 +3260,10 @@ async function login() {
                         }
                         
                         // Show appropriate message based on attempt count
-                        if (loginAttempts.count === 1) {
+                        if (attempts.count === 1) {
                             toast.show('Invalid email or password. Please try again.', 'error', 4000);
                         } else {
-                            toast.show(`Invalid password. ${3 - loginAttempts.count} attempt${loginAttempts.count === 2 ? '' : 's'} remaining.`, 'error', 4000, 
+                            toast.show(`Invalid password. ${3 - (attempts.count % 3)} attempt${(attempts.count % 3) === 2 ? '' : 's'} remaining before temporary lockout.`, 'error', 4000, 
                                 [
                                     {
                                         text: 'Forgot Password?',
@@ -3161,8 +3286,7 @@ async function login() {
                 }
 
                 // Login successful - reset attempts
-                loginAttempts.count = 0;
-                loginAttempts.lockUntil = 0;
+                localStorage.removeItem('sati_login_attempts');
                 
                 // Set flag to indicate this is a fresh login
                 localStorage.setItem('sati_fresh_login', '1');
@@ -3181,6 +3305,66 @@ async function login() {
     } catch (err) {
         console.error('Login error:', err);
         toast.show('Login error: ' + err.message, 'error');
+    }
+}
+
+// Function to check login form state when login modal is opened
+function checkLoginFormState(email = '') {
+    if (!email) {
+        const emailInput = document.getElementById('email');
+        if (emailInput && emailInput.value) {
+            email = emailInput.value;
+        }
+    }
+    
+    if (!email) return; // No email to check
+    
+    const passwordInput = document.getElementById('password');
+    if (!passwordInput) return;
+    
+    // Get stored login attempts for this email
+    const attempts = getLoginAttempts(email);
+    const now = Date.now();
+    
+    // Check if input should be blocked
+    if (attempts.inputBlocked) {
+        // Disable the password input
+        passwordInput.disabled = true;
+        passwordInput.placeholder = "Password input blocked - reset password";
+        
+        // Show message
+        toast.show('Password input blocked due to too many failed attempts. Please reset your password.', 'error', 8000, 
+            [
+                {
+                    text: 'Reset Password',
+                    onClick: () => showPasswordResetModal(email)
+                }
+            ]);
+        return;
+    }
+    
+    // Check if login is locked
+    if (attempts.lockUntil > now) {
+        const remainingMinutes = Math.ceil((attempts.lockUntil - now) / 60000);
+        toast.show(`Account temporarily locked. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''} or reset your password.`, 'warning', 5000,
+            [
+                {
+                    text: 'Reset Password',
+                    onClick: () => showPasswordResetModal(email)
+                }
+            ]);
+        return;
+    }
+    
+    // If user has multiple failed attempts but not locked, show warning
+    if (attempts.count >= 3) {
+        toast.show(`You've had ${attempts.count} failed login attempts. Please make sure you're using the correct password.`, 'warning', 5000,
+            [
+                {
+                    text: 'Reset Password',
+                    onClick: () => showPasswordResetModal(email)
+                }
+            ]);
     }
 }
 
@@ -3396,6 +3580,15 @@ async function sendPasswordResetEmail(email) {
             return false;
         }
         
+        // Mark that a reset email has been sent for this user
+        try {
+            const attempts = getLoginAttempts(email);
+            attempts.resetEmailSent = true;
+            updateLoginAttempts(email, attempts);
+        } catch (err) {
+            console.error('Error updating reset email status:', err);
+        }
+        
         toast.show('Password reset email sent! Please check your inbox.', 'success', 5000);
         return true;
     } catch (err) {
@@ -3426,6 +3619,26 @@ async function handlePasswordReset(newPassword) {
             console.error('Error resetting password:', error);
             toast.show('Failed to reset password: ' + error.message, 'error');
             return false;
+        }
+        
+        // Get user email from session
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user?.email) {
+            const email = sessionData.session.user.email;
+            
+            // Reset login attempts for this email
+            try {
+                const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
+                const attempts = JSON.parse(storedAttempts);
+                
+                // Remove this email from attempts tracking
+                if (attempts[email]) {
+                    delete attempts[email];
+                    localStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
+                }
+            } catch (err) {
+                console.error('Error clearing login attempts:', err);
+            }
         }
         
         toast.show('Password has been reset successfully!', 'success', 5000);
