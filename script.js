@@ -89,6 +89,27 @@ function listenForAuthChanges() {
                 chatState.authProvider = authProvider;
                 chatState.saveState();
                 
+                // Initialize Supabase storage for authenticated user
+                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                    window.supabaseDB.setCurrentUserEmail(session.user.email);
+                    chatState.initSupabaseStorage();
+                    
+                    // Load conversations from Supabase
+                    chatState.loadConversationsFromSupabase();
+                    
+                    // Set up real-time subscriptions
+                    if (window.supabaseDB.subscribeToConversations) {
+                        const subscription = window.supabaseDB.subscribeToConversations((payload) => {
+                            console.log('Real-time update received:', payload);
+                            // Refresh conversations list when changes occur
+                            chatState.loadConversationsFromSupabase();
+                        });
+                        
+                        // Store subscription for cleanup
+                        chatState.supabaseSubscription = subscription;
+                    }
+                }
+                
                 // Update login statistics
                 updateLoginStats();
                 
@@ -116,6 +137,23 @@ function listenForAuthChanges() {
                 }
             } else if (event === 'SIGNED_OUT') {
                 console.log('User signed out');
+                
+                // Clean up Supabase storage and subscriptions
+                if (chatState.supabaseSubscription) {
+                    chatState.supabaseSubscription.unsubscribe();
+                    chatState.supabaseSubscription = null;
+                }
+                
+                // Reset Supabase storage
+                chatState.useSupabaseStorage = false;
+                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                    window.supabaseDB.setCurrentUserEmail(null);
+                }
+                
+                // Clear conversations from UI (they'll be reloaded from localStorage)
+                chatState.conversations = [];
+                updateConversationsList();
+                
             } else if (event === 'USER_UPDATED') {
                 console.log('User updated');
             } else if (event === 'TOKEN_REFRESHED') {
@@ -339,7 +377,7 @@ class ChatBotState {
         return conversation;
     }
 
-    updateConversation(messages) {
+    async updateConversation(messages) {
         if (!this.currentConversationId) return;
 
         const conversation = this.conversations.find(c => c.id === this.currentConversationId);
@@ -351,8 +389,36 @@ class ChatBotState {
             if (conversation.title === 'New Chat' && messages.length > 0) {
                 const firstUserMessage = messages.find(m => m.role === 'user');
                 if (firstUserMessage) {
-                    conversation.title = firstUserMessage.content.substring(0, 50) +
+                    const newTitle = firstUserMessage.content.substring(0, 50) +
                         (firstUserMessage.content.length > 50 ? '...' : '');
+                    conversation.title = newTitle;
+                    
+                    // Update title in Supabase if using Supabase storage
+                    if (this.useSupabaseStorage && window.supabaseDB) {
+                        try {
+                            await window.supabaseDB.updateConversationTitle(this.currentConversationId, newTitle);
+                        } catch (err) {
+                            console.error('Error updating conversation title in Supabase:', err);
+                        }
+                    }
+                }
+            }
+
+            // Save messages to Supabase if using Supabase storage
+            if (this.useSupabaseStorage && window.supabaseDB && messages.length > 0) {
+                try {
+                    // Get the latest message (the one that was just added)
+                    const latestMessage = messages[messages.length - 1];
+                    
+                    // Save to Supabase
+                    await window.supabaseDB.addMessage(
+                        this.currentConversationId,
+                        latestMessage.role,
+                        latestMessage.content,
+                        latestMessage.model || chatState.selectedModel
+                    );
+                } catch (err) {
+                    console.error('Error saving message to Supabase:', err);
                 }
             }
 
@@ -875,7 +941,7 @@ class ChatManager {
             };
 
             chatState.currentMessages.push(botMessage);
-            chatState.updateConversation(chatState.currentMessages);
+            await chatState.updateConversation(chatState.currentMessages);
 
         } catch (error) {
             console.error('Error sending message:', error);

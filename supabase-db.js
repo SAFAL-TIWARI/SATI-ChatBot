@@ -3,6 +3,7 @@
 
 // Global reference to Supabase client (initialized in script.js)
 let supabaseDB = null;
+let currentUserEmail = null;
 
 // Initialize the database connection using the existing Supabase client
 function initializeSupabaseDB(supabaseClient) {
@@ -13,20 +14,49 @@ function initializeSupabaseDB(supabaseClient) {
     
     supabaseDB = supabaseClient;
     console.log('✅ Supabase DB operations initialized');
+    
+    // Get current user email
+    const session = supabaseDB.auth.getSession();
+    if (session && session.user) {
+        currentUserEmail = session.user.email;
+    }
+    
     return true;
 }
 
-// Get all conversations for the current user
+// Set current user email (called when user logs in)
+function setCurrentUserEmail(email) {
+    currentUserEmail = email;
+    console.log('✅ Current user email set:', email);
+}
+
+// Get current user email
+function getCurrentUserEmail() {
+    return currentUserEmail;
+}
+
+// Check if user is authenticated
+function isUserAuthenticated() {
+    return !!currentUserEmail;
+}
+
+// Get all conversations for the current authenticated user
 async function getUserConversations() {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { data: [], error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: [], error: new Error('User not authenticated') };
+    }
+    
     try {
         const { data, error } = await supabaseDB
             .from('conversations')
             .select('*')
+            .eq('user_email', currentUserEmail)
             .order('updated_at', { ascending: false });
             
         if (error) throw error;
@@ -37,17 +67,27 @@ async function getUserConversations() {
     }
 }
 
-// Create a new conversation
+// Create a new conversation for the authenticated user
 async function createConversation(title = 'New Conversation') {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { data: null, error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: null, error: new Error('User not authenticated') };
+    }
+    
     try {
         const { data, error } = await supabaseDB
             .from('conversations')
-            .insert([{ title }])
+            .insert([{ 
+                title,
+                user_email: currentUserEmail,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }])
             .select()
             .single();
             
@@ -59,18 +99,27 @@ async function createConversation(title = 'New Conversation') {
     }
 }
 
-// Update conversation title
+// Update conversation title for the authenticated user
 async function updateConversationTitle(conversationId, title) {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { success: false, error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { success: false, error: new Error('User not authenticated') };
+    }
+    
     try {
         const { error } = await supabaseDB
             .from('conversations')
-            .update({ title, updated_at: new Date() })
-            .eq('id', conversationId);
+            .update({ 
+                title, 
+                updated_at: new Date().toISOString() 
+            })
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail); // Ensure user owns this conversation
             
         if (error) throw error;
         return { success: true, error: null };
@@ -80,15 +129,32 @@ async function updateConversationTitle(conversationId, title) {
     }
 }
 
-// Delete a conversation and its messages
+// Delete a conversation and its messages for the authenticated user
 async function deleteConversation(conversationId) {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { success: false, error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { success: false, error: new Error('User not authenticated') };
+    }
+    
     try {
-        // First delete all messages in the conversation
+        // First verify the conversation belongs to the current user
+        const { data: conversation, error: fetchError } = await supabaseDB
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail)
+            .single();
+            
+        if (fetchError || !conversation) {
+            throw new Error('Conversation not found or access denied');
+        }
+        
+        // Delete all messages in the conversation
         const { error: messagesError } = await supabaseDB
             .from('messages')
             .delete()
@@ -100,7 +166,8 @@ async function deleteConversation(conversationId) {
         const { error: conversationError } = await supabaseDB
             .from('conversations')
             .delete()
-            .eq('id', conversationId);
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail);
             
         if (conversationError) throw conversationError;
         
@@ -111,14 +178,31 @@ async function deleteConversation(conversationId) {
     }
 }
 
-// Get all messages for a conversation
+// Get all messages for a conversation (verify user ownership)
 async function getConversationMessages(conversationId) {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { data: [], error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: [], error: new Error('User not authenticated') };
+    }
+    
     try {
+        // First verify the conversation belongs to the current user
+        const { data: conversation, error: fetchError } = await supabaseDB
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail)
+            .single();
+            
+        if (fetchError || !conversation) {
+            throw new Error('Conversation not found or access denied');
+        }
+        
         const { data, error } = await supabaseDB
             .from('messages')
             .select('*')
@@ -133,14 +217,31 @@ async function getConversationMessages(conversationId) {
     }
 }
 
-// Add a message to a conversation
+// Add a message to a conversation (verify user ownership)
 async function addMessage(conversationId, role, content, model = null) {
     if (!supabaseDB) {
         console.error('❌ Supabase DB not initialized');
         return { data: null, error: new Error('Database not initialized') };
     }
     
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: null, error: new Error('User not authenticated') };
+    }
+    
     try {
+        // First verify the conversation belongs to the current user
+        const { data: conversation, error: fetchError } = await supabaseDB
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail)
+            .single();
+            
+        if (fetchError || !conversation) {
+            throw new Error('Conversation not found or access denied');
+        }
+        
         // Add the message
         const { data: messageData, error: messageError } = await supabaseDB
             .from('messages')
@@ -148,7 +249,8 @@ async function addMessage(conversationId, role, content, model = null) {
                 conversation_id: conversationId,
                 role,
                 content,
-                model
+                model,
+                created_at: new Date().toISOString()
             }])
             .select()
             .single();
@@ -158,8 +260,9 @@ async function addMessage(conversationId, role, content, model = null) {
         // Update the conversation's updated_at timestamp
         const { error: updateError } = await supabaseDB
             .from('conversations')
-            .update({ updated_at: new Date() })
-            .eq('id', conversationId);
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail);
             
         if (updateError) throw updateError;
         
@@ -170,13 +273,116 @@ async function addMessage(conversationId, role, content, model = null) {
     }
 }
 
+// Set up real-time subscriptions for conversations
+function subscribeToConversations(callback) {
+    if (!supabaseDB || !isUserAuthenticated()) {
+        console.error('❌ Cannot subscribe - DB not initialized or user not authenticated');
+        return null;
+    }
+    
+    try {
+        const subscription = supabaseDB
+            .channel('conversations_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'conversations',
+                    filter: `user_email=eq.${currentUserEmail}`
+                },
+                (payload) => {
+                    console.log('Conversation change detected:', payload);
+                    callback(payload);
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `conversation_id=in.(${getUserConversationIds()})`
+                },
+                (payload) => {
+                    console.log('Message change detected:', payload);
+                    callback(payload);
+                }
+            )
+            .subscribe();
+            
+        console.log('✅ Real-time subscription established');
+        return subscription;
+    } catch (error) {
+        console.error('Error setting up real-time subscription:', error);
+        return null;
+    }
+}
+
+// Helper function to get conversation IDs for the current user
+async function getUserConversationIds() {
+    const { data } = await getUserConversations();
+    return data.map(conv => conv.id).join(',');
+}
+
+// Set up real-time subscriptions for conversations
+function subscribeToConversations(callback) {
+    if (!supabaseDB || !isUserAuthenticated()) {
+        console.error('❌ Cannot subscribe - DB not initialized or user not authenticated');
+        return null;
+    }
+    
+    try {
+        const subscription = supabaseDB
+            .channel('conversations_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'conversations',
+                    filter: `user_email=eq.${currentUserEmail}`
+                },
+                (payload) => {
+                    console.log('Conversation change detected:', payload);
+                    callback(payload);
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'messages'
+                },
+                (payload) => {
+                    console.log('Message change detected:', payload);
+                    callback(payload);
+                }
+            )
+            .subscribe();
+            
+        console.log('✅ Real-time subscription established');
+        return subscription;
+    } catch (error) {
+        console.error('Error setting up real-time subscription:', error);
+        return null;
+    }
+}
+
+
+
 // Export all functions
 window.supabaseDB = {
     initialize: initializeSupabaseDB,
+    setCurrentUserEmail,
+    getCurrentUserEmail,
+    isUserAuthenticated,
     getUserConversations,
     createConversation,
     updateConversationTitle,
     deleteConversation,
     getConversationMessages,
-    addMessage
+    addMessage,
+    subscribeToConversations
 };
