@@ -1,7 +1,4 @@
-// SATI ChatBot - Main JavaScript File
 
-
-//DELETE HERE BELOW
 // Global State Management
 let supabase = null;
 
@@ -10,20 +7,19 @@ function initializeSupabase() {
     try {
         console.log('🔄 Attempting to initialize Supabase...');
         console.log('window.supabase available:', !!window.supabase);
-        console.log('SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
+        console.log('SUPABASE_CONFIG configured:', !!window.SUPABASE_CONFIG?.CONFIGURED);
         
         if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.CONFIGURED) {
             const supabaseUrl = window.SUPABASE_CONFIG.URL;
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
             
-            console.log('Supabase URL:', supabaseUrl);
+            console.log('Supabase URL configured:', !!supabaseUrl);
             console.log('Supabase Key available:', !!supabaseKey);
             
             if (supabaseUrl && supabaseKey) {
                 // Create Supabase client
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 console.log('✅ Supabase client initialized successfully');
-                console.log('Supabase client instance:', supabase);
                 
                 // Make supabase available globally for debugging
                 window.supabaseClient = supabase;
@@ -34,13 +30,13 @@ function initializeSupabase() {
                 return true;
             } else {
                 console.warn('⚠️ Supabase initialization failed - missing URL or KEY in SUPABASE_CONFIG');
-                console.log('URL:', supabaseUrl, 'KEY:', supabaseKey ? 'present' : 'missing');
+                console.log('URL configured:', !!supabaseUrl, 'KEY configured:', !!supabaseKey);
             }
         } else {
             console.warn('⚠️ Supabase initialization skipped - configuration not loaded or not configured');
             console.log('window.supabase:', !!window.supabase);
-            console.log('SUPABASE_CONFIG:', window.SUPABASE_CONFIG);
-            console.log('CONFIGURED:', window.SUPABASE_CONFIG?.CONFIGURED);
+            console.log('SUPABASE_CONFIG available:', !!window.SUPABASE_CONFIG);
+            console.log('CONFIGURED:', !!window.SUPABASE_CONFIG?.CONFIGURED);
         }
         
         return false;
@@ -66,31 +62,43 @@ function listenForAuthChanges() {
                 if (session.user.app_metadata && session.user.app_metadata.provider) {
                     authProvider = session.user.app_metadata.provider;
                 }
+                
+                // Check if this is a fresh login or just a session restoration
+                const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' && 
+                                           localStorage.getItem('sati_username') === (session.user.email ? session.user.email.split('@')[0] : session.user.id);
+                
                 // Update user state
                 chatState.isLoggedIn = true;
                 chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
                 chatState.email = session.user.email || '';
                 chatState.authProvider = authProvider;
                 chatState.saveState();
-                // --- ADDED: Welcome console and popup (only on fresh login) ---
-                if (localStorage.getItem('sati_show_welcome') === '1') {
-                    console.log(`🎉 User '${chatState.username}' is now logged in!`);
-                    toast.show(`Welcome, ${chatState.username}!`, 'success', 4000);
-                    localStorage.removeItem('sati_show_welcome');
-                }
-                // --- END ADDED ---
+                
                 // Update login statistics
                 updateLoginStats();
+                
                 // Hide login modal
                 modal.hide('loginModal');
+                
                 // Update UI
                 updateLoginStatus();
-                // Show welcome modal with a slight delay to ensure UI is ready
-                setTimeout(() => {
-                    showWelcomeModal(chatState.username);
-                }, 500);
-                // Show success toast
-                toast.show('Logged in successfully', 'success');
+                
+                // Only show welcome modal and toast for fresh logins, not session restorations
+                if (!isSessionRestoration) {
+                    // Check if this is a fresh login triggered by user action
+                    if (localStorage.getItem('sati_fresh_login') === '1') {
+                        // Show welcome modal with a slight delay to ensure UI is ready
+                        setTimeout(() => {
+                            showWelcomeModal(chatState.username);
+                        }, 500);
+                        
+                        // Show success toast (only one)
+                        toast.show('Logged in successfully', 'success');
+                        
+                        // Clear the fresh login flag
+                        localStorage.removeItem('sati_fresh_login');
+                    }
+                }
             } else if (event === 'SIGNED_OUT') {
                 console.log('User signed out');
             } else if (event === 'USER_UPDATED') {
@@ -106,10 +114,7 @@ function listenForAuthChanges() {
 
 // Make initializeSupabase available globally for config.js
 window.initializeSupabase = initializeSupabase;
-//DELETE HERE ABOVE
 
-
-//delete here below
 class ChatBotState {
     constructor() {
         this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
@@ -2345,6 +2350,10 @@ function initializeEventListeners() {
             }
             
             console.log('✅ Supabase client available, attempting Google SSO login...');
+            
+            // Set flag to indicate this is a fresh login attempt
+            localStorage.setItem('sati_fresh_login', '1');
+            
             const { data, error } = await supabase.auth.signInWithOAuth({ 
                 provider: 'google',
                 options: {
@@ -2396,6 +2405,10 @@ function initializeEventListeners() {
             }
             
             console.log('✅ Supabase client available, attempting GitHub SSO login...');
+            
+            // Set flag to indicate this is a fresh login attempt
+            localStorage.setItem('sati_fresh_login', '1');
+            
             const { data, error } = await supabase.auth.signInWithOAuth({ 
                 provider: 'github',
                 options: {
@@ -2737,31 +2750,10 @@ async function login() {
                     return;
                 }
 
-                // Login successful
-                chatState.isLoggedIn = true;
-                chatState.username = data.user.email.split('@')[0];
-                chatState.email = data.user.email;
-                chatState.authProvider = 'email';
-                chatState.saveState();
-                // Set flag for welcome toast/console
-                localStorage.setItem('sati_show_welcome', '1');
-
-                // Update login statistics
-                updateLoginStats();
-
-                // Hide login modal
-                modal.hide('loginModal');
+                // Login successful - set flag to indicate this is a fresh login
+                localStorage.setItem('sati_fresh_login', '1');
                 
-                // Update UI
-                updateLoginStatus();
-                
-                // Show welcome modal with a slight delay to ensure UI is ready
-                setTimeout(() => {
-                    showWelcomeModal(chatState.username);
-                }, 500);
-                
-                // Show success toast
-                toast.show('Logged in successfully', 'success');
+                // The auth state change listener will handle the rest of the login process
                 
             } catch (err) {
                 console.error('Supabase auth error:', err);
@@ -2780,13 +2772,15 @@ async function login() {
 
 // Simple fallback login when Supabase is not available
 function fallbackLogin(email) {
+    // Check if this is a fresh login or just a session restoration
+    const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' && 
+                               localStorage.getItem('sati_username') === email.split('@')[0];
+    
     chatState.isLoggedIn = true;
     chatState.username = email.split('@')[0];
     chatState.email = email;
     chatState.authProvider = 'email';
     chatState.saveState();
-    // Set flag for welcome toast/console
-    localStorage.setItem('sati_show_welcome', '1');
 
     // Update login statistics
     updateLoginStats();
@@ -2797,23 +2791,34 @@ function fallbackLogin(email) {
     // Update UI
     updateLoginStatus();
     
-    // Show welcome modal with a slight delay to ensure UI is ready
-    setTimeout(() => {
-        showWelcomeModal(chatState.username);
-    }, 500);
-    
-    // Show success toast
-    toast.show('Logged in as guest with username: ' + chatState.username, 'success');
+    // Only show welcome modal and toast for fresh logins, not session restorations
+    if (!isSessionRestoration) {
+        // Check if this is a fresh login triggered by user action
+        if (localStorage.getItem('sati_fresh_login') === '1') {
+            // Show welcome modal with a slight delay to ensure UI is ready
+            setTimeout(() => {
+                showWelcomeModal(chatState.username);
+            }, 500);
+            
+            // Show success toast
+            toast.show('Logged in as guest with username: ' + chatState.username, 'success');
+            
+            // Clear the fresh login flag
+            localStorage.removeItem('sati_fresh_login');
+        }
+    }
 }
 
 // Update login statistics
 function updateLoginStats() {
-    // Update last login time
-    localStorage.setItem('sati_last_login', new Date().toISOString());
-    
-    // Increment login count
-    const currentCount = parseInt(localStorage.getItem('sati_login_count') || '0');
-    localStorage.setItem('sati_login_count', (currentCount + 1).toString());
+    // Only update last login time if this is a fresh login
+    if (localStorage.getItem('sati_fresh_login') === '1') {
+        localStorage.setItem('sati_last_login', new Date().toISOString());
+        
+        // Increment login count
+        const currentCount = parseInt(localStorage.getItem('sati_login_count') || '0');
+        localStorage.setItem('sati_login_count', (currentCount + 1).toString());
+    }
 }
 
 // Export user data from profile
@@ -3077,7 +3082,7 @@ function showWelcomeModal(username) {
         showWelcomeToast(username, false);
     }
     
-    // Show the modal
+    // Show the modal for all fresh logins (both first-time and returning users)
     modal.show('welcomeModal');
 }
 
@@ -3107,6 +3112,7 @@ function showWelcomeToast(username, isFirstLogin) {
     // Show the toast with a longer duration (5 seconds)
     toast.show(message, 'success', 5000);
 }
+
 
 // Initialize sidebar toggle button position
 function initializeSidebarToggle() {
@@ -3366,7 +3372,7 @@ window.debugSupabase = function() {
     console.log('window.supabase (CDN):', !!window.supabase);
     console.log('supabase client instance:', !!supabase);
     console.log('window.supabaseClient:', !!window.supabaseClient);
-    console.log('Supabase config:', window.SUPABASE_CONFIG);
+    console.log('Supabase config available:', !!window.SUPABASE_CONFIG?.CONFIGURED);
     console.log('Current hostname:', window.location.hostname);
     console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     console.log('Current URL:', window.location.href);
@@ -3411,8 +3417,8 @@ window.forceInitializeSupabase = function() {
     // Set fallback config if not already set
     if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
         window.SUPABASE_CONFIG = {
-            URL: 'https://zewtfqbomdqtaviipwhe.supabase.co',
-            KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpld3RmcWJvbWRxdGF2aWlwd2hlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNTE0OTAsImV4cCI6MjA2NzgyNzQ5MH0.Gn0QaS2DGGINVAqwjpYUXzH4HCnz7Bxh3EgPt_IjVJo',
+            URL: process.env.SUPABASE_URL,
+            KEY: process.env.SUPABASE_KEY,
             CONFIGURED: true
         };
         console.log('✅ Fallback config set');

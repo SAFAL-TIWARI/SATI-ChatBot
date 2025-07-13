@@ -21,53 +21,57 @@
     <link rel="stylesheet" href="resources.css">
     <style>
         /* Prevent flash of unstyled content */
-        html, body {
+        html,
+        body {
             background-color: #121212 !important;
             color: #ffffff !important;
             margin: 0;
             padding: 0;
         }
-        
-        html[data-theme="light"], 
+
+        html[data-theme="light"],
         html[data-theme="light"] body {
             background-color: #f7f9fb !important;
             color: #2c3e50 !important;
         }
-        
+
         :root {
             --secondary-color: #00c853;
             --primary-hover: #1565c0;
             --hover-color: rgba(25, 118, 210, 0.1);
         }
-        
+
         /* Animation Keyframes */
         @keyframes slideInLeft {
             from {
                 opacity: 0;
                 transform: translateX(-50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
-        
+
         @keyframes slideInRight {
             from {
                 opacity: 0;
                 transform: translateX(50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
-        
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -86,6 +90,7 @@
 
         /* Reduce motion for users who prefer it */
         @media (prefers-reduced-motion: reduce) {
+
             .info-card:nth-child(odd),
             .info-card:nth-child(even),
             .features-section,
@@ -93,7 +98,7 @@
             .stats-section {
                 animation: none;
             }
-            
+
             .info-card,
             .feature-item,
             .stat-card,
@@ -101,7 +106,7 @@
                 transition: none;
             }
         }
-        
+
         .about-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -320,6 +325,7 @@
             background: linear-gradient(135deg, var(--bg-color), rgba(0, 200, 83, 0.05));
             border-radius: 5%;
         }
+
         .team-member.lead:hover {
             border-color: var(--secondary-color);
         }
@@ -424,21 +430,26 @@
 
         .social-links {
             display: flex;
-            justify-content: center;
-            gap: 0.8rem;
+            gap: 15px;
         }
 
         .social-links a {
-            color: var(--primary-color);
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            padding: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-color);
+            color: var(--text-secondary);
             border-radius: 50%;
+            text-decoration: none;
+            transition: var(--transition);
         }
 
         .social-links a:hover {
-            transform: scale(1.2);
-            background: var(--hover-color);
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Mobile Optimizations */
@@ -533,22 +544,22 @@
     <script>
         (function () {
             // Get theme from localStorage - check multiple possible keys for compatibility
-            const savedTheme = localStorage.getItem('sati_theme') || 
-                              localStorage.getItem('light') || 
-                              localStorage.getItem('theme') || 
-                              'dark';
-            
+            const savedTheme = localStorage.getItem('sati_theme') ||
+                localStorage.getItem('light') ||
+                localStorage.getItem('theme') ||
+                'dark';
+
             // Apply theme immediately to prevent flash
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
             document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
-            
+
             // Also apply to body when it's available
             if (document.body) {
                 document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
                 document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
             }
-            
+
             // Ensure consistency across all storage keys
             localStorage.setItem('sati_theme', savedTheme);
             localStorage.setItem('light', savedTheme);
@@ -607,26 +618,32 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <h1>About SATI ChatBot</h1>
-            <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information, powered by advanced AI technology.</p>
+            <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information, powered by
+                advanced AI technology.</p>
         </section>
 
         <!-- Compact Info Section -->
         <div class="info-section">
             <div class="info-card">
                 <h3><i class="fas fa-university"></i> About SATI</h3>
-                <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr. Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.</p>
+                <p>Established in 1960 in Vidisha, MP. Founded by Late Maharaja Jiwajirao Scindia and inaugurated by Dr.
+                    Rajendra Prasad. NAAC certified and NBA accredited with 60+ years of technical education excellence.
+                </p>
             </div>
             <div class="info-card">
                 <h3><i class="fas fa-robot"></i> Our Mission</h3>
-                <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning experiences and simplifies access to institutional resources.</p>
+                <p>Providing SATI community with an intelligent, accessible digital assistant that enhances learning
+                    experiences and simplifies access to institutional resources.</p>
             </div>
             <div class="info-card">
                 <h3><i class="fas fa-lightbulb"></i> Our Vision</h3>
-                <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology, making information discovery seamless and efficient.</p>
+                <p>Revolutionizing student interaction with educational resources through cutting-edge AI technology,
+                    making information discovery seamless and efficient.</p>
             </div>
             <div class="info-card">
                 <h3><i class="fas fa-graduation-cap"></i> Academic Programs</h3>
-                <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering, technology, science, and management disciplines.</p>
+                <p>10+ undergraduate programs, multiple postgraduate degrees, and Ph.D. programs across engineering,
+                    technology, science, and management disciplines.</p>
             </div>
         </div>
 
@@ -716,7 +733,7 @@
                     <span><i class="fas fa-cloud"></i> Vercel</span>
                 </div>
             </div>
-            
+
             <div class="team-grid">
                 <!-- Lead Developer -->
                 <div class="team-member lead">
@@ -803,7 +820,8 @@
                 <h3>Connect with Us</h3>
                 <div class="social-links">
                     <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
+                            class="fab fa-linkedin"></i></a>
                     <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
                 </div>
             </div>
@@ -816,7 +834,7 @@
     <script src="script.js"></script>
     <script>
         // Dark Mode Toggle Functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileNavMenu = document.getElementById('mobileNavMenu');
@@ -828,19 +846,19 @@
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 const icon = darkModeToggle.querySelector('i');
                 icon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-                
-                darkModeToggle.addEventListener('click', function() {
+
+                darkModeToggle.addEventListener('click', function () {
                     const currentTheme = document.documentElement.getAttribute('data-theme');
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    
+
                     // Apply theme
                     document.documentElement.setAttribute('data-theme', newTheme);
-                    
+
                     // Save to all possible localStorage keys for consistency
                     localStorage.setItem('sati_theme', newTheme);
                     localStorage.setItem('light', newTheme);
                     localStorage.setItem('theme', newTheme);
-                    
+
                     // Update icon
                     icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
                 });
@@ -848,11 +866,11 @@
 
             // Mobile menu toggle
             if (mobileMenuToggle && mobileNavMenu && blurOverlay) {
-                mobileMenuToggle.addEventListener('click', function() {
+                mobileMenuToggle.addEventListener('click', function () {
                     mobileNavMenu.classList.toggle('show');
                     blurOverlay.classList.toggle('show');
                     document.body.classList.toggle('mobile-menu-open');
-                    
+
                     // Update mobile menu toggle icon
                     const icon = mobileMenuToggle.querySelector('i');
                     if (mobileNavMenu.classList.contains('show')) {
@@ -862,11 +880,11 @@
                     }
                 });
 
-                blurOverlay.addEventListener('click', function() {
+                blurOverlay.addEventListener('click', function () {
                     mobileNavMenu.classList.remove('show');
                     blurOverlay.classList.remove('show');
                     document.body.classList.remove('mobile-menu-open');
-                    
+
                     // Reset mobile menu toggle icon
                     const icon = mobileMenuToggle.querySelector('i');
                     icon.className = 'fas fa-bars';
@@ -874,11 +892,11 @@
 
                 // Close mobile menu when clicking on navigation links
                 document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
+                    link.addEventListener('click', function () {
                         mobileNavMenu.classList.remove('show');
                         blurOverlay.classList.remove('show');
                         document.body.classList.remove('mobile-menu-open');
-                        
+
                         // Reset mobile menu toggle icon
                         const icon = mobileMenuToggle.querySelector('i');
                         icon.className = 'fas fa-bars';
@@ -915,11 +933,11 @@
 
             // Add hover effects for stat cards
             document.querySelectorAll('.stat-card').forEach(card => {
-                card.addEventListener('mouseenter', function() {
+                card.addEventListener('mouseenter', function () {
                     this.style.transform = 'scale(1.05) rotate(2deg)';
                 });
-                
-                card.addEventListener('mouseleave', function() {
+
+                card.addEventListener('mouseleave', function () {
                     this.style.transform = 'scale(1) rotate(0deg)';
                 });
             });
@@ -940,7 +958,7 @@
 
             // Handle GitHub profile image loading errors
             document.querySelectorAll('.member-avatar img').forEach(img => {
-                img.addEventListener('error', function() {
+                img.addEventListener('error', function () {
                     // Create fallback icon
                     const fallback = document.createElement('div');
                     fallback.innerHTML = '<i class="fas fa-user"></i>';
@@ -955,13 +973,13 @@
                         color: white;
                         font-size: 1.5rem;
                     `;
-                    
+
                     // Replace image with fallback
                     this.parentNode.replaceChild(fallback, this);
                 });
 
                 // Add loading animation
-                img.addEventListener('load', function() {
+                img.addEventListener('load', function () {
                     this.style.opacity = '1';
                 });
 
