@@ -3109,16 +3109,35 @@ async function signup() {
     }
 }
 
-// Track login attempts using localStorage to persist across refreshes
+// Track login attempts using both sessionStorage (for current session) and localStorage (for persistence)
 function getLoginAttempts(email) {
     try {
+        // First check sessionStorage for current session data
+        const sessionAttempts = sessionStorage.getItem('sati_login_attempts');
+        if (sessionAttempts) {
+            const attempts = JSON.parse(sessionAttempts);
+            // If we have data for this email in the current session, return it
+            if (attempts[email]) {
+                return attempts[email];
+            }
+        }
+        
+        // If not in session, check localStorage for persistent data
         const storedAttempts = localStorage.getItem('sati_login_attempts');
         if (storedAttempts) {
             const attempts = JSON.parse(storedAttempts);
             // If we have data for this email, return it
             if (attempts[email]) {
+                // Copy to session storage for faster access
+                updateSessionAttempts(email, attempts[email]);
                 return attempts[email];
             }
+        }
+        
+        // Check if user has attempts stored in Supabase profile
+        if (supabase && chatState.isLoggedIn) {
+            // We'll implement this in the future to store attempts in user metadata
+            // For now, we'll just use local storage
         }
     } catch (err) {
         console.error('Error reading login attempts:', err);
@@ -3133,9 +3152,30 @@ function getLoginAttempts(email) {
     };
 }
 
+// Update attempts in sessionStorage (for current session)
+function updateSessionAttempts(email, data) {
+    try {
+        // Get all attempts from session
+        const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
+        const attempts = JSON.parse(sessionAttempts);
+        
+        // Update for this email
+        attempts[email] = data;
+        
+        // Save back to sessionStorage
+        sessionStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
+    } catch (err) {
+        console.error('Error updating session login attempts:', err);
+    }
+}
+
+// Update attempts in localStorage (for persistence)
 function updateLoginAttempts(email, data) {
     try {
-        // Get all attempts
+        // Update session storage first
+        updateSessionAttempts(email, data);
+        
+        // Then update local storage for persistence
         const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
         const attempts = JSON.parse(storedAttempts);
         
@@ -3144,6 +3184,9 @@ function updateLoginAttempts(email, data) {
         
         // Save back to localStorage
         localStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
+        
+        // If user is logged in, we could also store this in Supabase user metadata
+        // This would be implemented in the future
     } catch (err) {
         console.error('Error updating login attempts:', err);
     }
@@ -3445,7 +3488,7 @@ function addPasswordResetMessage(email, message) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'password-reset-message';
     messageDiv.innerHTML = `
-        <p class="error-message">${message}</p>
+        <span class="error-message">${message}</span>
         <a href="#" class="reset-password-link">Reset password</a>
     `;
     
