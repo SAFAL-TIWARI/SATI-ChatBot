@@ -1,0 +1,108 @@
+/* Smooth Cursor Styles */
+.smooth-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+    left: 0;
+    top: 0;
+}
+
+.smooth-cursor.hidden {
+    opacity: 0;
+}
+
+.smooth-cursor svg {
+    display: block;
+    filter: drop-shadow(0px 2.25825px 4.5165px rgba(0, 0, 0, 0.08));
+}
+
+/* Light Theme Cursor (default) - Black with white border */
+.smooth-cursor .cursor-fill {
+    fill: #000000;
+    transition: fill 0.3s ease;
+}
+
+.smooth-cursor .cursor-stroke {
+    stroke: #ffffff;
+    stroke-width: 2.25825;
+    transition: stroke 0.3s ease;
+}
+
+/* Dark Theme Cursor - White with black border */
+[data-theme="dark"] .smooth-cursor .cursor-fill {
+    fill: #ffffff;
+}
+
+[data-theme="dark"] .smooth-cursor .cursor-stroke {
+    stroke: #000000;
+}
+
+/* Enhanced shadow for better visibility */
+[data-theme="dark"] .smooth-cursor svg {
+    filter: drop-shadow(0px 2.25825px 4.5165px rgba(255, 255, 255, 0.1));
+}
+
+/* Light theme shadow */
+[data-theme="light"] .smooth-cursor svg {
+    filter: drop-shadow(0px 2.25825px 4.5165px rgba(0, 0, 0, 0.15));
+}
+
+/* Hide default cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+    body.smooth-cursor-active {
+        cursor: none !important;
+    }
+    
+    body.smooth-cursor-active * {
+        cursor: none !important;
+    }
+}
+
+/* Mobile detection - show default cursor on mobile */
+@media (hover: none) and (pointer: coarse) {
+    .smooth-cursor {
+        display: none !important;
+    }
+    
+    body.smooth-cursor-active {
+        cursor: auto !important;
+    }
+    
+    body.smooth-cursor-active * {
+        cursor: auto !important;
+    }
+}
+
+/* Touch device detection */
+@media (max-width: 768px) {
+    .smooth-cursor {
+        display: none !important;
+    }
+    
+    body.smooth-cursor-active {
+        cursor: auto !important;
+    }
+    
+    body.smooth-cursor-active * {
+        cursor: auto !important;
+    }
+}
+
+/* Additional mobile detection for tablets in portrait mode */
+@media (max-width: 1024px) and (orientation: portrait) {
+    .smooth-cursor {
+        display: none !important;
+    }
+    
+    body.smooth-cursor-active {
+        cursor: auto !important;
+    }
+    
+    body.smooth-cursor-active * {
+        cursor: auto !important;
+    }
+}
