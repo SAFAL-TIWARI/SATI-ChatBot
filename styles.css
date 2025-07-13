@@ -1726,6 +1726,7 @@ body {
     padding: var(--spacing-3) var(--spacing-4);
     box-shadow: var(--shadow-lg);
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-3);
     min-width: 300px;
@@ -1774,6 +1775,31 @@ body {
 
 .toast-close:hover {
     color: var(--text-primary);
+}
+
+.toast-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.toast-action-btn {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--accent-color);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    padding: var(--spacing-1) var(--spacing-2);
+    transition: all var(--transition-fast);
+}
+
+.toast-action-btn:hover {
+    background-color: var(--accent-color);
+    color: white;
 }
 
 /* Form Elements */

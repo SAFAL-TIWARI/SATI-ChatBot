@@ -622,7 +622,7 @@ const utils = {
 //delete here below
 // Toast Notification System
 class ToastManager {
-    show(message, type = 'info', duration = 3000) {
+    show(message, type = 'info', duration = 3000, actions = []) {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
 
@@ -633,12 +633,23 @@ class ToastManager {
             info: 'ℹ️'
         };
 
-        toast.innerHTML = `
+        // Create toast content
+        let toastHTML = `
             <div class="toast-icon">${icons[type]}</div>
             <div class="toast-message">${message}</div>
             <button class="toast-close">&times;</button>
         `;
-
+        
+        // Add action buttons if provided
+        if (actions && actions.length > 0) {
+            toastHTML += '<div class="toast-actions">';
+            actions.forEach(action => {
+                toastHTML += `<button class="toast-action-btn">${action.text}</button>`;
+            });
+            toastHTML += '</div>';
+        }
+        
+        toast.innerHTML = toastHTML;
         elements.toastContainer.appendChild(toast);
 
         // Show toast
@@ -654,10 +665,34 @@ class ToastManager {
             }, 300);
         };
 
-        setTimeout(removeToast, duration);
+        // Set timeout for auto-removal
+        let timeoutId = setTimeout(removeToast, duration);
 
         // Manual close
         toast.querySelector('.toast-close').addEventListener('click', removeToast);
+        
+        // Add event listeners for action buttons
+        if (actions && actions.length > 0) {
+            const actionButtons = toast.querySelectorAll('.toast-action-btn');
+            actionButtons.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    // Clear the auto-remove timeout
+                    clearTimeout(timeoutId);
+                    
+                    // Execute the action
+                    if (actions[index] && typeof actions[index].onClick === 'function') {
+                        actions[index].onClick();
+                    }
+                    
+                    // Remove the toast
+                    removeToast();
+                });
+            });
+        }
+        
+        return {
+            close: removeToast
+        };
     }
 }
 //delete here above
@@ -3038,6 +3073,13 @@ async function signup() {
     }
 }
 
+// Track login attempts
+const loginAttempts = {
+    count: 0,
+    email: '',
+    lockUntil: 0
+};
+
 async function login() {
     try {
         const email = document.getElementById('email').value;
@@ -3046,6 +3088,20 @@ async function login() {
         // Basic validation
         if (!email || !password) {
             return toast.show('Please enter both email and password', 'error');
+        }
+        
+        // Check if login is locked
+        const now = Date.now();
+        if (loginAttempts.email === email && loginAttempts.lockUntil > now) {
+            const remainingMinutes = Math.ceil((loginAttempts.lockUntil - now) / 60000);
+            return toast.show(`Too many failed attempts. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`, 'error', 5000);
+        }
+        
+        // Reset lock if it's a different email or the lock has expired
+        if (loginAttempts.email !== email || loginAttempts.lockUntil < now) {
+            loginAttempts.count = 0;
+            loginAttempts.email = email;
+            loginAttempts.lockUntil = 0;
         }
 
         // Check if Supabase is available
@@ -3061,18 +3117,54 @@ async function login() {
                 if (error) {
                     console.error('Supabase login error:', error);
                     
-                    // Handle different error types
+                    // Increment failed attempts
                     if (error.message.includes('Invalid login credentials')) {
-                        toast.show('Invalid email or password. Please try again or sign up for a new account.', 'error', 4000);
+                        loginAttempts.count++;
+                        
+                        // Check if we should lock the account
+                        if (loginAttempts.count >= 3) {
+                            // Lock for 3 minutes
+                            loginAttempts.lockUntil = now + (3 * 60 * 1000);
+                            return toast.show('Too many failed attempts. Please try again in 3 minutes or reset your password.', 'error', 5000, 
+                                [
+                                    {
+                                        text: 'Reset Password',
+                                        onClick: () => showPasswordResetModal(email)
+                                    }
+                                ]);
+                        }
+                        
+                        // Show appropriate message based on attempt count
+                        if (loginAttempts.count === 1) {
+                            toast.show('Invalid email or password. Please try again.', 'error', 4000);
+                        } else {
+                            toast.show(`Invalid password. ${3 - loginAttempts.count} attempt${loginAttempts.count === 2 ? '' : 's'} remaining.`, 'error', 4000, 
+                                [
+                                    {
+                                        text: 'Forgot Password?',
+                                        onClick: () => showPasswordResetModal(email)
+                                    }
+                                ]);
+                        }
                     } else if (error.message.includes('Email not confirmed')) {
-                        toast.show('Please confirm your email address before logging in. Check your inbox for a confirmation link.', 'warning', 5000);
+                        toast.show('Please confirm your email address before logging in. Check your inbox for a confirmation link.', 'warning', 5000, 
+                            [
+                                {
+                                    text: 'Resend Email',
+                                    onClick: () => resendConfirmationEmail(email)
+                                }
+                            ]);
                     } else {
                         toast.show('Login failed: ' + error.message, 'error');
                     }
                     return;
                 }
 
-                // Login successful - set flag to indicate this is a fresh login
+                // Login successful - reset attempts
+                loginAttempts.count = 0;
+                loginAttempts.lockUntil = 0;
+                
+                // Set flag to indicate this is a fresh login
                 localStorage.setItem('sati_fresh_login', '1');
                 
                 // The auth state change listener will handle the rest of the login process
@@ -3091,6 +3183,52 @@ async function login() {
         toast.show('Login error: ' + err.message, 'error');
     }
 }
+
+// Function to show password reset modal
+function showPasswordResetModal(email) {
+    // Create and show a custom reset password modal
+    const resetModal = document.createElement('div');
+    resetModal.className = 'modal-overlay';
+    resetModal.id = 'passwordResetModal';
+    resetModal.innerHTML = `
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>🔑 Reset Your Password</h2>
+                <button class="close-btn" onclick="modal.hide('passwordResetModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-key" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                    <h3>Forgot Your Password?</h3>
+                    <p>We'll send a password reset link to:</p>
+                    <p><strong>${email}</strong></p>
+                    <div style="margin-top: 20px;">
+                        <button class="login-btn" onclick="sendResetAndClose('${email}')">Send Reset Link</button>
+                        <button class="guest-btn" onclick="modal.hide('passwordResetModal')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(resetModal);
+    
+    // Show the modal
+    modal.show('passwordResetModal');
+}
+
+// Function to send reset email and close modal
+async function sendResetAndClose(email) {
+    const success = await sendPasswordResetEmail(email);
+    if (success) {
+        modal.hide('passwordResetModal');
+        modal.hide('loginModal');
+    }
+}
+
+// Make the function available globally
+window.sendResetAndClose = sendResetAndClose;
 
 // Simple fallback login when Supabase is not available
 function fallbackLogin(email) {
@@ -3233,8 +3371,76 @@ async function resendConfirmationEmail(email) {
     }
 }
 
-// Make the function available globally
+// Function to send password reset email
+async function sendPasswordResetEmail(email) {
+    if (!email) {
+        toast.show('Email address is required', 'error');
+        return false;
+    }
+    
+    if (!supabase) {
+        toast.show('Authentication service not available', 'error');
+        return false;
+    }
+    
+    try {
+        toast.show('Sending password reset email...', 'info');
+        
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/?reset=true'
+        });
+        
+        if (error) {
+            console.error('Error sending password reset:', error);
+            toast.show('Failed to send reset email: ' + error.message, 'error');
+            return false;
+        }
+        
+        toast.show('Password reset email sent! Please check your inbox.', 'success', 5000);
+        return true;
+    } catch (err) {
+        console.error('Password reset error:', err);
+        toast.show('Error: ' + err.message, 'error');
+        return false;
+    }
+}
+
+// Function to handle password reset process
+async function handlePasswordReset(newPassword) {
+    if (!supabase) {
+        toast.show('Authentication service not available', 'error');
+        return false;
+    }
+    
+    if (!newPassword || newPassword.length < 6) {
+        toast.show('Please enter a password with at least 6 characters', 'error');
+        return false;
+    }
+    
+    try {
+        const { data, error } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+        
+        if (error) {
+            console.error('Error resetting password:', error);
+            toast.show('Failed to reset password: ' + error.message, 'error');
+            return false;
+        }
+        
+        toast.show('Password has been reset successfully!', 'success', 5000);
+        return true;
+    } catch (err) {
+        console.error('Password update error:', err);
+        toast.show('Error: ' + err.message, 'error');
+        return false;
+    }
+}
+
+// Make the functions available globally
 window.resendConfirmationEmail = resendConfirmationEmail;
+window.sendPasswordResetEmail = sendPasswordResetEmail;
+window.handlePasswordReset = handlePasswordReset;
 
 async function logout() {
     try {
@@ -3544,12 +3750,16 @@ async function checkExistingSession() {
     }
 }
 
-// Handle email verification when user returns from email link
+// Handle email verification and password reset when user returns from email link
 async function handleEmailVerification() {
     if (!supabase) return false;
     
     try {
-        // Check if we have a hash in the URL that might be from email verification
+        // Check URL parameters for password reset
+        const urlParams = new URLSearchParams(window.location.search);
+        const isReset = urlParams.get('reset') === 'true';
+        
+        // Check if we have a hash in the URL that might be from email verification or password reset
         const hash = window.location.hash;
         if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
             console.log('Detected auth hash in URL, processing...');
@@ -3564,6 +3774,20 @@ async function handleEmailVerification() {
             }
             
             if (data?.session) {
+                // Check if this is a password reset
+                if (hash.includes('type=recovery') || isReset) {
+                    console.log('✅ Password reset link verified!');
+                    
+                    // Show password reset form
+                    showPasswordUpdateModal();
+                    
+                    // Clear the hash and params from URL to prevent reprocessing
+                    window.history.replaceState(null, null, window.location.pathname);
+                    
+                    return true;
+                }
+                
+                // Otherwise, it's an email verification
                 console.log('✅ Email verified successfully!');
                 
                 // Set user state
@@ -3586,7 +3810,7 @@ async function handleEmailVerification() {
                 }, 500);
                 
                 // Clear the hash from URL to prevent reprocessing
-                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+                window.history.replaceState(null, null, window.location.pathname);
                 
                 return true;
             }
@@ -3596,6 +3820,71 @@ async function handleEmailVerification() {
         console.error('Email verification error:', err);
         return false;
     }
+}
+
+// Show password update modal after reset
+function showPasswordUpdateModal() {
+    // Create and show a custom password update modal
+    const resetModal = document.createElement('div');
+    resetModal.className = 'modal-overlay';
+    resetModal.id = 'passwordUpdateModal';
+    resetModal.innerHTML = `
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>🔐 Set New Password</h2>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-key" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                    <h3>Create a New Password</h3>
+                    <p>Please enter a new password for your account.</p>
+                    <form id="passwordUpdateForm" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" required minlength="6">
+                            <small>Password must be at least 6 characters</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required minlength="6">
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button type="submit" class="login-btn">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(resetModal);
+    
+    // Add form submission handler
+    const form = resetModal.querySelector('#passwordUpdateForm');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+            toast.show('Passwords do not match', 'error');
+            return;
+        }
+        
+        const success = await handlePasswordReset(newPassword);
+        if (success) {
+            modal.hide('passwordUpdateModal');
+            
+            // Show login modal after successful password reset
+            setTimeout(() => {
+                modal.show('loginModal');
+                toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
+            }, 500);
+        }
+    });
+    
+    // Show the modal
+    modal.show('passwordUpdateModal');
 }
 
 // Initialize Application
