@@ -33,6 +33,13 @@
             background-color: #f7f9fb !important;
             color: #2c3e50 !important;
         }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .contact-form,
+        [data-theme="light"] .contact-info,
+        [data-theme="light"] .faq-section {
+            border: 1px solid var(--border-color);
+        }
         :root {
             --secondary-color: #00c853;
             --primary-hover: #1565c0;
@@ -79,6 +86,7 @@
             border-radius: 20px;
             padding: 2.5rem;
             box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .contact-info {
@@ -86,6 +94,13 @@
             border-radius: 20px;
             padding: 2.5rem;
             box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .contact-form,
+        [data-theme="light"] .contact-info {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
         .form-group {
@@ -151,10 +166,22 @@
             background: var(--bg-color);
             border-radius: 15px;
             transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .contact-item:hover {
             transform: translateX(5px);
+            border-color: var(--primary-color);
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .contact-item {
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-theme="light"] .contact-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .contact-icon {
@@ -206,15 +233,22 @@
         }
 
         .social-card {
-            background: var(--bg-color);
+            background: var(--card-bg);
             border-radius: 15px;
             padding: 2rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .social-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .social-card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .social-icon {
@@ -239,6 +273,7 @@
             border-radius: 20px;
             padding: 2.5rem;
             box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
         }
 
         .faq-item {
@@ -256,6 +291,16 @@
             justify-content: space-between;
             align-items: center;
             transition: background-color 0.3s ease;
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .faq-section {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        [data-theme="light"] .faq-question {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .faq-question:hover {
