@@ -19,6 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="resources.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -27,12 +28,33 @@
             color: #ffffff !important;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
+            max-width: 100vw;
+            box-sizing: border-box;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
         html[data-theme="light"],
         html[data-theme="light"] body {
             background-color: #f7f9fb !important;
             color: #2c3e50 !important;
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .features-section,
+        [data-theme="light"] .team-section {
+            border: 1px solid var(--border-color);
+        }
+        
+        [data-theme="light"] .feature-item {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-theme="light"] .team-member {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
 
         :root {
@@ -95,15 +117,19 @@
             .info-card:nth-child(even),
             .features-section,
             .team-section,
-            .stats-section {
+            .stats-section,
+            .flowing-stats-wrap {
                 animation: none;
             }
 
             .info-card,
             .feature-item,
             .stat-card,
-            .team-member {
+            .team-member,
+            .flowing-marquee,
+            .flowing-marquee-inner {
                 transition: none;
+                animation: none;
             }
         }
 
@@ -111,6 +137,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 1.5rem;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         .hero-section {
@@ -141,9 +169,11 @@
         .scroll-velocity-container {
             position: relative;
             overflow: hidden;
-            margin-top:4rem;
+            margin-top: 4rem;
             margin-bottom: 1rem;
             height: 220px;
+            width: 100%;
+            max-width: 100vw;
             mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
             -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
         }
@@ -154,6 +184,7 @@
             gap: 1.5rem;
             animation: scrollVelocity 10s linear infinite alternate;
             will-change: transform;
+            width: max-content;
         }
 
         .scroll-velocity-track:hover {
@@ -171,6 +202,7 @@
             height: 200px;
             white-space: normal;
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         .info-card:hover {
@@ -203,7 +235,7 @@
                 transform: translateX(0);
             }
             100% {
-                transform: translateX(-100%);
+                transform: translateX(-50%);
             }
         }
 
@@ -241,6 +273,183 @@
             font-size: 0.8rem;
         }
 
+        /* Flowing Menu Animation Styles for Stats */
+        .flowing-stats-wrap {
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            margin: 2rem 0;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            animation: fadeInUp 1s ease-out forwards;
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements for flowing stats */
+        [data-theme="light"] .flowing-stats-wrap {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .flowing-stats-menu {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flowing-stat-item {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .flowing-stat-item {
+            box-shadow: inset 0 0 0 1px var(--border-color);
+        }
+
+        .flowing-stat-item:first-child {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .flowing-stat-item:last-child {
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            border-bottom: none;
+        }
+
+        .flowing-stat-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+            cursor:default;
+            text-decoration: none;
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .flowing-stat-link:hover {
+            color: var(--primary-color);
+        }
+
+        .flowing-stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .flowing-stat-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .flowing-marquee {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            transform: translate3d(0, 101%, 0);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .flowing-marquee-inner-wrap {
+            height: 100%;
+            width: 200%;
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .flowing-marquee-inner {
+            display: flex;
+            align-items: center;
+            position: relative;
+            height: 100%;
+            width: 200%;
+            will-change: transform;
+            animation: flowingMarquee 5s linear infinite alternate;
+            padding: 0 2rem;
+        }
+
+        .flowing-marquee span {
+            color: white;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.2;
+            padding: 0 2rem;
+            flex-shrink: 0;
+        }
+
+        .flowing-marquee-detail {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin: 0 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            color: white;
+            flex-shrink: 0;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .flowing-stat-link:hover + .flowing-marquee {
+            transform: translate3d(0, 0%, 0);
+        }
+
+        @keyframes flowingMarquee {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-30%);
+            }
+        }
+
+        /* Responsive adjustments for flowing stats */
+        @media (max-width: 768px) {
+            .flowing-stats-wrap {
+                height: 320px;
+            }
+            
+            .flowing-stat-link {
+                font-size: 1rem;
+            }
+            
+            .flowing-stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .flowing-marquee span {
+                font-size: 0.9rem;
+                padding: 0 1rem;
+            }
+            
+            .flowing-marquee-detail {
+                font-size: 0.5rem;
+                padding: 0.4rem 0.8rem;
+                margin: 0 1rem;
+                max-width: 150px;
+            }
+        }
+
         /* Compact Features */
         .features-section {
             background: var(--card-bg);
@@ -262,13 +471,15 @@
             text-align: center;
             padding: 1rem;
             border-radius: 8px;
-            background: var(--bg-color);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
 
         .feature-item:hover {
             transform: translateY(-2px);
             background: var(--hover-color);
+            border-color: var(--primary-color);
         }
 
         .feature-icon {
@@ -332,13 +543,14 @@
         }
 
         .team-member {
-            background: var(--bg-color);
+            background: var(--card-bg);
             border-radius: 12px;
             padding: 1.5rem;
             text-align: center;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            background: linear-gradient(135deg, var(--bg-color), rgba(0, 50, 200, 0.202));
+            box-shadow: var(--shadow);
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 50, 200, 0.204));
         }
 
         .team-member:hover {
@@ -348,8 +560,9 @@
         }
 
         .team-member.lead {
-            background: linear-gradient(135deg, var(--bg-color), rgba(0, 200, 83, 0.193));
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.2));
             border-radius: 5%;
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.15);
         }
 
         .team-member.lead:hover {
@@ -471,6 +684,13 @@
             border-radius: 50%;
             text-decoration: none;
             transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements for social links */
+        [data-theme="light"] .social-links a {
+            background: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .social-links a:hover {
@@ -483,7 +703,7 @@
         @media (max-width: 768px) {
             .about-container {
                 padding: 1rem;
-                margin-top: 60px;
+                margin-top: 5px;
             }
 
             .hero-section {
@@ -547,6 +767,7 @@
         @media (max-width: 480px) {
             .about-container {
                 padding: 0.8rem;
+                margin-top: 5px;
             }
 
             .hero-section {
@@ -635,7 +856,8 @@
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
-                <a href="resources.html" class="mobile-nav-link">
+                <a href="resources.html" class="mobile-nav-link">                
+
                     <i class="fas fa-book"></i>
                     <span>Resources</span>
                 </a>
@@ -712,24 +934,90 @@
             </div>
         </div>
 
-        <!-- Compact Statistics -->
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number">60+</div>
-                <div class="stat-label">Years Excellence</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">10+</div>
-                <div class="stat-label">B.Tech Programs</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">85</div>
-                <div class="stat-label">Acres Campus</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Hostel Capacity</div>
-            </div>
+        <!-- Flowing Statistics -->
+        <div class="flowing-stats-wrap">
+            <nav class="flowing-stats-menu">
+                <div class="flowing-stat-item">
+                    <div class="flowing-stat-link">
+                        <div class="flowing-stat-number">60+</div>
+                        <div class="flowing-stat-text">Years Excellence</div>
+                    </div>
+                    <div class="flowing-marquee">
+                        <div class="flowing-marquee-inner-wrap">
+                            <div class="flowing-marquee-inner">
+                                <span>60+ Years Excellence</span>
+                                <div class="flowing-marquee-detail">Established in 1963, SATI has been a pioneer in technical education</div>
+                                <span>60+ Years Excellence</span>
+                                <div class="flowing-marquee-detail">Legacy of academic excellence and innovation</div>
+                                <span>60+ Years Excellence</span>
+                                <div class="flowing-marquee-detail">Trusted institution for quality education</div>
+                                <span>60+ Years Excellence</span>
+                                <div class="flowing-marquee-detail">Six decades of educational leadership</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flowing-stat-item">
+                    <div class="flowing-stat-link">
+                        <div class="flowing-stat-number">10+</div>
+                        <div class="flowing-stat-text">B.Tech Programs</div>
+                    </div>
+                    <div class="flowing-marquee">
+                        <div class="flowing-marquee-inner-wrap">
+                            <div class="flowing-marquee-inner">
+                                <span>10+ B.Tech Programs</span>
+                                <div class="flowing-marquee-detail">Computer Science, Mechanical, Civil, Electrical Engineering</div>
+                                <span>10+ B.Tech Programs</span>
+                                <div class="flowing-marquee-detail">Electronics, Information Technology, Chemical Engineering</div>
+                                <span>10+ B.Tech Programs</span>
+                                <div class="flowing-marquee-detail">Biotechnology, Automobile, Production Engineering</div>
+                                <span>10+ B.Tech Programs</span>
+                                <div class="flowing-marquee-detail">Industry-aligned curriculum and modern labs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flowing-stat-item">
+                    <div class="flowing-stat-link">
+                        <div class="flowing-stat-number">85</div>
+                        <div class="flowing-stat-text">Acres Campus</div>
+                    </div>
+                    <div class="flowing-marquee">
+                        <div class="flowing-marquee-inner-wrap">
+                            <div class="flowing-marquee-inner">
+                                <span>85 Acres Campus</span>
+                                <div class="flowing-marquee-detail">Sprawling green campus with modern infrastructure</div>
+                                <span>85 Acres Campus</span>
+                                <div class="flowing-marquee-detail">State-of-the-art laboratories and research facilities</div>
+                                <span>85 Acres Campus</span>
+                                <div class="flowing-marquee-detail">Sports complex, library, and recreational areas</div>
+                                <span>85 Acres Campus</span>
+                                <div class="flowing-marquee-detail">Eco-friendly environment for holistic development</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flowing-stat-item">
+                    <div class="flowing-stat-link">
+                        <div class="flowing-stat-number">500+</div>
+                        <div class="flowing-stat-text">Hostel Capacity</div>
+                    </div>
+                    <div class="flowing-marquee">
+                        <div class="flowing-marquee-inner-wrap">
+                            <div class="flowing-marquee-inner">
+                                <span>500+ Hostel Capacity</span>
+                                <div class="flowing-marquee-detail">Separate hostels for boys and girls with modern amenities</div>
+                                <span>500+ Hostel Capacity</span>
+                                <div class="flowing-marquee-detail">24/7 security, Wi-Fi, and recreational facilities</div>
+                                <span>500+ Hostel Capacity</span>
+                                <div class="flowing-marquee-detail">Mess facilities with nutritious and hygienic food</div>
+                                <span>500+ Hostel Capacity</span>
+                                <div class="flowing-marquee-detail">Comfortable accommodation for outstation students</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </div>
 
         <!-- Compact Features Section -->
@@ -991,7 +1279,7 @@
             }, observerOptions);
 
             // Observe elements for animation
-            document.querySelectorAll('.info-card, .features-section, .team-section, .stats-section').forEach(el => {
+            document.querySelectorAll('.info-card, .features-section, .team-section, .stats-section, .flowing-stats-wrap').forEach(el => {
                 el.style.animationPlayState = 'paused';
                 el.style.opacity = '0';
                 observer.observe(el);
@@ -1145,9 +1433,74 @@
                     } else {
                         updateAnimation();
                     }
+                }); (responsive)
+            }
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    const newDimensions = getCardDimensions();
+                    cardWidth = newDimensions.cardWidth;
+                    totalWidth = newDimensions.totalWidth;
+                    // Reset position to prevent issues
+                    currentX = 0;
+                });
+            });
+
+            // Flowing Menu Animation for Stats
+            function initFlowingStats() {
+                const statItems = document.querySelectorAll('.flowing-stat-item');
+                
+                statItems.forEach(item => {
+                    const link = item.querySelector('.flowing-stat-link');
+                    const marquee = item.querySelector('.flowing-marquee');
+                    const marqueeInner = item.querySelector('.flowing-marquee-inner-wrap');
+                    
+                    if (!link || !marquee || !marqueeInner) return;
+                    
+                    const animationDefaults = { duration: 0.6, ease: 'expo.out' };
+                    
+                    const findClosestEdge = (mouseX, mouseY, width, height) => {
+                        const topEdgeDist = distMetric(mouseX, mouseY, width / 2, 0);
+                        const bottomEdgeDist = distMetric(mouseX, mouseY, width / 2, height);
+                        return topEdgeDist < bottomEdgeDist ? 'top' : 'bottom';
+                    };
+                    
+                    const distMetric = (x, y, x2, y2) => {
+                        const xDiff = x - x2;
+                        const yDiff = y - y2;
+                        return xDiff * xDiff + yDiff * yDiff;
+                    };
+                    
+                    const handleMouseEnter = (ev) => {
+                        const rect = item.getBoundingClientRect();
+                        const x = ev.clientX - rect.left;
+                        const y = ev.clientY - rect.top;
+                        const edge = findClosestEdge(x, y, rect.width, rect.height);
+                        
+                        gsap.timeline({ defaults: animationDefaults })
+                            .set(marquee, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+                            .set(marqueeInner, { y: edge === 'top' ? '101%' : '-101%' }, 0)
+                            .to([marquee, marqueeInner], { y: '0%' }, 0);
+                    };
+                    
+                    const handleMouseLeave = (ev) => {
+                        const rect = item.getBoundingClientRect();
+                        const x = ev.clientX - rect.left;
+                        const y = ev.clientY - rect.top;
+                        const edge = findClosestEdge(x, y, rect.width, rect.height);
+                        
+                        gsap.timeline({ defaults: animationDefaults })
+                            .to(marquee, { y: edge === 'top' ? '-101%' : '101%' }, 0)
+                            .to(marqueeInner, { y: edge === 'top' ? '101%' : '-101%' }, 0);
+                    };
+                    
+                    link.addEventListener('mouseenter', handleMouseEnter);
+                    link.addEventListener('mouseleave', handleMouseLeave);
                 });
             }
-        });
+            
+            // Initialize flowing stats animation
+            initFlowingStats();
     </script>
 </body>
 
