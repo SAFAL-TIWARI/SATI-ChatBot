@@ -132,10 +132,13 @@ class ChatBotState {
         this.currentMessages = [];
         this.isLoggedIn = JSON.parse(localStorage.getItem('sati_logged_in') || 'false');
         this.username = localStorage.getItem('sati_username') || '';
+        this.email = localStorage.getItem('sati_email') || '';
+        this.authProvider = localStorage.getItem('sati_auth_provider') || '';
         this.settings = JSON.parse(localStorage.getItem('sati_settings') || '{}');
         this.theme = localStorage.getItem('sati_theme') || 'dark';
         this.isTyping = false;
         this.selectedModel = localStorage.getItem('sati_selected_model') || 'llama-3.1-8b-instant';
+        this.useSupabaseStorage = false; // Will be set to true when user is logged in with Supabase
 
         // Initialize default settings
         this.initializeDefaultSettings();
@@ -155,6 +158,25 @@ class ChatBotState {
 
         // Validate model selection - prevent Gemini 1.5 Pro from being selected
         this.validateModelSelection();
+    }
+    
+    // Initialize Supabase storage if user is logged in with Supabase
+    initSupabaseStorage() {
+        if (!supabase || !this.isLoggedIn || this.authProvider !== 'email') {
+            this.useSupabaseStorage = false;
+            return false;
+        }
+        
+        // Initialize Supabase DB operations
+        if (window.supabaseDB && window.supabaseDB.initialize) {
+            const initialized = window.supabaseDB.initialize(supabase);
+            this.useSupabaseStorage = initialized;
+            console.log('Supabase storage initialized:', initialized);
+            return initialized;
+        }
+        
+        this.useSupabaseStorage = false;
+        return false;
     }
 
     initializeDefaultSettings() {
@@ -192,6 +214,8 @@ class ChatBotState {
         localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
         localStorage.setItem('sati_logged_in', JSON.stringify(this.isLoggedIn));
         localStorage.setItem('sati_username', this.username);
+        localStorage.setItem('sati_email', this.email);
+        localStorage.setItem('sati_auth_provider', this.authProvider);
         localStorage.setItem('sati_theme', this.theme);
         localStorage.setItem('sati_selected_model', this.selectedModel);
         localStorage.setItem('sati_api_provider', this.apiProvider);
@@ -255,7 +279,47 @@ class ChatBotState {
         }
     }
 
-    createNewConversation(title = 'New Chat') {
+    async createNewConversation(title = 'New Chat') {
+        // If using Supabase storage and user is logged in
+        if (this.useSupabaseStorage && window.supabaseDB) {
+            try {
+                const { data, error } = await window.supabaseDB.createConversation(title);
+                
+                if (error) {
+                    console.error('Error creating conversation in Supabase:', error);
+                    // Fall back to local storage
+                    return this.createLocalConversation(title);
+                }
+                
+                // Use the conversation from Supabase
+                const conversation = {
+                    id: data.id,
+                    title: data.title,
+                    messages: [],
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at
+                };
+                
+                // Add to local cache
+                this.conversations.unshift(conversation);
+                this.currentConversationId = conversation.id;
+                this.currentMessages = [];
+                this.saveState();
+                return conversation;
+                
+            } catch (err) {
+                console.error('Error in createNewConversation:', err);
+                // Fall back to local storage
+                return this.createLocalConversation(title);
+            }
+        } else {
+            // Use local storage
+            return this.createLocalConversation(title);
+        }
+    }
+    
+    // Create conversation in local storage
+    createLocalConversation(title = 'New Chat') {
         const conversation = {
             id: Date.now().toString(),
             title: title,
@@ -268,7 +332,6 @@ class ChatBotState {
         this.currentConversationId = conversation.id;
         this.currentMessages = [];
         this.saveState();
-
         return conversation;
     }
 
@@ -293,7 +356,22 @@ class ChatBotState {
         }
     }
 
-    deleteConversation(id) {
+    async deleteConversation(id) {
+        // If using Supabase storage and user is logged in
+        if (this.useSupabaseStorage && window.supabaseDB) {
+            try {
+                const { success, error } = await window.supabaseDB.deleteConversation(id);
+                
+                if (error) {
+                    console.error('Error deleting conversation in Supabase:', error);
+                    // Continue with local deletion anyway
+                }
+            } catch (err) {
+                console.error('Error in deleteConversation:', err);
+            }
+        }
+        
+        // Always delete from local storage too
         this.conversations = this.conversations.filter(c => c.id !== id);
         if (this.currentConversationId === id) {
             this.currentConversationId = null;
@@ -302,7 +380,22 @@ class ChatBotState {
         this.saveState();
     }
 
-    renameConversation(id, newTitle) {
+    async renameConversation(id, newTitle) {
+        // If using Supabase storage and user is logged in
+        if (this.useSupabaseStorage && window.supabaseDB) {
+            try {
+                const { success, error } = await window.supabaseDB.updateConversationTitle(id, newTitle);
+                
+                if (error) {
+                    console.error('Error renaming conversation in Supabase:', error);
+                    // Continue with local rename anyway
+                }
+            } catch (err) {
+                console.error('Error in renameConversation:', err);
+            }
+        }
+        
+        // Always update local storage too
         const conversation = this.conversations.find(c => c.id === id);
         if (conversation) {
             conversation.title = newTitle;
@@ -313,7 +406,64 @@ class ChatBotState {
         return false;
     }
 
-    loadConversation(id) {
+    async loadConversation(id) {
+        // If using Supabase storage and user is logged in
+        if (this.useSupabaseStorage && window.supabaseDB) {
+            try {
+                // Get messages from Supabase
+                const { data: messages, error } = await window.supabaseDB.getConversationMessages(id);
+                
+                if (error) {
+                    console.error('Error loading messages from Supabase:', error);
+                    // Fall back to local storage
+                } else if (messages && messages.length > 0) {
+                    // Format messages for the app
+                    const formattedMessages = messages.map(msg => ({
+                        role: msg.role,
+                        content: msg.content,
+                        model: msg.model,
+                        timestamp: new Date(msg.created_at).toISOString()
+                    }));
+                    
+                    // Update current conversation
+                    this.currentConversationId = id;
+                    this.currentMessages = formattedMessages;
+                    
+                    // Find the conversation in local cache
+                    const conversation = this.conversations.find(c => c.id === id);
+                    if (conversation) {
+                        // Update local cache
+                        conversation.messages = formattedMessages;
+                        return conversation;
+                    } else {
+                        // If not in local cache, create it
+                        const { data: convData, error: convError } = await window.supabaseDB.getUserConversations();
+                        if (!convError && convData) {
+                            const matchingConv = convData.find(c => c.id === id);
+                            if (matchingConv) {
+                                const newConv = {
+                                    id: matchingConv.id,
+                                    title: matchingConv.title,
+                                    messages: formattedMessages,
+                                    createdAt: matchingConv.created_at,
+                                    updatedAt: matchingConv.updated_at
+                                };
+                                
+                                // Add to local cache
+                                this.conversations.push(newConv);
+                                this.saveState();
+                                return newConv;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error in loadConversation:', err);
+                // Fall back to local storage
+            }
+        }
+        
+        // Fall back to local storage
         const conversation = this.conversations.find(c => c.id === id);
         if (conversation) {
             this.currentConversationId = id;
@@ -321,6 +471,43 @@ class ChatBotState {
             return conversation;
         }
         return null;
+    }
+    
+    // Load all conversations from Supabase
+    async loadConversationsFromSupabase() {
+        if (!this.useSupabaseStorage || !window.supabaseDB) {
+            return false;
+        }
+        
+        try {
+            const { data, error } = await window.supabaseDB.getUserConversations();
+            
+            if (error) {
+                console.error('Error loading conversations from Supabase:', error);
+                return false;
+            }
+            
+            if (data && data.length > 0) {
+                // Convert to app format
+                const conversations = data.map(conv => ({
+                    id: conv.id,
+                    title: conv.title,
+                    messages: [], // Messages will be loaded when conversation is selected
+                    createdAt: conv.created_at,
+                    updatedAt: conv.updated_at
+                }));
+                
+                // Replace local conversations with Supabase ones
+                this.conversations = conversations;
+                this.saveState();
+                return true;
+            }
+            
+            return true;
+        } catch (err) {
+            console.error('Error in loadConversationsFromSupabase:', err);
+            return false;
+        }
     }
 }
 //delete here above
