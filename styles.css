@@ -1623,6 +1623,41 @@ body {
     border-color: var(--accent-color);
 }
 
+/* Password input blocked styling */
+.form-group input.input-blocked {
+    border-color: var(--danger-color);
+    background-color: rgba(255, 100, 100, 0.05);
+    color: var(--danger-color);
+}
+
+/* Password reset message */
+.password-reset-message {
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-left: 3px solid var(--danger-color);
+    background-color: rgba(255, 100, 100, 0.05);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.password-reset-message .error-message {
+    color: var(--danger-color);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-1);
+}
+
+.password-reset-message .reset-password-link {
+    color: var(--accent-color);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: var(--spacing-1);
+}
+
+.password-reset-message .reset-password-link:hover {
+    text-decoration: underline;
+}
+
 .login-btn,
 .guest-btn {
     padding: var(--spacing-3) var(--spacing-4);

@@ -3169,6 +3169,10 @@ async function login() {
             // Disable the password input
             passwordInput.disabled = true;
             passwordInput.placeholder = "Password input blocked";
+            passwordInput.classList.add('input-blocked');
+            
+            // Add reset message below password field
+            addPasswordResetMessage(email, `Password input blocked due to too many failed attempts. Please reset your password to continue.`);
             
             return toast.show('Password input blocked due to too many failed attempts. Please reset your password to continue.', 'error', 8000, 
                 [
@@ -3182,6 +3186,15 @@ async function login() {
         // Check if login is locked
         if (attempts.lockUntil > now) {
             const remainingMinutes = Math.ceil((attempts.lockUntil - now) / 60000);
+            
+            // Disable the password input
+            passwordInput.disabled = true;
+            passwordInput.placeholder = "Password input locked";
+            passwordInput.classList.add('input-blocked');
+            
+            // Add reset message below password field
+            addPasswordResetMessage(email, `Account temporarily locked for ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}. Enter correct password or reset password.`);
+            
             return toast.show(`Too many failed attempts. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''} or reset your password.`, 'error', 5000,
                 [
                     {
@@ -3226,6 +3239,10 @@ async function login() {
                             // Disable the password input
                             passwordInput.disabled = true;
                             passwordInput.placeholder = "Password input blocked";
+                            passwordInput.classList.add('input-blocked');
+                            
+                            // Add reset message below password field
+                            addPasswordResetMessage(email, `Password input blocked due to too many failed attempts. Please reset your password to continue.`);
                             
                             return toast.show('Password input blocked due to too many failed attempts. Please reset your password to continue.', 'error', 8000, 
                                 [
@@ -3249,6 +3266,14 @@ async function login() {
                             // Lock for 3 minutes after 3 consecutive attempts
                             attempts.lockUntil = now + (3 * 60 * 1000);
                             updateLoginAttempts(email, attempts);
+                            
+                            // Disable the password input
+                            passwordInput.disabled = true;
+                            passwordInput.placeholder = "Password input locked";
+                            passwordInput.classList.add('input-blocked');
+                            
+                            // Add reset message below password field
+                            addPasswordResetMessage(email, `Too many failed attempts. Account locked for 3 minutes. Enter correct password or reset password.`);
                             
                             return toast.show('Too many failed attempts. Please try again in 3 minutes or reset your password.', 'error', 5000, 
                                 [
@@ -3288,6 +3313,16 @@ async function login() {
                 // Login successful - reset attempts
                 localStorage.removeItem('sati_login_attempts');
                 
+                // Remove any password reset message
+                removePasswordResetMessage();
+                
+                // Reset password input state
+                if (passwordInput) {
+                    passwordInput.disabled = false;
+                    passwordInput.placeholder = "Password";
+                    passwordInput.classList.remove('input-blocked');
+                }
+                
                 // Set flag to indicate this is a fresh login
                 localStorage.setItem('sati_fresh_login', '1');
                 
@@ -3322,6 +3357,9 @@ function checkLoginFormState(email = '') {
     const passwordInput = document.getElementById('password');
     if (!passwordInput) return;
     
+    // Remove any existing reset message
+    removePasswordResetMessage();
+    
     // Get stored login attempts for this email
     const attempts = getLoginAttempts(email);
     const now = Date.now();
@@ -3330,9 +3368,13 @@ function checkLoginFormState(email = '') {
     if (attempts.inputBlocked) {
         // Disable the password input
         passwordInput.disabled = true;
-        passwordInput.placeholder = "Password input blocked - reset password";
+        passwordInput.placeholder = "Password input blocked";
+        passwordInput.classList.add('input-blocked');
         
-        // Show message
+        // Add reset message below password field
+        addPasswordResetMessage(email, 'Password input blocked. Please reset your password to continue.');
+        
+        // Show toast message
         toast.show('Password input blocked due to too many failed attempts. Please reset your password.', 'error', 8000, 
             [
                 {
@@ -3346,6 +3388,16 @@ function checkLoginFormState(email = '') {
     // Check if login is locked
     if (attempts.lockUntil > now) {
         const remainingMinutes = Math.ceil((attempts.lockUntil - now) / 60000);
+        
+        // Disable the password input
+        passwordInput.disabled = true;
+        passwordInput.placeholder = "Password input locked";
+        passwordInput.classList.add('input-blocked');
+        
+        // Add reset message below password field
+        addPasswordResetMessage(email, `Account temporarily locked for ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}. Enter correct password or reset password.`);
+        
+        // Show toast message
         toast.show(`Account temporarily locked. Please try again in ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''} or reset your password.`, 'warning', 5000,
             [
                 {
@@ -3356,8 +3408,17 @@ function checkLoginFormState(email = '') {
         return;
     }
     
-    // If user has multiple failed attempts but not locked, show warning
+    // If user has 3 or more failed attempts but not locked, show warning and block input
     if (attempts.count >= 3) {
+        // Disable the password input
+        passwordInput.disabled = true;
+        passwordInput.placeholder = "Password input locked";
+        passwordInput.classList.add('input-blocked');
+        
+        // Add reset message below password field
+        addPasswordResetMessage(email, `Multiple failed login attempts. Enter correct password or reset password.`);
+        
+        // Show toast message
         toast.show(`You've had ${attempts.count} failed login attempts. Please make sure you're using the correct password.`, 'warning', 5000,
             [
                 {
@@ -3365,6 +3426,47 @@ function checkLoginFormState(email = '') {
                     onClick: () => showPasswordResetModal(email)
                 }
             ]);
+    }
+}
+
+// Function to add password reset message below password field
+function addPasswordResetMessage(email, message) {
+    // Remove any existing message first
+    removePasswordResetMessage();
+    
+    // Get the password input's parent element (form-group)
+    const passwordInput = document.getElementById('password');
+    if (!passwordInput) return;
+    
+    const formGroup = passwordInput.closest('.form-group');
+    if (!formGroup) return;
+    
+    // Create the message element
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'password-reset-message';
+    messageDiv.innerHTML = `
+        <p class="error-message">${message}</p>
+        <a href="#" class="reset-password-link">Reset password</a>
+    `;
+    
+    // Add the message after the form group
+    formGroup.parentNode.insertBefore(messageDiv, formGroup.nextSibling);
+    
+    // Add click event to the reset link
+    const resetLink = messageDiv.querySelector('.reset-password-link');
+    if (resetLink) {
+        resetLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPasswordResetModal(email);
+        });
+    }
+}
+
+// Function to remove password reset message
+function removePasswordResetMessage() {
+    const existingMessage = document.querySelector('.password-reset-message');
+    if (existingMessage) {
+        existingMessage.parentNode.removeChild(existingMessage);
     }
 }
 
