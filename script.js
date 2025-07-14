@@ -421,41 +421,18 @@ class ChatBotState {
 
 
 
-            // Save messages to Supabase if using Supabase storage
-            if (this.useSupabaseStorage && window.supabaseDB && messages.length > 0) {
+            // Update conversation metadata in Supabase (messages are saved immediately when added)
+            if (this.useSupabaseStorage && window.supabaseDB) {
                 try {
-                    // Get the latest message (the one that was just added)
-                    const latestMessage = messages[messages.length - 1];
-                    
-                    console.log('💾 Saving message to Supabase:', {
-                        conversationId: this.currentConversationId,
-                        role: latestMessage.role,
-                        contentLength: latestMessage.content.length,
-                        model: latestMessage.model || chatState.selectedModel
-                    });
-                    
-                    // Save to Supabase
-                    const result = await window.supabaseDB.addMessage(
-                        this.currentConversationId,
-                        latestMessage.role,
-                        latestMessage.content,
-                        latestMessage.model || chatState.selectedModel
+                    // Update the conversation's updated_at timestamp
+                    await window.supabaseDB.updateConversationTitle(
+                        this.currentConversationId, 
+                        conversation.title
                     );
-                    
-                    if (result.error) {
-                        console.error('❌ Error saving message to Supabase:', result.error);
-                    } else {
-                        console.log('✅ Message saved to Supabase:', result.data);
-                    }
+                    console.log('✅ Conversation metadata updated in Supabase');
                 } catch (err) {
-                    console.error('❌ Error saving message to Supabase:', err);
+                    console.error('❌ Error updating conversation metadata in Supabase:', err);
                 }
-            } else {
-                console.log('📱 Message not saved to Supabase:', {
-                    useSupabaseStorage: this.useSupabaseStorage,
-                    supabaseDB: !!window.supabaseDB,
-                    messagesLength: messages.length
-                });
             }
 
             this.saveState();
@@ -974,6 +951,21 @@ class ChatManager {
         chatState.currentMessages.push(userMessage);
         this.renderMessages();
         
+        // Save user message to Supabase immediately
+        if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
+            try {
+                await window.supabaseDB.addMessage(
+                    chatState.currentConversationId,
+                    'user',
+                    content,
+                    chatState.selectedModel
+                );
+                console.log('✅ User message saved to Supabase immediately');
+            } catch (err) {
+                console.error('❌ Error saving user message to Supabase:', err);
+            }
+        }
+        
         // Auto-generate title if this is the first user message in a new chat
         if (chatState.currentConversationId) {
             const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
@@ -1026,6 +1018,23 @@ class ChatManager {
             };
 
             chatState.currentMessages.push(botMessage);
+            
+            // Save assistant message to Supabase immediately
+            if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
+                try {
+                    await window.supabaseDB.addMessage(
+                        chatState.currentConversationId,
+                        'assistant',
+                        response,
+                        chatState.selectedModel
+                    );
+                    console.log('✅ Assistant message saved to Supabase immediately');
+                } catch (err) {
+                    console.error('❌ Error saving assistant message to Supabase:', err);
+                }
+            }
+            
+            // Update conversation in local state
             await chatState.updateConversation(chatState.currentMessages);
 
         } catch (error) {
