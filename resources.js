@@ -1495,19 +1495,19 @@ document.addEventListener('DOMContentLoaded', function () {
 // Initialize page settings
 function initializePage() {
     // Check for saved theme - check multiple possible keys for compatibility
-    const savedTheme = localStorage.getItem('sati_theme') || 
-                      localStorage.getItem('light') || 
-                      localStorage.getItem('theme') || 
-                      'dark';
-    
+    const savedTheme = localStorage.getItem('sati_theme') ||
+        localStorage.getItem('light') ||
+        localStorage.getItem('theme') ||
+        'dark';
+
     // Apply theme
     document.documentElement.setAttribute('data-theme', savedTheme);
-    
+
     // Ensure consistency across all storage keys
     localStorage.setItem('sati_theme', savedTheme);
     localStorage.setItem('light', savedTheme);
     localStorage.setItem('theme', savedTheme);
-    
+
     // Update dark mode icon
     updateDarkModeIcon(savedTheme === 'dark');
 }
@@ -1864,12 +1864,12 @@ function toggleDarkMode() {
 
     // Apply theme
     document.documentElement.setAttribute('data-theme', newTheme);
-    
+
     // Save to all possible localStorage keys for consistency across pages
     localStorage.setItem('sati_theme', newTheme);
     localStorage.setItem('light', newTheme);
     localStorage.setItem('theme', newTheme);
-    
+
     updateDarkModeIcon(newTheme === 'dark');
 }
 

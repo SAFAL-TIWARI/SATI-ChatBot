@@ -19,377 +19,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="resources.css">
-    <style>
-        /* Prevent flash of unstyled content */
-        html, body {
-            background-color: #121212 !important;
-            color: #ffffff !important;
-            margin: 0;
-            padding: 0;
-        }
-        
-        html[data-theme="light"], 
-        html[data-theme="light"] body {
-            background-color: #f7f9fb !important;
-            color: #2c3e50 !important;
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .contact-form,
-        [data-theme="light"] .contact-info,
-        [data-theme="light"] .faq-section {
-            border: 1px solid var(--border-color);
-        }
-        :root {
-            --secondary-color: #00c853;
-            --primary-hover: #1565c0;
-            --hover-color: rgba(25, 118, 210, 0.1);
-        }
-        
-        .contact-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+    <link rel="stylesheet" href="contact.css">
 
-        .hero-section {
-            text-align: center;
-            padding: 2rem 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 20px;
-            margin-bottom: 3rem;
-            color: white;
-        }
-
-        .hero-section h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero-section p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .contact-form {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        .contact-info {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .contact-form,
-        [data-theme="light"] .contact-info {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-color);
-            color: var(--text-primary);
-            font-family: inherit;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .submit-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-color);
-            border-radius: 15px;
-            transition: transform 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-
-        .contact-item:hover {
-            transform: translateX(5px);
-            border-color: var(--primary-color);
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .contact-item {
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        [data-theme="light"] .contact-item:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .contact-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .contact-details h4 {
-            margin: 0 0 0.5rem 0;
-            color: var(--text-primary);
-        }
-
-        .contact-details p {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-
-        .contact-details a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .contact-details a:hover {
-            text-decoration: underline;
-        }
-
-        /* .social-section {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-            margin-bottom: 3rem;
-        } */
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .social-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-
-        .social-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--primary-color);
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .social-card {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .social-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .social-card.linkedin .social-icon {
-            color: #0077b5;
-        }
-
-        .social-card.github .social-icon {
-            color: #333;
-        }
-
-        .social-card.instagram .social-icon {
-            color: #e4405f;
-        }
-
-        .faq-section {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        .faq-item {
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .faq-question {
-            background: var(--bg-color);
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.3s ease;
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .faq-section {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        [data-theme="light"] .faq-question {
-            background: #ffffff;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .faq-question:hover {
-            background: var(--hover-color);
-        }
-
-        .faq-answer {
-            padding: 1.5rem;
-            background: var(--card-bg);
-            display: none;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .faq-answer.active {
-            display: block;
-        }
-
-        .faq-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .faq-item.active .faq-icon {
-            transform: rotate(180deg);
-        }
-
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .contact-container {
-                padding: 1rem;
-            }
-
-            .hero-section h1 {
-                font-size: 2rem;
-            }
-
-            .contact-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .contact-form,
-            .contact-info,
-            /* .social-section, */
-            .faq-section {
-                padding: 1.5rem;
-            }
-
-            .social-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
     <script>
         (function () {
             // Get theme from localStorage - check multiple possible keys for compatibility
-            const savedTheme = localStorage.getItem('sati_theme') || 
-                              localStorage.getItem('light') || 
-                              localStorage.getItem('theme') || 
-                              'dark';
-            
+            const savedTheme = localStorage.getItem('sati_theme') ||
+                localStorage.getItem('light') ||
+                localStorage.getItem('theme') ||
+                'dark';
+
             // Apply theme immediately to prevent flash
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
             document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
-            
+
             // Also apply to body when it's available
             if (document.body) {
                 document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
                 document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
             }
-            
+
             // Ensure consistency across all storage keys
             localStorage.setItem('sati_theme', savedTheme);
             localStorage.setItem('light', savedTheme);
@@ -462,7 +112,8 @@
                     <i class="fas fa-check-circle"></i> Thank you! Your message has been sent successfully.
                 </div>
                 <div class="error-message" id="errorMessage">
-                    <i class="fas fa-exclamation-circle"></i> Sorry, there was an error sending your message. Please try again.
+                    <i class="fas fa-exclamation-circle"></i> Sorry, there was an error sending your message. Please try
+                    again.
                 </div>
                 <form id="contactForm">
                     <div class="form-group">
@@ -504,7 +155,8 @@
                     </div>
                     <div class="form-group">
                         <label for="message">Message *</label>
-                        <textarea id="message" name="message" placeholder="Please describe your inquiry in detail..." required></textarea>
+                        <textarea id="message" name="message" placeholder="Please describe your inquiry in detail..."
+                            required></textarea>
                     </div>
                     <button type="submit" class="submit-btn">
                         <i class="fas fa-paper-plane"></i> Send Message
@@ -524,8 +176,8 @@
                     <div class="contact-details">
                         <h4>Institute Address</h4>
                         <p>Samrat Ashok Technological Institute<br>
-                        Vidisha, Madhya Pradesh 464001<br>
-                        India</p>
+                            Vidisha, Madhya Pradesh 464001<br>
+                            India</p>
                     </div>
                 </div>
                 <div class="contact-item">
@@ -535,7 +187,8 @@
                     <div class="contact-details">
                         <h4>Email Support</h4>
                         <p><a href="mailto:support@sati-chatbot.com">support@sati-chatbot.com</a><br>
-                        <a href="mailto:team@fluxonauts.com">team@fluxonauts.com</a></p>
+                            <a href="mailto:team@fluxonauts.com">team@fluxonauts.com</a>
+                        </p>
                     </div>
                 </div>
                 <div class="contact-item">
@@ -545,7 +198,7 @@
                     <div class="contact-details">
                         <h4>Response Time</h4>
                         <p>We typically respond within 24-48 hours<br>
-                        Emergency issues: Within 4-6 hours</p>
+                            Emergency issues: Within 4-6 hours</p>
                     </div>
                 </div>
                 <div class="contact-item">
@@ -555,53 +208,11 @@
                     <div class="contact-details">
                         <h4>AI Assistant</h4>
                         <p>For instant help, try our AI chatbot<br>
-                        Available 24/7 on the homepage</p>
+                            Available 24/7 on the homepage</p>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Social Media Section -->
-        <!-- <section class="social-section">
-            <h2 style="color: var(--primary-color); margin-bottom: 1rem;">
-                <i class="fas fa-share-alt"></i> Connect with Us
-            </h2>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                Follow us on social media for updates and announcements
-            </p>
-            <div class="social-grid">
-                <div class="social-card linkedin">
-                    <div class="social-icon">
-                        <i class="fab fa-linkedin"></i>
-                    </div>
-                    <h4>LinkedIn</h4>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Professional updates and networking</p>
-                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; border-radius: 8px;">
-                        Follow Us
-                    </a>
-                </div>
-                <div class="social-card github">
-                    <div class="social-icon">
-                        <i class="fab fa-github"></i>
-                    </div>
-                    <h4>GitHub</h4>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Open source contributions and code</p>
-                    <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; border-radius: 8px;">
-                        View Code
-                    </a>
-                </div>
-                <div class="social-card instagram">
-                    <div class="social-icon">
-                        <i class="fab fa-instagram"></i>
-                    </div>
-                    <h4>Instagram</h4>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Behind the scenes and updates</p>
-                    <a href="https://www.instagram.com/itz_safal_/" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; border-radius: 8px;">
-                        Follow Us
-                    </a>
-                </div>
-            </div>
-        </section> -->
 
         <!-- FAQ Section -->
         <section class="faq-section">
@@ -614,7 +225,9 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Navigate to the Resources page from the main menu. You can browse by category (Notes, Practical Assignments, Test Papers, etc.) or use the search function to find specific materials for your branch and subject.
+                    Navigate to the Resources page from the main menu. You can browse by category (Notes, Practical
+                    Assignments, Test Papers, etc.) or use the search function to find specific materials for your
+                    branch and subject.
                 </div>
             </div>
             <div class="faq-item">
@@ -623,7 +236,8 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Yes! SATI ChatBot is completely free for all SATI students, faculty, and staff. Our mission is to make educational resources accessible to everyone in the SATI community.
+                    Yes! SATI ChatBot is completely free for all SATI students, faculty, and staff. Our mission is to
+                    make educational resources accessible to everyone in the SATI community.
                 </div>
             </div>
             <div class="faq-item">
@@ -632,7 +246,9 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Our AI chatbot is trained on comprehensive SATI-specific data and uses advanced language models. While we strive for high accuracy, we recommend verifying important information with official sources or faculty members.
+                    Our AI chatbot is trained on comprehensive SATI-specific data and uses advanced language models.
+                    While we strive for high accuracy, we recommend verifying important information with official
+                    sources or faculty members.
                 </div>
             </div>
             <div class="faq-item">
@@ -641,7 +257,8 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Absolutely! We welcome feature requests and resource suggestions. Use the contact form above with "Feature Request" or "Resource Request" as the subject, and we'll consider it for future updates.
+                    Absolutely! We welcome feature requests and resource suggestions. Use the contact form above with
+                    "Feature Request" or "Resource Request" as the subject, and we'll consider it for future updates.
                 </div>
             </div>
             <div class="faq-item">
@@ -650,7 +267,9 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Please use the contact form with "Bug Report" as the subject. Include details about the issue, your browser/device information, and steps to reproduce the problem. We'll investigate and fix it as soon as possible.
+                    Please use the contact form with "Bug Report" as the subject. Include details about the issue, your
+                    browser/device information, and steps to reproduce the problem. We'll investigate and fix it as soon
+                    as possible.
                 </div>
             </div>
             <div class="faq-item">
@@ -659,7 +278,9 @@
                     <i class="fas fa-chevron-down faq-icon"></i>
                 </div>
                 <div class="faq-answer">
-                    Yes, we take data privacy seriously. Conversations are not stored permanently, and we don't collect personal information unless explicitly provided. All communications are encrypted and handled securely.
+                    Yes, we take data privacy seriously. Conversations are not stored permanently, and we don't collect
+                    personal information unless explicitly provided. All communications are encrypted and handled
+                    securely.
                 </div>
             </div>
         </section>
@@ -685,7 +306,8 @@
                 <h3>Connect with Us</h3>
                 <div class="social-links">
                     <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
+                            class="fab fa-linkedin"></i></a>
                     <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
                 </div>
             </div>
@@ -696,133 +318,8 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-        // Dark Mode Toggle Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileNavMenu = document.getElementById('mobileNavMenu');
-            const blurOverlay = document.getElementById('blurOverlay');
+    <script src="contact.js"></script>
 
-            // Dark mode toggle
-            if (darkModeToggle) {
-                // Set initial icon based on current theme
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const icon = darkModeToggle.querySelector('i');
-                icon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-                
-                darkModeToggle.addEventListener('click', function() {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    
-                    // Apply theme
-                    document.documentElement.setAttribute('data-theme', newTheme);
-                    
-                    // Save to all possible localStorage keys for consistency
-                    localStorage.setItem('sati_theme', newTheme);
-                    localStorage.setItem('light', newTheme);
-                    localStorage.setItem('theme', newTheme);
-                    
-                    // Update icon
-                    icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-                });
-            }
-
-            // Mobile menu toggle
-            if (mobileMenuToggle && mobileNavMenu && blurOverlay) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    mobileNavMenu.classList.toggle('show');
-                    blurOverlay.classList.toggle('show');
-                    document.body.classList.toggle('mobile-menu-open');
-                    
-                    // Update mobile menu toggle icon
-                    const icon = mobileMenuToggle.querySelector('i');
-                    if (mobileNavMenu.classList.contains('show')) {
-                        icon.className = 'fas fa-times';
-                    } else {
-                        icon.className = 'fas fa-bars';
-                    }
-                });
-
-                blurOverlay.addEventListener('click', function() {
-                    mobileNavMenu.classList.remove('show');
-                    blurOverlay.classList.remove('show');
-                    document.body.classList.remove('mobile-menu-open');
-                    
-                    // Reset mobile menu toggle icon
-                    const icon = mobileMenuToggle.querySelector('i');
-                    icon.className = 'fas fa-bars';
-                });
-
-                // Close mobile menu when clicking on navigation links
-                document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
-                        mobileNavMenu.classList.remove('show');
-                        blurOverlay.classList.remove('show');
-                        document.body.classList.remove('mobile-menu-open');
-                        
-                        // Reset mobile menu toggle icon
-                        const icon = mobileMenuToggle.querySelector('i');
-                        icon.className = 'fas fa-bars';
-                    });
-                });
-            }
-        });
-
-        // FAQ Toggle Functionality
-        function toggleFAQ(element) {
-            const faqItem = element.parentElement;
-            const answer = faqItem.querySelector('.faq-answer');
-            const icon = element.querySelector('.faq-icon');
-            
-            // Close all other FAQ items
-            document.querySelectorAll('.faq-item').forEach(item => {
-                if (item !== faqItem) {
-                    item.classList.remove('active');
-                    item.querySelector('.faq-answer').classList.remove('active');
-                }
-            });
-            
-            // Toggle current FAQ item
-            faqItem.classList.toggle('active');
-            answer.classList.toggle('active');
-        }
-
-        // Contact Form Submission
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('.submit-btn');
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            // Show loading state
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            submitBtn.disabled = true;
-            
-            // Hide previous messages
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
-            
-            // Simulate form submission (replace with actual form handling)
-            setTimeout(() => {
-                // Reset button
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
-                submitBtn.disabled = false;
-                
-                // Show success message
-                successMsg.style.display = 'block';
-                
-                // Reset form
-                this.reset();
-                
-                // Scroll to success message
-                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 2000);
-        });
-    </script>
-    
 </body>
 
 </html>

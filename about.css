@@ -1,0 +1,1646 @@
+        /* Prevent flash of unstyled content */
+        html,
+        body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            max-width: 100vw;
+            box-sizing: border-box;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html[data-theme="light"],
+        html[data-theme="light"] body {
+            background-color: #f7f9fb !important;
+            color: #2c3e50 !important;
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .features-section,
+        [data-theme="light"] .team-section {
+            border: 1px solid var(--border-color);
+        }
+        
+        [data-theme="light"] .feature-item {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-theme="light"] .team-member {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        :root {
+            --secondary-color: #00c853;
+            --primary-hover: #1565c0;
+            --hover-color: rgba(25, 118, 210, 0.1);
+        }
+
+        /* Animation Keyframes */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Performance optimizations */
+        .info-card,
+        .feature-item,
+        .stat-card,
+        .team-member {
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+
+            .info-card:nth-child(odd),
+            .info-card:nth-child(even),
+            .features-section,
+            .team-section,
+            .stats-section,
+            .flowing-stats-wrap {
+                animation: none;
+            }
+
+            .info-card,
+            .feature-item,
+            .stat-card,
+            .team-member,
+            .flowing-marquee,
+            .flowing-marquee-inner {
+                transition: none;
+                animation: none;
+            }
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            color: white;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .hero-section p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Scroll Velocity Animation Styles */
+        .scroll-velocity-container {
+            position: relative;
+            overflow: hidden;
+            margin-top: 4rem;
+            margin-bottom: 1rem;
+            height: 220px;
+            width: 100%;
+            max-width: 100vw;
+            mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+            -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+        }
+
+        .scroll-velocity-track {
+            display: flex;
+            white-space: nowrap;
+            gap: 1.5rem;
+            animation: scrollVelocity 10s linear infinite alternate;
+            will-change: transform;
+            width: max-content;
+        }
+
+        .scroll-velocity-track:hover {
+            animation-play-state: paused;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            width: 360px;
+            height: 200px;
+            white-space: normal;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.9rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 10;
+            line-clamp: 10;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @keyframes scrollVelocity {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Compact Stats */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.2rem 0.8rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Flowing Menu Animation Styles for Stats */
+        .flowing-stats-wrap {
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            margin: 2rem 0;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            animation: fadeInUp 1s ease-out forwards;
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements for flowing stats */
+        [data-theme="light"] .flowing-stats-wrap {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .flowing-stats-menu {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flowing-stat-item {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements */
+        [data-theme="light"] .flowing-stat-item {
+            box-shadow: inset 0 0 0 1px var(--border-color);
+        }
+
+        .flowing-stat-item:first-child {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .flowing-stat-item:last-child {
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            border-bottom: none;
+        }
+
+        .flowing-stat-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+            cursor:default;
+            text-decoration: none;
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .flowing-stat-link:hover {
+            color: var(--primary-color);
+        }
+
+        .flowing-stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .flowing-stat-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .flowing-marquee {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            transform: translate3d(0, 101%, 0);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .flowing-marquee-inner-wrap {
+            height: 100%;
+            width: 200%;
+            display: flex;
+            transform: translateX(0);
+        }
+
+        .flowing-marquee-inner {
+            display: flex;
+            align-items: center;
+            position: relative;
+            height: 100%;
+            width: 200%;
+            will-change: transform;
+            animation: flowingMarquee 5s linear infinite alternate;
+            padding: 0 2rem;
+        }
+
+        .flowing-marquee span {
+            color: white;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.2;
+            padding: 0 2rem;
+            flex-shrink: 0;
+        }
+
+        .flowing-marquee-detail {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin: 0 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            color: white;
+            flex-shrink: 0;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .flowing-stat-link:hover + .flowing-marquee {
+            transform: translate3d(0, 0%, 0);
+        }
+
+        @keyframes flowingMarquee {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-30%);
+            }
+        }
+
+        /* Responsive adjustments for flowing stats */
+        @media (max-width: 768px) {
+            .flowing-stats-wrap {
+                height: 320px;
+            }
+            
+            .flowing-stat-link {
+                font-size: 1rem;
+            }
+            
+            .flowing-stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .flowing-marquee span {
+                font-size: 0.9rem;
+                padding: 0 1rem;
+            }
+            
+            .flowing-marquee-detail {
+                font-size: 0.5rem;
+                padding: 0.4rem 0.8rem;
+                margin: 0 1rem;
+                max-width: 150px;
+            }
+        }
+
+        /* Compact Features */
+        .features-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+
+        /* Card Swap Animation Styles */
+        .card-swap-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 0rem 0;
+            height: 500px;
+            position: relative;
+        }
+
+        /* Features Layout Container */
+        .features-layout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        /* Vertical Divider Between Animations */
+        .vertical-divider {
+            position: relative;
+            width: 2px;
+            height: 400px;
+            left:10px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                var(--primary-color) 20%, 
+                var(--secondary-color) 50%, 
+                var(--primary-color) 80%, 
+                transparent 100%);
+            display: none; /* Hidden by default, shown on desktop */
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .vertical-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                var(--secondary-color) 0%, 
+                transparent 50%, 
+                var(--secondary-color) 100%);
+            animation: dividerPulse 3s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        .vertical-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px var(--primary-color);
+            animation: centerDot 2s ease-in-out infinite alternate;
+        }
+
+        /* Divider animations */
+        @keyframes dividerPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(1); }
+            50% { opacity: 0.8; transform: scaleY(1.1); }
+        }
+
+        @keyframes centerDot {
+            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px var(--primary-color); }
+            100% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 8px var(--secondary-color); }
+        }
+
+        /* Floating connection lines */
+        .connection-lines {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            position: absolute;
+            width: 20px;
+            height: 1px;
+            background: var(--primary-color);
+            opacity: 0.4;
+            animation: connectionFloat 4s ease-in-out infinite;
+        }
+
+        .connection-line:nth-child(1) {
+            top: 20%;
+            left: -30px;
+            animation-delay: 0s;
+            transform-origin: right center;
+        }
+
+        .connection-line:nth-child(2) {
+            top: 50%;
+            left: -30px;
+            animation-delay: 1s;
+            transform-origin: right center;
+        }
+
+        .connection-line:nth-child(3) {
+            top: 80%;
+            left: -30px;
+            animation-delay: 2s;
+            transform-origin: right center;
+        }
+
+        .connection-line:nth-child(4) {
+            top: 20%;
+            right: -30px;
+            animation-delay: 0.5s;
+            transform-origin: left center;
+        }
+
+        .connection-line:nth-child(5) {
+            top: 50%;
+            right: -30px;
+            animation-delay: 1.5s;
+            transform-origin: left center;
+        }
+
+        .connection-line:nth-child(6) {
+            top: 80%;
+            right: -30px;
+            animation-delay: 2.5s;
+            transform-origin: left center;
+        }
+
+        @keyframes connectionFloat {
+            0%, 100% { 
+                opacity: 0.2; 
+                transform: scaleX(0.5); 
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scaleX(1.2); 
+            }
+        }
+
+        /* Light theme adjustments for divider */
+        [data-theme="light"] .vertical-divider::after {
+            box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px var(--primary-color);
+        }
+
+        [data-theme="light"] .connection-line {
+            background: var(--primary-color);
+            opacity: 0.5;
+        }
+
+        /* Orbiting Circles Animation Styles */
+        .orbiting-circles-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            right:40px;
+            top:20px;
+            display: none; /* Hidden by default, shown on desktop */
+        }
+
+        .orbiting-circles-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+            z-index: 10;
+        }
+
+        .orbit-path {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        /* Light theme specific orbit path visibility */
+        [data-theme="light"] .orbit-path {
+            border-color: rgba(44, 62, 80, 0.25);
+            opacity: 0.6;
+            box-shadow: inset 0 0 0 1px rgba(25, 118, 210, 0.1);
+        }
+
+        /* Enhanced orbit path styling */
+        .orbit-path-1 {
+            border-style: dashed;
+            border-width: 1px;
+        }
+
+        .orbit-path-2 {
+            border-style: dotted;
+            border-width: 1px;
+        }
+
+        .orbit-path-3 {
+            border-style: solid;
+            border-width: 1px;
+        }
+
+        /* Light theme specific path styles */
+        [data-theme="light"] .orbit-path-1 {
+            border-color: rgba(25, 118, 210, 0.431);
+        }
+
+        [data-theme="light"] .orbit-path-2 {
+            border-color: rgba(0, 200, 83, 0.861);
+        }
+
+        [data-theme="light"] .orbit-path-3 {
+            border-color: rgba(44, 62, 80, 0.3);
+        }
+
+        [data-theme="light"] .orbit-path-4 {
+            border-color: rgba(156, 39, 176, 0.4);
+        }
+
+        [data-theme="light"] .orbit-path-5 {
+            border-color: rgba(255, 153, 0, 0.555);
+        }
+
+        /* Dark theme specific path styles */
+        [data-theme="dark"] .orbit-path-1 {
+            border-color: rgba(25, 118, 210, 0.4);
+        }
+
+        [data-theme="dark"] .orbit-path-2 {
+            border-color: rgba(0, 200, 83, 0.4);
+        }
+
+        [data-theme="dark"] .orbit-path-3 {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] .orbit-path-4 {
+            border-color: rgba(156, 39, 176, 0.5);
+        }
+
+        [data-theme="dark"] .orbit-path-5 {
+            border-color: rgba(255, 153, 0, 0.639);
+        }
+
+        .orbit-path-1 {
+            width: 200px;
+            height: 200px;
+            margin: -100px 0 0 -100px;
+        }
+
+        .orbit-path-2 {
+            width: 300px;
+            height: 300px;
+            margin: -150px 0 0 -150px;
+        }
+
+        .orbit-path-3 {
+            width: 380px;
+            height: 380px;
+            margin: -190px 0 0 -190px;
+        }
+
+        .orbit-path-4 {
+            width: 450px;
+            height: 450px;
+            margin: -225px 0 0 -225px;
+        }
+
+        .orbit-path-5 {
+            width: 520px;
+            height: 520px;
+            margin: -260px 0 0 -260px;
+        }
+
+        .orbiting-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        .orbiting-icon:hover {
+            transform: scale(1.2);
+            box-shadow: var(--shadow-hover);
+            /* background: var(--primary-color); */
+            color: white;
+            animation-play-state: paused;
+        }
+
+        /* Orbit animations - Fixed to follow correct paths */
+        .orbit-1 { 
+            animation: orbit1 8s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-2 { 
+            animation: orbit2 12s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-3 { 
+            animation: orbit3 16s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-4 { 
+            animation: orbit4 10s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-5 { 
+            animation: orbit5 14s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-6 { 
+            animation: orbit6 18s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-7 { 
+            animation: orbit7 20s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+
+        /* New orbit positions for tech stack organization */
+        .orbit-1-2 { 
+            animation: orbit1-2 8s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-1-3 { 
+            animation: orbit1-3 9s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-1-4 { 
+            animation: orbit1-4 10s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-2-2 { 
+            animation: orbit2-2 13s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-2-3 { 
+            animation: orbit2-3 15s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-3-2 { 
+            animation: orbit3-2 17s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-3-3 { 
+            animation: orbit3-3 19s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-4-2 { 
+            animation: orbit4-2 22s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-4-3 { 
+            animation: orbit4-3 24s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-5-2 { 
+            animation: orbit5-2 26s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-5-3 { 
+            animation: orbit5-3 20s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+        .orbit-5-4 { 
+            animation: orbit5-4 30s linear infinite; 
+            top: 50%; 
+            left: 50%; 
+            margin: -25px 0 0 -25px;
+        }
+
+        /* Orbit 1 - Inner circle (100px radius) */
+        @keyframes orbit1 {
+            from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+        }
+
+        /* Backend Layer - Orbit 2 (150px radius) */
+        @keyframes orbit2 {
+            from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+        }
+
+        /* Database Layer - Orbit 3 (190px radius) */
+        @keyframes orbit3 {
+            from { transform: rotate(0deg) translateX(190px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(190px) rotate(-360deg); }
+        }
+
+        /* API Layer - Orbit 4 (225px radius) */
+        @keyframes orbit4 {
+            from { transform: rotate(0deg) translateX(225px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(225px) rotate(-360deg); }
+        }
+
+        /* Deployment Layer - Orbit 5 (260px radius) */
+        @keyframes orbit5 {
+            from { transform: rotate(0deg) translateX(260px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(260px) rotate(-360deg); }
+        }
+
+        /* Legacy orbits - keeping for compatibility */
+        @keyframes orbit6 {
+            from { transform: rotate(0deg) translateX(190px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(190px) rotate(-360deg); }
+        }
+
+        @keyframes orbit7 {
+            from { transform: rotate(180deg) translateX(190px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(190px) rotate(-540deg); }
+        }
+
+        /* New keyframes for tech stack organization */
+        /* Frontend Layer (100px radius) */
+        @keyframes orbit1-2 {
+            from { transform: rotate(90deg) translateX(100px) rotate(-90deg); }
+            to { transform: rotate(450deg) translateX(100px) rotate(-450deg); }
+        }
+
+        @keyframes orbit1-3 {
+            from { transform: rotate(180deg) translateX(100px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(100px) rotate(-540deg); }
+        }
+
+        @keyframes orbit1-4 {
+            from { transform: rotate(270deg) translateX(100px) rotate(-270deg); }
+            to { transform: rotate(630deg) translateX(100px) rotate(-630deg); }
+        }
+
+        /* Backend Layer (150px radius) */
+        @keyframes orbit2-2 {
+            from { transform: rotate(180deg) translateX(150px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(150px) rotate(-540deg); }
+        }
+
+        @keyframes orbit2-3 {
+            from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+        }
+
+        /* Database Layer (190px radius) */
+        @keyframes orbit3-2 {
+            from { transform: rotate(180deg) translateX(190px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(190px) rotate(-540deg); }
+        }
+
+        @keyframes orbit3-3 {
+            from { transform: rotate(240deg) translateX(190px) rotate(-240deg); }
+            to { transform: rotate(600deg) translateX(190px) rotate(-600deg); }
+        }
+
+        /* API Layer (225px radius) */
+        @keyframes orbit4-2 {
+            from { transform: rotate(180deg) translateX(225px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(225px) rotate(-540deg); }
+        }
+
+        @keyframes orbit4-3 {
+            from { transform: rotate(240deg) translateX(225px) rotate(-240deg); }
+            to { transform: rotate(600deg) translateX(225px) rotate(-600deg); }
+        }
+
+        /* Deployment Layer (260px radius) */
+        @keyframes orbit5-2 {
+            from { transform: rotate(180deg) translateX(260px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(260px) rotate(-540deg); }
+        }
+
+        @keyframes orbit5-3 {
+            from { transform: rotate(180deg) translateX(260px) rotate(-180deg); }
+            to { transform: rotate(540deg) translateX(260px) rotate(-540deg); }
+        }
+
+        @keyframes orbit5-4 {
+            from { transform: rotate(270deg) translateX(260px) rotate(-270deg); }
+            to { transform: rotate(630deg) translateX(260px) rotate(-630deg); }
+        }
+
+        /* Desktop only - show orbiting circles and divider */
+        @media (min-width: 1200px) {
+            .orbiting-circles-container {
+                display: block;
+            }
+            
+            .vertical-divider {
+                display: block;
+            }
+            
+            .features-layout {
+                justify-content: space-between;
+                max-width: 1100px;
+                margin: 2rem auto;
+                gap: 3rem;
+            }
+        }
+
+        /* Large desktop adjustments */
+        @media (min-width: 1400px) {
+            .features-layout {
+                max-width: 1200px;
+                gap: 6rem;
+            }
+            
+            .orbiting-circles-container {
+                width: 450px;
+                height: 450px;
+            }
+            
+            .orbit-path-1 {
+                width: 220px;
+                height: 220px;
+                margin: -110px 0 0 -110px;
+            }
+            
+            .orbit-path-2 {
+                width: 310px;
+                height: 310px;
+                margin: -155px 0 0 -155px;
+            }
+            
+            .orbit-path-3 {
+                width: 380px;
+                height: 380px;
+                margin: -190px 0 0 -190px;
+            }
+            
+            /* Adjust orbit animations for larger screen */
+            @keyframes orbit1 {
+                from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit2 {
+                from { transform: rotate(120deg) translateX(110px) rotate(-120deg); }
+                to { transform: rotate(480deg) translateX(110px) rotate(-480deg); }
+            }
+            
+            @keyframes orbit3 {
+                from { transform: rotate(0deg) translateX(165px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(165px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit4 {
+                from { transform: rotate(120deg) translateX(165px) rotate(-120deg); }
+                to { transform: rotate(480deg) translateX(165px) rotate(-480deg); }
+            }
+            
+            @keyframes orbit5 {
+                from { transform: rotate(240deg) translateX(165px) rotate(-240deg); }
+                to { transform: rotate(600deg) translateX(165px) rotate(-600deg); }
+            }
+            
+            @keyframes orbit6 {
+                from { transform: rotate(0deg) translateX(210px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(210px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit7 {
+                from { transform: rotate(180deg) translateX(210px) rotate(-180deg); }
+                to { transform: rotate(540deg) translateX(210px) rotate(-540deg); }
+            }
+        }
+
+        /* Medium desktop adjustments */
+        @media (min-width: 1200px) and (max-width: 1399px) {
+            .orbiting-circles-container {
+                width: 350px;
+                height: 350px;
+            }
+            
+            .orbit-path-1 {
+                width: 180px;
+                height: 180px;
+                margin: -90px 0 0 -90px;
+            }
+            
+            .orbit-path-2 {
+                width: 260px;
+                height: 260px;
+                margin: -130px 0 0 -130px;
+            }
+            
+            .orbit-path-3 {
+                width: 330px;
+                height: 330px;
+                margin: -165px 0 0 -165px;
+            }
+            
+            .orbiting-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+                margin: -22.5px 0 0 -22.5px;
+            }
+            
+            .orbiting-circles-center {
+                width: 70px;
+                height: 70px;
+                font-size: 1.3rem;
+            }
+            
+            /* Adjust orbit animations for medium screen */
+            @keyframes orbit1 {
+                from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit2 {
+                from { transform: rotate(120deg) translateX(90px) rotate(-120deg); }
+                to { transform: rotate(480deg) translateX(90px) rotate(-480deg); }
+            }
+            
+            @keyframes orbit3 {
+                from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit4 {
+                from { transform: rotate(120deg) translateX(130px) rotate(-120deg); }
+                to { transform: rotate(480deg) translateX(130px) rotate(-480deg); }
+            }
+            
+            @keyframes orbit5 {
+                from { transform: rotate(240deg) translateX(130px) rotate(-240deg); }
+                to { transform: rotate(600deg) translateX(130px) rotate(-600deg); }
+            }
+            
+            @keyframes orbit6 {
+                from { transform: rotate(0deg) translateX(165px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(165px) rotate(-360deg); }
+            }
+            
+            @keyframes orbit7 {
+                from { transform: rotate(180deg) translateX(165px) rotate(-180deg); }
+                to { transform: rotate(540deg) translateX(165px) rotate(-540deg); }
+            }
+        }
+
+        .card-swap-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            perspective: 900px;
+            overflow: visible;
+        }
+
+        .feature-card {
+            position: absolute;
+            top: 105%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-color);
+            background: var(--card-bg);
+            box-shadow: var(--shadow-hover);
+            transform-style: preserve-3d;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 10px 30px rgba(25, 118, 210, 0.3);
+        }
+
+        .feature-card .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .feature-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Compact Team Section */
+        .team-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            animation: slideInRight 0.8s ease-out forwards;
+            text-align: center;
+        }
+
+        .team-header {
+            margin-bottom: 2rem;
+        }
+
+        .team-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .team-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: var(--shadow);
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 50, 200, 0.204));
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .team-member.lead {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.2));
+            border-radius: 5%;
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.15);
+        }
+
+        .team-member.lead:hover {
+            border-color: var(--secondary-color);
+        }
+
+
+        .member-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .team-member.lead .member-avatar {
+            border-color: var(--secondary-color);
+        }
+
+        .member-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .member-avatar img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Fallback for broken images */
+        .member-avatar img[src=""],
+        .member-avatar img:not([src]) {
+            display: none;
+        }
+
+        .member-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            content: '\f007';
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .member-avatar img[alt]::after {
+            content: attr(alt);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .member-avatar:hover img[alt]::after {
+            opacity: 1;
+        }
+
+        .member-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .member-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+        }
+
+        .team-member.lead .member-role {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .social-links {
+            display: inline-flex;
+            gap: 30px;
+            
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-color);
+            color: var(--text-secondary);
+            border-radius: 50%;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Light theme specific improvements for social links */
+        [data-theme="light"] .social-links a {
+            background: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 1rem;
+                margin-top: 5px;
+            }
+
+            .hero-section {
+                padding: 2rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-section p {
+                font-size: 0.9rem;
+            }
+
+            .scroll-velocity-container {
+                height: 230px;
+                bottom: 20px;
+            }
+            
+            .info-card {
+                width: 230px;
+                height: 230px;
+                padding: 1.2rem;
+            }
+            
+            .info-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .info-card p {
+                font-size: 0.85rem;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            /* Card Swap Mobile Styles */
+            .card-swap-wrapper {
+                height: 383px;
+            }
+
+            .card-swap-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            /* Features Layout Mobile */
+            .features-layout {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .orbiting-circles-container,
+            .vertical-divider {
+                display: none !important;
+            }
+
+            /* .feature-card {
+                width: 230px;
+                height: 230px;
+                padding: 1.5rem 1rem;
+            } */
+             
+            .feature-card {
+            position: absolute;
+            top: 140%;
+            left: 18%;
+            width: 300px;
+            height: 300px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-color);
+            background: var(--card-bg);
+            box-shadow: var(--shadow-hover);
+            transform-style: preserve-3d;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+            .feature-card .feature-icon {
+                font-size: 2.5rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .feature-card h4 {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .feature-card p {
+                font-size: 0.9rem;
+            }
+
+
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .tech-stack {
+                font-size: 0.7rem;
+            }
+
+            .features-section,
+            .team-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .about-container {
+                padding: 0.8rem;
+                margin-top: 5px;
+            }
+
+            .hero-section {
+                padding: 1.5rem 0.8rem;
+            }
+
+            .hero-section h1 {
+                font-size: 1.6rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem 0.5rem;
+            }
+
+            .info-card,
+            .features-section,
+            .team-section {
+                padding: 1.2rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .member-avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            /* Card Swap Small Mobile Styles */
+            .card-swap-wrapper {
+                height: 383px;
+            }
+
+            .card-swap-container {
+                width: 200px;
+                height: 200px;
+            }
+
+            /* Ensure orbiting circles and divider are hidden on small screens */
+            .orbiting-circles-container,
+            .vertical-divider {
+                display: none !important;
+            }
+
+            .feature-card {
+                width: 180px;
+                height: 180px;
+                padding: 1rem 0.8rem;
+            }
+
+            .feature-card .feature-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-card h4 {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-card p {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Vercel Icon Styling */
+        .vercel-icon {
+            background: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            padding: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .vercel-icon .vercel-logo  {
+            fill: #000000;
+        }
+
+        /* Dark mode styling for Vercel icon */
+        [data-theme="dark"] .vercel-icon {
+            background: #000000;
+            border: 2px solid var(--primary-hover);
+        }
+        
+        [data-theme="dark"] .vercel-icon .vercel-logo {
+            fill: #ffffff;
+        }
+        
+        /* Light mode styling for Vercel icon */
+        [data-theme="light"] .vercel-icon {
+            background: white;
+            border: 2px solid var(--primary-hover);
+        }
+        
+        [data-theme="light"] .vercel-icon .vercel-logo {
+            fill: #000000;
+        }

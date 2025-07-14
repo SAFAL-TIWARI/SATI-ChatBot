@@ -186,6 +186,40 @@ function listenForAuthChanges() {
 // Make initializeSupabase available globally for config.js
 window.initializeSupabase = initializeSupabase;
 
+// Template Helper Functions
+const templateHelper = {
+    // Clone a template and return its content
+    clone: (templateId) => {
+        const template = document.getElementById(templateId);
+        if (!template) {
+            console.error(`Template with id '${templateId}' not found`);
+            return null;
+        }
+        return template.content.cloneNode(true);
+    },
+    
+    // Clone template and append to container
+    appendTo: (templateId, container) => {
+        const content = templateHelper.clone(templateId);
+        if (content && container) {
+            container.appendChild(content);
+            return content;
+        }
+        return null;
+    },
+    
+    // Clone template and replace container content
+    replaceTo: (templateId, container) => {
+        const content = templateHelper.clone(templateId);
+        if (content && container) {
+            container.innerHTML = '';
+            container.appendChild(content);
+            return content;
+        }
+        return null;
+    }
+};
+
 class ChatBotState {
     constructor() {
         this.isLoggedIn = JSON.parse(localStorage.getItem('sati_logged_in') || 'false');
@@ -740,23 +774,37 @@ class ToastManager {
             info: 'ℹ️'
         };
 
-        // Create toast content
-        let toastHTML = `
-            <div class="toast-icon">${icons[type]}</div>
-            <div class="toast-message">${message}</div>
-            <button class="toast-close">&times;</button>
-        `;
+        // Create toast content using template
+        const toastContent = templateHelper.clone('toastTemplate');
+        if (toastContent) {
+            // Populate template content
+            toastContent.querySelector('.toast-icon').innerHTML = icons[type];
+            toastContent.querySelector('.toast-message').textContent = message;
+            
+            // Add to toast element
+            toast.appendChild(toastContent);
+        }
         
         // Add action buttons if provided
         if (actions && actions.length > 0) {
-            toastHTML += '<div class="toast-actions">';
-            actions.forEach(action => {
-                toastHTML += `<button class="toast-action-btn">${action.text}</button>`;
-            });
-            toastHTML += '</div>';
+            const actionsContent = templateHelper.clone('toastActionsTemplate');
+            if (actionsContent) {
+                const actionsContainer = actionsContent.querySelector('.toast-actions');
+                const actionButton = actionsContainer.querySelector('.toast-action-btn');
+                
+                // Remove the template button and add actual buttons
+                actionButton.remove();
+                
+                actions.forEach(action => {
+                    const btn = document.createElement('button');
+                    btn.className = 'toast-action-btn';
+                    btn.textContent = action.text;
+                    actionsContainer.appendChild(btn);
+                });
+                
+                toast.appendChild(actionsContent);
+            }
         }
-        
-        toast.innerHTML = toastHTML;
         elements.toastContainer.appendChild(toast);
 
         // Show toast
@@ -1115,59 +1163,30 @@ class ChatManager {
     }
 
     addWelcomeMessage() {
-        const welcomeMessage = document.createElement('div');
-        welcomeMessage.className = 'message bot-message';
-        welcomeMessage.innerHTML = `
-            <div class="message-avatar">
-                <div class="bot-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-            </div>
-            <div class="message-content">
-                <div class="message-text">
-                    <h3>🎓 Hello! I'm your SATI AI Assistant</h3>
-                    <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute (SATI), Vidisha</strong>. I can help you with:</p>
-                    <ul>
-                        <li>📚 Academic programs and courses</li>
-                        <li>🏠 Hostel and campus facilities</li>
-                        <li>💼 Placement statistics and career opportunities</li>
-                        <li>🎯 Admission procedures and requirements</li>
-                        <li>🏆 Student activities and clubs</li>
-                        <li>📖 Institute history and achievements</li>
-                    </ul>
-                    <p><strong>What would you like to know about SATI?</strong></p>
-                </div>
-                <div class="message-timestamp">Just now</div>
-                <button class="copy-btn" title="Copy message" data-message-id="welcome">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-        `;
-        elements.chatMessages.appendChild(welcomeMessage);
+        templateHelper.appendTo('welcomeMessageTemplate', elements.chatMessages);
     }
 
     createMessageElement(message) {
-        const messageDiv = document.createElement('div');
+        const messageElement = templateHelper.clone('chatMessageTemplate');
+        if (!messageElement) return null;
+        
+        const messageDiv = messageElement.querySelector('.message');
         messageDiv.className = `message ${message.role}-message`;
 
         const isUser = message.role === 'user';
         const avatar = isUser ? '👤' : '<i class="fas fa-robot"></i>';
         const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
 
-        messageDiv.innerHTML = `
-            <div class="message-avatar">
-                <div class="${avatarClass}">${avatar}</div>
-            </div>
-            <div class="message-content">
-                <div class="message-text">${utils.parseMarkdown(utils.escapeHtml(message.content))}</div>
-                <div class="message-timestamp">${utils.formatTime(message.timestamp)}</div>
-                <button class="copy-btn" title="Copy message" data-message-id="${message.id}">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-        `;
+        // Populate template content
+        const avatarDiv = messageElement.querySelector('.avatar');
+        avatarDiv.className = avatarClass;
+        avatarDiv.innerHTML = avatar;
+        
+        messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(message.content));
+        messageElement.querySelector('.message-timestamp').textContent = utils.formatTime(message.timestamp);
+        messageElement.querySelector('.copy-btn').setAttribute('data-message-id', message.id);
 
-        return messageDiv;
+        return messageElement;
     }
 
     showTypingIndicator() {
@@ -1307,33 +1326,33 @@ function updateConversationsList() {
     container.innerHTML = '';
 
     if (chatState.conversations.length === 0) {
-        container.innerHTML = '<div class="no-conversations">No conversations yet</div>';
+        templateHelper.appendTo('noConversationsTemplate', container);
         return;
     }
 
     chatState.conversations.forEach(conversation => {
-        const item = document.createElement('div');
+        const conversationElement = templateHelper.clone('conversationItemTemplate');
+        if (!conversationElement) return;
+        
+        const item = conversationElement.querySelector('.conversation-item');
         item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
 
-        // Add title attribute for full name on hover, and ensure ellipsis in UI
-        item.innerHTML = `
-            <div class="conversation-title" title="${conversation.title}">${conversation.title}</div>
-            <div class="conversation-actions">
-                <button class="conversation-menu-btn" onclick="toggleConversationMenu(event, '${conversation.id}')" title="More options">
-                    <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <div class="conversation-dropdown" id="dropdown-${conversation.id}">
-                    <button class="conversation-dropdown-item" onclick="renameConversation('${conversation.id}')">
-                        <i class="fas fa-edit"></i>
-                        <span>Rename</span>
-                    </button>
-                    <button class="conversation-dropdown-item danger" onclick="deleteConversation('${conversation.id}')">
-                        <i class="fas fa-trash"></i>
-                        <span>Delete</span>
-                    </button>
-                </div>
-            </div>
-        `;
+        // Populate template content
+        const titleElement = conversationElement.querySelector('.conversation-title');
+        titleElement.setAttribute('title', conversation.title);
+        titleElement.textContent = conversation.title;
+        
+        const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
+        menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
+        
+        const dropdown = conversationElement.querySelector('.conversation-dropdown');
+        dropdown.id = `dropdown-${conversation.id}`;
+        
+        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+        renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
+        
+        const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
+        deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
 
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action')) {
@@ -1341,7 +1360,7 @@ function updateConversationsList() {
             }
         });
 
-        container.appendChild(item);
+        container.appendChild(conversationElement);
     });
 }
 //delete here above
@@ -1500,162 +1519,23 @@ function renderSettingsContent(tab) {
 
     switch (tab) {
         case 'general':
-            content.innerHTML = `
-                <div class="form-section">
-                    <h3>API Configuration</h3>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label>API Provider</label>
-                            <select class="form-control" id="apiProviderSetting">
-                                <option value="groq">☁️ Groq (Recommended)</option>
-                                <option value="gemini">🧠 Google Gemini</option>
-                            </select>
-                        </div>
-                        <div class="form-col">
-                            <label>AI Model</label>
-                            <select class="form-control" id="aiModelSetting">
-                                <!-- Options will be populated dynamically -->
-                            </select>
-                        </div>
-                    </div>
-                    
-
-                </div>
-                
-                <div class="form-section">
-                    <h3>General Settings</h3>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label>Default Chat Name</label>
-                            <select class="form-control" id="chatNameSetting">
-                                <option value="auto">Auto-generate</option>
-                                <option value="timestamp">Use timestamp</option>
-                                <option value="custom">Custom prefix</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="chatHistorySetting" checked>
-                            <label for="chatHistorySetting">Enable chat history</label>
-                        </div>
-                    </div>
-                </div>
-            `;
+            templateHelper.replaceTo('settingsGeneralTemplate', content);
             break;
 
         case 'chat':
-            content.innerHTML = `
-                <div class="form-section">
-                    <h3>Chat Settings</h3>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label>Response Style</label>
-                            <select class="form-control" id="responseStyleSetting">
-                                <option value="concise">Concise</option>
-                                <option value="detailed">Detailed</option>
-                                <option value="comprehensive">Comprehensive</option>
-                            </select>
-                        </div>
-                        <div class="form-col">
-                            <label>Prompt Tone</label>
-                            <select class="form-control" id="promptToneSetting">
-                                <option value="friendly">Friendly</option>
-                                <option value="professional">Professional</option>
-                                <option value="casual">Casual</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="slider-group">
-                        <div class="slider-label">
-                            <span>Model Behavior (Creativity vs Accuracy)</span>
-                            <span id="behaviorValue">0.7</span>
-                        </div>
-                        <input type="range" class="slider" id="behaviorSlider" min="0" max="1" step="0.1" value="0.7">
-                    </div>
-                </div>
-            `;
+            templateHelper.replaceTo('settingsChatTemplate', content);
             break;
 
         case 'accessibility':
-            content.innerHTML = `
-                <div class="form-section">
-                    <h3>Accessibility</h3>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label for="fontStyleSetting">Font Style</label>
-                            <select class="form-control" id="fontStyleSetting">
-                                <option value="Inter">Inter (Default)</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Helvetica">Helvetica</option>
-                                <option value="Georgia">Georgia</option>
-                                <option value="Times New Roman">Times New Roman</option>
-                                <option value="Courier New">Courier New</option>
-                                <option value="Verdana">Verdana</option>
-                                <option value="Trebuchet MS">Trebuchet MS</option>
-                                <option value="Tahoma">Tahoma</option>
-                                <option value="Palatino">Palatino</option>
-                                <option value="Garamond">Garamond</option>
-                                <option value="Comic Sans MS">Comic Sans MS</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="voiceInputSetting">
-                            <label for="voiceInputSetting">Enable voice input</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="animationsSetting" checked>
-                            <label for="animationsSetting">Enable animations</label>
-                        </div>
-                    </div>
-                </div>
-            `;
+            templateHelper.replaceTo('settingsAccessibilityTemplate', content);
             break;
 
         case 'notifications':
-            content.innerHTML = `
-                <div class="form-section">
-                    <h3>Notification Settings</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="soundOnReplySetting">
-                            <label for="soundOnReplySetting">Sound on reply</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="chatHighlightSetting" checked>
-                            <label for="chatHighlightSetting">Chat highlight notifications</label>
-                        </div>
-                    </div>
-                </div>
-            `;
+            templateHelper.replaceTo('settingsNotificationsTemplate', content);
             break;
 
         case 'privacy':
-            content.innerHTML = `
-                <div class="form-section">
-                    <h3>Privacy & Data</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="dataCollectionSetting">
-                            <label for="dataCollectionSetting">Allow data collection for improvements</label>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <button class="form-control" onclick="clearAllConversations()" style="background-color: var(--danger-color); color: white; border: none;">
-                                Clear All Conversation History
-                            </button>
-                        </div>
-                        <div class="form-col">
-                            <button class="form-control" onclick="exportAllChats()" style="background-color: var(--accent-color); color: white; border: none;">
-                                Export All Chat History
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
+            templateHelper.replaceTo('settingsPrivacyTemplate', content);
             break;
     }
 
@@ -2122,71 +2002,18 @@ function updateModelSelectionVisibility() {
 // Customize Appearance
 function renderCustomizeContent() {
     const content = document.getElementById('customizeContent');
-
-    content.innerHTML = `
-        <div class="form-section">
-            <h3>Theme</h3>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" id="lightTheme" name="theme" value="light" ${chatState.theme === 'light' ? 'checked' : ''}>
-                    <label for="lightTheme">Light</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="darkTheme" name="theme" value="dark" ${chatState.theme === 'dark' ? 'checked' : ''}>
-                    <label for="darkTheme">Dark</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="systemTheme" name="theme" value="system" ${chatState.theme === 'system' ? 'checked' : ''}>
-                    <label for="systemTheme">System Default</label>
-                </div>
-            </div>
-        </div>
+    const customizeContent = templateHelper.replaceTo('customizeContentTemplate', content);
+    
+    if (customizeContent) {
+        // Set the current theme selection
+        const lightTheme = content.querySelector('#lightTheme');
+        const darkTheme = content.querySelector('#darkTheme');
+        const systemTheme = content.querySelector('#systemTheme');
         
-        <div class="form-section">
-            <h3>Accent Color</h3>
-            <div class="color-picker-group">
-                <div class="color-option selected" style="background-color: #10a37f;" data-color="#10a37f"></div>
-                <div class="color-option" style="background-color: #3182ce;" data-color="#3182ce"></div>
-                <div class="color-option" style="background-color: #e53e3e;" data-color="#e53e3e"></div>
-                <div class="color-option" style="background-color: #ed8936;" data-color="#ed8936"></div>
-                <div class="color-option" style="background-color: #38a169;" data-color="#38a169"></div>
-                <div class="color-option" style="background-color: #805ad5;" data-color="#805ad5"></div>
-            </div>
-        </div>
-        
-        <div class="form-section">
-            <h3>Font Options</h3>
-            <div class="form-row">
-                <div class="form-col">
-                    <div class="slider-group">
-                        <div class="slider-label">
-                            <span>Font Size</span>
-                            <span id="customizeFontSizeValue">16px</span>
-                        </div>
-                        <input type="range" class="slider" id="customizeFontSizeSlider" min="12" max="24" value="16">
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="form-section">
-            <h3>Layout Options</h3>
-            <div class="radio-group">
-                <div class="radio-item">
-                    <input type="radio" id="compactLayout" name="layout" value="compact">
-                    <label for="compactLayout">Compact</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="comfortableLayout" name="layout" value="comfortable" checked>
-                    <label for="comfortableLayout">Comfortable</label>
-                </div>
-                <div class="radio-item">
-                    <input type="radio" id="expandedLayout" name="layout" value="expanded">
-                    <label for="expandedLayout">Expanded</label>
-                </div>
-            </div>
-        </div>
-    `;
+        if (chatState.theme === 'light') lightTheme.checked = true;
+        else if (chatState.theme === 'dark') darkTheme.checked = true;
+        else if (chatState.theme === 'system') systemTheme.checked = true;
+    }
 
     // Add event listeners
     addCustomizeEventListeners();

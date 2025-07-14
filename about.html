@@ -19,913 +19,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="resources.css">
+    <link rel="stylesheet" href="about.css">
     <link rel="stylesheet" href="smooth-cursor.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-        /* Prevent flash of unstyled content */
-        html,
-        body {
-            background-color: #121212 !important;
-            color: #ffffff !important;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            max-width: 100vw;
-            box-sizing: border-box;
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
-        html[data-theme="light"],
-        html[data-theme="light"] body {
-            background-color: #f7f9fb !important;
-            color: #2c3e50 !important;
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .features-section,
-        [data-theme="light"] .team-section {
-            border: 1px solid var(--border-color);
-        }
-        
-        [data-theme="light"] .feature-item {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        [data-theme="light"] .team-member {
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        :root {
-            --secondary-color: #00c853;
-            --primary-hover: #1565c0;
-            --hover-color: rgba(25, 118, 210, 0.1);
-        }
-
-        /* Animation Keyframes */
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Performance optimizations */
-        .info-card,
-        .feature-item,
-        .stat-card,
-        .team-member {
-            will-change: transform;
-            backface-visibility: hidden;
-            transform: translateZ(0);
-        }
-
-        /* Reduce motion for users who prefer it */
-        @media (prefers-reduced-motion: reduce) {
-
-            .info-card:nth-child(odd),
-            .info-card:nth-child(even),
-            .features-section,
-            .team-section,
-            .stats-section,
-            .flowing-stats-wrap {
-                animation: none;
-            }
-
-            .info-card,
-            .feature-item,
-            .stat-card,
-            .team-member,
-            .flowing-marquee,
-            .flowing-marquee-inner {
-                transition: none;
-                animation: none;
-            }
-        }
-
-        .about-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
-            overflow-x: hidden;
-            width: 100%;
-        }
-
-        .hero-section {
-            text-align: center;
-            padding: 2.5rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            color: white;
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        .hero-section h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0.8rem;
-            font-weight: 700;
-        }
-
-        .hero-section p {
-            font-size: 1rem;
-            opacity: 0.9;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.5;
-        }
-
-        /* Scroll Velocity Animation Styles */
-        .scroll-velocity-container {
-            position: relative;
-            overflow: hidden;
-            margin-top: 4rem;
-            margin-bottom: 1rem;
-            height: 220px;
-            width: 100%;
-            max-width: 100vw;
-            mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-            -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-        }
-
-        .scroll-velocity-track {
-            display: flex;
-            white-space: nowrap;
-            gap: 1.5rem;
-            animation: scrollVelocity 10s linear infinite alternate;
-            will-change: transform;
-            width: max-content;
-        }
-
-        .scroll-velocity-track:hover {
-            animation-play-state: paused;
-        }
-
-        .info-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-            width: 360px;
-            height: 200px;
-            white-space: normal;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .info-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .info-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.8rem;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .info-card p {
-            color: var(--text-secondary);
-            line-height: 1.5;
-            font-size: 0.9rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 10;
-            line-clamp: 10;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        @keyframes scrollVelocity {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        /* Compact Stats */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin: 2rem 0;
-            animation: fadeInUp 1s ease-out forwards;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 1.2rem 0.8rem;
-            background: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: scale(1.05);
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
-
-        /* Flowing Menu Animation Styles for Stats */
-        .flowing-stats-wrap {
-            width: 100%;
-            height: 400px;
-            overflow: hidden;
-            margin: 2rem 0;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            animation: fadeInUp 1s ease-out forwards;
-            border: 1px solid var(--border-color);
-        }
-        
-        /* Light theme specific improvements for flowing stats */
-        [data-theme="light"] .flowing-stats-wrap {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .flowing-stats-menu {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .flowing-stat-item {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        /* Light theme specific improvements */
-        [data-theme="light"] .flowing-stat-item {
-            box-shadow: inset 0 0 0 1px var(--border-color);
-        }
-
-        .flowing-stat-item:first-child {
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-        }
-
-        .flowing-stat-item:last-child {
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            border-bottom: none;
-        }
-
-        .flowing-stat-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            position: relative;
-            cursor:default;
-            text-decoration: none;
-            white-space: nowrap;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            transition: color 0.3s ease;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .flowing-stat-link:hover {
-            color: var(--primary-color);
-        }
-
-        .flowing-stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .flowing-stat-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .flowing-marquee {
-            position: absolute;
-            top: 0;
-            left: 0;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            transform: translate3d(0, 101%, 0);
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .flowing-marquee-inner-wrap {
-            height: 100%;
-            width: 200%;
-            display: flex;
-            transform: translateX(0);
-        }
-
-        .flowing-marquee-inner {
-            display: flex;
-            align-items: center;
-            position: relative;
-            height: 100%;
-            width: 200%;
-            will-change: transform;
-            animation: flowingMarquee 5s linear infinite alternate;
-            padding: 0 2rem;
-        }
-
-        .flowing-marquee span {
-            color: white;
-            white-space: nowrap;
-            font-weight: 600;
-            font-size: 1rem;
-            line-height: 1.2;
-            padding: 0 2rem;
-            flex-shrink: 0;
-        }
-
-        .flowing-marquee-detail {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            margin: 0 1.5rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-size: 0.8rem;
-            color: white;
-            flex-shrink: 0;
-            max-width: 200px;
-            text-align: center;
-        }
-
-        .flowing-stat-link:hover + .flowing-marquee {
-            transform: translate3d(0, 0%, 0);
-        }
-
-        @keyframes flowingMarquee {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(-30%);
-            }
-        }
-
-        /* Responsive adjustments for flowing stats */
-        @media (max-width: 768px) {
-            .flowing-stats-wrap {
-                height: 320px;
-            }
-            
-            .flowing-stat-link {
-                font-size: 1rem;
-            }
-            
-            .flowing-stat-number {
-                font-size: 1.5rem;
-            }
-            
-            .flowing-marquee span {
-                font-size: 0.9rem;
-                padding: 0 1rem;
-            }
-            
-            .flowing-marquee-detail {
-                font-size: 0.5rem;
-                padding: 0.4rem 0.8rem;
-                margin: 0 1rem;
-                max-width: 150px;
-            }
-        }
-
-        /* Compact Features */
-        .features-section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            animation: slideInLeft 0.8s ease-out forwards;
-        }
-
-        /* Card Swap Animation Styles */
-        .card-swap-wrapper {
-            display: flex;
-            justify-content: center;
-            margin: 0rem 0;
-            height: 500px;
-            position: relative;
-        }
-
-        .card-swap-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            perspective: 900px;
-            overflow: visible;
-        }
-
-        .feature-card {
-            position: absolute;
-            top: 105%;
-            left: -72%;
-            width: 300px;
-            height: 300px;
-            border-radius: 15px;
-            border: 2px solid var(--primary-color);
-            background: var(--card-bg);
-            box-shadow: var(--shadow-hover);
-            transform-style: preserve-3d;
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            border-color: var(--secondary-color);
-            box-shadow: 0 10px 30px rgba(25, 118, 210, 0.3);
-        }
-
-        .feature-card .feature-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover .feature-icon {
-            color: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        .feature-card h4 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .feature-card p {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        .feature-icon {
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Compact Team Section */
-        .team-section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            animation: slideInRight 0.8s ease-out forwards;
-            text-align: center;
-        }
-
-        .team-header {
-            margin-bottom: 2rem;
-        }
-
-        .team-header h2 {
-            color: var(--primary-color);
-            margin-bottom: 0.8rem;
-            font-size: 1.5rem;
-        }
-
-        .team-header p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .tech-stack {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 1rem;
-        }
-
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .team-member {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            box-shadow: var(--shadow);
-            background: linear-gradient(135deg, var(--card-bg), rgba(0, 50, 200, 0.204));
-        }
-
-        .team-member:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .team-member.lead {
-            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.2));
-            border-radius: 5%;
-            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.15);
-        }
-
-        .team-member.lead:hover {
-            border-color: var(--secondary-color);
-        }
-
-
-        .member-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            overflow: hidden;
-            border: 3px solid var(--primary-color);
-            transition: transform 0.3s ease;
-        }
-
-        .team-member.lead .member-avatar {
-            border-color: var(--secondary-color);
-        }
-
-        .member-avatar:hover {
-            transform: scale(1.1);
-        }
-
-        .member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        .member-avatar img:hover {
-            transform: scale(1.05);
-        }
-
-        /* Fallback for broken images */
-        .member-avatar img[src=""],
-        .member-avatar img:not([src]) {
-            display: none;
-        }
-
-        .member-avatar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            content: '\f007';
-            color: white;
-            font-size: 1.5rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .member-avatar img[alt]::after {
-            content: attr(alt);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-        }
-
-        .member-avatar:hover img[alt]::after {
-            opacity: 1;
-        }
-
-        .member-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.3rem;
-        }
-
-        .member-role {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.8rem;
-        }
-
-        .team-member.lead .member-role {
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-
-        .social-links {
-            display: inline-flex;
-            gap: 30px;
-            
-        }
-
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--bg-color);
-            color: var(--text-secondary);
-            border-radius: 50%;
-            text-decoration: none;
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-        }
-        
-        /* Light theme specific improvements for social links */
-        [data-theme="light"] .social-links a {
-            background: var(--card-bg);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .social-links a:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            .about-container {
-                padding: 1rem;
-                margin-top: 5px;
-            }
-
-            .hero-section {
-                padding: 2rem 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .hero-section h1 {
-                font-size: 1.8rem;
-            }
-
-            .hero-section p {
-                font-size: 0.9rem;
-            }
-
-            .scroll-velocity-container {
-                height: 230px;
-                bottom: 20px;
-            }
-            
-            .info-card {
-                width: 230px;
-                height: 230px;
-                padding: 1.2rem;
-            }
-            
-            .info-card h3 {
-                font-size: 1.1rem;
-            }
-            
-            .info-card p {
-                font-size: 0.85rem;
-            }
-
-            .stats-section {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            /* Card Swap Mobile Styles */
-            .card-swap-wrapper {
-                height: 383px;
-            }
-
-            .card-swap-container {
-                width: 250px;
-                height: 250px;
-            }
-
-            /* .feature-card {
-                width: 230px;
-                height: 230px;
-                padding: 1.5rem 1rem;
-            } */
-             
-            .feature-card {
-            position: absolute;
-            top: 140%;
-            left: 18%;
-            width: 300px;
-            height: 300px;
-            border-radius: 15px;
-            border: 2px solid var(--primary-color);
-            background: var(--card-bg);
-            box-shadow: var(--shadow-hover);
-            transform-style: preserve-3d;
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-            .feature-card .feature-icon {
-                font-size: 2.5rem;
-                margin-bottom: 0.8rem;
-            }
-
-            .feature-card h4 {
-                font-size: 1.1rem;
-                margin-bottom: 0.8rem;
-            }
-
-            .feature-card p {
-                font-size: 0.9rem;
-            }
-
-
-
-            .team-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
-
-            .tech-stack {
-                font-size: 0.7rem;
-            }
-
-            .features-section,
-            .team-section {
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .about-container {
-                padding: 0.8rem;
-                margin-top: 5px;
-            }
-
-            .hero-section {
-                padding: 1.5rem 0.8rem;
-            }
-
-            .hero-section h1 {
-                font-size: 1.6rem;
-            }
-
-            .stats-section {
-                grid-template-columns: 1fr;
-            }
-
-            .stat-card {
-                padding: 1rem 0.5rem;
-            }
-
-            .info-card,
-            .features-section,
-            .team-section {
-                padding: 1.2rem;
-            }
-
-            .team-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .member-avatar {
-                width: 60px;
-                height: 60px;
-            }
-
-            /* Card Swap Small Mobile Styles */
-            .card-swap-wrapper {
-                height: 383px;
-            }
-
-            .card-swap-container {
-                width: 200px;
-                height: 200px;
-            }
-
-            .feature-card {
-                width: 180px;
-                height: 180px;
-                padding: 1rem 0.8rem;
-            }
-
-            .feature-card .feature-icon {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .feature-card h4 {
-                font-size: 1rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .feature-card p {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
+    
     <script>
         (function () {
             // Get theme from localStorage - check multiple possible keys for compatibility
@@ -1143,59 +240,193 @@
             </nav>
         </div>
 
-        <!-- Compact Features Section -->
+        <!-- Tech Stack & Features Section -->
         <section class="features-section">
             <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color); font-size: 1.4rem;">
-                <i class="fas fa-star"></i> Key Features
+                <i class="fas fa-code"></i> Our Technology Stack
             </h2>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                What makes SATI ChatBot your perfect academic companion
+                Built with modern technologies to deliver a powerful AI-driven chatbot experience
             </p>
             
-            <!-- Card Swap Animation Container -->
-            <div class="card-swap-wrapper">
-                <div class="card-swap-container" id="featuresCardSwap">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-brain"></i>
+            <!-- Features Layout Container -->
+            <div class="features-layout">
+                <!-- Card Swap Animation Container -->
+                <div class="card-swap-wrapper">
+                    <div class="card-swap-container" id="featuresCardSwap">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h4>AI Intelligence</h4>
+                            <p>Advanced AI models for accurate responses</p>
                         </div>
-                        <h4>AI Intelligence</h4>
-                        <p>Advanced AI models for accurate responses</p>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <h4>Complete Resources</h4>
+                            <p>Notes, assignments, papers, syllabus & PYQs</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h4>24/7 Available</h4>
+                            <p>Instant answers anytime, anywhere</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h4>Mobile Ready</h4>
+                            <p>Works on all devices seamlessly</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h4>Smart Search</h4>
+                            <p>Intelligent resource discovery</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <h4>Easy Downloads</h4>
+                            <p>One-click material downloads</p>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h4>Complete Resources</h4>
-                        <p>Notes, assignments, papers, syllabus & PYQs</p>
+                </div>
+
+                <!-- Vertical Divider (Desktop Only) -->
+                <div class="vertical-divider">
+                    <div class="connection-lines">
+                        <div class="connection-line"></div>
+                        <div class="connection-line"></div>
+                        <div class="connection-line"></div>
+                        <div class="connection-line"></div>
+                        <div class="connection-line"></div>
+                        <div class="connection-line"></div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h4>24/7 Available</h4>
-                        <p>Instant answers anytime, anywhere</p>
+                </div>
+
+                <!-- Orbiting Circles Animation Container (Desktop Only) -->
+                <div class="orbiting-circles-container">
+                    <!-- Orbit Paths -->
+                    <div class="orbit-path orbit-path-1"></div>
+                    <div class="orbit-path orbit-path-2"></div>
+                    <div class="orbit-path orbit-path-3"></div>
+                    <div class="orbit-path orbit-path-4"></div>
+                    <div class="orbit-path orbit-path-5"></div>
+                    
+                    <!-- Center Icon -->
+                    <div class="orbiting-circles-center">
+                        <i class="fas fa-robot"></i>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4>Mobile Ready</h4>
-                        <p>Works on all devices seamlessly</p>
+                    
+                    <!-- Orbiting Icons - Organized by Tech Stack Layers -->
+                    
+                    <!-- Frontend Layer (Orbit 1 - Innermost) -->
+                    <div class="orbiting-icon orbit-1" title="HTML5" data-layer="Frontend">
+                        <svg width="24" height="24" viewBox="0 0 2000 2000" fill="currentColor">
+                            <polygon fill="#E34E26" points="352.732,1718.4 208.627,101.984 1791.373,101.984 1647.093,1718.528 999.615,1898.016"/>
+                            <polygon fill="#EF662A" points="1000,234.108 1000,1760.716 1523.565,1615.585 1646.918,234.108"/>
+                            <polygon fill="#FFFFFF" points="503.468,432.378 556.906,1031.897 1244.048,1031.897 1220.988,1289.041 999.744,1348.857 778.919,1289.128 764.155,1124.017 565.155,1124.017 593.611,1442.302 999.697,1555.086 1406.296,1442.302 1460.806,833.669 738.229,833.669 720.086,630.648 1478.168,630.648 1478.773,630.648 1496.532,432.378"/>
+                        </svg>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h4>Smart Search</h4>
-                        <p>Intelligent resource discovery</p>
+                    <div class="orbiting-icon orbit-1-2" title="CSS3" data-layer="Frontend">
+                        <svg width="24" height="24" viewBox="0 0 124 141.53" fill="currentColor">
+                            <path d="M10.383 126.892L0 0l124 .255-10.979 126.637-50.553 14.638z" fill="#1b73ba"/>
+                            <path d="M62.468 129.275V12.085l51.064.17-9.106 104.85z" fill="#1c88c7"/>
+                            <path d="M100.851 27.064H22.298l2.128 15.318h37.276l-36.68 15.745 2.127 14.808h54.043l-1.958 20.68-18.298 3.575-16.595-4.255-1.277-11.745H27.83l2.042 24.426 32.681 9.106 31.32-9.957 4-47.745H64.765l36.085-14.978z" fill="#fff"/>
+                        </svg>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-download"></i>
-                        </div>
-                        <h4>Easy Downloads</h4>
-                        <p>One-click material downloads</p>
+                    <div class="orbiting-icon orbit-1-3" title="JavaScript" data-layer="Frontend">
+                        <svg width="24" height="24" viewBox="0 0 256.4 291.5" fill="currentColor">
+                            <path fill="#d4b830" d="M18.8 375.4L-5 113.4l256.4.1-23.6 261.7L123 404.8 18.8 375.4zm189.7-14.3l19.9-224.4h-105l.8 247.5 84.3-23.1zm-94.9-191.5H88.1l-.3 134.3-49.5-13.5.1 30.7 75.2 20.3V169.6z" transform="translate(4.988 -113.385)"/>
+                            <path fill="#fdd83c" d="M123.4 136.6h105L208.5 361l-85.1 23.1V136.6zm79.7 186.8l6.9-83.9-51 5.7v-44.8l54.4-.2 2.2-30.6-82.1.4 1.1 111.4 49.6-8.5-.7 24.8-50 13.3.5 30.4 69.1-18z" transform="translate(4.988 -113.385)"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Backend Layer (Orbit 2) -->
+                    <div class="orbiting-icon orbit-2-2" title="Node.js" data-layer="Backend">
+                        <svg width="24" height="24" viewBox="-16.5 0 289 289" fill="currentColor">
+                            <path d="M127.999999,288.463771 C124.024844,288.463771 120.314699,287.403728 116.869564,285.548656 L81.6231884,264.612838 C76.32298,261.697724 78.9730854,260.637682 80.5631458,260.107661 C87.7184259,257.72257 89.0434775,257.192547 96.4637688,252.952381 C97.2587979,252.422361 98.3188405,252.687372 99.1138718,253.217392 L126.144927,269.383024 C127.20497,269.913045 128.530021,269.913045 129.325053,269.383024 L235.064182,208.165634 C236.124225,207.635611 236.654245,206.575571 236.654245,205.250519 L236.654245,83.0807467 C236.654245,81.7556929 236.124225,80.6956526 235.064182,80.1656324 L129.325053,19.2132506 C128.26501,18.6832305 126.939959,18.6832305 126.144927,19.2132506 L20.4057954,80.1656324 C19.3457551,80.6956526 18.8157349,82.0207041 18.8157349,83.0807467 L18.8157349,205.250519 C18.8157349,206.31056 19.3457551,207.635611 20.4057954,208.165634 L49.2919247,224.861286 C64.9275364,232.811595 74.7329196,223.536234 74.7329196,214.260871 L74.7329196,93.681159 C74.7329196,92.0910985 76.0579711,90.5010358 77.9130428,90.5010358 L91.4285716,90.5010358 C93.0186343,90.5010358 94.6086948,91.8260873 94.6086948,93.681159 L94.6086948,214.260871 C94.6086948,235.196689 83.2132512,247.387164 63.3374737,247.387164 C57.2422362,247.387164 52.4720502,247.387164 38.9565214,240.761906 L11.1304347,224.861286 C4.24016581,220.886129 5.68434189e-14,213.46584 5.68434189e-14,205.515528 L5.68434189e-14,83.3457557 C5.68434189e-14,75.3954465 4.24016581,67.9751552 11.1304347,64.0000006 L116.869564,2.78260752 C123.494824,-0.927535841 132.505176,-0.927535841 139.130436,2.78260752 L244.869565,64.0000006 C251.759834,67.9751552 256,75.3954465 256,83.3457557 L256,205.515528 C256,213.46584 251.759834,220.886129 244.869565,224.861286 L139.130436,286.078676 C135.685299,287.668739 131.710145,288.463771 127.999999,288.463771 L127.999999,288.463771 Z M160.596274,204.455488 C114.219461,204.455488 104.679089,183.254659 104.679089,165.233955 C104.679089,163.643893 106.004141,162.053832 107.859212,162.053832 L121.639752,162.053832 C123.229813,162.053832 124.554864,163.113872 124.554864,164.703935 C126.674947,178.749484 132.770187,185.639753 160.861283,185.639753 C183.122154,185.639753 192.662526,180.604556 192.662526,168.67909 C192.662526,161.788821 190.012423,156.753624 155.296065,153.308489 C126.409938,150.393375 108.389235,144.033126 108.389235,120.977226 C108.389235,99.5113875 126.409938,86.7908901 156.621119,86.7908901 C190.542443,86.7908901 207.238095,98.4513472 209.358178,123.89234 C209.358178,124.687371 209.093167,125.482403 208.563147,126.277434 C208.033127,126.807454 207.238095,127.337474 206.443064,127.337474 L192.662526,127.337474 C191.337475,127.337474 190.012423,126.277434 189.747412,124.952382 C186.567289,110.376813 178.351966,105.606625 156.621119,105.606625 C132.240165,105.606625 129.325053,114.086957 129.325053,120.447205 C129.325053,128.132506 132.770187,130.5176 165.631471,134.757766 C198.227744,138.997931 213.598344,145.093169 213.598344,167.884058 C213.333333,191.20497 194.252589,204.455488 160.596274,204.455488 L160.596274,204.455488 Z" fill="#539E43"/>
+                        </svg>
+                    </div>
+                     <div class="orbiting-icon orbit-2-3" title="Python" data-layer="Backend">
+                        <svg width="24" height="24" viewBox="0 0 32 32" fill="currentColor">
+                            <defs>
+                                <linearGradient id="python-gradient-1" x1="12.4809" y1="2" x2="12.4809" y2="22.7407" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#327EBD"/>
+                                    <stop offset="1" stop-color="#1565A7"/>
+                                </linearGradient>
+                                <linearGradient id="python-gradient-2" x1="19.519" y1="9.25928" x2="19.519" y2="30" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#FFDA4B"/>
+                                    <stop offset="1" stop-color="#F9C600"/>
+                                </linearGradient>
+                            </defs>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.0164 2C10.8193 2 9.03825 3.72453 9.03825 5.85185V8.51852H15.9235V9.25926H5.97814C3.78107 9.25926 2 10.9838 2 13.1111L2 18.8889C2 21.0162 3.78107 22.7407 5.97814 22.7407H8.27322V19.4815C8.27322 17.3542 10.0543 15.6296 12.2514 15.6296H19.5956C21.4547 15.6296 22.9617 14.1704 22.9617 12.3704V5.85185C22.9617 3.72453 21.1807 2 18.9836 2H13.0164ZM12.0984 6.74074C12.8589 6.74074 13.4754 6.14378 13.4754 5.40741C13.4754 4.67103 12.8589 4.07407 12.0984 4.07407C11.3378 4.07407 10.7213 4.67103 10.7213 5.40741C10.7213 6.14378 11.3378 6.74074 12.0984 6.74074Z" fill="url(#python-gradient-1)"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.9834 30C21.1805 30 22.9616 28.2755 22.9616 26.1482V23.4815L16.0763 23.4815L16.0763 22.7408L26.0217 22.7408C28.2188 22.7408 29.9998 21.0162 29.9998 18.8889V13.1111C29.9998 10.9838 28.2188 9.25928 26.0217 9.25928L23.7266 9.25928V12.5185C23.7266 14.6459 21.9455 16.3704 19.7485 16.3704L12.4042 16.3704C10.5451 16.3704 9.03809 17.8296 9.03809 19.6296L9.03809 26.1482C9.03809 28.2755 10.8192 30 13.0162 30H18.9834ZM19.9015 25.2593C19.1409 25.2593 18.5244 25.8562 18.5244 26.5926C18.5244 27.329 19.1409 27.9259 19.9015 27.9259C20.662 27.9259 21.2785 27.329 21.2785 26.5926C21.2785 25.8562 20.662 25.2593 19.9015 25.2593Z" fill="url(#python-gradient-2)"/>
+                        </svg>
+                    </div>
+
+                    <!-- Database Layer (Orbit 3) -->
+                    <div class="orbiting-icon orbit-3-2" title="Supabase" data-layer="Database">
+                        <svg width="24" height="24" viewBox="0 0 64 64" fill="currentColor">
+                            <defs>
+                                <linearGradient id="supabase-gradient-1" x1="53.973801" y1="54.973999" x2="94.163498" y2="71.829498" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.57177306,0,0,0.57177334,0.98590077,-0.12074988)">
+                                    <stop stop-color="#249361"/>
+                                    <stop offset="1" stop-color="#3ECF8E"/>
+                                </linearGradient>
+                                <linearGradient id="supabase-gradient-2" x1="36.1558" y1="30.577999" x2="54.484402" y2="65.080597" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.57177306,0,0,0.57177334,0.98590077,-0.12074988)">
+                                    <stop/>
+                                    <stop offset="1" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="m 37.41219,62.936701 c -1.634985,2.05896 -4.950068,0.93085 -4.989463,-1.69817 L 31.846665,22.786035 h 25.855406 c 4.683108,0 7.294967,5.409033 4.382927,9.07673 z" fill="url(#supabase-gradient-1)"/>
+                            <path d="m 37.41219,62.936701 c -1.634985,2.05896 -4.950068,0.93085 -4.989463,-1.69817 L 31.846665,22.786035 h 25.855406 c 4.683108,0 7.294967,5.409033 4.382927,9.07673 z" fill="url(#supabase-gradient-2)" fill-opacity="0.2"/>
+                            <path d="m 26.89694,1.0634102 c 1.634986,-2.05918508 4.950125,-0.93090008 4.989521,1.698149 L 32.138899,41.214003 H 6.607076 c -4.6832501,0 -7.29518376,-5.409032 -4.3830007,-9.07673 z" fill="#3ecf8e"/>
+                        </svg>
+                    </div>
+                    <div class="orbiting-icon orbit-3-3" title="PostgreSQL" data-layer="Database">
+                        <svg width="24" height="24" viewBox="0 0 256 264" fill="currentColor">
+                            <path d="M255.008 158.086c-1.535-4.649-5.556-7.887-10.756-8.664-2.452-.366-5.26-.21-8.583.475-5.792 1.195-10.089 1.65-13.225 1.738 11.837-19.985 21.462-42.775 27.003-64.228 8.96-34.689 4.172-50.492-1.423-57.64C233.217 10.847 211.614.683 185.552.372c-13.903-.17-26.108 2.575-32.475 4.549-5.928-1.046-12.302-1.63-18.99-1.738-12.537-.2-23.614 2.533-33.079 8.15-5.24-1.772-13.65-4.27-23.362-5.864-22.842-3.75-41.252-.828-54.718 8.685C6.622 25.672-.937 45.684.461 73.634c.444 8.874 5.408 35.874 13.224 61.48 4.492 14.718 9.282 26.94 14.237 36.33 7.027 13.315 14.546 21.156 22.987 23.972 4.731 1.576 13.327 2.68 22.368-4.85 1.146 1.388 2.675 2.767 4.704 4.048 2.577 1.625 5.728 2.953 8.875 3.74 11.341 2.835 21.964 2.126 31.027-1.848.056 1.612.099 3.152.135 4.482.06 2.157.12 4.272.199 6.25.537 13.374 1.447 23.773 4.143 31.049.148.4.347 1.01.557 1.657 1.345 4.118 3.594 11.012 9.316 16.411 5.925 5.593 13.092 7.308 19.656 7.308 3.292 0 6.433-.432 9.188-1.022 9.82-2.105 20.973-5.311 29.041-16.799 7.628-10.86 11.336-27.217 12.007-52.99.087-.729.167-1.425.244-2.088l.16-1.362 1.797.158.463.031c10.002.456 22.232-1.665 29.743-5.154 5.935-2.754 24.954-12.795 20.476-26.351"/>
+                            <path d="M237.906 160.722c-29.74 6.135-31.785-3.934-31.785-3.934 31.4-46.593 44.527-105.736 33.2-120.211-30.904-39.485-84.399-20.811-85.292-20.327l-.287.052c-5.876-1.22-12.451-1.946-19.842-2.067-13.456-.22-23.664 3.528-31.41 9.402 0 0-95.43-39.314-90.991 49.444.944 18.882 27.064 142.873 58.218 105.422 11.387-13.695 22.39-25.274 22.39-25.274 5.464 3.63 12.006 5.482 18.864 4.817l.533-.452c-.166 1.7-.09 3.363.213 5.332-8.026 8.967-5.667 10.541-21.711 13.844-16.235 3.346-6.698 9.302-.471 10.86 7.549 1.887 25.013 4.561 36.813-11.958l-.47 1.885c3.144 2.519 5.352 16.383 4.982 28.952-.37 12.568-.617 21.197 1.86 27.937 2.479 6.74 4.948 21.905 26.04 17.386 17.623-3.777 26.756-13.564 28.027-29.89.901-11.606 2.942-9.89 3.07-20.267l1.637-4.912c1.887-15.733.3-20.809 11.157-18.448l2.64.232c7.99.363 18.45-1.286 24.589-4.139 13.218-6.134 21.058-16.377 8.024-13.686h.002" fill="#336791"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- API & Services Layer (Orbit 4) -->
+                    <div class="orbiting-icon orbit-4-3" title="Groq API" data-layer="API">
+                        <svg width="24" height="24" viewBox="0 0 26.3 26.3" fill="currentColor">
+                            <circle fill="#f05237" cx="13.15" cy="13.15" r="13.15"/>
+                            <path fill="#fff" d="M13.17,6.88a4.43,4.43,0,0,0,0,8.85h1.45V14.07H13.17a2.77,2.77,0,1,1,2.77-2.76v4.07a2.74,2.74,0,0,1-4.67,2L10.1,18.51a4.37,4.37,0,0,0,3.07,1.29h.06a4.42,4.42,0,0,0,4.36-4.4V11.2a4.43,4.43,0,0,0-4.42-4.32"/>
+                        </svg>
+                    </div>
+                    <div class="orbiting-icon orbit-4-2" title="Gemini API" data-layer="API">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <defs>
+                                <linearGradient id="gemini-gradient" x1="0%" x2="68.73%" y1="100%" y2="30.395%">
+                                    <stop offset="0%" stop-color="#1C7DFF"></stop>
+                                    <stop offset="52.021%" stop-color="#1C69FF"></stop>
+                                    <stop offset="100%" stop-color="#F0DCD6"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12" fill="url(#gemini-gradient)" fill-rule="nonzero"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Deployment Layer (Orbit 5 - Outermost) -->
+                    <div class="orbiting-icon orbit-5-2 vercel-icon" title="Vercel" data-layer="Deployment">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1L24 22H0L12 1Z" class="vercel-logo"/>
+                        </svg>
+                    </div>
+                    <div class="orbiting-icon orbit-5-3" title="GitHub" data-layer="Deployment">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M94,7399 C99.523,7399 104,7403.59 104,7409.253 C104,7413.782 101.138,7417.624 97.167,7418.981 C96.66,7419.082 96.48,7418.762 96.48,7418.489 C96.48,7418.151 96.492,7417.047 96.492,7415.675 C96.492,7414.719 96.172,7414.095 95.813,7413.777 C98.04,7413.523 100.38,7412.656 100.38,7408.718 C100.38,7407.598 99.992,7406.684 99.35,7405.966 C99.454,7405.707 99.797,7404.664 99.252,7403.252 C99.252,7403.252 98.414,7402.977 96.505,7404.303 C95.706,7404.076 94.85,7403.962 94,7403.958 C93.15,7403.962 92.295,7404.076 91.497,7404.303 C89.586,7402.977 88.746,7403.252 88.746,7403.252 C88.203,7404.664 88.546,7405.707 88.649,7405.966 C88.01,7406.684 87.619,7407.598 87.619,7408.718 C87.619,7412.646 89.954,7413.526 92.175,7413.785 C91.889,7414.041 91.63,7414.493 91.54,7415.156 C90.97,7415.418 89.522,7415.871 88.63,7414.304 C88.63,7414.304 88.101,7413.319 87.097,7413.247 C87.097,7413.247 86.122,7413.234 87.029,7413.87 C87.029,7413.87 87.684,7414.185 88.139,7415.37 C88.139,7415.37 88.726,7417.2 91.508,7416.58 C91.513,7417.437 91.522,7418.245 91.522,7418.489 C91.522,7418.76 91.338,7419.077 90.839,7418.982 C86.865,7417.627 84,7413.783 84,7409.253 C84,7403.59 88.478,7399 94,7399" fill="#000000" transform="translate(-84.000000, -7399.000000)"/>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -1318,476 +549,8 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-        // Dark Mode Toggle Functionality
-        document.addEventListener('DOMContentLoaded', function () {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileNavMenu = document.getElementById('mobileNavMenu');
-            const blurOverlay = document.getElementById('blurOverlay');
-
-            // Dark mode toggle
-            if (darkModeToggle) {
-                // Set initial icon based on current theme
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const icon = darkModeToggle.querySelector('i');
-                icon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-
-                darkModeToggle.addEventListener('click', function () {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-                    // Apply theme
-                    document.documentElement.setAttribute('data-theme', newTheme);
-
-                    // Save to all possible localStorage keys for consistency
-                    localStorage.setItem('sati_theme', newTheme);
-                    localStorage.setItem('light', newTheme);
-                    localStorage.setItem('theme', newTheme);
-
-                    // Update icon
-                    icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-                });
-            }
-
-            // Mobile menu toggle
-            if (mobileMenuToggle && mobileNavMenu && blurOverlay) {
-                mobileMenuToggle.addEventListener('click', function () {
-                    mobileNavMenu.classList.toggle('show');
-                    blurOverlay.classList.toggle('show');
-                    document.body.classList.toggle('mobile-menu-open');
-
-                    // Update mobile menu toggle icon
-                    const icon = mobileMenuToggle.querySelector('i');
-                    if (mobileNavMenu.classList.contains('show')) {
-                        icon.className = 'fas fa-times';
-                    } else {
-                        icon.className = 'fas fa-bars';
-                    }
-                });
-
-                blurOverlay.addEventListener('click', function () {
-                    mobileNavMenu.classList.remove('show');
-                    blurOverlay.classList.remove('show');
-                    document.body.classList.remove('mobile-menu-open');
-
-                    // Reset mobile menu toggle icon
-                    const icon = mobileMenuToggle.querySelector('i');
-                    icon.className = 'fas fa-bars';
-                });
-
-                // Close mobile menu when clicking on navigation links
-                document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                    link.addEventListener('click', function () {
-                        mobileNavMenu.classList.remove('show');
-                        blurOverlay.classList.remove('show');
-                        document.body.classList.remove('mobile-menu-open');
-
-                        // Reset mobile menu toggle icon
-                        const icon = mobileMenuToggle.querySelector('i');
-                        icon.className = 'fas fa-bars';
-                    });
-                });
-            }
-
-            // Scroll-triggered animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                        entry.target.style.opacity = '1';
-                    }
-                });
-            }, observerOptions);
-
-            // Observe elements for animation
-            document.querySelectorAll('.info-card, .features-section, .team-section, .stats-section, .flowing-stats-wrap').forEach(el => {
-                el.style.animationPlayState = 'paused';
-                el.style.opacity = '0';
-                observer.observe(el);
-            });
-
-            // Add staggered animation delays for info cards
-            document.querySelectorAll('.info-card').forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.2}s`;
-            });
-
-            // Add hover effects for stat cards
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.addEventListener('mouseenter', function () {
-                    this.style.transform = 'scale(1.05) rotate(2deg)';
-                });
-
-                card.addEventListener('mouseleave', function () {
-                    this.style.transform = 'scale(1) rotate(0deg)';
-                });
-            });
-
-            // Add smooth scrolling for better UX
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-
-            // Handle GitHub profile image loading errors
-            document.querySelectorAll('.member-avatar img').forEach(img => {
-                img.addEventListener('error', function () {
-                    // Create fallback icon
-                    const fallback = document.createElement('div');
-                    fallback.innerHTML = '<i class="fas fa-user"></i>';
-                    fallback.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        background: var(--primary-color);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-size: 1.5rem;
-                    `;
-
-                    // Replace image with fallback
-                    this.parentNode.replaceChild(fallback, this);
-                });
-
-                // Add loading animation
-                img.addEventListener('load', function () {
-                    this.style.opacity = '1';
-                });
-
-                // Set initial opacity for loading effect
-                img.style.opacity = '0';
-                img.style.transition = 'opacity 0.3s ease';
-            });
-
-            // Add team member card animations on scroll
-            const teamObserver = new IntersectionObserver((entries) => {
-                entries.forEach((entry, index) => {
-                    if (entry.isIntersecting) {
-                        setTimeout(() => {
-                            entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
-                        }, index * 100);
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            document.querySelectorAll('.team-member').forEach((member, index) => {
-                member.style.opacity = '0';
-                member.style.transform = 'translateY(20px)';
-                member.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
-                teamObserver.observe(member);
-            });
-
-            // Scroll Velocity Animation
-            const scrollVelocityTrack = document.getElementById('scrollVelocityTrack');
-            if (scrollVelocityTrack) {
-                let baseVelocity = 1;
-                let scrollVelocity = 0;
-                let smoothVelocity = 0;
-                let lastScrollY = window.scrollY;
-                let animationId;
-                let currentX = 0;
-
-                // Calculate the width of one set of cards
-                const cardWidth = 300 + 24; // card width + gap
-                const numCards = 4;
-                const totalWidth = cardWidth * numCards;
-
-                function updateAnimation() {
-                    // Calculate scroll velocity
-                    const currentScrollY = window.scrollY;
-                    scrollVelocity = (currentScrollY - lastScrollY) * 0.1;
-                    lastScrollY = currentScrollY;
-
-                    // Smooth the velocity
-                    smoothVelocity += (scrollVelocity - smoothVelocity) * 0.1;
-
-                    // Calculate movement
-                    const velocityFactor = Math.min(Math.abs(smoothVelocity), 5);
-                    const direction = smoothVelocity > 0 ? 1 : -1;
-                    
-                    // Base movement + velocity-based movement
-                    currentX -= (baseVelocity + velocityFactor * direction) * 0.5;
-
-                    // Wrap around when we've moved one full set
-                    if (currentX <= -totalWidth) {
-                        currentX = 0;
-                    } else if (currentX > 0) {
-                        currentX = -totalWidth;
-                    }
-
-                    // Apply transform
-                    scrollVelocityTrack.style.transform = `translateX(${currentX}px)`;
-
-                    animationId = requestAnimationFrame(updateAnimation);
-                }
-
-                // Start animation
-                updateAnimation();
-
-                // Pause on hover
-                scrollVelocityTrack.addEventListener('mouseenter', () => {
-                    if (animationId) {
-                        cancelAnimationFrame(animationId);
-                    }
-                });
-
-                scrollVelocityTrack.addEventListener('mouseleave', () => {
-                    updateAnimation();
-                });
-
-                // Handle visibility change
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        if (animationId) {
-                            cancelAnimationFrame(animationId);
-                        }
-                    } else {
-                        updateAnimation();
-                    }
-                }); (responsive)
-            }
-
-                // Handle window resize
-                window.addEventListener('resize', () => {
-                    const newDimensions = getCardDimensions();
-                    cardWidth = newDimensions.cardWidth;
-                    totalWidth = newDimensions.totalWidth;
-                    // Reset position to prevent issues
-                    currentX = 0;
-                });
-            });
-
-            // Flowing Menu Animation for Stats
-            function initFlowingStats() {
-                const statItems = document.querySelectorAll('.flowing-stat-item');
-                
-                statItems.forEach(item => {
-                    const link = item.querySelector('.flowing-stat-link');
-                    const marquee = item.querySelector('.flowing-marquee');
-                    const marqueeInner = item.querySelector('.flowing-marquee-inner-wrap');
-                    
-                    if (!link || !marquee || !marqueeInner) return;
-                    
-                    const animationDefaults = { duration: 0.6, ease: 'expo.out' };
-                    
-                    const findClosestEdge = (mouseX, mouseY, width, height) => {
-                        const topEdgeDist = distMetric(mouseX, mouseY, width / 2, 0);
-                        const bottomEdgeDist = distMetric(mouseX, mouseY, width / 2, height);
-                        return topEdgeDist < bottomEdgeDist ? 'top' : 'bottom';
-                    };
-                    
-                    const distMetric = (x, y, x2, y2) => {
-                        const xDiff = x - x2;
-                        const yDiff = y - y2;
-                        return xDiff * xDiff + yDiff * yDiff;
-                    };
-                    
-                    const handleMouseEnter = (ev) => {
-                        const rect = item.getBoundingClientRect();
-                        const x = ev.clientX - rect.left;
-                        const y = ev.clientY - rect.top;
-                        const edge = findClosestEdge(x, y, rect.width, rect.height);
-                        
-                        gsap.timeline({ defaults: animationDefaults })
-                            .set(marquee, { y: edge === 'top' ? '-101%' : '101%' }, 0)
-                            .set(marqueeInner, { y: edge === 'top' ? '101%' : '-101%' }, 0)
-                            .to([marquee, marqueeInner], { y: '0%' }, 0);
-                    };
-                    
-                    const handleMouseLeave = (ev) => {
-                        const rect = item.getBoundingClientRect();
-                        const x = ev.clientX - rect.left;
-                        const y = ev.clientY - rect.top;
-                        const edge = findClosestEdge(x, y, rect.width, rect.height);
-                        
-                        gsap.timeline({ defaults: animationDefaults })
-                            .to(marquee, { y: edge === 'top' ? '-101%' : '101%' }, 0)
-                            .to(marqueeInner, { y: edge === 'top' ? '101%' : '-101%' }, 0);
-                    };
-                    
-                    link.addEventListener('mouseenter', handleMouseEnter);
-                    link.addEventListener('mouseleave', handleMouseLeave);
-                });
-            }
-            
-            // Initialize flowing stats animation
-            initFlowingStats();
-
-            // Card Swap Animation for Features
-            function initCardSwapAnimation() {
-                const container = document.getElementById('featuresCardSwap');
-                if (!container) return;
-
-                const cards = Array.from(container.querySelectorAll('.feature-card'));
-                if (cards.length === 0) return;
-
-                const config = {
-                    cardDistance: 35,
-                    verticalDistance: 45,
-                    delay: 3500,
-                    skewAmount: 3,
-                    ease: "elastic.out(0.6,0.9)",
-                    durDrop: 1.6,
-                    durMove: 1.6,
-                    durReturn: 1.6,
-                    promoteOverlap: 0.85,
-                    returnDelay: 0.08
-                };
-
-                let order = Array.from({ length: cards.length }, (_, i) => i);
-                let intervalRef;
-                let tlRef;
-
-                // Helper functions
-                const makeSlot = (i, distX, distY, total) => ({
-                    x: i * distX,
-                    y: -i * distY,
-                    z: -i * distX * 1.5,
-                    zIndex: total - i
-                });
-
-                const placeNow = (el, slot, skew) => {
-                    gsap.set(el, {
-                        x: slot.x,
-                        y: slot.y,
-                        z: slot.z,
-                        xPercent: -50,
-                        yPercent: -50,
-                        skewY: skew,
-                        transformOrigin: "center center",
-                        zIndex: slot.zIndex,
-                        force3D: true
-                    });
-                };
-
-                // Initialize card positions
-                const total = cards.length;
-                cards.forEach((card, i) => {
-                    placeNow(
-                        card,
-                        makeSlot(i, config.cardDistance, config.verticalDistance, total),
-                        config.skewAmount
-                    );
-                });
-
-                // Swap animation function
-                const swap = () => {
-                    if (order.length < 2) return;
-
-                    const [front, ...rest] = order;
-                    const elFront = cards[front];
-                    const tl = gsap.timeline();
-                    tlRef = tl;
-
-                    // Drop front card
-                    tl.to(elFront, {
-                        y: "+=400",
-                        duration: config.durDrop,
-                        ease: config.ease
-                    });
-
-                    // Promote other cards
-                    tl.addLabel("promote", `-=${config.durDrop * config.promoteOverlap}`);
-                    rest.forEach((idx, i) => {
-                        const el = cards[idx];
-                        const slot = makeSlot(i, config.cardDistance, config.verticalDistance, cards.length);
-                        tl.set(el, { zIndex: slot.zIndex }, "promote");
-                        tl.to(
-                            el,
-                            {
-                                x: slot.x,
-                                y: slot.y,
-                                z: slot.z,
-                                duration: config.durMove,
-                                ease: config.ease
-                            },
-                            `promote+=${i * 0.15}`
-                        );
-                    });
-
-                    // Return front card to back
-                    const backSlot = makeSlot(
-                        cards.length - 1,
-                        config.cardDistance,
-                        config.verticalDistance,
-                        cards.length
-                    );
-                    tl.addLabel("return", `promote+=${config.durMove * config.returnDelay}`);
-                    tl.call(
-                        () => {
-                            gsap.set(elFront, { zIndex: backSlot.zIndex });
-                        },
-                        undefined,
-                        "return"
-                    );
-                    tl.set(elFront, { x: backSlot.x, z: backSlot.z }, "return");
-                    tl.to(
-                        elFront,
-                        {
-                            y: backSlot.y,
-                            duration: config.durReturn,
-                            ease: config.ease
-                        },
-                        "return"
-                    );
-
-                    // Update order
-                    tl.call(() => {
-                        order = [...rest, front];
-                    });
-                };
-
-                // Start animation
-                swap();
-                intervalRef = setInterval(swap, config.delay);
-
-                // Pause on hover
-                container.addEventListener('mouseenter', () => {
-                    if (tlRef) tlRef.pause();
-                    clearInterval(intervalRef);
-                });
-
-                container.addEventListener('mouseleave', () => {
-                    if (tlRef) tlRef.play();
-                    intervalRef = setInterval(swap, config.delay);
-                });
-
-                // Cleanup on page unload
-                window.addEventListener('beforeunload', () => {
-                    clearInterval(intervalRef);
-                });
-
-                // Handle visibility change
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        if (tlRef) tlRef.pause();
-                        clearInterval(intervalRef);
-                    } else {
-                        if (tlRef) tlRef.play();
-                        intervalRef = setInterval(swap, config.delay);
-                    }
-                });
-            }
-
-            // Initialize card swap animation
-            initCardSwapAnimation();
-    </script>
+    <script src="about.js"></script>
+   
     
     <!-- Smooth Cursor Script -->
     <script src="smooth-cursor.js"></script>
