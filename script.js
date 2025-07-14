@@ -1,4 +1,3 @@
-
 // Global State Management
 let supabase = null;
 
@@ -1316,8 +1315,9 @@ function updateConversationsList() {
         const item = document.createElement('div');
         item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
 
+        // Add title attribute for full name on hover, and ensure ellipsis in UI
         item.innerHTML = `
-            <div class="conversation-title">${conversation.title}</div>
+            <div class="conversation-title" title="${conversation.title}">${conversation.title}</div>
             <div class="conversation-actions">
                 <button class="conversation-menu-btn" onclick="toggleConversationMenu(event, '${conversation.id}')" title="More options">
                     <i class="fas fa-ellipsis-v"></i>
