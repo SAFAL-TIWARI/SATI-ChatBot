@@ -417,24 +417,7 @@ class ChatBotState {
             conversation.messages = messages;
             conversation.updatedAt = new Date().toISOString();
 
-            // Auto-generate title from first user message
-            if (conversation.title === 'New Chat' && messages.length > 0) {
-                const firstUserMessage = messages.find(m => m.role === 'user');
-                if (firstUserMessage) {
-                    const newTitle = firstUserMessage.content.substring(0, 50) +
-                        (firstUserMessage.content.length > 50 ? '...' : '');
-                    conversation.title = newTitle;
-                    
-                    // Update title in Supabase if using Supabase storage
-                    if (this.useSupabaseStorage && window.supabaseDB) {
-                        try {
-                            await window.supabaseDB.updateConversationTitle(this.currentConversationId, newTitle);
-                        } catch (err) {
-                            console.error('Error updating conversation title in Supabase:', err);
-                        }
-                    }
-                }
-            }
+
 
             // Save messages to Supabase if using Supabase storage
             if (this.useSupabaseStorage && window.supabaseDB && messages.length > 0) {
@@ -984,6 +967,36 @@ class ChatManager {
 
         chatState.currentMessages.push(userMessage);
         this.renderMessages();
+        
+        // Auto-generate title if this is the first user message in a new chat
+        if (chatState.currentConversationId) {
+            const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
+            if (conversation && conversation.title === 'New Chat') {
+                const newTitle = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+                conversation.title = newTitle;
+                
+                console.log('🔄 Auto-generating title from first message:', newTitle);
+                
+                // Update title in Supabase if using Supabase storage
+                if (chatState.useSupabaseStorage && window.supabaseDB) {
+                    try {
+                        await window.supabaseDB.updateConversationTitle(chatState.currentConversationId, newTitle);
+                        console.log('✅ Title updated in Supabase');
+                    } catch (err) {
+                        console.error('❌ Error updating conversation title in Supabase:', err);
+                    }
+                }
+                
+                // Update the UI to reflect the new title
+                updateConversationsList();
+                
+                // Update the chat title in the header
+                if (elements.chatTitle) {
+                    elements.chatTitle.textContent = newTitle;
+                }
+            }
+        }
+        
         this.showTypingIndicator();
 
         try {
