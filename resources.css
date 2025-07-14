@@ -1052,12 +1052,14 @@ body.mobile-menu-open {
 
 /* Conversation title ellipsis and overflow fix */
 .conversation-title {
-  max-width: 180px; /* Adjust as needed for your sidebar */
+  flex: 1 1 0%;
+  min-width: 0;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
   word-break: break-all;
+  display: block;
 }
 
 /* Prevent horizontal scroll in the conversations list and sidebar */
