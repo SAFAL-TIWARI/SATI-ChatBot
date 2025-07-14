@@ -55,7 +55,7 @@ function initializeSupabase() {
         }
         
 
-        
+
         return false;
     } catch (err) {
         console.error('❌ Failed to initialize Supabase client:', err);
@@ -525,6 +525,7 @@ class ChatBotState {
                 } else if (messages && messages.length > 0) {
                     // Format messages for the app
                     const formattedMessages = messages.map(msg => ({
+                        id: msg.id, // Include the message ID from Supabase
                         role: msg.role,
                         content: msg.content,
                         model: msg.model,
@@ -1311,9 +1312,9 @@ function updateConversationsList() {
             </div>
         `;
 
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action')) {
-                loadConversation(conversation.id);
+                await loadConversation(conversation.id);
             }
         });
 
@@ -1324,8 +1325,8 @@ function updateConversationsList() {
 
 
 //delete here below
-function loadConversation(id) {
-    const conversation = chatState.loadConversation(id);
+async function loadConversation(id) {
+    const conversation = await chatState.loadConversation(id);
     if (conversation) {
         elements.chatTitle.textContent = conversation.title;
         chatManager.renderMessages();
