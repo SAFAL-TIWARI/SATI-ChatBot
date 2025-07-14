@@ -159,6 +159,20 @@ function listenForAuthChanges() {
                 localStorage.removeItem('sati_conversations'); // Clear any stored conversations
                 updateConversationsList();
                 
+                // Clear current chat messages and reset chat area
+                chatState.currentConversationId = null;
+                chatState.currentMessages = [];
+                
+                // Clear the chat area and show welcome message
+                if (chatManager) {
+                    chatManager.renderMessages();
+                }
+                
+                // Reset chat title
+                if (elements.chatTitle) {
+                    elements.chatTitle.textContent = 'New Chat';
+                }
+                
             } else if (event === 'USER_UPDATED') {
                 console.log('User updated');
             } else if (event === 'TOKEN_REFRESHED') {
