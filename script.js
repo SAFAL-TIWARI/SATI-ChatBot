@@ -2295,8 +2295,8 @@ function initializeEventListeners() {
 
     // New chat button
     if (elements.newChatBtn) {
-        elements.newChatBtn.addEventListener('click', () => {
-            chatState.createNewConversation();
+        elements.newChatBtn.addEventListener('click', async () => {
+            await chatState.createNewConversation();
             if (elements.chatTitle) {
                 elements.chatTitle.textContent = 'New Chat';
             }
