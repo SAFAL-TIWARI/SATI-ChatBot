@@ -54,6 +54,8 @@ function initializeSupabase() {
             console.log('CONFIGURED:', !!window.SUPABASE_CONFIG?.CONFIGURED);
         }
         
+
+        
         return false;
     } catch (err) {
         console.error('❌ Failed to initialize Supabase client:', err);
