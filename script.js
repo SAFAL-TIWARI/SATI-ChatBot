@@ -1349,7 +1349,7 @@ async function deleteConversation(id) {
     );
 
     if (confirmed) {
-        chatState.deleteConversation(id);
+        await chatState.deleteConversation(id);
         updateConversationsList();
 
         if (chatState.currentConversationId === id) {
@@ -1424,7 +1424,7 @@ function renameConversation(conversationId) {
 
 //delete here below
 // Handle rename form submission
-function handleRenameSubmit(event) {
+async function handleRenameSubmit(event) {
     event.preventDefault();
 
     const conversationId = document.getElementById('renameModal').dataset.conversationId;
@@ -1441,7 +1441,7 @@ function handleRenameSubmit(event) {
     }
 
     // Rename the conversation
-    const success = chatState.renameConversation(conversationId, newTitle);
+    const success = await chatState.renameConversation(conversationId, newTitle);
     if (success) {
         // Update UI
         updateConversationsList();
