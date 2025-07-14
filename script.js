@@ -811,6 +811,9 @@ class ModalManager {
                 setTimeout(() => {
                     checkLoginFormState();
                     
+                    // Initialize cool mode for login buttons when modal is shown
+                    initializeCoolMode();
+                    
                     // Add event listener to email input to check state when email changes
                     const emailInput = document.getElementById('email');
                     if (emailInput) {
@@ -4233,6 +4236,83 @@ function showPasswordUpdateModal() {
     modal.show('passwordUpdateModal');
 }
 
+// Initialize Cool Mode for login buttons
+// Applies particle effects to Login, Sign Up, Google, GitHub, and Continue as Guest buttons
+function initializeCoolMode() {
+    try {
+        // Wait for cool mode to be available
+        if (typeof window.coolMode === 'undefined') {
+            console.warn('⚠️ Cool Mode not available, retrying...');
+            setTimeout(initializeCoolMode, 100);
+            return;
+        }
+
+        // Apply cool mode to login buttons
+        const loginButtons = [
+            '.login-btn',           // Login and Sign Up buttons
+            '#googleSSOBtn',        // Google SSO button
+            '#githubSSOBtn',        // GitHub SSO button
+            '.guest-btn'            // Continue as Guest button
+        ];
+
+        // Apply cool mode to each button type with different options
+        loginButtons.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (element && !element.hasAttribute('data-cool-mode-applied')) {
+                    // Different particle options for different button types
+                    let options = {};
+                    
+                    if (selector.includes('google')) {
+                        options = {
+                            particleCount: 30,
+                            speedHorz: 8,
+                            speedUp: 20,
+                            size: 25
+                        };
+                    } else if (selector.includes('github')) {
+                        options = {
+                            particleCount: 35,
+                            speedHorz: 10,
+                            speedUp: 25,
+                            size: 30
+                        };
+                    } else if (selector.includes('guest-btn')) {
+                        // Special options for guest button - more subtle effect
+                        options = {
+                            particleCount: 20,
+                            speedHorz: 5,
+                            speedUp: 15,
+                            size: 18
+                        };
+                    } else {
+                        // Default for Login/Sign Up buttons
+                        options = {
+                            particleCount: 25,
+                            speedHorz: 6,
+                            speedUp: 18,
+                            size: 20
+                        };
+                    }
+
+                    // Apply the cool mode effect
+                    window.coolMode.applyParticleEffect(element, options);
+                    
+                    // Mark as applied to avoid duplicate applications
+                    element.setAttribute('data-cool-mode-applied', 'true');
+                    
+                    console.log(`✨ Cool Mode applied to: ${selector}`);
+                }
+            });
+        });
+
+        console.log('✅ Cool Mode initialization completed');
+        
+    } catch (error) {
+        console.error('❌ Error initializing Cool Mode:', error);
+    }
+}
+
 // Initialize Application
 function initializeApp() {
     try {
@@ -4300,6 +4380,9 @@ function initializeApp() {
 
         // Initialize event listeners
         initializeEventListeners();
+
+        // Initialize Cool Mode for login buttons
+        initializeCoolMode();
 
         // Apply saved theme and update theme toggle button
         updateThemeToggleButton();
