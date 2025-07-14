@@ -1057,9 +1057,22 @@ body.mobile-menu-open {
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+  word-break: break-all;
 }
 
-/* Prevent horizontal scroll in the conversations list */
-#conversationsList {
-  overflow-x: hidden;
+/* Prevent horizontal scroll in the conversations list and sidebar */
+#conversationsList, .sidebar, .conversations-section {
+  overflow-x: hidden !important;
+}
+
+/* Ensure conversation items never cause horizontal scroll */
+.conversation-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Ensure the sidebar section containing conversations does not scroll horizontally */
+.conversations-section {
+  min-width: 0;
 }
