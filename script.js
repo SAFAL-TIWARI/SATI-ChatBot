@@ -152,8 +152,9 @@ function listenForAuthChanges() {
                     window.supabaseDB.setCurrentUserEmail(null);
                 }
                 
-                // Clear conversations from UI (they'll be reloaded from localStorage)
+                // Clear conversations from UI and localStorage
                 chatState.conversations = [];
+                localStorage.removeItem('sati_conversations'); // Clear any stored conversations
                 updateConversationsList();
                 
             } else if (event === 'USER_UPDATED') {
@@ -172,9 +173,6 @@ window.initializeSupabase = initializeSupabase;
 
 class ChatBotState {
     constructor() {
-        this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
-        this.currentConversationId = null;
-        this.currentMessages = [];
         this.isLoggedIn = JSON.parse(localStorage.getItem('sati_logged_in') || 'false');
         this.username = localStorage.getItem('sati_username') || '';
         this.email = localStorage.getItem('sati_email') || '';
@@ -184,6 +182,18 @@ class ChatBotState {
         this.isTyping = false;
         this.selectedModel = localStorage.getItem('sati_selected_model') || 'llama-3.1-8b-instant';
         this.useSupabaseStorage = false; // Will be set to true when user is logged in with Supabase
+
+        // Initialize conversations based on login status
+        if (this.isLoggedIn) {
+            // For logged-in users, load conversations from localStorage (they'll be replaced by Supabase data)
+            this.conversations = JSON.parse(localStorage.getItem('sati_conversations') || '[]');
+        } else {
+            // For guest users, start with empty conversations (no persistence)
+            this.conversations = [];
+        }
+        
+        this.currentConversationId = null;
+        this.currentMessages = [];
 
         // Initialize default settings
         this.initializeDefaultSettings();
@@ -257,7 +267,14 @@ class ChatBotState {
     }
 
     saveState() {
-        localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
+        // Only save conversations to localStorage for logged-in users
+        if (this.isLoggedIn) {
+            localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
+        } else {
+            // For guest users, don't save conversations to localStorage
+            localStorage.removeItem('sati_conversations');
+        }
+        
         localStorage.setItem('sati_logged_in', JSON.stringify(this.isLoggedIn));
         localStorage.setItem('sati_username', this.username);
         localStorage.setItem('sati_email', this.email);
@@ -2610,8 +2627,18 @@ function initializeEventListeners() {
     const guestBtn = document.getElementById('guestBtn');
     if (guestBtn) {
         guestBtn.addEventListener('click', () => {
+            // Clear any existing conversations for guest mode
+            chatState.conversations = [];
+            chatState.currentConversationId = null;
+            chatState.currentMessages = [];
+            localStorage.removeItem('sati_conversations'); // Remove any stored conversations
+            
+            // Update UI to show empty state
+            updateConversationsList();
+            chatManager.renderMessages();
+            
             modal.hide('loginModal');
-            toast.show('Continuing as guest', 'info');
+            toast.show('Continuing as guest - chats will not be saved', 'info');
         });
     }
 
@@ -4325,6 +4352,22 @@ function initializeApp() {
         // Render initial state
         chatManager.renderMessages();
         updateConversationsList();
+        
+        // Clear guest conversations if user is not logged in
+        if (!chatState.isLoggedIn) {
+            console.log('👤 Guest mode detected - clearing any stored conversations');
+            chatState.conversations = [];
+            localStorage.removeItem('sati_conversations');
+            updateConversationsList();
+        }
+        
+        // Clear guest conversations if user is not logged in
+        if (!chatState.isLoggedIn) {
+            console.log('👤 Guest mode detected - clearing any stored conversations');
+            chatState.conversations = [];
+            localStorage.removeItem('sati_conversations');
+            updateConversationsList();
+        }
 
         // Initialize event listeners
         initializeEventListeners();
