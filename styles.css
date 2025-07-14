@@ -453,6 +453,7 @@ body {
 .conversations-list {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--sidebar-hover) transparent;
 }
@@ -489,6 +490,16 @@ body {
 
 .conversation-item.active {
     background-color: var(--sidebar-active);
+}
+
+.conversation-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-all;
+    min-width: 0;
+    margin-right: var(--spacing-2);
 }
 
 .conversation-actions {
@@ -2017,6 +2028,7 @@ body {
     .conversations-list {
         flex: 1;
         overflow-y: auto;
+        overflow-x: hidden;
         scrollbar-width: thin;
         scrollbar-color: var(--sidebar-hover) transparent;
         min-height: 0;
