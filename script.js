@@ -2192,7 +2192,17 @@ async function toggleBookmark(event, conversationId) {
                 
             if (error) {
                 console.error('Error updating bookmark status:', error);
-                toast.show('Failed to update bookmark status', 'error');
+                
+                // Check if the error is about missing column
+                if (error.message && error.message.includes("Could not find the 'is_bookmarked' column")) {
+                    // Show a more helpful error message
+                    toast.show('Database schema needs update. See supabase_bookmark_instructions.md', 'error', 5000);
+                    
+                    // Continue with local update only
+                    console.log('Continuing with local update only due to missing column in Supabase');
+                } else {
+                    toast.show('Failed to update bookmark status', 'error');
+                }
             }
         } catch (error) {
             console.error('Error updating bookmark status:', error);
@@ -2201,16 +2211,63 @@ async function toggleBookmark(event, conversationId) {
     }
     
     // Save to localStorage
-    chatState.saveToStorage();
+    chatState.saveState();
 }
 
 // Update saved chats list
-function updateSavedChatsList() {
+async function updateSavedChatsList() {
     const container = elements.savedChatsList;
     container.innerHTML = '';
     
-    // Filter bookmarked conversations
-    const bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    // Show loading indicator
+    const loadingElement = document.createElement('div');
+    loadingElement.className = 'saved-chats-loading';
+    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
+    container.appendChild(loadingElement);
+    
+    let bookmarkedConversations = [];
+    
+    // Try to get bookmarked conversations from Supabase if user is logged in
+    if (chatState.useSupabaseStorage && window.supabaseDB) {
+        try {
+            const { data, error } = await window.supabaseDB.getBookmarkedConversations();
+            
+            if (!error && data && data.length > 0) {
+                // Update local state with bookmarked conversations from Supabase
+                data.forEach(supabaseConv => {
+                    // Find if conversation exists in local state
+                    const localIndex = chatState.conversations.findIndex(c => c.id === supabaseConv.id);
+                    
+                    if (localIndex !== -1) {
+                        // Update existing conversation
+                        chatState.conversations[localIndex].is_bookmarked = true;
+                    } else {
+                        // Add new conversation to local state
+                        chatState.conversations.push({
+                            id: supabaseConv.id,
+                            title: supabaseConv.title,
+                            is_bookmarked: true,
+                            createdAt: supabaseConv.created_at,
+                            updatedAt: supabaseConv.updated_at,
+                            messages: []
+                        });
+                    }
+                });
+                
+                // Save updated state
+                chatState.saveState();
+            }
+        } catch (error) {
+            console.error('Error fetching bookmarked conversations from Supabase:', error);
+        }
+    }
+    
+    // Remove loading indicator
+    container.innerHTML = '';
+    
+    // Filter bookmarked conversations from local state
+    bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    
     // Update the saved chats count
     const savedCountElement = document.getElementById('savedChatsCount');
     if (savedCountElement) {
@@ -2266,7 +2323,16 @@ function updateSavedChatsList() {
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
         dropdown.id = `dropdown-saved-${conversation.id}`;
         
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+        // Add "Remove from Saved" option as the first item
+        const removeFromSavedBtn = document.createElement('button');
+        removeFromSavedBtn.className = 'conversation-dropdown-item';
+        removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
+        removeFromSavedBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
+        
+        // Insert at the beginning of the dropdown
+        dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
+        
+        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
         
         const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
