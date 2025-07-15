@@ -54,7 +54,7 @@ function initializeSupabase() {
         }
         
 
-
+        
         return false;
     } catch (err) {
         console.error('❌ Failed to initialize Supabase client:', err);
@@ -318,7 +318,7 @@ class ChatBotState {
     saveState() {
         // Only save conversations to localStorage for logged-in users
         if (this.isLoggedIn) {
-            localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
+        localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
         } else {
             // For guest users, don't save conversations to localStorage
             localStorage.removeItem('sati_conversations');
@@ -828,13 +828,13 @@ class ToastManager {
                 // Remove the template button and add actual buttons
                 actionButton.remove();
                 
-                actions.forEach(action => {
+            actions.forEach(action => {
                     const btn = document.createElement('button');
                     btn.className = 'toast-action-btn';
                     btn.textContent = action.text;
                     actionsContainer.appendChild(btn);
-                });
-                
+            });
+        
                 toast.appendChild(actionsContent);
             }
         }
@@ -1504,18 +1504,71 @@ async function updateSavedChatsList() {
     });
 }
 
-// Remove from Saved handler with animation
+// Remove from Saved handler with animation (now uses toggleBookmark for full sync)
 async function removeFromSavedWithAnimation(conversationId) {
     const itemToRemove = document.querySelector(`.saved-chats-list .conversation-item[data-id="${conversationId}"]`);
     if (itemToRemove) {
         itemToRemove.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
         itemToRemove.style.opacity = '0';
         itemToRemove.style.transform = 'translateX(20px)';
-        setTimeout(() => {
-            removeFromSaved(conversationId);
+        setTimeout(async () => {
+            // Use toggleBookmark logic to ensure full sync (UI + Supabase)
+            await toggleBookmark(null, conversationId, false, true);
         }, 300);
     } else {
-        removeFromSaved(conversationId);
+        await toggleBookmark(null, conversationId, false, true);
+    }
+}
+
+// Update toggleBookmark to accept a forced value and source flag
+async function toggleBookmark(event, conversationId, forceBookmarkStatus = null, isFromRemove = false) {
+    if (event) {
+        event.stopPropagation();
+    }
+    // Find the conversation in the state
+    const conversationIndex = chatState.conversations.findIndex(c => c.id === conversationId);
+    if (conversationIndex === -1) return;
+    // Toggle or force bookmark status
+    let newBookmarkStatus;
+    if (forceBookmarkStatus !== null) {
+        newBookmarkStatus = forceBookmarkStatus;
+    } else {
+        const isCurrentlyBookmarked = chatState.conversations[conversationIndex].is_bookmarked || false;
+        newBookmarkStatus = !isCurrentlyBookmarked;
+    }
+    chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
+    // Update all bookmark buttons in All Conversations
+    document.querySelectorAll(`.conversations-list .conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`).forEach(btn => {
+        if (newBookmarkStatus) {
+            btn.classList.add('active');
+            btn.querySelector('i').className = 'fas fa-bookmark';
+        } else {
+            btn.classList.remove('active');
+            btn.querySelector('i').className = 'far fa-bookmark';
+        }
+    });
+    // Update in Supabase if user is logged in
+    if (chatState.useSupabaseStorage && window.supabaseDB) {
+        try {
+            await window.supabaseDB.updateBookmarkStatus(conversationId, newBookmarkStatus);
+        } catch (error) {
+            console.error('Error updating bookmark status:', error);
+            toast.show('Failed to update bookmark status', 'error');
+        }
+    }
+    // Update both lists for full sync
+    updateConversationsList();
+    updateSavedChatsList();
+    chatState.saveState();
+    // Show toast only if not from Remove (to avoid double toasts)
+    if (!isFromRemove) {
+        if (newBookmarkStatus) {
+            toast.show('Chat bookmarked', 'success');
+        } else {
+            toast.show('Bookmark removed', 'info');
+        }
+    } else {
+        toast.show('Removed from Saved Chats', 'success');
     }
 }
 
