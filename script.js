@@ -3533,10 +3533,14 @@ async function signup() {
             toast.show('Account created successfully! Logging you in...', 'success', 3000);
             
             // Set user state
+            let authProvider = 'email';
+            if (data.user.app_metadata && data.user.app_metadata.provider) {
+                authProvider = data.user.app_metadata.provider;
+            }
             chatState.isLoggedIn = true;
             chatState.username = data.user.email.split('@')[0];
             chatState.email = data.user.email;
-            chatState.authProvider = 'email';
+            chatState.authProvider = authProvider;
             chatState.saveState();
             
             // Set flag for welcome toast/console
@@ -4483,10 +4487,14 @@ async function checkExistingSession() {
             console.log('✅ User already has an active session');
             
             // Set user state
+            let authProvider = 'email';
+            if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
+                authProvider = data.session.user.app_metadata.provider;
+            }
             chatState.isLoggedIn = true;
             chatState.username = data.session.user.email.split('@')[0];
             chatState.email = data.session.user.email;
-            chatState.authProvider = 'email';
+            chatState.authProvider = authProvider;
             chatState.saveState();
             
             // Initialize Supabase storage and load conversations
@@ -4554,10 +4562,14 @@ async function handleEmailVerification() {
                 console.log('✅ Email verified successfully!');
                 
                 // Set user state
+                let authProvider = 'email';
+                if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
+                    authProvider = data.session.user.app_metadata.provider;
+                }
                 chatState.isLoggedIn = true;
                 chatState.username = data.session.user.email.split('@')[0];
                 chatState.email = data.session.user.email;
-                chatState.authProvider = 'email';
+                chatState.authProvider = authProvider;
                 chatState.saveState();
                 
                 // Update login statistics
