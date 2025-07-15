@@ -1701,10 +1701,38 @@ async function handleRenameSubmit(event) {
 
 
 //delete here below
+// Settings Tab Management
+function getActiveSettingsTab() {
+    // First check if there's an active tab in the DOM
+    const activeTab = document.querySelector('.settings-tab.active');
+    if (activeTab && activeTab.dataset.tab) {
+        return activeTab.dataset.tab;
+    }
+    
+    // Fallback to localStorage
+    return localStorage.getItem('sati_active_settings_tab') || 'general';
+}
+
+function setActiveSettingsTab(tab) {
+    localStorage.setItem('sati_active_settings_tab', tab);
+}
+
 // Settings Management
 function renderSettingsContent(tab) {
     const content = document.getElementById('settingsContent');
     const settingsModal = document.querySelector('.settings-modal');
+
+    // Store the current active tab
+    setActiveSettingsTab(tab);
+
+    // Update active tab in the sidebar
+    document.querySelectorAll('.settings-tab').forEach(t => {
+        t.classList.remove('active');
+    });
+    const targetTab = document.querySelector(`.settings-tab[data-tab="${tab}"]`);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
 
     // Remove all tab-specific classes
     if (settingsModal) {
@@ -2765,7 +2793,9 @@ function initializeEventListeners() {
     if (settingsDropdownBtn) {
         settingsDropdownBtn.addEventListener('click', () => {
             modal.show('settingsModal');
-            renderSettingsContent('general');
+            // Get the currently active tab or default to 'general'
+            const activeTab = getActiveSettingsTab() || 'general';
+            renderSettingsContent(activeTab);
             if (elements.profileDropdown) {
                 elements.profileDropdown.classList.remove('show');
             }
@@ -2862,7 +2892,9 @@ function initializeEventListeners() {
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => {
             modal.show('settingsModal');
-            renderSettingsContent('general');
+            // Get the currently active tab or default to 'general'
+            const activeTab = getActiveSettingsTab() || 'general';
+            renderSettingsContent(activeTab);
         });
     }
 
@@ -2930,6 +2962,9 @@ function initializeEventListeners() {
                 t.classList.remove('active');
             });
             tab.classList.add('active');
+            
+            // Store the active tab
+            setActiveSettingsTab(tab.dataset.tab);
             renderSettingsContent(tab.dataset.tab);
         }
     });
