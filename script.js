@@ -1471,6 +1471,7 @@ async function updateSavedChatsList() {
         if (!conversationElement) return;
         const item = conversationElement.querySelector('.conversation-item');
         item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
+        item.setAttribute('data-id', conversation.id); // For animation/removal
         const titleElement = conversationElement.querySelector('.conversation-title');
         titleElement.setAttribute('title', conversation.title);
         titleElement.textContent = conversation.title;
@@ -1488,7 +1489,7 @@ async function updateSavedChatsList() {
         const removeFromSavedBtn = document.createElement('button');
         removeFromSavedBtn.className = 'conversation-dropdown-item';
         removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
-        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSaved(conversation.id); };
+        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSavedWithAnimation(conversation.id); };
         dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
         const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
@@ -1503,24 +1504,18 @@ async function updateSavedChatsList() {
     });
 }
 
-// Remove from Saved handler
-async function removeFromSaved(conversationId) {
-    // Set is_bookmarked to false and update both lists
-    const conversation = chatState.conversations.find(c => c.id === conversationId);
-    if (conversation) {
-        conversation.is_bookmarked = false;
-        // If using Supabase, update there too
-        if (chatState.useSupabaseStorage && window.supabaseDB) {
-            try {
-                await window.supabaseDB.updateConversationBookmark(conversationId, false);
-            } catch (err) {
-                // ignore
-            }
-        }
-        chatState.saveState();
-        updateConversationsList();
-        updateSavedChatsList();
-        toast.show('Removed from Saved Chats', 'success');
+// Remove from Saved handler with animation
+async function removeFromSavedWithAnimation(conversationId) {
+    const itemToRemove = document.querySelector(`.saved-chats-list .conversation-item[data-id="${conversationId}"]`);
+    if (itemToRemove) {
+        itemToRemove.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+        itemToRemove.style.opacity = '0';
+        itemToRemove.style.transform = 'translateX(20px)';
+        setTimeout(() => {
+            removeFromSaved(conversationId);
+        }, 300);
+    } else {
+        removeFromSaved(conversationId);
     }
 }
 
@@ -2473,6 +2468,7 @@ async function updateSavedChatsList() {
         if (!conversationElement) return;
         const item = conversationElement.querySelector('.conversation-item');
         item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
+        item.setAttribute('data-id', conversation.id); // For animation/removal
         const titleElement = conversationElement.querySelector('.conversation-title');
         titleElement.setAttribute('title', conversation.title);
         titleElement.textContent = conversation.title;
@@ -2490,7 +2486,7 @@ async function updateSavedChatsList() {
         const removeFromSavedBtn = document.createElement('button');
         removeFromSavedBtn.className = 'conversation-dropdown-item';
         removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
-        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSaved(conversation.id); };
+        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSavedWithAnimation(conversation.id); };
         dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
         const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
