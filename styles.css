@@ -338,7 +338,12 @@ body {
 
 
 .sidebar-section {
-    padding: var(--spacing-4);
+    padding: var(--spacing-3);
+}
+
+/* Special padding for conversations section */
+.conversations-section {
+    padding-top: var(--spacing-2);
 }
 
 .sidebar-section:not(:last-child) {
@@ -441,7 +446,7 @@ body {
     font-size: var(--font-size-sm);
     font-weight: 500;
     color: var(--sidebar-text-muted);
-    margin-bottom: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
 }
 
 /* Conversations List */
@@ -524,10 +529,13 @@ body {
     overflow: hidden;
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     margin-bottom: 0;
+    margin-top: 0;
+    padding: 0 !important; /* Override the sidebar-section padding */
     opacity: 0;
     transform: translateY(-20px);
     position: relative;
     z-index: 1;
+    height: 0; /* Ensure it takes no space when not active */
 }
 
 .saved-chats-section.active {
@@ -538,13 +546,15 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     background-color: rgba(var(--accent-rgb), 0.05);
     border-radius: var(--radius-md);
-    padding: var(--spacing-2) var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-1) !important; /* Override the !important from the default state */
+    height: auto; /* Allow it to take space when active */
 }
 
 /* Animation for conversations section when saved chats is active */
 .saved-chats-section.active + .conversations-section {
-    transform: translateY(10px);
+    transform: translateY(5px); /* Reduced from 10px to 5px for subtler movement */
     transition: transform 0.3s ease-in-out;
+    padding-top: var(--spacing-2); /* Maintain consistent padding */
 }
 
 .conversations-section {
@@ -552,7 +562,7 @@ body {
     z-index: 0;
     transition: transform 0.3s ease-in-out, margin-top 0.3s ease-in-out;
     transform: translateY(0);
-    margin-top: -5px; /* Creates a slight overlap effect */
+    margin-top: 0; /* Reset to normal position */
 }
 
 .saved-chats-list {

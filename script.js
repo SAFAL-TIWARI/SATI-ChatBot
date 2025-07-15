@@ -2305,7 +2305,7 @@ function toggleSavedChatsSection() {
         
         // Then after a small delay, move the conversations section
         setTimeout(() => {
-            conversationsSection.style.transform = 'translateY(10px)';
+            conversationsSection.style.transform = 'translateY(5px)';
         }, 50);
     }
 }
