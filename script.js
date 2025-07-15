@@ -1417,15 +1417,12 @@ function updateConversationsList() {
 async function updateSavedChatsList() {
     const container = elements.savedChatsList;
     container.innerHTML = '';
-    
     // Show loading indicator
     const loadingElement = document.createElement('div');
     loadingElement.className = 'saved-chats-loading';
     loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
     container.appendChild(loadingElement);
-    
     let bookmarkedConversations = [];
-    
     // Try to get bookmarked conversations from Supabase if user is logged in
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
@@ -1487,7 +1484,13 @@ async function updateSavedChatsList() {
         // Use the same dropdown ID format for both sections
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
         dropdown.id = `dropdown-${conversation.id}`;
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+        // Add Remove from Saved as the first item in the dropdown (only in Saved Chats)
+        const removeFromSavedBtn = document.createElement('button');
+        removeFromSavedBtn.className = 'conversation-dropdown-item';
+        removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
+        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSaved(conversation.id); };
+        dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
+        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
         const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
@@ -1498,6 +1501,27 @@ async function updateSavedChatsList() {
         });
         container.appendChild(conversationElement);
     });
+}
+
+// Remove from Saved handler
+async function removeFromSaved(conversationId) {
+    // Set is_bookmarked to false and update both lists
+    const conversation = chatState.conversations.find(c => c.id === conversationId);
+    if (conversation) {
+        conversation.is_bookmarked = false;
+        // If using Supabase, update there too
+        if (chatState.useSupabaseStorage && window.supabaseDB) {
+            try {
+                await window.supabaseDB.updateConversationBookmark(conversationId, false);
+            } catch (err) {
+                // ignore
+            }
+        }
+        chatState.saveState();
+        updateConversationsList();
+        updateSavedChatsList();
+        toast.show('Removed from Saved Chats', 'success');
+    }
 }
 
 // Conversation Menu Management
@@ -2395,15 +2419,12 @@ NOTIFY pgrst, 'reload schema';</pre>
 async function updateSavedChatsList() {
     const container = elements.savedChatsList;
     container.innerHTML = '';
-    
     // Show loading indicator
     const loadingElement = document.createElement('div');
     loadingElement.className = 'saved-chats-loading';
     loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
     container.appendChild(loadingElement);
-    
     let bookmarkedConversations = [];
-    
     // Try to get bookmarked conversations from Supabase if user is logged in
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
@@ -2465,7 +2486,13 @@ async function updateSavedChatsList() {
         // Use the same dropdown ID format for both sections
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
         dropdown.id = `dropdown-${conversation.id}`;
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+        // Add Remove from Saved as the first item in the dropdown (only in Saved Chats)
+        const removeFromSavedBtn = document.createElement('button');
+        removeFromSavedBtn.className = 'conversation-dropdown-item';
+        removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
+        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSaved(conversation.id); };
+        dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
+        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
         const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
