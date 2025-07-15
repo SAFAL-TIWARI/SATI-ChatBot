@@ -102,18 +102,6 @@
                 </div>
             </div>
 
-            <!-- Saved Chats Section (Initially Hidden) -->
-            <div class="sidebar-section saved-chats-section" id="savedChatsSection">
-                <h3 class="section-title">
-                    <i class="fas fa-bookmark"></i>
-                    <span>Saved Chats</span>
-                    <span class="saved-count" id="savedChatsCount"></span>
-                </h3>
-                <div class="saved-chats-list" id="savedChatsList">
-                    <!-- Saved chats will be populated here -->
-                </div>
-            </div>
-
             <!-- All Conversations -->
             <div class="sidebar-section conversations-section">
                 <h3 class="section-title">
@@ -833,6 +821,25 @@
         <!-- No Conversations Template -->
         <template id="noConversationsTemplate">
             <div class="no-conversations">No conversations yet</div>
+        </template>
+
+        <!-- Saved Chats Modal -->
+        <template id="savedChatsModalTemplate">
+            <div class="modal-overlay" id="savedChatsModal">
+                <div class="modal-container saved-chats-modal">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-bookmark"></i> Saved Chats <span class="saved-count" id="savedChatsCount"></span></h2>
+                        <button class="close-btn" id="closeSavedChatsBtn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="saved-chats-list" id="savedChatsList">
+                            <!-- Saved chats will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
 
     </div>
