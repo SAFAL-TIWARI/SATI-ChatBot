@@ -2260,12 +2260,25 @@ function updateSavedChatsList() {
 // Toggle saved chats section visibility
 function toggleSavedChatsSection() {
     const section = elements.savedChatsSection;
+    const conversationsSection = document.querySelector('.conversations-section');
     
     if (section.classList.contains('active')) {
-        section.classList.remove('active');
+        // First update the transform of conversations section
+        conversationsSection.style.transform = 'translateY(0)';
+        
+        // Then after a small delay, hide the saved chats section
+        setTimeout(() => {
+            section.classList.remove('active');
+        }, 50);
     } else {
+        // First show the saved chats section
         section.classList.add('active');
         updateSavedChatsList();
+        
+        // Then after a small delay, move the conversations section
+        setTimeout(() => {
+            conversationsSection.style.transform = 'translateY(10px)';
+        }, 50);
     }
 }
 

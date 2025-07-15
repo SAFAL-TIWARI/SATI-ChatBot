@@ -522,15 +522,37 @@ body {
 .saved-chats-section {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     margin-bottom: 0;
     opacity: 0;
+    transform: translateY(-20px);
+    position: relative;
+    z-index: 1;
 }
 
 .saved-chats-section.active {
     max-height: 300px;
     margin-bottom: var(--spacing-4);
     opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background-color: rgba(var(--accent-rgb), 0.05);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-1);
+}
+
+/* Animation for conversations section when saved chats is active */
+.saved-chats-section.active + .conversations-section {
+    transform: translateY(10px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.conversations-section {
+    position: relative;
+    z-index: 0;
+    transition: transform 0.3s ease-in-out, margin-top 0.3s ease-in-out;
+    transform: translateY(0);
+    margin-top: -5px; /* Creates a slight overlap effect */
 }
 
 .saved-chats-list {
