@@ -67,6 +67,34 @@ async function getUserConversations() {
     }
 }
 
+// Get bookmarked conversations for the current authenticated user
+async function getBookmarkedConversations() {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { data: [], error: new Error('Database not initialized') };
+    }
+    
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: [], error: new Error('User not authenticated') };
+    }
+    
+    try {
+        const { data, error } = await supabaseDB
+            .from('conversations')
+            .select('*')
+            .eq('user_email', currentUserEmail)
+            .eq('is_bookmarked', true)
+            .order('updated_at', { ascending: false });
+            
+        if (error) throw error;
+        return { data, error: null };
+    } catch (error) {
+        console.error('Error fetching bookmarked conversations:', error);
+        return { data: [], error };
+    }
+}
+
 // Create a new conversation for the authenticated user
 async function createConversation(title = 'New Conversation') {
     if (!supabaseDB) {
@@ -125,6 +153,36 @@ async function updateConversationTitle(conversationId, title) {
         return { success: true, error: null };
     } catch (error) {
         console.error('Error updating conversation title:', error);
+        return { success: false, error };
+    }
+}
+
+// Update bookmark status for the authenticated user
+async function updateBookmarkStatus(conversationId, isBookmarked) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { success: false, error: new Error('Database not initialized') };
+    }
+    
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { success: false, error: new Error('User not authenticated') };
+    }
+    
+    try {
+        const { error } = await supabaseDB
+            .from('conversations')
+            .update({ 
+                is_bookmarked: isBookmarked,
+                updated_at: new Date().toISOString() 
+            })
+            .eq('id', conversationId)
+            .eq('user_email', currentUserEmail); // Ensure user owns this conversation
+            
+        if (error) throw error;
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error updating bookmark status:', error);
         return { success: false, error };
     }
 }
@@ -379,8 +437,10 @@ window.supabaseDB = {
     getCurrentUserEmail,
     isUserAuthenticated,
     getUserConversations,
+    getBookmarkedConversations,
     createConversation,
     updateConversationTitle,
+    updateBookmarkStatus,
     deleteConversation,
     getConversationMessages,
     addMessage,

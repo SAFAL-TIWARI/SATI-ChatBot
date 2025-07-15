@@ -2186,12 +2186,9 @@ async function toggleBookmark(event, conversationId) {
     }
     
     // Update in Supabase if user is logged in
-    if (chatState.user && supabase) {
+    if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
-            const { error } = await supabase
-                .from('conversations')
-                .update({ is_bookmarked: newBookmarkStatus })
-                .eq('id', conversationId);
+            const { success, error } = await window.supabaseDB.updateBookmarkStatus(conversationId, newBookmarkStatus);
                 
             if (error) {
                 console.error('Error updating bookmark status:', error);
