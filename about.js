@@ -570,14 +570,14 @@
                 const config = {
                     cardDistance: 35,
                     verticalDistance: 45,
-                    delay: 3500,
+                    delay: 2000,        // Reduced from 3500ms to 2000ms (2 seconds between swaps)
                     skewAmount: 3,
                     ease: "elastic.out(0.6,0.9)",
-                    durDrop: 1.6,
-                    durMove: 1.6,
-                    durReturn: 1.6,
-                    promoteOverlap: 0.85,
-                    returnDelay: 0.08
+                    durDrop: 1.0,       // Reduced from 1.6s to 0.8s (faster drop)
+                    durMove: 1.0,       // Reduced from 1.6s to 0.8s (faster card movement)
+                    durReturn: 1.0,     // Reduced from 1.6s to 0.8s (faster return)
+                    promoteOverlap: 0.9, // Increased from 0.85 to 0.9 (cards start moving sooner)
+                    returnDelay: 0.05   // Reduced from 0.08 to 0.05 (less delay between card movements)
                 };
 
                 let order = Array.from({ length: cards.length }, (_, i) => i);
