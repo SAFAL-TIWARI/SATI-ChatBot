@@ -102,6 +102,17 @@
                 </div>
             </div>
 
+            <!-- Saved Chats Section (Initially Hidden) -->
+            <div class="sidebar-section saved-chats-section" id="savedChatsSection">
+                <h3 class="section-title">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved Chats</span>
+                </h3>
+                <div class="saved-chats-list" id="savedChatsList">
+                    <!-- Saved chats will be populated here -->
+                </div>
+            </div>
+
             <!-- All Conversations -->
             <div class="sidebar-section conversations-section">
                 <h3 class="section-title">
@@ -580,6 +591,9 @@
             <div class="conversation-item">
                 <div class="conversation-title"></div>
                 <div class="conversation-actions">
+                    <button class="conversation-bookmark-btn" title="Bookmark conversation">
+                        <i class="far fa-bookmark"></i>
+                    </button>
                     <button class="conversation-menu-btn" title="More options">
                         <i class="fas fa-ellipsis-v"></i>
                     </button>

@@ -486,6 +486,23 @@ body {
     justify-content: space-between;
 }
 
+/* Saved Chats Section */
+.saved-chats-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    margin-bottom: 0;
+}
+
+.saved-chats-section.active {
+    max-height: 300px;
+    margin-bottom: var(--spacing-4);
+}
+
+.saved-chats-list {
+    padding-top: var(--spacing-2);
+}
+
 .conversation-item:hover {
     background-color: var(--sidebar-hover);
 }
