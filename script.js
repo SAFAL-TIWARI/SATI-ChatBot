@@ -2176,6 +2176,13 @@ async function toggleBookmark(event, conversationId) {
     // If saved chats section is visible, update it
     if (elements.savedChatsSection.classList.contains('active')) {
         updateSavedChatsList();
+    } else {
+        // Just update the count
+        const bookmarkedCount = chatState.conversations.filter(c => c.is_bookmarked).length;
+        const savedCountElement = document.getElementById('savedChatsCount');
+        if (savedCountElement) {
+            savedCountElement.textContent = bookmarkedCount > 0 ? bookmarkedCount : '';
+        }
     }
     
     // Update in Supabase if user is logged in
@@ -2207,12 +2214,33 @@ function updateSavedChatsList() {
     
     // Filter bookmarked conversations
     const bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    // Update the saved chats count
+    const savedCountElement = document.getElementById('savedChatsCount');
+    if (savedCountElement) {
+        savedCountElement.textContent = bookmarkedConversations.length > 0 ? bookmarkedConversations.length : '';
+    }
     
     if (bookmarkedConversations.length === 0) {
         const noSavedChats = document.createElement('div');
         noSavedChats.className = 'no-saved-chats';
-        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats</p>';
+        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats</p><p class="no-saved-chats-hint">Bookmark conversations to see them here</p>';
         container.appendChild(noSavedChats);
+        
+        // Add CSS for the hint text
+        const style = document.createElement('style');
+        if (!document.querySelector('style[data-id="saved-chats-hint"]')) {
+            style.setAttribute('data-id', 'saved-chats-hint');
+            style.textContent = `
+                .no-saved-chats-hint {
+                    font-size: var(--font-size-xs);
+                    opacity: 0.7;
+                    margin-top: var(--spacing-1);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+    
         return;
     }
     

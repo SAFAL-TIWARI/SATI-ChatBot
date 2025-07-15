@@ -531,14 +531,14 @@ body {
 }
 
 .saved-chats-section.active {
-    max-height: 300px;
-    margin-bottom: var(--spacing-4);
+    max-height: 300px; /* Same as conversations section */
+    margin-bottom: var(--spacing-2);
     opacity: 1;
     transform: translateY(0);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     background-color: rgba(var(--accent-rgb), 0.05);
     border-radius: var(--radius-md);
-    padding: var(--spacing-1);
+    padding: var(--spacing-2) var(--spacing-1);
 }
 
 /* Animation for conversations section when saved chats is active */
@@ -557,6 +557,40 @@ body {
 
 .saved-chats-list {
     padding-top: var(--spacing-2);
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-hover) transparent;
+}
+
+/* Ensure consistent styling between saved chats and all conversations */
+.saved-chats-list .conversation-item {
+    margin-left: var(--spacing-1);
+    margin-right: var(--spacing-1);
+}
+
+/* Saved chats count badge */
+.saved-count {
+    background-color: var(--accent-color);
+    color: white;
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+    margin-left: var(--spacing-2);
+    font-weight: 600;
+}
+
+.saved-chats-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.saved-chats-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.saved-chats-list::-webkit-scrollbar-thumb {
+    background-color: var(--sidebar-hover);
+    border-radius: var(--radius-full);
 }
 
 .no-saved-chats {
@@ -592,7 +626,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     word-break: break-all;
-    min-width: 0;
+    min-width: 120px; /* Ensure minimum width */
+    max-width: 180px; /* Consistent width for both sections */
     margin-right: var(--spacing-2);
 }
 
