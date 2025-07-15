@@ -486,21 +486,74 @@ body {
     justify-content: space-between;
 }
 
+/* Bookmark Button */
+.conversation-bookmark-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--spacing-1);
+    margin-right: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-bookmark-btn:hover {
+    color: var(--warning-color);
+    transform: scale(1.1);
+}
+
+.conversation-bookmark-btn.active {
+    color: var(--warning-color);
+}
+
+.conversation-bookmark-btn.active:hover {
+    transform: scale(1.1);
+}
+
+.conversation-bookmark-btn.active i {
+    font-weight: 900; /* Use solid icon when active */
+}
+
 /* Saved Chats Section */
 .saved-chats-section {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
     margin-bottom: 0;
+    opacity: 0;
 }
 
 .saved-chats-section.active {
     max-height: 300px;
     margin-bottom: var(--spacing-4);
+    opacity: 1;
 }
 
 .saved-chats-list {
     padding-top: var(--spacing-2);
+}
+
+.no-saved-chats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-4);
+    color: var(--text-muted);
+    text-align: center;
+    background-color: var(--sidebar-hover);
+    border-radius: var(--radius-md);
+    margin: var(--spacing-2);
+}
+
+.no-saved-chats i {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-2);
+    color: var(--warning-color);
 }
 
 .conversation-item:hover {

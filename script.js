@@ -447,6 +447,7 @@ class ChatBotState {
             id: Date.now().toString(),
             title: title,
             messages: [],
+            is_bookmarked: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -691,6 +692,9 @@ const elements = {
     resourcesBtn: document.getElementById('resourcesBtn'),
     searchInput: document.getElementById('searchInput'),
     conversationsList: document.getElementById('conversationsList'),
+    savedChatsSection: document.getElementById('savedChatsSection'),
+    savedChatsList: document.getElementById('savedChatsList'),
+    savedChatsBtn: document.getElementById('savedChatsBtn'),
 
     // Main content
     chatTitle: document.getElementById('chatTitle'),
@@ -1329,6 +1333,11 @@ function updateConversationsList() {
         templateHelper.appendTo('noConversationsTemplate', container);
         return;
     }
+    
+    // Also update saved chats list if it's active
+    if (document.getElementById('savedChatsSection').classList.contains('active')) {
+        updateSavedChatsList();
+    }
 
     chatState.conversations.forEach(conversation => {
         const conversationElement = templateHelper.clone('conversationItemTemplate');
@@ -1341,6 +1350,17 @@ function updateConversationsList() {
         const titleElement = conversationElement.querySelector('.conversation-title');
         titleElement.setAttribute('title', conversation.title);
         titleElement.textContent = conversation.title;
+        
+        // Setup bookmark button
+        const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
+        if (conversation.is_bookmarked) {
+            bookmarkBtn.classList.add('active');
+            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark'; // Solid icon when bookmarked
+        } else {
+            bookmarkBtn.classList.remove('active');
+            bookmarkBtn.querySelector('i').className = 'far fa-bookmark'; // Regular icon when not bookmarked
+        }
+        bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
         
         const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
         menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
@@ -1355,7 +1375,7 @@ function updateConversationsList() {
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
 
         item.addEventListener('click', async (e) => {
-            if (!e.target.closest('.conversation-action')) {
+            if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
                 await loadConversation(conversation.id);
             }
         });
@@ -2126,10 +2146,138 @@ function exportAllChats() {
 
 //delete here below
 // Event Listeners
+// Bookmark functionality
+async function toggleBookmark(event, conversationId) {
+    event.stopPropagation();
+    
+    // Find the conversation in the state
+    const conversationIndex = chatState.conversations.findIndex(c => c.id === conversationId);
+    if (conversationIndex === -1) return;
+    
+    // Toggle bookmark status
+    const isCurrentlyBookmarked = chatState.conversations[conversationIndex].is_bookmarked || false;
+    const newBookmarkStatus = !isCurrentlyBookmarked;
+    
+    // Update local state
+    chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
+    
+    // Update UI
+    const bookmarkBtn = event.currentTarget;
+    if (newBookmarkStatus) {
+        bookmarkBtn.classList.add('active');
+        bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
+        toast.show('Chat bookmarked', 'success');
+    } else {
+        bookmarkBtn.classList.remove('active');
+        bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
+        toast.show('Bookmark removed', 'info');
+    }
+    
+    // If saved chats section is visible, update it
+    if (elements.savedChatsSection.classList.contains('active')) {
+        updateSavedChatsList();
+    }
+    
+    // Update in Supabase if user is logged in
+    if (chatState.user && supabase) {
+        try {
+            const { error } = await supabase
+                .from('conversations')
+                .update({ is_bookmarked: newBookmarkStatus })
+                .eq('id', conversationId);
+                
+            if (error) {
+                console.error('Error updating bookmark status:', error);
+                toast.show('Failed to update bookmark status', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating bookmark status:', error);
+            toast.show('Failed to update bookmark status', 'error');
+        }
+    }
+    
+    // Save to localStorage
+    chatState.saveToStorage();
+}
+
+// Update saved chats list
+function updateSavedChatsList() {
+    const container = elements.savedChatsList;
+    container.innerHTML = '';
+    
+    // Filter bookmarked conversations
+    const bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    
+    if (bookmarkedConversations.length === 0) {
+        const noSavedChats = document.createElement('div');
+        noSavedChats.className = 'no-saved-chats';
+        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats</p>';
+        container.appendChild(noSavedChats);
+        return;
+    }
+    
+    // Render bookmarked conversations
+    bookmarkedConversations.forEach(conversation => {
+        const conversationElement = templateHelper.clone('conversationItemTemplate');
+        if (!conversationElement) return;
+        
+        const item = conversationElement.querySelector('.conversation-item');
+        item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
+
+        // Populate template content
+        const titleElement = conversationElement.querySelector('.conversation-title');
+        titleElement.setAttribute('title', conversation.title);
+        titleElement.textContent = conversation.title;
+        
+        // Setup bookmark button (always active in saved chats section)
+        const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
+        bookmarkBtn.classList.add('active');
+        bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
+        bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
+        
+        const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
+        menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
+        
+        const dropdown = conversationElement.querySelector('.conversation-dropdown');
+        dropdown.id = `dropdown-saved-${conversation.id}`;
+        
+        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+        renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
+        
+        const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
+        deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
+
+        item.addEventListener('click', async (e) => {
+            if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
+                await loadConversation(conversation.id);
+            }
+        });
+
+        container.appendChild(conversationElement);
+    });
+}
+
+// Toggle saved chats section visibility
+function toggleSavedChatsSection() {
+    const section = elements.savedChatsSection;
+    
+    if (section.classList.contains('active')) {
+        section.classList.remove('active');
+    } else {
+        section.classList.add('active');
+        updateSavedChatsList();
+    }
+}
+
 function initializeEventListeners() {
     // Sidebar toggle
     if (elements.sidebarToggle) {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
+    }
+    
+    // Saved chats button
+    if (elements.savedChatsBtn) {
+        elements.savedChatsBtn.addEventListener('click', toggleSavedChatsSection);
     }
 
     // Sidebar hover functionality for desktop
