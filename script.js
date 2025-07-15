@@ -4288,95 +4288,110 @@ function showProfileModal() {
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileActions = document.getElementById('profileActions');
     
-    // Update profile information
-    if (chatState.isLoggedIn) {
-        // Set username and email
-        profileUsername.textContent = chatState.username || 'User';
-        profileEmail.textContent = chatState.email || 'No email provided';
-        
-        // Set avatar with first letter of username
-        if (profileAvatarLarge) {
-            profileAvatarLarge.textContent = chatState.username.charAt(0).toUpperCase();
-            profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
-        }
-        
-        // Calculate stats
-        const chatCount = chatState.conversations.length;
-        let messageCount = 0;
-        chatState.conversations.forEach(conv => {
-            if (conv.messages) {
-                messageCount += conv.messages.length;
-            }
-        });
-        
-        // Update stats
-        profileChatCount.textContent = chatCount;
-        profileMessageCount.textContent = messageCount;
-        
-        // Get login count from local storage or set default
-        const loginCount = localStorage.getItem('sati_login_count') || 1;
-        profileLoginCount.textContent = loginCount;
-        
-        // Set account details
-        profileAccountType.textContent = 'Standard';
-        
-        // Determine login method
-        let loginMethod = 'Email';
-        if (chatState.authProvider) {
-            if (chatState.authProvider === 'google') {
-                loginMethod = 'Google';
-            } else if (chatState.authProvider === 'github') {
-                loginMethod = 'GitHub';
+    // Defensive: Always re-read provider from current session if logged in
+    async function updateProfileWithCurrentProvider() {
+        if (chatState.isLoggedIn && supabase) {
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                if (!error && data.session && data.session.user.app_metadata && data.session.user.app_metadata.provider) {
+                    chatState.authProvider = data.session.user.app_metadata.provider;
+                    chatState.saveState();
+                }
+            } catch (err) {
+                // Ignore, fallback to last known provider
             }
         }
-        profileLoginMethod.textContent = loginMethod;
-        
-        // Set last login date
-        const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
-        const lastLoginDate = new Date(lastLogin);
-        profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
-        
-        // Update profile actions to show logout button
-        if (profileActions) {
-            profileActions.innerHTML = `
-                <button class="btn btn-primary" onclick="exportUserData()">
-                    <i class="fas fa-download"></i> Export Data
-                </button>
-                <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            `;
+        // Now update the UI as before
+        if (chatState.isLoggedIn) {
+            // Set username and email
+            profileUsername.textContent = chatState.username || 'User';
+            profileEmail.textContent = chatState.email || 'No email provided';
+            
+            // Set avatar with first letter of username
+            if (profileAvatarLarge) {
+                profileAvatarLarge.textContent = chatState.username.charAt(0).toUpperCase();
+                profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
+            }
+            
+            // Calculate stats
+            const chatCount = chatState.conversations.length;
+            let messageCount = 0;
+            chatState.conversations.forEach(conv => {
+                if (conv.messages) {
+                    messageCount += conv.messages.length;
+                }
+            });
+            
+            // Update stats
+            profileChatCount.textContent = chatCount;
+            profileMessageCount.textContent = messageCount;
+            
+            // Get login count from local storage or set default
+            const loginCount = localStorage.getItem('sati_login_count') || 1;
+            profileLoginCount.textContent = loginCount;
+            
+            // Set account details
+            profileAccountType.textContent = 'Standard';
+            
+            // Determine login method
+            let loginMethod = 'Email';
+            if (chatState.authProvider) {
+                if (chatState.authProvider === 'google') {
+                    loginMethod = 'Google';
+                } else if (chatState.authProvider === 'github') {
+                    loginMethod = 'GitHub';
+                }
+            }
+            profileLoginMethod.textContent = loginMethod;
+            
+            // Set last login date
+            const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
+            const lastLoginDate = new Date(lastLogin);
+            profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
+            
+            // Update profile actions to show logout button
+            if (profileActions) {
+                profileActions.innerHTML = `
+                    <button class="btn btn-primary" onclick="exportUserData()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            }
+        } else {
+            // Default values for logged out state
+            profileUsername.textContent = 'Guest';
+            profileEmail.textContent = 'Not logged in';
+            
+            // Set default avatar
+            if (profileAvatarLarge) {
+                profileAvatarLarge.textContent = '?';
+                profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
+            }
+            
+            profileChatCount.textContent = chatState.conversations.length;
+            profileMessageCount.textContent = '0';
+            profileLoginCount.textContent = '0';
+            profileAccountType.textContent = 'Guest';
+            profileLoginMethod.textContent = 'None';
+            profileLastLogin.textContent = 'N/A';
+            
+            // Update profile actions to show login button
+            if (profileActions) {
+                profileActions.innerHTML = `
+                    <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                `;
+            }
         }
-    } else {
-        // Default values for logged out state
-        profileUsername.textContent = 'Guest';
-        profileEmail.textContent = 'Not logged in';
-        
-        // Set default avatar
-        if (profileAvatarLarge) {
-            profileAvatarLarge.textContent = '?';
-            profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
-        }
-        
-        profileChatCount.textContent = chatState.conversations.length;
-        profileMessageCount.textContent = '0';
-        profileLoginCount.textContent = '0';
-        profileAccountType.textContent = 'Guest';
-        profileLoginMethod.textContent = 'None';
-        profileLastLogin.textContent = 'N/A';
-        
-        // Update profile actions to show login button
-        if (profileActions) {
-            profileActions.innerHTML = `
-                <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-            `;
-        }
+        // Show the modal
+        modal.show('profileModal');
     }
-    
-    // Show the modal
-    modal.show('profileModal');
+    // Call the async update function
+    updateProfileWithCurrentProvider();
 }
 
 // Show welcome modal with personalized greeting
