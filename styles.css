@@ -577,6 +577,13 @@ body {
 .saved-chats-list .conversation-item {
     margin-left: var(--spacing-1);
     margin-right: var(--spacing-1);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* Animation for removing items from saved chats */
+.saved-chats-list .conversation-item.removing {
+    opacity: 0;
+    transform: translateX(20px);
 }
 
 /* Saved chats count badge */
@@ -1975,6 +1982,22 @@ body {
     flex: 1;
     font-size: var(--font-size-sm);
     color: var(--text-primary);
+}
+
+/* Custom toast with HTML content */
+.toast-custom .toast-message {
+    max-width: 300px;
+}
+
+.toast-custom .toast-message pre {
+    margin: 8px 0;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    overflow: auto;
 }
 
 .toast-close {

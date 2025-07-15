@@ -630,7 +630,8 @@ class ChatBotState {
                     title: conv.title,
                     messages: [], // Messages will be loaded when conversation is selected
                     createdAt: conv.created_at,
-                    updatedAt: conv.updated_at
+                    updatedAt: conv.updated_at,
+                    is_bookmarked: conv.is_bookmarked || false // Include bookmark status
                 }));
                 
                 // Replace local conversations with Supabase ones
@@ -784,6 +785,34 @@ class ToastManager {
             // Populate template content
             toastContent.querySelector('.toast-icon').innerHTML = icons[type];
             toastContent.querySelector('.toast-message').textContent = message;
+            
+            // Add to toast element
+            toast.appendChild(toastContent);
+        }
+    }
+    
+    // New method to show custom HTML content in toast
+    showCustom(contentElement, type = 'info', duration = 3000, actions = []) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type} toast-custom`;
+
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        // Create toast content using template
+        const toastContent = templateHelper.clone('toastTemplate');
+        if (toastContent) {
+            // Populate template content
+            toastContent.querySelector('.toast-icon').innerHTML = icons[type];
+            
+            // Replace text message with custom content
+            const messageContainer = toastContent.querySelector('.toast-message');
+            messageContainer.innerHTML = '';
+            messageContainer.appendChild(contentElement);
             
             // Add to toast element
             toast.appendChild(toastContent);
@@ -2148,7 +2177,9 @@ function exportAllChats() {
 // Event Listeners
 // Bookmark functionality
 async function toggleBookmark(event, conversationId) {
-    event.stopPropagation();
+    if (event) {
+        event.stopPropagation();
+    }
     
     // Find the conversation in the state
     const conversationIndex = chatState.conversations.findIndex(c => c.id === conversationId);
@@ -2161,21 +2192,59 @@ async function toggleBookmark(event, conversationId) {
     // Update local state
     chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
     
+    // Check if this was triggered from the saved chats section
+    const isFromSavedSection = event && 
+        (event.target.closest('.saved-chats-section') || 
+         (event.target.closest('.conversation-dropdown-item') && 
+          event.target.closest('.conversation-dropdown-item').innerHTML.includes('Remove from Saved')));
+    
     // Update UI
-    const bookmarkBtn = event.currentTarget;
-    if (newBookmarkStatus) {
-        bookmarkBtn.classList.add('active');
-        bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
-        toast.show('Chat bookmarked', 'success');
+    let bookmarkBtn;
+    if (event && event.currentTarget && event.currentTarget.classList.contains('conversation-bookmark-btn')) {
+        bookmarkBtn = event.currentTarget;
     } else {
-        bookmarkBtn.classList.remove('active');
-        bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
-        toast.show('Bookmark removed', 'info');
+        bookmarkBtn = document.querySelector(`.conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`);
+    }
+    
+    if (bookmarkBtn) {
+        if (newBookmarkStatus) {
+            bookmarkBtn.classList.add('active');
+            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
+            toast.show('Chat bookmarked', 'success');
+        } else {
+            bookmarkBtn.classList.remove('active');
+            bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
+            toast.show('Bookmark removed', 'info');
+        }
     }
     
     // If saved chats section is visible, update it
     if (elements.savedChatsSection.classList.contains('active')) {
-        updateSavedChatsList();
+        // If this was triggered from the saved section and we're removing a bookmark,
+        // we need to remove the item from the list with animation
+        if (isFromSavedSection && !newBookmarkStatus) {
+            // Find and remove the conversation item from the saved chats list
+            const itemToRemove = document.querySelector(`.saved-chats-list .conversation-item[data-id="${conversationId}"]`);
+            if (itemToRemove) {
+                // Add a fade-out animation
+                itemToRemove.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                itemToRemove.style.opacity = '0';
+                itemToRemove.style.transform = 'translateX(20px)';
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    if (itemToRemove.parentNode) {
+                        itemToRemove.parentNode.removeChild(itemToRemove);
+                    }
+                    // Update the list after removal
+                    updateSavedChatsList();
+                }, 300);
+            } else {
+                updateSavedChatsList();
+            }
+        } else {
+            updateSavedChatsList();
+        }
     } else {
         // Just update the count
         const bookmarkedCount = chatState.conversations.filter(c => c.is_bookmarked).length;
@@ -2195,13 +2264,46 @@ async function toggleBookmark(event, conversationId) {
                 
                 // Check if the error is about missing column
                 if (error.message && error.message.includes("Could not find the 'is_bookmarked' column")) {
-                    // Show a more helpful error message
-                    toast.show('Database schema needs update. See supabase_bookmark_instructions.md', 'error', 5000);
+                    // Show a more helpful error message with instructions
+                    const errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = `
+                        <p>Your Supabase database needs to be updated to support bookmarks.</p>
+                        <p>Please run this SQL in your Supabase dashboard:</p>
+                        <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;overflow:auto;">
+ALTER TABLE conversations ADD COLUMN is_bookmarked BOOLEAN DEFAULT FALSE;
+NOTIFY pgrst, 'reload schema';</pre>
+                    `;
+                    
+                    // Use a custom toast with HTML content
+                    toast.showCustom(errorMsg, 'error', 15000);
                     
                     // Continue with local update only
                     console.log('Continuing with local update only due to missing column in Supabase');
                 } else {
                     toast.show('Failed to update bookmark status', 'error');
+                }
+            } else {
+                console.log(`✅ Bookmark status updated in Supabase: ${newBookmarkStatus ? 'Bookmarked' : 'Unbookmarked'}`);
+                
+                // If this is a bookmark action, ensure the conversation is fully synced
+                if (newBookmarkStatus) {
+                    // Make sure we have the full conversation data in Supabase
+                    const conversation = chatState.conversations[conversationIndex];
+                    if (conversation && conversation.messages && conversation.messages.length > 0) {
+                        // Ensure all messages are synced
+                        for (const message of conversation.messages) {
+                            try {
+                                await window.supabaseDB.addMessage(
+                                    conversationId,
+                                    message.role,
+                                    message.content,
+                                    message.timestamp
+                                );
+                            } catch (msgError) {
+                                console.error('Error syncing message for bookmarked conversation:', msgError);
+                            }
+                        }
+                    }
                 }
             }
         } catch (error) {
@@ -2230,9 +2332,31 @@ async function updateSavedChatsList() {
     // Try to get bookmarked conversations from Supabase if user is logged in
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
+            console.log('🔄 Fetching bookmarked conversations from Supabase...');
             const { data, error } = await window.supabaseDB.getBookmarkedConversations();
             
-            if (!error && data && data.length > 0) {
+            if (error) {
+                // Check if the error is about missing column
+                if (error.message && error.message.includes("Could not find the 'is_bookmarked' column")) {
+                    // Show a more helpful error message with instructions
+                    const errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = `
+                        <p>Your Supabase database needs to be updated to support bookmarks.</p>
+                        <p>Please run this SQL in your Supabase dashboard:</p>
+                        <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;overflow:auto;">
+ALTER TABLE conversations ADD COLUMN is_bookmarked BOOLEAN DEFAULT FALSE;
+NOTIFY pgrst, 'reload schema';</pre>
+                    `;
+                    
+                    // Use a custom toast with HTML content
+                    toast.showCustom(errorMsg, 'error', 15000);
+                    console.error('Error fetching bookmarked conversations:', error);
+                } else {
+                    console.error('Error fetching bookmarked conversations:', error);
+                }
+            } else if (data && data.length > 0) {
+                console.log('✅ Found bookmarked conversations in Supabase:', data.length);
+                
                 // Update local state with bookmarked conversations from Supabase
                 data.forEach(supabaseConv => {
                     // Find if conversation exists in local state
@@ -2256,6 +2380,8 @@ async function updateSavedChatsList() {
                 
                 // Save updated state
                 chatState.saveState();
+            } else {
+                console.log('📝 No bookmarked conversations found in Supabase');
             }
         } catch (error) {
             console.error('Error fetching bookmarked conversations from Supabase:', error);
