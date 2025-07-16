@@ -32,7 +32,7 @@
 
         html[data-theme="light"],
         html[data-theme="light"] body {
-            background-color: #f7f9fb !important;
+            background-color: #f5f7f9 !important;
             color: #2c3e50 !important;
         }
     </style>
@@ -46,12 +46,12 @@
 
             // Apply theme immediately to prevent flash
             document.documentElement.setAttribute('data-theme', savedTheme);
-            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
             document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
 
             // Also apply to body when it's available
             if (document.body) {
-                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f7f9fb';
+                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
                 document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
             }
 

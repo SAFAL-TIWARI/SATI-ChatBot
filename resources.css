@@ -2,8 +2,8 @@
 :root {
     --primary-color: #1976d2;
     --accent-color: #00c853;
-    --bg-color: #f7f9fb;
-    --card-bg: #ffffff;
+    --bg-color: #f5f7f9;
+    --card-bg: #fafafa;
     --text-primary: #2c3e50;
     --text-secondary: #7f8c8d;
     --border-color: #e1e8ed;
@@ -26,8 +26,8 @@
 
 /* Light Mode Variables */
 [data-theme="light"] {
-    --bg-color: #f7f9fb;
-    --card-bg: #ffffff;
+    --bg-color: #f5f7f9;
+    --card-bg: #fafafa;
     --text-primary: #2c3e50;
     --text-secondary: #7f8c8d;
     --border-color: #e1e8ed;

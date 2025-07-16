@@ -77,23 +77,23 @@
 
 /* Light Theme */
 [data-theme="light"] {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f7f7f8;
-    --bg-tertiary: #ececf1;
+    --bg-primary: #fafafa;
+    --bg-secondary: #f5f5f6;
+    --bg-tertiary: #eeeff4;
     --text-primary: #1c2638;
     --text-secondary: #2e3746;
     --text-muted: #718096;
-    --border-color: #e2e8f0;
+    --border-color: #cfd4d9;
     --accent-rgb: 16, 163, 127;
     /* RGB values for accent color in light theme */
-    --user-message-bg: #f7f7f8;
-    --bot-message-bg: #ffffff;
-    --message-hover: #f5f5f5;
-    --input-bg: #ffffff;
+    --user-message-bg: #f5f5f6;
+    --bot-message-bg: #fafafa;
+    --message-hover: #f0f0f0;
+    --input-bg: #fafafa;
     --input-border: #d1d5db;
 
     /* Sidebar - Light Theme */
-    --sidebar-bg: #f8f9fa;
+    --sidebar-bg: #f6f7f8;
     --sidebar-text: #2d3748;
     --sidebar-text-muted: #718096;
     --sidebar-hover: #e2e8f0;
@@ -442,7 +442,7 @@ body {
     --progress: 0;
 }
 
-/* Resources Button with Animated Letters */
+/* Resources Button with Animated Letters and Skew Effect */
 .resources-btn {
     width: 100%;
     cursor: pointer;
@@ -451,6 +451,7 @@ body {
     border: none;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--spacing-2);
     overflow: hidden;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -463,6 +464,21 @@ body {
         box-shadow 0.3s ease,
         transform 0.1s ease,
         background var(--transition-normal);
+    position: relative;
+    z-index: 1;
+}
+
+.resources-btn:after {
+    content: "";
+    background: rgba(255, 255, 255, 0.9);
+    position: absolute;
+    z-index: -1;
+    left: -20%;
+    right: -20%;
+    top: 0;
+    bottom: 0;
+    transform: skewX(-45deg) scale(0, 1);
+    transition: all 0.5s ease;
 }
 
 .resources-btn i {
@@ -476,6 +492,7 @@ body {
 .resources-text {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .resources-text span {
@@ -512,6 +529,26 @@ body {
         -4px -4px 10px rgba(255, 255, 255, 0.1);
 }
 
+.resources-btn:hover:after {
+    transform: skewX(-45deg) scale(1, 1);
+    transition: all 0.5s ease;
+}
+
+.resources-btn:hover i {
+    color: #2d3748;
+    transition: color 0.5s ease;
+}
+
+.resources-btn:hover .resources-text span {
+    color: #2d3748;
+    transition: color 0.3s ease;
+}
+
+.resources-btn:hover .resources-text span:hover {
+    color: #6366f1;
+    transform: translateY(-7px);
+}
+
 .resources-btn:active {
     box-shadow:
         inset 2px 2px 4px rgba(0, 0, 0, 0.2),
@@ -527,6 +564,10 @@ body {
         inset -6px -6px 12px rgba(255, 255, 255, 0.9),
         6px 6px 12px rgba(0, 0, 0, 0.08),
         -6px -6px 12px rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .resources-btn:after {
+    background: rgba(255, 255, 255, 0.95);
 }
 
 [data-theme="light"] .resources-btn i {
@@ -556,6 +597,21 @@ body {
         inset -3px -3px 6px rgba(255, 255, 255, 0.95),
         4px 4px 10px rgba(0, 0, 0, 0.12),
         -4px -4px 10px rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .resources-btn:hover i {
+    color: #1a202c;
+    transition: color 0.5s ease;
+}
+
+[data-theme="light"] .resources-btn:hover .resources-text span {
+    color: #1a202c;
+    transition: color 0.3s ease;
+}
+
+[data-theme="light"] .resources-btn:hover .resources-text span:hover {
+    color: #3b82f6;
+    transform: translateY(-7px);
 }
 
 [data-theme="light"] .resources-btn:active {
@@ -1370,6 +1426,7 @@ body {
     background-color: var(--bg-tertiary) !important;
     cursor: not-allowed;
     opacity: 0.6;
+    font-size: 14.5px;
 }
 
 [data-theme="dark"] .model-select option:disabled,

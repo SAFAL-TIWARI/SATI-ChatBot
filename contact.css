@@ -9,7 +9,7 @@
 
         html[data-theme="light"],
         html[data-theme="light"] body {
-            background-color: #f7f9fb !important;
+            background-color: #f5f7f9 !important;
             color: #2c3e50 !important;
         }
 
@@ -359,7 +359,7 @@
 
         /* Light theme specific improvements */
         [data-theme="light"] .contact-item {
-            background: #ffffff;
+            background: #fafafa;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -482,7 +482,7 @@
         }
 
         [data-theme="light"] .faq-question {
-            background: #ffffff;
+            background: #fafafa;
             border-bottom: 1px solid var(--border-color);
         }
 
