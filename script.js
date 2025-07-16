@@ -1553,6 +1553,14 @@ function updateConversationsList() {
         menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
         dropdown.id = `dropdown-${conversation.id}`;
+        // Add hover out event to close dropdown
+        dropdown.addEventListener('mouseleave', function () {
+            dropdown.classList.remove('show');
+        });
+        // Prevent closing when moving mouse inside dropdown
+        dropdown.addEventListener('mouseenter', function () {
+            // No action needed, but could be used for future logic
+        });
         const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
         const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
@@ -1667,7 +1675,14 @@ async function updateSavedChatsList() {
         dropdown.id = `saved-dropdown-${conversation.id}`;
         // Clear existing dropdown content and rebuild for saved chats
         dropdown.innerHTML = '';
-        
+        // Add hover out event to close dropdown
+        dropdown.addEventListener('mouseleave', function () {
+            dropdown.classList.remove('show');
+        });
+        // Prevent closing when moving mouse inside dropdown
+        dropdown.addEventListener('mouseenter', function () {
+            // No action needed, but could be used for future logic
+        });
         // Add Rename option
         const renameBtn = document.createElement('button');
         renameBtn.className = 'conversation-dropdown-item';
@@ -1677,7 +1692,6 @@ async function updateSavedChatsList() {
             renameSavedConversation(conversation.id); 
         };
         dropdown.appendChild(renameBtn);
-        
         // Add Delete option
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'conversation-dropdown-item danger';
@@ -5438,3 +5452,18 @@ async function showSavedChatsModal() {
 }
 
 // Event listener is set up in initializeEventListeners()
+
+// Add a global click listener to close any open conversation dropdown if clicking outside
+if (!window._conversationDropdownClickListenerAdded) {
+    document.addEventListener('click', function (event) {
+        // Only close if click is outside any open dropdown or menu button
+        const isDropdown = event.target.closest('.conversation-dropdown');
+        const isMenuBtn = event.target.closest('.conversation-menu-btn');
+        if (!isDropdown && !isMenuBtn) {
+            document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+    });
+    window._conversationDropdownClickListenerAdded = true;
+}
