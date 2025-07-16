@@ -717,3 +717,72 @@
 
             // Initialize card swap animation
             initCardSwapAnimation();
+
+            // Team Card Animation Functionality
+            function initTeamCardFunctionality() {
+                const teamCards = document.querySelectorAll('.card.team-member');
+                
+                teamCards.forEach(card => {
+                    const mailButton = card.querySelector('.mail');
+                    const contactButton = card.querySelector('.button');
+                    const memberName = card.querySelector('.name').textContent;
+                    
+                    // Mail button functionality
+                    if (mailButton) {
+                        mailButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Get email based on member name
+                            const email = getTeamMemberEmail(memberName);
+                            const subject = `Hello from SATI ChatBot Website - ${memberName}`;
+                            const body = `Hi ${memberName},\n\nI visited the SATI ChatBot website and would like to get in touch.\n\nBest regards`;
+                            
+                            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                            window.location.href = mailtoLink;
+                            
+                            // Visual feedback
+                            this.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                this.style.transform = 'scale(1)';
+                            }, 150);
+                        });
+                    }
+                    
+                    // Contact button functionality
+                    if (contactButton) {
+                        contactButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Redirect to contact page with member info
+                            const contactUrl = `contact.html?member=${encodeURIComponent(memberName)}`;
+                            window.location.href = contactUrl;
+                        });
+                    }
+                    
+                    // Add subtle animation on card hover
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+                
+                // Function to get team member email (you can customize these)
+                function getTeamMemberEmail(memberName) {
+                    const emailMap = {
+                        'Safal Tiwari': 'safal.tiwari@example.com',
+                        'Utkarsh Vishwakarma': 'utkarsh.vishwakarma@example.com',
+                        'Aashutosh Singh Baghel': 'aashutosh.baghel@example.com',
+                        'Hardik Kumar Sinha': 'hardik.sinha@example.com'
+                    };
+                    
+                    return emailMap[memberName] || 'team@satichatbot.com';
+                }
+            }
+            
+            // Initialize team card functionality
+            initTeamCardFunctionality();
