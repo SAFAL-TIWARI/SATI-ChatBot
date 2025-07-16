@@ -274,10 +274,26 @@ class ChatBotState {
         
         // Initialize Supabase DB operations
         if (window.supabaseDB && window.supabaseDB.initialize) {
-            const initialized = window.supabaseDB.initialize(supabase);
-            this.useSupabaseStorage = initialized;
-            console.log('✅ Supabase storage initialized:', initialized);
-            return initialized;
+            try {
+                const initialized = window.supabaseDB.initialize(supabase);
+                this.useSupabaseStorage = initialized;
+                console.log('✅ Supabase storage initialized:', initialized);
+                
+                if (initialized) {
+                    console.log('🔄 Supabase DB functions available:', {
+                        createConversation: !!window.supabaseDB.createConversation,
+                        addMessage: !!window.supabaseDB.addMessage,
+                        getUserConversations: !!window.supabaseDB.getUserConversations,
+                        updateBookmarkStatus: !!window.supabaseDB.updateBookmarkStatus
+                    });
+                }
+                
+                return initialized;
+            } catch (error) {
+                console.error('❌ Error initializing Supabase storage:', error);
+                this.useSupabaseStorage = false;
+                return false;
+            }
         }
         
         console.log('❌ Supabase DB operations not available');
@@ -1048,16 +1064,37 @@ class ChatManager {
         // Save user message to Supabase immediately
         if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
             try {
-                await window.supabaseDB.addMessage(
+                console.log('🔄 Saving user message to Supabase...', {
+                    conversationId: chatState.currentConversationId,
+                    useSupabaseStorage: chatState.useSupabaseStorage,
+                    supabaseDB: !!window.supabaseDB,
+                    isLoggedIn: chatState.isLoggedIn
+                });
+                
+                const result = await window.supabaseDB.addMessage(
                     chatState.currentConversationId,
                     'user',
                     content,
                     chatState.selectedModel
                 );
-                console.log('✅ User message saved to Supabase immediately');
+                
+                if (result.error) {
+                    console.error('❌ Error saving user message to Supabase:', result.error);
+                    toast.show('Failed to save message to cloud', 'warning');
+                } else {
+                    console.log('✅ User message saved to Supabase immediately');
+                }
             } catch (err) {
-                console.error('❌ Error saving user message to Supabase:', err);
+                console.error('❌ Exception saving user message to Supabase:', err);
+                toast.show('Failed to save message to cloud', 'warning');
             }
+        } else {
+            console.log('📱 Not saving to Supabase:', {
+                useSupabaseStorage: chatState.useSupabaseStorage,
+                supabaseDB: !!window.supabaseDB,
+                currentConversationId: !!chatState.currentConversationId,
+                isLoggedIn: chatState.isLoggedIn
+            });
         }
         
         // Auto-generate title if this is the first user message in a new chat
@@ -1116,15 +1153,24 @@ class ChatManager {
             // Save assistant message to Supabase immediately
             if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
                 try {
-                    await window.supabaseDB.addMessage(
+                    console.log('🔄 Saving assistant message to Supabase...');
+                    
+                    const result = await window.supabaseDB.addMessage(
                         chatState.currentConversationId,
                         'assistant',
                         response,
                         chatState.selectedModel
                     );
-                    console.log('✅ Assistant message saved to Supabase immediately');
+                    
+                    if (result.error) {
+                        console.error('❌ Error saving assistant message to Supabase:', result.error);
+                        toast.show('Failed to save response to cloud', 'warning');
+                    } else {
+                        console.log('✅ Assistant message saved to Supabase immediately');
+                    }
                 } catch (err) {
-                    console.error('❌ Error saving assistant message to Supabase:', err);
+                    console.error('❌ Exception saving assistant message to Supabase:', err);
+                    toast.show('Failed to save response to cloud', 'warning');
                 }
             }
             
@@ -1374,14 +1420,18 @@ function updateConversationsList() {
         titleElement.textContent = conversation.title;
         // Setup bookmark button
         const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
-        if (conversation.is_bookmarked) {
-            bookmarkBtn.classList.add('active');
-            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
-        } else {
-            bookmarkBtn.classList.remove('active');
-            bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
+        if (bookmarkBtn) {
+            if (conversation.is_bookmarked) {
+                bookmarkBtn.classList.add('active');
+                const icon = bookmarkBtn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bookmark';
+            } else {
+                bookmarkBtn.classList.remove('active');
+                const icon = bookmarkBtn.querySelector('i');
+                if (icon) icon.className = 'far fa-bookmark';
+            }
+            bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}', null, false)`);
         }
-        bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
         const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
         menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
@@ -1392,7 +1442,15 @@ function updateConversationsList() {
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
-                await loadConversation(conversation.id);
+                await chatState.loadConversation(conversation.id);
+                elements.chatTitle.textContent = conversation.title;
+                chatManager.renderMessages();
+                updateConversationsList();
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
             }
         });
         container.appendChild(conversationElement);
@@ -1402,6 +1460,10 @@ function updateConversationsList() {
 // Update saved chats list
 async function updateSavedChatsList() {
     const container = elements.savedChatsList;
+    if (!container) {
+        console.error('❌ savedChatsList container not found');
+        return;
+    }
     container.innerHTML = '';
     // Show loading indicator
     const loadingElement = document.createElement('div');
@@ -1467,9 +1529,14 @@ async function updateSavedChatsList() {
         titleElement.textContent = conversation.title;
         // Setup bookmark button (always active in saved chats section)
         const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
-        bookmarkBtn.classList.add('active');
-        bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
-        bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
+        if (bookmarkBtn) {
+            bookmarkBtn.classList.add('active');
+            const icon = bookmarkBtn.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-bookmark';
+            }
+            bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}', null, false)`);
+        }
         const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
         menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
         // Use the same dropdown ID format for both sections
@@ -1494,7 +1561,11 @@ async function updateSavedChatsList() {
                     chatManager.renderMessages();
                     updateConversationsList();
                 } else {
-                    await loadConversation(conversation.id);
+                    // Use the chatState method instead of the removed loadConversation function
+                    await chatState.loadConversation(conversation.id);
+                    elements.chatTitle.textContent = conversation.title;
+                    chatManager.renderMessages();
+                    updateConversationsList();
                 }
             }
         });
@@ -1511,10 +1582,10 @@ async function removeFromSavedWithAnimation(conversationId) {
         itemToRemove.style.transform = 'translateX(20px)';
         setTimeout(async () => {
             // Use toggleBookmark logic to ensure full sync (UI + Supabase)
-            await toggleBookmark(null, conversationId, false, true);
+            await toggleBookmark(null, conversationId, null, false);
         }, 300);
     } else {
-        await toggleBookmark(null, conversationId, false, true);
+        await toggleBookmark(null, conversationId, null, false);
     }
 }
 
@@ -1537,13 +1608,30 @@ async function toggleBookmark(event, conversationId, forceBookmarkStatus = null,
     chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
     // Update all bookmark buttons in All Conversations
     document.querySelectorAll(`.conversations-list .conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`).forEach(btn => {
-        if (btn) {
+        if (btn && btn.classList) {
             if (newBookmarkStatus) {
                 btn.classList.add('active');
-                if (btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-bookmark';
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bookmark';
             } else {
                 btn.classList.remove('active');
-                if (btn.querySelector('i')) btn.querySelector('i').className = 'far fa-bookmark';
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'far fa-bookmark';
+            }
+        }
+    });
+    
+    // Also update bookmark buttons in saved chats list
+    document.querySelectorAll(`.saved-chats-list .conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`).forEach(btn => {
+        if (btn && btn.classList) {
+            if (newBookmarkStatus) {
+                btn.classList.add('active');
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'fas fa-bookmark';
+            } else {
+                btn.classList.remove('active');
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'far fa-bookmark';
             }
         }
     });
@@ -1590,21 +1678,7 @@ function toggleConversationMenu(event, conversationId) {
 //delete here above
 
 
-//delete here below
-async function loadConversation(id) {
-    const conversation = await chatState.loadConversation(id);
-    if (conversation) {
-        elements.chatTitle.textContent = conversation.title;
-        chatManager.renderMessages();
-        updateConversationsList();
 
-        // Close sidebar on mobile
-        if (window.innerWidth <= 768) {
-            toggleSidebar();
-        }
-    }
-}
-//delete here above
 
 
 //delete here below
@@ -2348,251 +2422,7 @@ function exportAllChats() {
 }
 
 
-//delete here below
-// Event Listeners
-// Bookmark functionality
-async function toggleBookmark(event, conversationId) {
-    if (event) {
-        event.stopPropagation();
-    }
-    
-    // Find the conversation in the state
-    const conversationIndex = chatState.conversations.findIndex(c => c.id === conversationId);
-    if (conversationIndex === -1) return;
-    
-    // Toggle bookmark status
-    const isCurrentlyBookmarked = chatState.conversations[conversationIndex].is_bookmarked || false;
-    const newBookmarkStatus = !isCurrentlyBookmarked;
-    
-    // Update local state
-    chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
-    
-    // Check if this was triggered from the saved chats section
-    const isFromSavedSection = event && 
-        (event.target.closest('.saved-chats-section') || 
-         (event.target.closest('.conversation-dropdown-item') && 
-          event.target.closest('.conversation-dropdown-item').innerHTML.includes('Remove from Saved')));
-    
-    // Update UI
-    let bookmarkBtn;
-    if (event && event.currentTarget && event.currentTarget.classList.contains('conversation-bookmark-btn')) {
-        bookmarkBtn = event.currentTarget;
-    } else {
-        bookmarkBtn = document.querySelector(`.conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`);
-    }
-    
-    if (bookmarkBtn) {
-        if (newBookmarkStatus) {
-            bookmarkBtn.classList.add('active');
-            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
-            toast.show('Chat bookmarked', 'success');
-        } else {
-            bookmarkBtn.classList.remove('active');
-            bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
-            toast.show('Bookmark removed', 'info');
-        }
-    }
-    
-    // If saved chats section is visible, update it
-    if (elements.savedChatsSection.classList.contains('active')) {
-        // If this was triggered from the saved section and we're removing a bookmark,
-        // we need to remove the item from the list with animation
-        if (isFromSavedSection && !newBookmarkStatus) {
-            // Find and remove the conversation item from the saved chats list
-            const itemToRemove = document.querySelector(`.saved-chats-list .conversation-item[data-id="${conversationId}"]`);
-            if (itemToRemove) {
-                // Add a fade-out animation
-                itemToRemove.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-                itemToRemove.style.opacity = '0';
-                itemToRemove.style.transform = 'translateX(20px)';
-                
-                // Remove after animation completes
-                setTimeout(() => {
-                    if (itemToRemove.parentNode) {
-                        itemToRemove.parentNode.removeChild(itemToRemove);
-                    }
-                    // Update the list after removal
-                    updateSavedChatsList();
-                }, 300);
-            } else {
-                updateSavedChatsList();
-            }
-        } else {
-            updateSavedChatsList();
-        }
-    } else {
-        // Just update the count
-        const bookmarkedCount = chatState.conversations.filter(c => c.is_bookmarked).length;
-        const savedCountElement = document.getElementById('savedChatsCount');
-        if (savedCountElement) {
-            savedCountElement.textContent = bookmarkedCount > 0 ? bookmarkedCount : '';
-        }
-    }
-    
-    // Update in Supabase if user is logged in
-    if (chatState.useSupabaseStorage && window.supabaseDB) {
-        try {
-            const { success, error } = await window.supabaseDB.updateBookmarkStatus(conversationId, newBookmarkStatus);
-                
-            if (error) {
-                console.error('Error updating bookmark status:', error);
-                
-                // Check if the error is about missing column
-                if (error.message && error.message.includes("Could not find the 'is_bookmarked' column")) {
-                    // Show a more helpful error message with instructions
-                    const errorMsg = document.createElement('div');
-                    errorMsg.innerHTML = `
-                        <p>Your Supabase database needs to be updated to support bookmarks.</p>
-                        <p>Please run this SQL in your Supabase dashboard:</p>
-                        <pre style="background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;overflow:auto;">
-ALTER TABLE conversations ADD COLUMN is_bookmarked BOOLEAN DEFAULT FALSE;
-NOTIFY pgrst, 'reload schema';</pre>
-                    `;
-                    
-                    // Use a custom toast with HTML content
-                    toast.showCustom(errorMsg, 'error', 15000);
-                    
-                    // Continue with local update only
-                    console.log('Continuing with local update only due to missing column in Supabase');
-                } else {
-                    toast.show('Failed to update bookmark status', 'error');
-                }
-            } else {
-                console.log(`✅ Bookmark status updated in Supabase: ${newBookmarkStatus ? 'Bookmarked' : 'Unbookmarked'}`);
-                
-                // If this is a bookmark action, ensure the conversation is fully synced
-                if (newBookmarkStatus) {
-                    // Make sure we have the full conversation data in Supabase
-                    const conversation = chatState.conversations[conversationIndex];
-                    if (conversation && conversation.messages && conversation.messages.length > 0) {
-                        // Ensure all messages are synced
-                        for (const message of conversation.messages) {
-                            try {
-                                await window.supabaseDB.addMessage(
-                                    conversationId,
-                                    message.role,
-                                    message.content,
-                                    message.timestamp
-                                );
-                            } catch (msgError) {
-                                console.error('Error syncing message for bookmarked conversation:', msgError);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error updating bookmark status:', error);
-            toast.show('Failed to update bookmark status', 'error');
-        }
-    }
-    
-    // Save to localStorage
-    chatState.saveState();
-}
 
-// Update saved chats list
-async function updateSavedChatsList() {
-    const container = elements.savedChatsList;
-    container.innerHTML = '';
-    // Show loading indicator
-    const loadingElement = document.createElement('div');
-    loadingElement.className = 'saved-chats-loading';
-    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
-    container.appendChild(loadingElement);
-    let bookmarkedConversations = [];
-    // Always fetch all bookmarked conversations from Supabase if logged in
-    if (chatState.useSupabaseStorage && window.supabaseDB) {
-        try {
-            const { data, error } = await window.supabaseDB.getBookmarkedConversations();
-            console.log('[SavedChats] Supabase fetched data:', data, 'Error:', error);
-            if (!error && data && data.length > 0) {
-                data.forEach(supabaseConv => {
-                    let localConv = chatState.conversations.find(c => c.id === supabaseConv.id);
-                    if (!localConv) {
-                        // Add to local state if missing
-                        localConv = {
-                            id: supabaseConv.id,
-                            title: supabaseConv.title,
-                            is_bookmarked: true,
-                            createdAt: supabaseConv.created_at,
-                            updatedAt: supabaseConv.updated_at,
-                            messages: []
-                        };
-                        chatState.conversations.push(localConv);
-                    } else {
-                        localConv.is_bookmarked = true;
-                    }
-                });
-                chatState.saveState();
-            }
-        } catch (error) {
-            console.error('[SavedChats] Error fetching from Supabase:', error);
-        }
-    }
-    // Remove loading indicator
-    container.innerHTML = '';
-    // Filter bookmarked conversations from local state
-    bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
-    console.log('[SavedChats] Bookmarked conversations to render:', bookmarkedConversations);
-    // Update the saved chats count
-    const savedCountElement = document.getElementById('savedChatsCount');
-    if (savedCountElement) {
-        savedCountElement.textContent = bookmarkedConversations.length > 0 ? bookmarkedConversations.length : '';
-    }
-    if (bookmarkedConversations.length === 0) {
-        const noSavedChats = document.createElement('div');
-        noSavedChats.className = 'no-saved-chats';
-        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats, bookmark to save.</p>';
-        container.appendChild(noSavedChats);
-        return;
-    }
-    // Render bookmarked conversations
-    bookmarkedConversations.forEach(conversation => {
-        const conversationElement = templateHelper.clone('conversationItemTemplate');
-        if (!conversationElement) return;
-        const item = conversationElement.querySelector('.conversation-item');
-        item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
-        item.setAttribute('data-id', conversation.id); // For animation/removal
-        const titleElement = conversationElement.querySelector('.conversation-title');
-        titleElement.setAttribute('title', conversation.title);
-        titleElement.textContent = conversation.title;
-        // Setup bookmark button (always active in saved chats section)
-        const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
-        bookmarkBtn.classList.add('active');
-        bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
-        bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
-        const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
-        menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
-        // Use the same dropdown ID format for both sections
-        const dropdown = conversationElement.querySelector('.conversation-dropdown');
-        dropdown.id = `dropdown-${conversation.id}`;
-        // Add Remove from Saved as the first item in the dropdown (only in Saved Chats)
-        const removeFromSavedBtn = document.createElement('button');
-        removeFromSavedBtn.className = 'conversation-dropdown-item';
-        removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
-        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSavedWithAnimation(conversation.id); };
-        dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
-        renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
-        const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
-        deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
-        item.addEventListener('click', async (e) => {
-            if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
-                // Always load from Supabase if using Supabase storage
-                if (chatState.useSupabaseStorage && window.supabaseDB) {
-                    await chatState.loadConversation(conversation.id);
-                    elements.chatTitle.textContent = conversation.title;
-                    chatManager.renderMessages();
-                    updateConversationsList();
-                } else {
-                    await loadConversation(conversation.id);
-                }
-            }
-        });
-        container.appendChild(conversationElement);
-    });
-}
 
 // Toggle saved chats section visibility
 function toggleSavedChatsSection() {
@@ -3476,8 +3306,10 @@ async function sendMessage() {
 
     // Create new conversation if none exists
     if (!chatState.currentConversationId) {
-        chatState.createNewConversation();
+        console.log('🔄 Creating new conversation before sending message...');
+        await chatState.createNewConversation();
         updateConversationsList();
+        console.log('✅ New conversation created:', chatState.currentConversationId);
     }
 
     // Clear input
