@@ -458,11 +458,35 @@
                         <button class="btn btn-primary" onclick="exportUserData()">
                             <i class="fas fa-download"></i> Export Data
                         </button>
+                        <button class="btn btn-secondary" id="editUsernameBtn">
+                            <i class="fas fa-user-edit"></i> Edit Username
+                        </button>
                         <button class="btn btn-secondary" id="editProfileBtn">
                             <i class="fas fa-edit"></i> Edit Profile
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Username Modal -->
+    <div class="modal-overlay" id="editUsernameModal">
+        <div class="modal-container rename-modal">
+            <div class="modal-header">
+                <h3>Edit Username</h3>
+                <button class="close-btn" id="closeEditUsernameBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="rename-form" id="editUsernameForm">
+                    <input type="text" class="rename-input" id="editUsernameInput" placeholder="Enter new username..." maxlength="32" required>
+                    <div class="rename-actions">
+                        <button type="button" class="rename-btn secondary" id="editUsernameCancelBtn">Cancel</button>
+                        <button type="submit" class="rename-btn primary" id="editUsernameSaveBtn">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -503,26 +527,6 @@
                         Start Chatting
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Username Modal -->
-    <div class="modal-overlay" id="usernameModal">
-        <div class="modal-container username-modal">
-            <div class="modal-header">
-                <h3>Set Your Username</h3>
-                <button class="close-btn" id="closeUsernameBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form class="username-form" id="usernameForm">
-                    <input type="text" class="username-input" id="usernameInput" placeholder="Enter a username..." maxlength="32" required>
-                    <div class="username-actions">
-                        <button type="submit" class="username-btn primary" id="usernameSaveBtn">Save</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

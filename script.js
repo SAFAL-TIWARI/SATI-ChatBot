@@ -5634,3 +5634,88 @@ function showProfileModal() {
         updateLoginStatus();
         afterLoginOrSignup();
     // ... existing code ...
+
+    // Username Edit Modal Logic
+    async function updateSupabaseUsername(newUsername) {
+        if (!supabase || !chatState.isLoggedIn) return { error: 'Not logged in' };
+        try {
+            const { data, error } = await supabase.auth.updateUser({
+                data: { username: newUsername }
+            });
+            if (error) {
+                return { error };
+            }
+            return { data };
+        } catch (err) {
+            return { error: err };
+        }
+    }
+    function showEditUsernameModal() {
+        const modal = document.getElementById('editUsernameModal');
+        const input = document.getElementById('editUsernameInput');
+        if (input) input.value = chatState.username || '';
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { input && input.focus(); }, 100);
+    }
+    function hideEditUsernameModal() {
+        document.getElementById('editUsernameModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    async function handleEditUsernameSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('editUsernameInput');
+        const newUsername = input.value.trim();
+        if (!newUsername || newUsername.length < 2) {
+            input.classList.add('input-error');
+            input.focus();
+            toast.show('Please enter a valid username (min 2 characters)', 'warning');
+            return;
+        }
+        // Update in Supabase
+        const { error } = await updateSupabaseUsername(newUsername);
+        if (error) {
+            toast.show('Failed to update username in Supabase', 'error');
+            return;
+        }
+        // Update locally
+        chatState.username = newUsername;
+        chatState.saveState();
+        updateLoginStatus();
+        showProfileModal(); // Refresh modal
+        hideEditUsernameModal();
+        toast.show('Username updated successfully!', 'success');
+    }
+    // Add event listeners after DOMContentLoaded
+    window.addEventListener('DOMContentLoaded', function () {
+        const editUsernameBtn = document.getElementById('editUsernameBtn');
+        if (editUsernameBtn) {
+            editUsernameBtn.addEventListener('click', showEditUsernameModal);
+        }
+        const closeEditUsernameBtn = document.getElementById('closeEditUsernameBtn');
+        if (closeEditUsernameBtn) {
+            closeEditUsernameBtn.addEventListener('click', hideEditUsernameModal);
+        }
+        const editUsernameCancelBtn = document.getElementById('editUsernameCancelBtn');
+        if (editUsernameCancelBtn) {
+            editUsernameCancelBtn.addEventListener('click', hideEditUsernameModal);
+        }
+        const editUsernameForm = document.getElementById('editUsernameForm');
+        if (editUsernameForm) {
+            editUsernameForm.addEventListener('submit', handleEditUsernameSubmit);
+        }
+        // Prevent closing modal by clicking overlay if input is invalid
+        const editUsernameModal = document.getElementById('editUsernameModal');
+        if (editUsernameModal) {
+            editUsernameModal.addEventListener('click', function (e) {
+                if (e.target === editUsernameModal) {
+                    const input = document.getElementById('editUsernameInput');
+                    if (!input.value.trim() || input.value.trim().length < 2) {
+                        toast.show('Please enter a valid username to continue', 'warning');
+                    } else {
+                        hideEditUsernameModal();
+                    }
+                }
+            });
+        }
+    });
