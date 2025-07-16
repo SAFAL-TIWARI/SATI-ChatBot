@@ -1537,12 +1537,14 @@ async function toggleBookmark(event, conversationId, forceBookmarkStatus = null,
     chatState.conversations[conversationIndex].is_bookmarked = newBookmarkStatus;
     // Update all bookmark buttons in All Conversations
     document.querySelectorAll(`.conversations-list .conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`).forEach(btn => {
-        if (newBookmarkStatus) {
-            btn.classList.add('active');
-            btn.querySelector('i').className = 'fas fa-bookmark';
-        } else {
-            btn.classList.remove('active');
-            btn.querySelector('i').className = 'far fa-bookmark';
+        if (btn) {
+            if (newBookmarkStatus) {
+                btn.classList.add('active');
+                if (btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-bookmark';
+            } else {
+                btn.classList.remove('active');
+                if (btn.querySelector('i')) btn.querySelector('i').className = 'far fa-bookmark';
+            }
         }
     });
     // Update in Supabase if user is logged in
