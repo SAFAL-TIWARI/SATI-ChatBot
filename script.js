@@ -706,41 +706,49 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 //delete here below
-// DOM Elements
-const elements = {
-    // Sidebar
-    sidebar: document.getElementById('sidebar'),
-    sidebarToggle: document.getElementById('sidebarToggle'),
-    newChatBtn: document.getElementById('newChatBtn'),
-    resourcesBtn: document.getElementById('resourcesBtn'),
-    searchInput: document.getElementById('searchInput'),
-    conversationsList: document.getElementById('conversationsList'),
-    savedChatsBtn: document.getElementById('savedChatsBtn'),
+// DOM Elements - will be initialized after DOM is ready
+let elements = {};
 
-    // Main content
-    chatTitle: document.getElementById('chatTitle'),
-    chatMessages: document.getElementById('chatMessages'),
-    typingIndicator: document.getElementById('typingIndicator'),
-    messageInput: document.getElementById('messageInput'),
-    sendBtn: document.getElementById('sendBtn'),
-    stopBtn: document.getElementById('stopBtn'),
-    modelSelect: document.getElementById('modelSelect'),
+// Initialize DOM elements
+function initializeElements() {
+    elements = {
+        // Sidebar
+        sidebar: document.getElementById('sidebar'),
+        sidebarToggle: document.getElementById('sidebarToggle'),
+        newChatBtn: document.getElementById('newChatBtn'),
+        resourcesBtn: document.getElementById('resourcesBtn'),
+        searchInput: document.getElementById('searchInput'),
+        conversationsList: document.getElementById('conversationsList'),
+        savedChatsBtn: document.getElementById('savedChatsBtn'),
 
-    // Top bar
-    shareBtn: document.getElementById('shareBtn'),
-    profileAvatar: document.getElementById('profileAvatar'),
-    profileDropdown: document.getElementById('profileDropdown'),
+        // Main content
+        chatTitle: document.getElementById('chatTitle'),
+        chatMessages: document.getElementById('chatMessages'),
+        typingIndicator: document.getElementById('typingIndicator'),
+        messageInput: document.getElementById('messageInput'),
+        sendBtn: document.getElementById('sendBtn'),
+        stopBtn: document.getElementById('stopBtn'),
+        modelSelect: document.getElementById('modelSelect'),
 
-    // Modals
-    settingsModal: document.getElementById('settingsModal'),
-    customizeModal: document.getElementById('customizeModal'),
-    loginModal: document.getElementById('loginModal'),
-    confirmModal: document.getElementById('confirmModal'),
-    renameModal: document.getElementById('renameModal'),
+        // Top bar
+        shareBtn: document.getElementById('shareBtn'),
+        profileAvatar: document.getElementById('profileAvatar'),
+        profileDropdown: document.getElementById('profileDropdown'),
 
-    // Toast container
-    toastContainer: document.getElementById('toastContainer')
-};
+        // Modals
+        settingsModal: document.getElementById('settingsModal'),
+        customizeModal: document.getElementById('customizeModal'),
+        loginModal: document.getElementById('loginModal'),
+        confirmModal: document.getElementById('confirmModal'),
+        renameModal: document.getElementById('renameModal'),
+
+        // Toast container
+        toastContainer: document.getElementById('toastContainer')
+    };
+    
+    console.log('✅ DOM elements initialized');
+    console.log('Toast container found:', !!elements.toastContainer);
+}
 //delete here above
 
 //delete here above
@@ -789,25 +797,124 @@ const utils = {
 // Toast Notification System
 class ToastManager {
     show(message, type = 'info', duration = 3000, actions = []) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-
-        // Create toast content using template
-        const toastContent = templateHelper.clone('toastTemplate');
-        if (toastContent) {
-            // Populate template content
-            toastContent.querySelector('.toast-icon').innerHTML = icons[type];
-            toastContent.querySelector('.toast-message').textContent = message;
+        try {
+            console.log('🍞 Toast.show called:', { message, type, duration });
             
-            // Add to toast element
-            toast.appendChild(toastContent);
+            // Check if toast container exists
+            if (!elements.toastContainer) {
+                console.error('❌ Toast container not found');
+                return;
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            // Create toast content using template
+            const toastContent = templateHelper.clone('toastTemplate');
+            if (toastContent) {
+                // Populate template content
+                const iconElement = toastContent.querySelector('.toast-icon');
+                const messageElement = toastContent.querySelector('.toast-message');
+                
+                if (iconElement) iconElement.innerHTML = icons[type];
+                if (messageElement) messageElement.textContent = message;
+                
+                // Add to toast element
+                toast.appendChild(toastContent);
+            } else {
+                console.error('❌ Toast template not found');
+                // Fallback: create simple toast without template
+                toast.innerHTML = `
+                    <div class="toast-icon">${icons[type]}</div>
+                    <div class="toast-message">${message}</div>
+                    <button class="toast-close">&times;</button>
+                `;
+            }
+        
+        // Add action buttons if provided
+        if (actions && actions.length > 0) {
+            const actionsContent = templateHelper.clone('toastActionsTemplate');
+            if (actionsContent) {
+                const actionsContainer = actionsContent.querySelector('.toast-actions');
+                const actionButton = actionsContainer.querySelector('.toast-action-btn');
+                
+                // Remove the template button and add actual buttons
+                actionButton.remove();
+                
+                actions.forEach(action => {
+                    const btn = document.createElement('button');
+                    btn.className = 'toast-action-btn';
+                    btn.textContent = action.text;
+                    actionsContainer.appendChild(btn);
+                });
+            
+                toast.appendChild(actionsContent);
+            }
+        }
+        
+            // Add to DOM
+            elements.toastContainer.appendChild(toast);
+            console.log('✅ Toast added to DOM');
+
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+                console.log('✅ Toast show class added');
+            }, 100);
+
+            // Auto remove
+            const removeToast = () => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                        console.log('✅ Toast removed from DOM');
+                    }
+                }, 300);
+            };
+
+            // Set timeout for auto-removal
+            let timeoutId = setTimeout(removeToast, duration);
+
+            // Manual close
+            const closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', removeToast);
+            }
+            
+            // Add event listeners for action buttons
+            if (actions && actions.length > 0) {
+                const actionButtons = toast.querySelectorAll('.toast-action-btn');
+                actionButtons.forEach((btn, index) => {
+                    btn.addEventListener('click', () => {
+                        // Clear the auto-remove timeout
+                        clearTimeout(timeoutId);
+                        
+                        // Execute the action
+                        if (actions[index] && typeof actions[index].onClick === 'function') {
+                            actions[index].onClick();
+                        }
+                        
+                        // Remove the toast
+                        removeToast();
+                    });
+                });
+            }
+            
+            return {
+                close: removeToast
+            };
+            
+        } catch (error) {
+            console.error('❌ Error in toast.show:', error);
+            return null;
         }
     }
     
@@ -906,6 +1013,12 @@ class ToastManager {
 //delete here above
 
 const toast = new ToastManager();
+
+// Test function for toast (can be called from console)
+window.testToast = function(message = 'Test toast notification', type = 'info') {
+    console.log('🧪 Testing toast:', { message, type });
+    return toast.show(message, type);
+};
 
 //delete here below
 // Modal Management
@@ -4754,6 +4867,9 @@ function initializeCoolMode() {
 // Initialize Application
 function initializeApp() {
     try {
+        // Initialize DOM elements first
+        initializeElements();
+        
         // Initialize Supabase client
         let supabaseInitialized = false;
         
@@ -4864,6 +4980,13 @@ function initializeApp() {
         }
 
         console.log('SATI ChatBot initialized successfully');
+        
+        // Test toast notification after initialization
+        setTimeout(() => {
+            if (toast && typeof toast.show === 'function') {
+                toast.show('SATI ChatBot initialized successfully!', 'success', 2000);
+            }
+        }, 1000);
     } catch (error) {
         console.error('Error initializing SATI ChatBot:', error);
     }
@@ -4923,7 +5046,17 @@ function initializeMobileLayout() {
 }
 
 // Start the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    
+    // Additional test for toast after a delay
+    setTimeout(() => {
+        console.log('🧪 Running additional toast test...');
+        if (window.testToast) {
+            window.testToast('Toast system is working!', 'success');
+        }
+    }, 2000);
+});
 
 // Handle window resize
 window.addEventListener('resize', () => {
