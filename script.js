@@ -5791,3 +5791,13 @@ function showThemeChangeToast(newTheme, oldTheme) {
             });
         }
     });
+
+    // Refactor renameSavedConversation and deleteSavedConversation to call the main modal-based functions for compatibility
+    async function renameSavedConversation(conversationId) {
+        // For compatibility, just call renameConversation
+        renameConversation(conversationId);
+    }
+    async function deleteSavedConversation(conversationId) {
+        // For compatibility, just call deleteConversation
+        await deleteConversation(conversationId);
+    }
