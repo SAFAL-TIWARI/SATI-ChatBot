@@ -1362,7 +1362,7 @@ function updateConversationsList() {
         templateHelper.appendTo('noConversationsTemplate', container);
         return;
     }
-    
+
     chatState.conversations.forEach(conversation => {
         const conversationElement = templateHelper.clone('conversationItemTemplate');
         if (!conversationElement) return;
@@ -1409,24 +1409,26 @@ async function updateSavedChatsList() {
     loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
     container.appendChild(loadingElement);
     let bookmarkedConversations = [];
-    // Try to get bookmarked conversations from Supabase if user is logged in
+    // Always fetch all bookmarked conversations from Supabase if logged in
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
             const { data, error } = await window.supabaseDB.getBookmarkedConversations();
             if (!error && data && data.length > 0) {
                 data.forEach(supabaseConv => {
-                    const localIndex = chatState.conversations.findIndex(c => c.id === supabaseConv.id);
-                    if (localIndex !== -1) {
-                        chatState.conversations[localIndex].is_bookmarked = true;
-                    } else {
-                        chatState.conversations.push({
+                    let localConv = chatState.conversations.find(c => c.id === supabaseConv.id);
+                    if (!localConv) {
+                        // Add to local state if missing
+                        localConv = {
                             id: supabaseConv.id,
                             title: supabaseConv.title,
                             is_bookmarked: true,
                             createdAt: supabaseConv.created_at,
                             updatedAt: supabaseConv.updated_at,
                             messages: []
-                        });
+                        };
+                        chatState.conversations.push(localConv);
+                    } else {
+                        localConv.is_bookmarked = true;
                     }
                 });
                 chatState.saveState();
@@ -1483,7 +1485,15 @@ async function updateSavedChatsList() {
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
-                await loadConversation(conversation.id);
+                // Always load from Supabase if using Supabase storage
+                if (chatState.useSupabaseStorage && window.supabaseDB) {
+                    await chatState.loadConversation(conversation.id);
+                    elements.chatTitle.textContent = conversation.title;
+                    chatManager.renderMessages();
+                    updateConversationsList();
+                } else {
+                    await loadConversation(conversation.id);
+                }
             }
         });
         container.appendChild(conversationElement);
@@ -2487,24 +2497,26 @@ async function updateSavedChatsList() {
     loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading saved chats...</span>';
     container.appendChild(loadingElement);
     let bookmarkedConversations = [];
-    // Try to get bookmarked conversations from Supabase if user is logged in
+    // Always fetch all bookmarked conversations from Supabase if logged in
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
             const { data, error } = await window.supabaseDB.getBookmarkedConversations();
             if (!error && data && data.length > 0) {
                 data.forEach(supabaseConv => {
-                    const localIndex = chatState.conversations.findIndex(c => c.id === supabaseConv.id);
-                    if (localIndex !== -1) {
-                        chatState.conversations[localIndex].is_bookmarked = true;
-                    } else {
-                        chatState.conversations.push({
+                    let localConv = chatState.conversations.find(c => c.id === supabaseConv.id);
+                    if (!localConv) {
+                        // Add to local state if missing
+                        localConv = {
                             id: supabaseConv.id,
                             title: supabaseConv.title,
                             is_bookmarked: true,
                             createdAt: supabaseConv.created_at,
                             updatedAt: supabaseConv.updated_at,
                             messages: []
-                        });
+                        };
+                        chatState.conversations.push(localConv);
+                    } else {
+                        localConv.is_bookmarked = true;
                     }
                 });
                 chatState.saveState();
@@ -2561,7 +2573,15 @@ async function updateSavedChatsList() {
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
-                await loadConversation(conversation.id);
+                // Always load from Supabase if using Supabase storage
+                if (chatState.useSupabaseStorage && window.supabaseDB) {
+                    await chatState.loadConversation(conversation.id);
+                    elements.chatTitle.textContent = conversation.title;
+                    chatManager.renderMessages();
+                    updateConversationsList();
+                } else {
+                    await loadConversation(conversation.id);
+                }
             }
         });
         container.appendChild(conversationElement);
