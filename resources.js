@@ -1500,16 +1500,70 @@ function initializePage() {
         localStorage.getItem('theme') ||
         'dark';
 
-    // Apply theme
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    // Apply theme with system theme support
+    applyTheme(savedTheme);
 
     // Ensure consistency across all storage keys
     localStorage.setItem('sati_theme', savedTheme);
     localStorage.setItem('light', savedTheme);
     localStorage.setItem('theme', savedTheme);
 
-    // Update dark mode icon
-    updateDarkModeIcon(savedTheme === 'dark');
+    // Setup system theme listener if needed
+    if (savedTheme === 'system') {
+        setupSystemThemeListener();
+    }
+}
+
+// Apply theme with system theme detection
+function applyTheme(theme) {
+    let actualTheme = theme;
+
+    // Handle system theme detection
+    if (theme === 'system') {
+        // Check if user's system prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            actualTheme = 'dark';
+        } else {
+            actualTheme = 'light';
+        }
+    }
+
+    // Apply the actual theme
+    document.documentElement.setAttribute('data-theme', actualTheme);
+
+    // Update dark mode icon based on actual theme
+    updateDarkModeIcon(actualTheme === 'dark');
+}
+
+// Setup system theme listener
+function setupSystemThemeListener() {
+    // Remove existing listener if any
+    if (window.systemThemeListener) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.removeEventListener) {
+            mediaQuery.removeEventListener('change', window.systemThemeListener);
+        } else if (mediaQuery.removeListener) {
+            mediaQuery.removeListener(window.systemThemeListener);
+        }
+    }
+
+    // Create new listener
+    window.systemThemeListener = (e) => {
+        const savedTheme = localStorage.getItem('sati_theme') || localStorage.getItem('theme');
+        if (savedTheme === 'system') {
+            const actualTheme = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', actualTheme);
+            updateDarkModeIcon(actualTheme === 'dark');
+        }
+    };
+
+    // Add listener with fallback for older browsers
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', window.systemThemeListener);
+    } else if (mediaQuery.addListener) {
+        mediaQuery.addListener(window.systemThemeListener);
+    }
 }
 
 // Setup all event listeners
@@ -1532,7 +1586,7 @@ function setupEventListeners() {
     shareBtn.addEventListener('click', handleShare);
 
     // Dark mode toggle
-    darkModeToggle.addEventListener('click', toggleDarkMode);
+    darkModeToggle.addEventListener('change', toggleDarkMode);
 
     // Mobile menu toggle
     mobileMenuToggle.addEventListener('click', toggleMobileMenu);
@@ -1859,26 +1913,33 @@ function handleSocialShare(event) {
 
 // Toggle dark mode
 function toggleDarkMode() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    const currentActualTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentActualTheme === 'dark' ? 'light' : 'dark';
 
     // Apply theme
-    document.documentElement.setAttribute('data-theme', newTheme);
+    applyTheme(newTheme);
 
     // Save to all possible localStorage keys for consistency across pages
     localStorage.setItem('sati_theme', newTheme);
     localStorage.setItem('light', newTheme);
     localStorage.setItem('theme', newTheme);
 
-    updateDarkModeIcon(newTheme === 'dark');
+    // Remove system theme listener since we're switching to explicit theme
+    if (window.systemThemeListener) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.removeEventListener) {
+            mediaQuery.removeEventListener('change', window.systemThemeListener);
+        } else if (mediaQuery.removeListener) {
+            mediaQuery.removeListener(window.systemThemeListener);
+        }
+        window.systemThemeListener = null;
+    }
 }
 
-// Update dark mode icon
+// Update dark mode toggle state
 function updateDarkModeIcon(isDark) {
-    const icon = darkModeToggle.querySelector('i');
-    if (icon) {
-        icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
-    }
+    // Set checkbox state based on theme (checked = dark mode)
+    darkModeToggle.checked = isDark;
 }
 
 // Toggle mobile menu

@@ -2961,33 +2961,66 @@ function initializeEventListeners() {
 
 
 
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            // Cycle through themes: light -> dark -> system -> light
-            if (chatState.theme === 'light') {
-                chatState.theme = 'dark';
-            } else if (chatState.theme === 'dark') {
-                chatState.theme = 'system';
-            } else {
-                chatState.theme = 'light';
-            }
-
-            chatState.applyTheme();
-            chatState.saveState();
-            updateThemeToggleButton();
-
-            if (elements.profileDropdown) {
-                elements.profileDropdown.classList.remove('show');
-            }
-
-            let message = `Switched to ${chatState.theme} mode`;
-            if (chatState.theme === 'system') {
-                message = 'Switched to system default theme';
-            }
-            toast.show(message, 'success');
+    // Theme menu functionality
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const themeSubmenu = document.getElementById('themeSubmenu');
+    const themeMenuBtn = document.getElementById('themeMenuBtn');
+    
+    if (themeOptions.length > 0) {
+        themeOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const selectedTheme = option.getAttribute('data-theme');
+                const oldTheme = chatState.theme;
+                
+                chatState.theme = selectedTheme;
+                chatState.applyTheme();
+                chatState.saveState();
+                updateThemeMenuSelection();
+                
+                // Show toast message immediately
+                showThemeChangeToast(selectedTheme, oldTheme);
+                
+                // Close theme submenu on mobile
+                if (themeSubmenu) {
+                    themeSubmenu.classList.remove('show-mobile');
+                }
+                
+                // Close profile dropdown
+                if (elements.profileDropdown) {
+                    elements.profileDropdown.classList.remove('show');
+                }
+            });
         });
     }
+    
+    // Mobile theme menu toggle functionality
+    if (themeMenuBtn && themeSubmenu) {
+        themeMenuBtn.addEventListener('click', (e) => {
+            // Only handle click on mobile devices
+            if (window.innerWidth <= 768) {
+                e.stopPropagation();
+                themeSubmenu.classList.toggle('show-mobile');
+            }
+        });
+    }
+    
+    // Prevent theme submenu from closing profile dropdown
+    if (themeSubmenu) {
+        themeSubmenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    // Close theme submenu when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && themeSubmenu) {
+            if (!themeMenuBtn.contains(e.target) && !themeSubmenu.contains(e.target)) {
+                themeSubmenu.classList.remove('show-mobile');
+            }
+        }
+    });
+
 
     const loginLogoutBtn = document.getElementById('loginLogoutBtn');
     if (loginLogoutBtn) {
@@ -4672,27 +4705,45 @@ function showProfileModal() {
         }
     }
 
-    // Update theme toggle button appearance
-    function updateThemeToggleButton() {
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        if (themeToggleBtn) {
-            const icon = themeToggleBtn.querySelector('i');
-            const text = themeToggleBtn.querySelector('span');
-
-            if (icon && text) {
-                if (chatState.theme === 'dark') {
-                    icon.className = 'fas fa-desktop';
-                    text.textContent = 'System Theme';
-                } else if (chatState.theme === 'light') {
-                    icon.className = 'fas fa-moon';
-                    text.textContent = 'Dark Mode';
-                } else if (chatState.theme === 'system') {
-                    icon.className = 'fas fa-sun';
-                    text.textContent = 'Light Mode';
-                }
+// Update theme menu selection
+function updateThemeMenuSelection() {
+    const themeOptions = document.querySelectorAll('.theme-option');
+    if (themeOptions.length > 0) {
+        themeOptions.forEach(option => {
+            const themeValue = option.getAttribute('data-theme');
+            if (themeValue === chatState.theme) {
+                option.classList.add('active');
+            } else {
+                option.classList.remove('active');
             }
-        }
+        });
     }
+}
+
+// Update theme toggle button appearance (legacy function name kept for compatibility)
+function updateThemeToggleButton() {
+    updateThemeMenuSelection();
+}
+
+// Show theme change toast message
+function showThemeChangeToast(newTheme, oldTheme) {
+    let message = 'Theme updated';
+    
+    if (newTheme === 'dark') {
+        message = 'Switched to dark theme';
+    } else if (newTheme === 'light') {
+        message = 'Switched to light theme';
+    } else if (newTheme === 'system') {
+        message = 'Switched to system default theme';
+    }
+    
+    // Show toast if toast system is available
+    if (typeof toast !== 'undefined' && toast.show) {
+        toast.show(message, 'success');
+    } else {
+        console.log('🎨 ' + message);
+    }
+}
 
     // Check if user is already logged in with Supabase
     async function checkExistingSession() {

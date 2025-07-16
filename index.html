@@ -29,7 +29,7 @@
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
     
-
+    
     <!-- Cool Mode Effect -->
     <script src="cool-mode.js"></script>
 
@@ -81,8 +81,10 @@
             <!-- New Chat Button -->
             <div class="sidebar-section">
                 <button class="new-chat-btn" id="newChatBtn">
-                    <i class="fas fa-plus"></i>
-                    <span>New Chat</span>
+                    <span>
+                        <i class="fas fa-plus"></i>
+                        New Chat
+                    </span>
                 </button>
             </div>
 
@@ -90,7 +92,17 @@
             <div class="sidebar-section">
                 <button class="resources-btn" id="resourcesBtn">
                     <i class="fas fa-book"></i>
-                    <span>Resources</span>
+                    <div class="resources-text">
+                        <span>R</span>
+                        <span>E</span>
+                        <span>S</span>
+                        <span>O</span>
+                        <span>U</span>
+                        <span>R</span>
+                        <span>C</span>
+                        <span>E</span>
+                        <span>S</span>
+                    </div>
                 </button>
             </div>
 
@@ -160,9 +172,27 @@
                                 <span>Customize Appearance</span>
                             </div>
 
-                            <div class="profile-dropdown-item" id="themeToggleBtn">
-                                <i class="fas fa-sun"></i>
-                                <span>Light Mode</span>
+                            <div class="profile-dropdown-item theme-menu-item" id="themeMenuBtn">
+                                <svg class="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z" fill="currentColor"/>
+                                </svg>
+                                <span>Themes</span>
+                                <i class="fas fa-chevron-right theme-arrow"></i>
+                                <!-- Theme Submenu -->
+                                <div class="theme-submenu" id="themeSubmenu">
+                                    <div class="theme-option" data-theme="dark">
+                                        <i class="fas fa-moon"></i>
+                                        <span>Dark</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="light">
+                                        <i class="fas fa-sun"></i>
+                                        <span>Light</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="system">
+                                        <i class="fas fa-desktop"></i>
+                                        <span>System</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="profile-dropdown-item" id="loginLogoutBtn">
                                 <i class="fas fa-sign-in-alt"></i>

@@ -10,26 +10,28 @@
             box-sizing: border-box;
         }
 
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
         }
 
         html[data-theme="light"],
         html[data-theme="light"] body {
-            background-color: #f7f9fb !important;
+            background-color: #f5f7f9 !important;
             color: #2c3e50 !important;
         }
-        
+
         /* Light theme specific improvements */
         [data-theme="light"] .features-section,
         [data-theme="light"] .team-section {
             border: 1px solid var(--border-color);
         }
-        
+
         [data-theme="light"] .feature-item {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
-        
+
         [data-theme="light"] .team-member {
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
@@ -38,6 +40,208 @@
             --secondary-color: #00c853;
             --primary-hover: #1565c0;
             --hover-color: rgba(25, 118, 210, 0.1);
+        }
+
+        /* Theme Switch Styles */
+        .theme-switch {
+            --toggle-size: 18px;
+            --container-width: 4em;
+            --container-height: 1.8em;
+            --container-radius: 4.5em;
+            --circle-container-diameter: 2.4em;
+            --sun-moon-diameter: 1.5em;
+            --container-night-bg: #1D1F2C;
+            --container-light-bg: #3D7EAE;
+            --sun-bg: #ECCA2F;
+            --moon-bg: #C4C9D1;
+            --spot-color: #959DB1;
+            --circle-container-offset: calc((var(--circle-container-diameter) - var(--container-height)) / 2 * -1);
+            --stars-color: #fff;
+            --clouds-color: #F3FDFF;
+            --back-clouds-color: #AACADF;
+            --transition: .5s cubic-bezier(0, -0.02, 0.4, 1.25);
+            --circle-transition: .3s cubic-bezier(0, -0.02, 0.35, 1.17);
+        }
+
+        .theme-switch,
+        .theme-switch *,
+        .theme-switch *::before,
+        .theme-switch *::after {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-size: var(--toggle-size);
+        }
+
+        .theme-switch__container {
+            width: var(--container-width);
+            height: var(--container-height);
+            background-color: var(--container-light-bg);
+            border-radius: var(--container-radius);
+            overflow: hidden;
+            cursor: pointer;
+            -webkit-box-shadow: 0em -0.062em 0.062em rgba(0, 0, 0, 0.25), 0em 0.062em 0.125em rgba(255, 255, 255, 0.94);
+            box-shadow: 0em -0.062em 0.062em rgba(0, 0, 0, 0.25), 0em 0.062em 0.125em rgba(255, 255, 255, 0.94);
+            -webkit-transition: var(--transition);
+            -o-transition: var(--transition);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .theme-switch__container::before {
+            content: "";
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+            -webkit-box-shadow: 0em 0.05em 0.187em rgba(0, 0, 0, 0.25) inset, 0em 0.05em 0.187em rgba(0, 0, 0, 0.25) inset;
+            box-shadow: 0em 0.05em 0.187em rgba(0, 0, 0, 0.25) inset, 0em 0.05em 0.187em rgba(0, 0, 0, 0.25) inset;
+            border-radius: var(--container-radius)
+        }
+
+        .theme-switch__checkbox {
+            display: none;
+        }
+
+        .theme-switch__circle-container {
+            width: var(--circle-container-diameter);
+            height: var(--circle-container-diameter);
+            background-color: rgba(255, 255, 255, 0.1);
+            position: absolute;
+            left: var(--circle-container-offset);
+            top: var(--circle-container-offset);
+            border-radius: var(--container-radius);
+            -webkit-box-shadow: inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), 0 0 0 0.625em rgba(255, 255, 255, 0.1), 0 0 0 1.25em rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), 0 0 0 0.625em rgba(255, 255, 255, 0.1), 0 0 0 1.25em rgba(255, 255, 255, 0.1);
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-transition: var(--circle-transition);
+            -o-transition: var(--circle-transition);
+            transition: var(--circle-transition);
+            pointer-events: none;
+        }
+
+        .theme-switch__sun-moon-container {
+            pointer-events: auto;
+            position: relative;
+            z-index: 2;
+            width: var(--sun-moon-diameter);
+            height: var(--sun-moon-diameter);
+            margin: auto;
+            border-radius: var(--container-radius);
+            background-color: var(--sun-bg);
+            -webkit-box-shadow: 0.062em 0.062em 0.062em 0em rgba(254, 255, 239, 0.61) inset, 0em -0.062em 0.062em 0em #a1872a inset;
+            box-shadow: 0.062em 0.062em 0.062em 0em rgba(254, 255, 239, 0.61) inset, 0em -0.062em 0.062em 0em #a1872a inset;
+            -webkit-filter: drop-shadow(0.062em 0.125em 0.125em rgba(0, 0, 0, 0.25)) drop-shadow(0em 0.062em 0.125em rgba(0, 0, 0, 0.25));
+            filter: drop-shadow(0.062em 0.125em 0.125em rgba(0, 0, 0, 0.25)) drop-shadow(0em 0.062em 0.125em rgba(0, 0, 0, 0.25));
+            overflow: hidden;
+            -webkit-transition: var(--transition);
+            -o-transition: var(--transition);
+            transition: var(--transition);
+        }
+
+        .theme-switch__moon {
+            -webkit-transform: translateX(100%);
+            -ms-transform: translateX(100%);
+            transform: translateX(100%);
+            width: 100%;
+            height: 100%;
+            background-color: var(--moon-bg);
+            border-radius: inherit;
+            -webkit-box-shadow: 0.062em 0.062em 0.062em 0em rgba(254, 255, 239, 0.61) inset, 0em -0.062em 0.062em 0em #969696 inset;
+            box-shadow: 0.062em 0.062em 0.062em 0em rgba(254, 255, 239, 0.61) inset, 0em -0.062em 0.062em 0em #969696 inset;
+            -webkit-transition: var(--transition);
+            -o-transition: var(--transition);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .theme-switch__spot {
+            position: absolute;
+            top: 0.75em;
+            left: 0.312em;
+            width: 0.75em;
+            height: 0.75em;
+            border-radius: var(--container-radius);
+            background-color: var(--spot-color);
+            -webkit-box-shadow: 0em 0.0312em 0.062em rgba(0, 0, 0, 0.25) inset;
+            box-shadow: 0em 0.0312em 0.062em rgba(0, 0, 0, 0.25) inset;
+        }
+
+        .theme-switch__spot:nth-of-type(2) {
+            width: 0.375em;
+            height: 0.375em;
+            top: 0.937em;
+            left: 1.375em;
+        }
+
+        .theme-switch__spot:nth-last-of-type(3) {
+            width: 0.25em;
+            height: 0.25em;
+            top: 0.312em;
+            left: 0.812em;
+        }
+
+        .theme-switch__clouds {
+            width: 1.25em;
+            height: 1.25em;
+            background-color: var(--clouds-color);
+            border-radius: var(--container-radius);
+            position: absolute;
+            bottom: -0.625em;
+            left: 0.312em;
+            -webkit-box-shadow: 0.937em 0.312em var(--clouds-color), -0.312em -0.312em var(--back-clouds-color), 1.437em 0.375em var(--clouds-color), 0.5em -0.125em var(--back-clouds-color), 2.187em 0 var(--clouds-color), 1.25em -0.062em var(--back-clouds-color), 2.937em 0.312em var(--clouds-color), 2em -0.312em var(--back-clouds-color), 3.625em -0.062em var(--clouds-color), 2.625em 0em var(--back-clouds-color), 4.5em -0.312em var(--clouds-color), 3.375em -0.437em var(--back-clouds-color), 4.625em -1.75em 0 0.437em var(--clouds-color), 4em -0.625em var(--back-clouds-color), 4.125em -2.125em 0 0.437em var(--back-clouds-color);
+            box-shadow: 0.937em 0.312em var(--clouds-color), -0.312em -0.312em var(--back-clouds-color), 1.437em 0.375em var(--clouds-color), 0.5em -0.125em var(--back-clouds-color), 2.187em 0 var(--clouds-color), 1.25em -0.062em var(--back-clouds-color), 2.937em 0.312em var(--clouds-color), 2em -0.312em var(--back-clouds-color), 3.625em -0.062em var(--clouds-color), 2.625em 0em var(--back-clouds-color), 4.5em -0.312em var(--clouds-color), 3.375em -0.437em var(--back-clouds-color), 4.625em -1.75em 0 0.437em var(--clouds-color), 4em -0.625em var(--back-clouds-color), 4.125em -2.125em 0 0.437em var(--back-clouds-color);
+            -webkit-transition: 0.5s cubic-bezier(0, -0.02, 0.4, 1.25);
+            -o-transition: 0.5s cubic-bezier(0, -0.02, 0.4, 1.25);
+            transition: 0.5s cubic-bezier(0, -0.02, 0.4, 1.25);
+        }
+
+        .theme-switch__stars-container {
+            position: absolute;
+            color: var(--stars-color);
+            top: -100%;
+            left: 0.312em;
+            width: 2.75em;
+            height: auto;
+            -webkit-transition: var(--transition);
+            -o-transition: var(--transition);
+            transition: var(--transition);
+        }
+
+        /* Theme Switch Actions */
+        .theme-switch__checkbox:checked+.theme-switch__container {
+            background-color: var(--container-night-bg);
+        }
+
+        .theme-switch__checkbox:checked+.theme-switch__container .theme-switch__circle-container {
+            left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter));
+        }
+
+        .theme-switch__checkbox:checked+.theme-switch__container .theme-switch__circle-container:hover {
+            left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter) - 0.187em)
+        }
+
+        .theme-switch__circle-container:hover {
+            left: calc(var(--circle-container-offset) + 0.187em);
+        }
+
+        .theme-switch__checkbox:checked+.theme-switch__container .theme-switch__moon {
+            -webkit-transform: translate(0);
+            -ms-transform: translate(0);
+            transform: translate(0);
+        }
+
+        .theme-switch__checkbox:checked+.theme-switch__container .theme-switch__clouds {
+            bottom: -4.062em;
+        }
+
+        .theme-switch__checkbox:checked+.theme-switch__container .theme-switch__stars-container {
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
         }
 
         /* Animation Keyframes */
@@ -142,6 +346,14 @@
             line-height: 1.5;
         }
 
+        [ data-theme="light"] .hero-section h1 {
+            color: rgba(0, 0, 0, 0.722);
+        }
+
+        [ data-theme="light"] .hero-section p {
+            color: rgba(0, 0, 0, 0.735);
+        }
+
         /* Scroll Velocity Animation Styles */
         .scroll-velocity-container {
             position: relative;
@@ -211,6 +423,7 @@
             0% {
                 transform: translateX(0);
             }
+
             100% {
                 transform: translateX(-50%);
             }
@@ -261,7 +474,7 @@
             animation: fadeInUp 1s ease-out forwards;
             border: 1px solid var(--border-color);
         }
-        
+
         /* Light theme specific improvements for flowing stats */
         [data-theme="light"] .flowing-stats-wrap {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -283,7 +496,7 @@
             background: var(--card-bg);
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         /* Light theme specific improvements */
         [data-theme="light"] .flowing-stat-item {
             box-shadow: inset 0 0 0 1px var(--border-color);
@@ -306,7 +519,7 @@
             justify-content: center;
             height: 100%;
             position: relative;
-            cursor:default;
+            cursor: default;
             text-decoration: none;
             white-space: nowrap;
             font-weight: 600;
@@ -387,7 +600,7 @@
             text-align: center;
         }
 
-        .flowing-stat-link:hover + .flowing-marquee {
+        .flowing-stat-link:hover+.flowing-marquee {
             transform: translate3d(0, 0%, 0);
         }
 
@@ -395,6 +608,7 @@
             from {
                 transform: translateX(0);
             }
+
             to {
                 transform: translateX(-30%);
             }
@@ -405,20 +619,20 @@
             .flowing-stats-wrap {
                 height: 320px;
             }
-            
+
             .flowing-stat-link {
                 font-size: 1rem;
             }
-            
+
             .flowing-stat-number {
                 font-size: 1.5rem;
             }
-            
+
             .flowing-marquee span {
                 font-size: 0.9rem;
                 padding: 0 1rem;
             }
-            
+
             .flowing-marquee-detail {
                 font-size: 0.5rem;
                 padding: 0.4rem 0.8rem;
@@ -461,14 +675,15 @@
             position: relative;
             width: 2px;
             height: 400px;
-            left:10px;
-            background: linear-gradient(to bottom, 
-                transparent 0%, 
-                var(--primary-color) 20%, 
-                var(--secondary-color) 50%, 
-                var(--primary-color) 80%, 
-                transparent 100%);
-            display: none; /* Hidden by default, shown on desktop */
+            left: 10px;
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    var(--primary-color) 20%,
+                    var(--secondary-color) 50%,
+                    var(--primary-color) 80%,
+                    transparent 100%);
+            display: none;
+            /* Hidden by default, shown on desktop */
             border-radius: 2px;
             overflow: hidden;
         }
@@ -480,10 +695,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, 
-                var(--secondary-color) 0%, 
-                transparent 50%, 
-                var(--secondary-color) 100%);
+            background: linear-gradient(to bottom,
+                    var(--secondary-color) 0%,
+                    transparent 50%,
+                    var(--secondary-color) 100%);
             animation: dividerPulse 3s ease-in-out infinite;
             opacity: 0.6;
         }
@@ -504,13 +719,29 @@
 
         /* Divider animations */
         @keyframes dividerPulse {
-            0%, 100% { opacity: 0.3; transform: scaleY(1); }
-            50% { opacity: 0.8; transform: scaleY(1.1); }
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scaleY(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scaleY(1.1);
+            }
         }
 
         @keyframes centerDot {
-            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px var(--primary-color); }
-            100% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 8px var(--secondary-color); }
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 6px var(--primary-color);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 0 0 0 4px var(--card-bg), 0 0 0 8px var(--secondary-color);
+            }
         }
 
         /* Floating connection lines */
@@ -576,13 +807,16 @@
         }
 
         @keyframes connectionFloat {
-            0%, 100% { 
-                opacity: 0.2; 
-                transform: scaleX(0.5); 
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scaleX(0.5);
             }
-            50% { 
-                opacity: 0.8; 
-                transform: scaleX(1.2); 
+
+            50% {
+                opacity: 0.8;
+                transform: scaleX(1.2);
             }
         }
 
@@ -601,9 +835,10 @@
             position: relative;
             width: 400px;
             height: 400px;
-            right:40px;
-            top:20px;
-            display: none; /* Hidden by default, shown on desktop */
+            right: 40px;
+            top: 20px;
+            display: none;
+            /* Hidden by default, shown on desktop */
         }
 
         .orbiting-circles-center {
@@ -755,228 +990,340 @@
         }
 
         /* Orbit animations - Fixed to follow correct paths */
-        .orbit-1 { 
-            animation: orbit1 8s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+        .orbit-1 {
+            animation: orbit1 8s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-2 { 
-            animation: orbit2 12s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-2 {
+            animation: orbit2 12s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-3 { 
-            animation: orbit3 16s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-3 {
+            animation: orbit3 16s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-4 { 
-            animation: orbit4 10s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-4 {
+            animation: orbit4 10s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-5 { 
-            animation: orbit5 14s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-5 {
+            animation: orbit5 14s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-6 { 
-            animation: orbit6 18s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-6 {
+            animation: orbit6 18s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-7 { 
-            animation: orbit7 20s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-7 {
+            animation: orbit7 20s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
 
         /* New orbit positions for tech stack organization */
-        .orbit-1-2 { 
-            animation: orbit1-2 8s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+        .orbit-1-2 {
+            animation: orbit1-2 8s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-1-3 { 
-            animation: orbit1-3 9s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-1-3 {
+            animation: orbit1-3 9s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-1-4 { 
-            animation: orbit1-4 10s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-1-4 {
+            animation: orbit1-4 10s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-2-2 { 
-            animation: orbit2-2 13s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-2-2 {
+            animation: orbit2-2 13s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-2-3 { 
-            animation: orbit2-3 15s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-2-3 {
+            animation: orbit2-3 15s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-3-2 { 
-            animation: orbit3-2 17s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-3-2 {
+            animation: orbit3-2 17s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-3-3 { 
-            animation: orbit3-3 19s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-3-3 {
+            animation: orbit3-3 19s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-4-2 { 
-            animation: orbit4-2 22s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-4-2 {
+            animation: orbit4-2 22s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-4-3 { 
-            animation: orbit4-3 24s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-4-3 {
+            animation: orbit4-3 24s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-5-2 { 
-            animation: orbit5-2 26s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-5-2 {
+            animation: orbit5-2 26s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-5-3 { 
-            animation: orbit5-3 20s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-5-3 {
+            animation: orbit5-3 20s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
-        .orbit-5-4 { 
-            animation: orbit5-4 30s linear infinite; 
-            top: 50%; 
-            left: 50%; 
+
+        .orbit-5-4 {
+            animation: orbit5-4 30s linear infinite;
+            top: 50%;
+            left: 50%;
             margin: -25px 0 0 -25px;
         }
 
         /* Orbit 1 - Inner circle (100px radius) */
         @keyframes orbit1 {
-            from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(100px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(100px) rotate(-360deg);
+            }
         }
 
         /* Backend Layer - Orbit 2 (150px radius) */
         @keyframes orbit2 {
-            from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(150px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(150px) rotate(-360deg);
+            }
         }
 
         /* Database Layer - Orbit 3 (190px radius) */
         @keyframes orbit3 {
-            from { transform: rotate(0deg) translateX(190px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(190px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(190px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(190px) rotate(-360deg);
+            }
         }
 
         /* API Layer - Orbit 4 (225px radius) */
         @keyframes orbit4 {
-            from { transform: rotate(0deg) translateX(225px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(225px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(225px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(225px) rotate(-360deg);
+            }
         }
 
         /* Deployment Layer - Orbit 5 (260px radius) */
         @keyframes orbit5 {
-            from { transform: rotate(0deg) translateX(260px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(260px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(260px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(260px) rotate(-360deg);
+            }
         }
 
         /* Legacy orbits - keeping for compatibility */
         @keyframes orbit6 {
-            from { transform: rotate(0deg) translateX(190px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(190px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(190px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(190px) rotate(-360deg);
+            }
         }
 
         @keyframes orbit7 {
-            from { transform: rotate(180deg) translateX(190px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(190px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(190px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(190px) rotate(-540deg);
+            }
         }
 
         /* New keyframes for tech stack organization */
         /* Frontend Layer (100px radius) */
         @keyframes orbit1-2 {
-            from { transform: rotate(90deg) translateX(100px) rotate(-90deg); }
-            to { transform: rotate(450deg) translateX(100px) rotate(-450deg); }
+            from {
+                transform: rotate(90deg) translateX(100px) rotate(-90deg);
+            }
+
+            to {
+                transform: rotate(450deg) translateX(100px) rotate(-450deg);
+            }
         }
 
         @keyframes orbit1-3 {
-            from { transform: rotate(180deg) translateX(100px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(100px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(100px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(100px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit1-4 {
-            from { transform: rotate(270deg) translateX(100px) rotate(-270deg); }
-            to { transform: rotate(630deg) translateX(100px) rotate(-630deg); }
+            from {
+                transform: rotate(270deg) translateX(100px) rotate(-270deg);
+            }
+
+            to {
+                transform: rotate(630deg) translateX(100px) rotate(-630deg);
+            }
         }
 
         /* Backend Layer (150px radius) */
         @keyframes orbit2-2 {
-            from { transform: rotate(180deg) translateX(150px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(150px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(150px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(150px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit2-3 {
-            from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+            from {
+                transform: rotate(0deg) translateX(150px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg) translateX(150px) rotate(-360deg);
+            }
         }
 
         /* Database Layer (190px radius) */
         @keyframes orbit3-2 {
-            from { transform: rotate(180deg) translateX(190px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(190px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(190px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(190px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit3-3 {
-            from { transform: rotate(240deg) translateX(190px) rotate(-240deg); }
-            to { transform: rotate(600deg) translateX(190px) rotate(-600deg); }
+            from {
+                transform: rotate(240deg) translateX(190px) rotate(-240deg);
+            }
+
+            to {
+                transform: rotate(600deg) translateX(190px) rotate(-600deg);
+            }
         }
 
         /* API Layer (225px radius) */
         @keyframes orbit4-2 {
-            from { transform: rotate(180deg) translateX(225px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(225px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(225px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(225px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit4-3 {
-            from { transform: rotate(240deg) translateX(225px) rotate(-240deg); }
-            to { transform: rotate(600deg) translateX(225px) rotate(-600deg); }
+            from {
+                transform: rotate(240deg) translateX(225px) rotate(-240deg);
+            }
+
+            to {
+                transform: rotate(600deg) translateX(225px) rotate(-600deg);
+            }
         }
 
         /* Deployment Layer (260px radius) */
         @keyframes orbit5-2 {
-            from { transform: rotate(180deg) translateX(260px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(260px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(260px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(260px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit5-3 {
-            from { transform: rotate(180deg) translateX(260px) rotate(-180deg); }
-            to { transform: rotate(540deg) translateX(260px) rotate(-540deg); }
+            from {
+                transform: rotate(180deg) translateX(260px) rotate(-180deg);
+            }
+
+            to {
+                transform: rotate(540deg) translateX(260px) rotate(-540deg);
+            }
         }
 
         @keyframes orbit5-4 {
-            from { transform: rotate(270deg) translateX(260px) rotate(-270deg); }
-            to { transform: rotate(630deg) translateX(260px) rotate(-630deg); }
+            from {
+                transform: rotate(270deg) translateX(260px) rotate(-270deg);
+            }
+
+            to {
+                transform: rotate(630deg) translateX(260px) rotate(-630deg);
+            }
         }
 
         /* Desktop only - show orbiting circles and divider */
@@ -984,11 +1331,11 @@
             .orbiting-circles-container {
                 display: block;
             }
-            
+
             .vertical-divider {
                 display: block;
             }
-            
+
             .features-layout {
                 justify-content: space-between;
                 max-width: 1100px;
@@ -1003,64 +1350,99 @@
                 max-width: 1200px;
                 gap: 6rem;
             }
-            
+
             .orbiting-circles-container {
                 width: 450px;
                 height: 450px;
             }
-            
+
             .orbit-path-1 {
                 width: 220px;
                 height: 220px;
                 margin: -110px 0 0 -110px;
             }
-            
+
             .orbit-path-2 {
                 width: 310px;
                 height: 310px;
                 margin: -155px 0 0 -155px;
             }
-            
+
             .orbit-path-3 {
                 width: 380px;
                 height: 380px;
                 margin: -190px 0 0 -190px;
             }
-            
+
             /* Adjust orbit animations for larger screen */
             @keyframes orbit1 {
-                from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(110px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(110px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit2 {
-                from { transform: rotate(120deg) translateX(110px) rotate(-120deg); }
-                to { transform: rotate(480deg) translateX(110px) rotate(-480deg); }
+                from {
+                    transform: rotate(120deg) translateX(110px) rotate(-120deg);
+                }
+
+                to {
+                    transform: rotate(480deg) translateX(110px) rotate(-480deg);
+                }
             }
-            
+
             @keyframes orbit3 {
-                from { transform: rotate(0deg) translateX(165px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(165px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(165px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(165px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit4 {
-                from { transform: rotate(120deg) translateX(165px) rotate(-120deg); }
-                to { transform: rotate(480deg) translateX(165px) rotate(-480deg); }
+                from {
+                    transform: rotate(120deg) translateX(165px) rotate(-120deg);
+                }
+
+                to {
+                    transform: rotate(480deg) translateX(165px) rotate(-480deg);
+                }
             }
-            
+
             @keyframes orbit5 {
-                from { transform: rotate(240deg) translateX(165px) rotate(-240deg); }
-                to { transform: rotate(600deg) translateX(165px) rotate(-600deg); }
+                from {
+                    transform: rotate(240deg) translateX(165px) rotate(-240deg);
+                }
+
+                to {
+                    transform: rotate(600deg) translateX(165px) rotate(-600deg);
+                }
             }
-            
+
             @keyframes orbit6 {
-                from { transform: rotate(0deg) translateX(210px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(210px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(210px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(210px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit7 {
-                from { transform: rotate(180deg) translateX(210px) rotate(-180deg); }
-                to { transform: rotate(540deg) translateX(210px) rotate(-540deg); }
+                from {
+                    transform: rotate(180deg) translateX(210px) rotate(-180deg);
+                }
+
+                to {
+                    transform: rotate(540deg) translateX(210px) rotate(-540deg);
+                }
             }
         }
 
@@ -1070,72 +1452,107 @@
                 width: 350px;
                 height: 350px;
             }
-            
+
             .orbit-path-1 {
                 width: 180px;
                 height: 180px;
                 margin: -90px 0 0 -90px;
             }
-            
+
             .orbit-path-2 {
                 width: 260px;
                 height: 260px;
                 margin: -130px 0 0 -130px;
             }
-            
+
             .orbit-path-3 {
                 width: 330px;
                 height: 330px;
                 margin: -165px 0 0 -165px;
             }
-            
+
             .orbiting-icon {
                 width: 45px;
                 height: 45px;
                 font-size: 1.1rem;
                 margin: -22.5px 0 0 -22.5px;
             }
-            
+
             .orbiting-circles-center {
                 width: 70px;
                 height: 70px;
                 font-size: 1.3rem;
             }
-            
+
             /* Adjust orbit animations for medium screen */
             @keyframes orbit1 {
-                from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(90px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(90px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit2 {
-                from { transform: rotate(120deg) translateX(90px) rotate(-120deg); }
-                to { transform: rotate(480deg) translateX(90px) rotate(-480deg); }
+                from {
+                    transform: rotate(120deg) translateX(90px) rotate(-120deg);
+                }
+
+                to {
+                    transform: rotate(480deg) translateX(90px) rotate(-480deg);
+                }
             }
-            
+
             @keyframes orbit3 {
-                from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(130px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(130px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit4 {
-                from { transform: rotate(120deg) translateX(130px) rotate(-120deg); }
-                to { transform: rotate(480deg) translateX(130px) rotate(-480deg); }
+                from {
+                    transform: rotate(120deg) translateX(130px) rotate(-120deg);
+                }
+
+                to {
+                    transform: rotate(480deg) translateX(130px) rotate(-480deg);
+                }
             }
-            
+
             @keyframes orbit5 {
-                from { transform: rotate(240deg) translateX(130px) rotate(-240deg); }
-                to { transform: rotate(600deg) translateX(130px) rotate(-600deg); }
+                from {
+                    transform: rotate(240deg) translateX(130px) rotate(-240deg);
+                }
+
+                to {
+                    transform: rotate(600deg) translateX(130px) rotate(-600deg);
+                }
             }
-            
+
             @keyframes orbit6 {
-                from { transform: rotate(0deg) translateX(165px) rotate(0deg); }
-                to { transform: rotate(360deg) translateX(165px) rotate(-360deg); }
+                from {
+                    transform: rotate(0deg) translateX(165px) rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg) translateX(165px) rotate(-360deg);
+                }
             }
-            
+
             @keyframes orbit7 {
-                from { transform: rotate(180deg) translateX(165px) rotate(-180deg); }
-                to { transform: rotate(540deg) translateX(165px) rotate(-540deg); }
+                from {
+                    transform: rotate(180deg) translateX(165px) rotate(-180deg);
+                }
+
+                to {
+                    transform: rotate(540deg) translateX(165px) rotate(-540deg);
+                }
             }
         }
 
@@ -1245,165 +1662,327 @@
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            gap: 3rem;
             margin-top: 2rem;
+            justify-items: center;
         }
 
-        .team-member {
+        /* Animated Card Styles */
+        .card {
+            width: 280px;
+            height: 280px;
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            box-shadow: var(--shadow);
-            background: linear-gradient(135deg, var(--card-bg), rgba(0, 50, 200, 0.204));
+            border-radius: 32px;
+            padding: 3px;
+            position: relative;
+            box-shadow: rgba(96, 75, 74, 0.3) 0px 70px 30px -50px;
+            transition: all 0.5s ease-in-out;
         }
 
-        .team-member:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-color);
-            box-shadow: var(--shadow-hover);
+        .card .mail {
+            position: absolute;
+            right: 2rem;
+            top: 1.4rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 4;
         }
 
-        .team-member.lead {
-            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.2));
-            border-radius: 5%;
-            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.15);
+        .card .mail svg {
+            stroke: var(--primary-color);
+            stroke-width: 3px;
+            transition: stroke 0.3s ease;
         }
 
-        .team-member.lead:hover {
-            border-color: var(--secondary-color);
+        .card .mail svg:hover {
+            stroke: var(--secondary-color);
         }
 
-
-        .member-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto 1rem;
+        .card .profile-pic {
+            position: absolute;
+            width: calc(100% - 6px);
+            height: calc(100% - 6px);
+            top: 3px;
+            left: 3px;
+            border-radius: 29px;
+            z-index: 1;
+            border: 0px solid var(--primary-color);
             overflow: hidden;
-            border: 3px solid var(--primary-color);
-            transition: transform 0.3s ease;
+            transition: all 0.5s ease-in-out 0.2s, z-index 0.5s ease-in-out 0.2s;
         }
 
-        .team-member.lead .member-avatar {
-            border-color: var(--secondary-color);
-        }
-
-        .member-avatar:hover {
-            transform: scale(1.1);
-        }
-
-        .member-avatar img {
+        .card .profile-pic img {
+            object-fit: cover;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-position: 0px 0px;
+            transition: all 0.5s ease-in-out 0s;
+        }
+
+        .card .bottom {
+            position: absolute;
+            bottom: 3px;
+            left: 3px;
+            right: 3px;
+            /* background: linear-gradient(135deg, rgba(0, 0, 255, 0.563), rgba(128, 0, 128, 0.608), rgba(255, 0, 0, 0.603)); */
+            top: 80%;
+            border-radius: 29px;
+            z-index: 2;
+            box-shadow: rgba(96, 75, 74, 0.188) 0px 5px 5px 0px inset;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.645, 0.045, 0.355, 1) 0s;
+        }
+
+        .card .bottom-u {
+            background: linear-gradient(135deg, rgba(193, 83, 101, 0.612), rgb(68, 68, 190), rgba(184, 49, 49, 0.458));
+        }
+
+        .card .bottom-a {
+            background: linear-gradient(135deg, rgb(193, 83, 101), rgba(0, 255, 157, 0.458), rgba(38, 38, 160, 0.349));
+        }
+
+        .card .bottom-h {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.458), rgb(193, 83, 101), rgba(47, 47, 165, 0.329));
+        }
+
+        .card .bottom .content {
+            position: absolute;
+            bottom: 0;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 160px;
+        }
+
+        .card .bottom .content .name {
+            display: block;
+            font-size: 1.1rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .card .bottom .content .about-me {
+            display: block;
+            font-size: 0.9rem;
+            color: white;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+
+        .card .bottom .bottom-bottom {
+            position: absolute;
+            bottom: 1rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card .bottom .bottom-bottom .social-links-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .card .bottom .bottom-bottom .social-links-container a {
+            text-decoration: none;
+        }
+
+        .card .bottom .bottom-bottom .social-links-container svg {
+            height: 20px;
+            fill: white;
+            filter: drop-shadow(0 5px 5px rgba(165, 132, 130, 0.133));
+            transition: all 0.3s ease;
+        }
+
+        .card .bottom .bottom-bottom .social-links-container svg:hover {
+            fill: var(--secondary-color);
+            transform: scale(1.2);
+        }
+
+        .card .bottom .bottom-bottom .button {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+            box-shadow: rgba(165, 132, 130, 0.133) 0px 5px 5px 0px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card .bottom .bottom-bottom .button:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .card:hover {
+            border-top-left-radius: 55px;
+        }
+
+        .card:hover .bottom {
+            top: 20%;
+            border-radius: 80px 29px 29px 29px;
+            transition: all 0.5s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+        }
+
+        .card:hover .profile-pic {
+            width: 100px;
+            height: 100px;
+            aspect-ratio: 1;
+            top: 10px;
+            left: 10px;
             border-radius: 50%;
-            transition: transform 0.3s ease;
+            z-index: 3;
+            border: 7px solid var(--primary-color);
+            box-shadow: rgba(96, 75, 74, 0.188) 0px 5px 5px 0px;
+            transition: all 0.5s ease-in-out, z-index 0.5s ease-in-out 0.1s;
         }
 
-        .member-avatar img:hover {
-            transform: scale(1.05);
+        .card:hover .profile-pic:hover {
+            transform: scale(1.3);
+            border-radius: 0px;
         }
 
-        /* Fallback for broken images */
-        .member-avatar img[src=""],
-        .member-avatar img:not([src]) {
-            display: none;
+        .card:hover .profile-pic img {
+            transform: scale(2.5);
+            object-position: 0px 25px;
+            transition: all 0.5s ease-in-out 0.5s;
         }
 
-        .member-avatar::before {
-            content: '';
+        .card.team-member {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 50, 200, 0.327));
+            box-shadow: 0 4px 15px rgba(0, 47, 200, 0.15), rgba(96, 75, 74, 0.3) 0px 70px 30px -50px;
+        }
+
+        [data-theme="light"] .card .bottom .content .name {
+            color: #121212;
+        }
+
+        [data-theme="light"] .card .bottom .content .about-me {
+            color: #121212;
+        }
+
+        /* Lead Developer Special Styling */
+        .card.team-member.lead {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.1));
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.15), rgba(96, 75, 74, 0.3) 0px 70px 30px -50px;
+        }
+
+        /* Leader Tag/Strip */
+        .leader-tag {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            content: '\f007';
+            background: linear-gradient(135deg, rgb(32, 176, 107), rgba(36, 67, 162, 0.329));
             color: white;
-            font-size: 1.5rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .member-avatar img[alt]::after {
-            content: attr(alt);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-        }
-
-        .member-avatar:hover img[alt]::after {
-            opacity: 1;
-        }
-
-        .member-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.3rem;
-        }
-
-        .member-role {
+            padding: 0.2rem 0.9rem;
+            border-radius: 32px 0 20px 0;
             font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.8rem;
-        }
-
-        .team-member.lead .member-role {
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-
-        .social-links {
-            display: inline-flex;
-            gap: 30px;
-            
-        }
-
-        .social-links a {
+            font-weight: 600;
+            text-transform: uppercase;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
+            gap: 0.3rem;
+            min-width: 50px;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--bg-color);
-            color: var(--text-secondary);
-            border-radius: 50%;
-            text-decoration: none;
-            transition: var(--transition);
-            border: 1px solid var(--border-color);
-        }
-        
-        /* Light theme specific improvements for social links */
-        [data-theme="light"] .social-links a {
-            background: var(--card-bg);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            transform: translate(-25px, 10px) rotate(-45deg);
         }
 
-        .social-links a:hover {
+        .leader-tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .leader-tag::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--primary-color);
+            border-bottom: 8px solid transparent;
+            opacity: 0.7;
+        }
+
+        /* Animation for leader tag */
+        .leader-tag {
+            animation: leaderTagPulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes leaderTagPulse {
+            0% {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(0, 200, 83, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 6px rgba(0, 200, 83, 0);
+            }
+        }
+
+        /* Pause animation on card hover */
+        .card.team-member.lead:hover .leader-tag {
+            animation-play-state: paused;
+        }
+
+        /* Ensure the card has proper positioning context */
+        .card.team-member.lead {
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Light theme adjustments for leader tag */
+        [data-theme="light"] .leader-tag {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            color: #000;
+        }
+
+        [data-theme="light"] .leader-tag:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        [data-theme="light"] .leader-tag::after {
+            border-left-color: #1976d2;
+        }
+
+        .card.team-member.lead .bottom-s {
+            background: linear-gradient(135deg, rgb(175, 50, 50), rgba(181, 176, 43, 0.638), rgb(193, 83, 101), rgba(47, 47, 165, 0.329));
+        }
+
+        .card.team-member.lead .mail svg {
+            stroke: var(--secondary-color);
+        }
+
+        .card.team-member.lead .mail svg:hover {
+            stroke: var(--primary-color);
+        }
+
+        .card.team-member.lead:hover .profile-pic {
+            border-color: var(--secondary-color);
+        }
+
+        .card.team-member.lead .bottom .bottom-bottom .button {
+            color: var(--secondary-color);
+        }
+
+        .card.team-member.lead .bottom .bottom-bottom .button:hover {
             background: var(--primary-color);
             color: white;
-            transform: translateY(-2px);
+        }
+
+        .card.team-member.lead .bottom .bottom-bottom .social-links-container svg:hover {
+            fill: var(--primary-color);
+            color: #000;
+            transform: scale(1.2);
+        }
+
+        [data-theme="light"] .card.team-member.lead {
+            background: linear-gradient(135deg, var(--card-bg), rgba(0, 200, 83, 0.419));
         }
 
         /* Mobile Optimizations */
@@ -1430,19 +2009,37 @@
                 height: 230px;
                 bottom: 20px;
             }
-            
+
             .info-card {
                 width: 230px;
                 height: 230px;
                 padding: 1.2rem;
             }
-            
+
             .info-card h3 {
                 font-size: 1.1rem;
             }
-            
+
             .info-card p {
                 font-size: 0.85rem;
+            }
+
+            /* Mobile responsive styles for leader tag */
+            .leader-tag {
+                padding: 0.4rem 1rem;
+                font-size: 0.65rem;
+                min-width: 70px;
+            }
+
+            .leader-tag::before {
+                width: 14px;
+                height: 14px;
+            }
+
+            .leader-tag::after {
+                border-left-width: 6px;
+                border-bottom-width: 6px;
+                bottom: -6px;
             }
 
             .stats-section {
@@ -1476,34 +2073,29 @@
                 display: none !important;
             }
 
-            /* .feature-card {
-                width: 230px;
-                height: 230px;
-                padding: 1.5rem 1rem;
-            } */
-             
+
             .feature-card {
-            position: absolute;
-            top: 140%;
-            left: 18%;
-            width: 300px;
-            height: 300px;
-            border-radius: 15px;
-            border: 2px solid var(--primary-color);
-            background: var(--card-bg);
-            box-shadow: var(--shadow-hover);
-            transform-style: preserve-3d;
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            text-align: center;
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.1s ease;
-        }
+                position: absolute;
+                top: 140%;
+                left: 18%;
+                width: 300px;
+                height: 300px;
+                border-radius: 15px;
+                border: 2px solid var(--primary-color);
+                background: var(--card-bg);
+                box-shadow: var(--shadow-hover);
+                transform-style: preserve-3d;
+                will-change: transform;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                text-align: center;
+                padding: 2rem 1.5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: all 0.1s ease;
+            }
 
             .feature-card .feature-icon {
                 font-size: 2.5rem;
@@ -1519,11 +2111,14 @@
                 font-size: 0.9rem;
             }
 
-
-
             .team-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
+                gap: 1.5rem;
+            }
+
+            .card {
+                width: 250px;
+                height: 250px;
             }
 
             .tech-stack {
@@ -1534,6 +2129,10 @@
             .team-section {
                 padding: 1.5rem;
                 margin-bottom: 1.5rem;
+            }
+
+            .theme-switch {
+                --toggle-size: 17px;
             }
         }
 
@@ -1570,9 +2169,23 @@
                 gap: 1rem;
             }
 
-            .member-avatar {
-                width: 60px;
-                height: 60px;
+            .card {
+                width: 300px;
+                height: 290px;
+                margin: 0 auto;
+            }
+
+            .card .bottom .content .name {
+                font-size: 1.1rem;
+            }
+
+            .card .bottom .content .about-me {
+                font-size: 0.8rem;
+            }
+
+            .card .bottom .bottom-bottom .button {
+                font-size: 0.85rem;
+                padding: 0.3rem 0.5rem;
             }
 
             /* Card Swap Small Mobile Styles */
@@ -1610,6 +2223,11 @@
             .feature-card p {
                 font-size: 0.8rem;
             }
+
+            /* Theme switch mobile styles */
+            .theme-switch {
+                --toggle-size: 16px;
+            }
         }
 
         /* Vercel Icon Styling */
@@ -1621,7 +2239,7 @@
             transition: all 0.3s ease;
         }
 
-        .vercel-icon .vercel-logo  {
+        .vercel-icon .vercel-logo {
             fill: #000000;
         }
 
@@ -1630,17 +2248,17 @@
             background: #000000;
             border: 2px solid var(--primary-hover);
         }
-        
+
         [data-theme="dark"] .vercel-icon .vercel-logo {
             fill: #ffffff;
         }
-        
+
         /* Light mode styling for Vercel icon */
         [data-theme="light"] .vercel-icon {
             background: white;
             border: 2px solid var(--primary-hover);
         }
-        
+
         [data-theme="light"] .vercel-icon .vercel-logo {
             fill: #000000;
         }

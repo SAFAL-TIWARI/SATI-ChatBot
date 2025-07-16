@@ -6,27 +6,32 @@
             const mobileNavMenu = document.getElementById('mobileNavMenu');
             const blurOverlay = document.getElementById('blurOverlay');
 
+            // Initialize theme on page load
+            initializeTheme();
+
             // Dark mode toggle
             if (darkModeToggle) {
-                // Set initial icon based on current theme
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const icon = darkModeToggle.querySelector('i');
-                icon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
-
-                darkModeToggle.addEventListener('click', function () {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                darkModeToggle.addEventListener('change', function () {
+                    const newTheme = this.checked ? 'dark' : 'light';
 
                     // Apply theme
-                    document.documentElement.setAttribute('data-theme', newTheme);
+                    applyTheme(newTheme);
 
                     // Save to all possible localStorage keys for consistency
                     localStorage.setItem('sati_theme', newTheme);
                     localStorage.setItem('light', newTheme);
                     localStorage.setItem('theme', newTheme);
 
-                    // Update icon
-                    icon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+                    // Remove system theme listener since we're switching to explicit theme
+                    if (window.systemThemeListener) {
+                        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                        if (mediaQuery.removeEventListener) {
+                            mediaQuery.removeEventListener('change', window.systemThemeListener);
+                        } else if (mediaQuery.removeListener) {
+                            mediaQuery.removeListener(window.systemThemeListener);
+                        }
+                        window.systemThemeListener = null;
+                    }
                 });
             }
 
@@ -717,3 +722,145 @@
 
             // Initialize card swap animation
             initCardSwapAnimation();
+
+            // Team Card Animation Functionality
+            function initTeamCardFunctionality() {
+                const teamCards = document.querySelectorAll('.card.team-member');
+                
+                teamCards.forEach(card => {
+                    const mailButton = card.querySelector('.mail');
+                    const contactButton = card.querySelector('.button');
+                    const memberName = card.querySelector('.name').textContent;
+                    
+                    // Mail button functionality
+                    if (mailButton) {
+                        mailButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Get email based on member name
+                            const email = getTeamMemberEmail(memberName);
+                            const subject = `Hello from SATI ChatBot Website - ${memberName}`;
+                            const body = `Hi ${memberName},\n\nI visited the SATI ChatBot website and would like to get in touch.\n\nBest regards`;
+                            
+                            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                            window.location.href = mailtoLink;
+                            
+                            // Visual feedback
+                            this.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                this.style.transform = 'scale(1)';
+                            }, 150);
+                        });
+                    }
+                    
+                    // Contact button functionality
+                    if (contactButton) {
+                        contactButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Redirect to contact page with member info
+                            const contactUrl = `contact.html?member=${encodeURIComponent(memberName)}`;
+                            window.location.href = contactUrl;
+                        });
+                    }
+                    
+                    // Add subtle animation on card hover
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+                
+                // Function to get team member email (you can customize these)
+                function getTeamMemberEmail(memberName) {
+                    const emailMap = {
+                        'Safal Tiwari': 'safal.tiwari@example.com',
+                        'Utkarsh Vishwakarma': 'utkarsh.vishwakarma@example.com',
+                        'Aashutosh Singh Baghel': 'aashutosh.baghel@example.com',
+                        'Hardik Kumar Sinha': 'hardik.sinha@example.com'
+                    };
+                    
+                    return emailMap[memberName] || 'team@satichatbot.com';
+                }
+            }
+            
+            // Initialize team card functionality
+            initTeamCardFunctionality();
+
+            // Theme initialization and management functions
+            function initializeTheme() {
+                // Check for saved theme - check multiple possible keys for compatibility
+                const savedTheme = localStorage.getItem('sati_theme') ||
+                    localStorage.getItem('light') ||
+                    localStorage.getItem('theme') ||
+                    'dark';
+
+                // Apply theme with system theme support
+                applyTheme(savedTheme);
+
+                // Setup system theme listener if needed
+                if (savedTheme === 'system') {
+                    setupSystemThemeListener();
+                }
+            }
+
+            // Apply theme with system theme detection
+            function applyTheme(theme) {
+                let actualTheme = theme;
+
+                // Handle system theme detection
+                if (theme === 'system') {
+                    // Check if user's system prefers dark mode
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        actualTheme = 'dark';
+                    } else {
+                        actualTheme = 'light';
+                    }
+                }
+
+                // Apply the actual theme
+                document.documentElement.setAttribute('data-theme', actualTheme);
+
+                // Update dark mode toggle based on actual theme
+                if (darkModeToggle) {
+                    darkModeToggle.checked = actualTheme === 'dark';
+                }
+            }
+
+            // Setup system theme listener
+            function setupSystemThemeListener() {
+                // Remove existing listener if any
+                if (window.systemThemeListener) {
+                    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                    if (mediaQuery.removeEventListener) {
+                        mediaQuery.removeEventListener('change', window.systemThemeListener);
+                    } else if (mediaQuery.removeListener) {
+                        mediaQuery.removeListener(window.systemThemeListener);
+                    }
+                }
+
+                // Create new listener
+                window.systemThemeListener = (e) => {
+                    const savedTheme = localStorage.getItem('sati_theme') || localStorage.getItem('theme');
+                    if (savedTheme === 'system') {
+                        const actualTheme = e.matches ? 'dark' : 'light';
+                        document.documentElement.setAttribute('data-theme', actualTheme);
+                        if (darkModeToggle) {
+                            darkModeToggle.checked = actualTheme === 'dark';
+                        }
+                    }
+                };
+
+                // Add listener with fallback for older browsers
+                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                if (mediaQuery.addEventListener) {
+                    mediaQuery.addEventListener('change', window.systemThemeListener);
+                } else if (mediaQuery.addListener) {
+                    mediaQuery.addListener(window.systemThemeListener);
+                }
+            }
