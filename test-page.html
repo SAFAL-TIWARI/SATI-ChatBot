@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATI ChatBot - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0d8f6f;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 SATI ChatBot - Test Page</h1>
+    <p>This page helps test the fixes applied to the bookmark and chat saving functionality.</p>
+    
+    <div class="test-section">
+        <h2>🔧 Quick Tests</h2>
+        <button class="test-button" onclick="runQuickTest()">Run Quick Test</button>
+        <button class="test-button" onclick="testBookmarkFunctionality()">Test Bookmarks</button>
+        <button class="test-button" onclick="testChatSaving()">Test Chat Saving</button>
+        <button class="test-button" onclick="openMainApp()">Open Main App</button>
+        <div id="testResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 System Status</h2>
+        <div id="systemStatus">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🐛 Known Issues & Fixes</h2>
+        <ul>
+            <li>✅ <strong>Fixed:</strong> Duplicate toggleBookmark functions causing conflicts</li>
+            <li>✅ <strong>Fixed:</strong> Null reference errors in classList access</li>
+            <li>✅ <strong>Fixed:</strong> savedChatsList container not found errors</li>
+            <li>✅ <strong>Fixed:</strong> Async conversation creation timing issues</li>
+            <li>✅ <strong>Fixed:</strong> Saved chats modal implementation</li>
+            <li>✅ <strong>Fixed:</strong> Bookmark persistence after page refresh</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Manual Testing Steps</h2>
+        <ol>
+            <li><strong>Test Bookmark Functionality:</strong>
+                <ul>
+                    <li>Open the main app</li>
+                    <li>Create a new conversation by sending a message</li>
+                    <li>Click the bookmark icon next to the conversation</li>
+                    <li>Verify no console errors appear</li>
+                    <li>Click "Saved Chats" button in sidebar</li>
+                    <li>Verify the bookmarked chat appears in the modal</li>
+                </ul>
+            </li>
+            <li><strong>Test Chat Saving:</strong>
+                <ul>
+                    <li>Login to the app (if not already logged in)</li>
+                    <li>Send a message</li>
+                    <li>Check console for save confirmation messages</li>
+                    <li>Refresh the page</li>
+                    <li>Verify the conversation persists</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+    
+    <script>
+        function showStatus(message, type = 'info') {
+            const results = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function runQuickTest() {
+            document.getElementById('testResults').innerHTML = '';
+            showStatus('🚀 Running quick system test...', 'info');
+            
+            // Test 1: Check if we can access the main app
+            try {
+                const mainWindow = window.open('index.html', '_blank');
+                if (mainWindow) {
+                    showStatus('✅ Main app can be opened', 'success');
+                    setTimeout(() => {
+                        try {
+                            // Try to access the main app's functions
+                            if (mainWindow.chatState) {
+                                showStatus('✅ Main app chatState accessible', 'success');
+                            } else {
+                                showStatus('⚠️ Main app chatState not ready yet', 'warning');
+                            }
+                        } catch (e) {
+                            showStatus('⚠️ Cannot access main app state (normal for cross-origin)', 'warning');
+                        }
+                    }, 2000);
+                } else {
+                    showStatus('❌ Failed to open main app', 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Error opening main app: ' + error.message, 'error');
+            }
+            
+            showStatus('✅ Quick test completed', 'success');
+        }
+        
+        function testBookmarkFunctionality() {
+            document.getElementById('testResults').innerHTML = '';
+            showStatus('🔖 Testing bookmark functionality...', 'info');
+            showStatus('📝 Please check the main app and console for detailed results', 'info');
+            showStatus('💡 Run testBookmarks.runAllTests() in the main app console', 'info');
+        }
+        
+        function testChatSaving() {
+            document.getElementById('testResults').innerHTML = '';
+            showStatus('💾 Testing chat saving functionality...', 'info');
+            showStatus('📝 Please check the main app and console for detailed results', 'info');
+            showStatus('💡 Run debugChatSaving() in the main app console', 'info');
+        }
+        
+        function openMainApp() {
+            window.open('index.html', '_blank');
+        }
+        
+        function updateSystemStatus() {
+            const status = document.getElementById('systemStatus');
+            const now = new Date().toLocaleString();
+            
+            status.innerHTML = `
+                <div class="status info">
+                    <strong>Last Updated:</strong> ${now}<br>
+                    <strong>Test Page Status:</strong> ✅ Active<br>
+                    <strong>Main App:</strong> <a href="index.html" target="_blank">Open Main App</a><br>
+                    <strong>Available Tests:</strong> Quick Test, Bookmark Test, Chat Saving Test
+                </div>
+            `;
+        }
+        
+        // Update status on load
+        updateSystemStatus();
+        
+        // Update status every 30 seconds
+        setInterval(updateSystemStatus, 30000);
+        
+        console.log('🧪 Test page loaded successfully');
+        console.log('Available functions: runQuickTest(), testBookmarkFunctionality(), testChatSaving()');
+    </script>
+</body>
+</html>

@@ -134,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Auto-check state after a delay
         setTimeout(() => {
-            if (window.debugChatSaving) {
+            if (window.debugChatSaving && typeof window.debugChatSaving.checkState === 'function') {
                 window.debugChatSaving.checkState();
                 window.debugChatSaving.checkSupabase();
+            } else {
+                console.log('⚠️ Debug functions not ready yet');
             }
         }, 3000);
     }, 1000);

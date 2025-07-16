@@ -657,6 +657,12 @@ class ChatBotState {
                 // Update the UI to show the loaded conversations
                 updateConversationsList();
                 
+                // Also update saved chats list if modal is open
+                const savedChatsModal = document.getElementById('savedChatsModal');
+                if (savedChatsModal && savedChatsModal.classList.contains('show')) {
+                    updateSavedChatsList();
+                }
+                
                 console.log('✅ Conversations loaded and UI updated');
                 return true;
             } else {
@@ -709,8 +715,6 @@ const elements = {
     resourcesBtn: document.getElementById('resourcesBtn'),
     searchInput: document.getElementById('searchInput'),
     conversationsList: document.getElementById('conversationsList'),
-    savedChatsSection: document.getElementById('savedChatsSection'),
-    savedChatsList: document.getElementById('savedChatsList'),
     savedChatsBtn: document.getElementById('savedChatsBtn'),
 
     // Main content
@@ -1459,9 +1463,10 @@ function updateConversationsList() {
 
 // Update saved chats list
 async function updateSavedChatsList() {
-    const container = elements.savedChatsList;
+    // Get container from modal (it might not exist until modal is shown)
+    const container = document.getElementById('savedChatsList');
     if (!container) {
-        console.error('❌ savedChatsList container not found');
+        console.log('📱 savedChatsList container not found - modal may not be open yet');
         return;
     }
     container.innerHTML = '';
@@ -1648,6 +1653,18 @@ async function toggleBookmark(event, conversationId, forceBookmarkStatus = null,
     updateConversationsList();
     updateSavedChatsList();
     chatState.saveState();
+    
+    // Force refresh from Supabase if logged in to ensure sync
+    if (chatState.useSupabaseStorage && window.supabaseDB) {
+        setTimeout(async () => {
+            try {
+                await chatState.loadConversationsFromSupabase();
+                console.log('🔄 Forced refresh from Supabase after bookmark toggle');
+            } catch (error) {
+                console.error('❌ Error in forced refresh:', error);
+            }
+        }, 500);
+    }
     // Show toast only if not from Remove (to avoid double toasts)
     if (!isFromRemove) {
         if (newBookmarkStatus) {
@@ -2424,30 +2441,7 @@ function exportAllChats() {
 
 
 
-// Toggle saved chats section visibility
-function toggleSavedChatsSection() {
-    const section = elements.savedChatsSection;
-    const conversationsSection = document.querySelector('.conversations-section');
-    
-    if (section.classList.contains('active')) {
-        // First update the transform of conversations section
-        conversationsSection.style.transform = 'translateY(0)';
-        
-        // Then after a small delay, hide the saved chats section
-        setTimeout(() => {
-            section.classList.remove('active');
-        }, 50);
-    } else {
-        // First show the saved chats section
-        section.classList.add('active');
-        updateSavedChatsList();
-        
-        // Then after a small delay, move the conversations section
-        setTimeout(() => {
-            conversationsSection.style.transform = 'translateY(5px)';
-        }, 50);
-    }
-}
+// Removed toggleSavedChatsSection - using modal instead
 
 function initializeEventListeners() {
     // Sidebar toggle
@@ -2455,9 +2449,9 @@ function initializeEventListeners() {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
     }
     
-    // Saved chats button
+    // Saved chats button - use modal instead
     if (elements.savedChatsBtn) {
-        elements.savedChatsBtn.addEventListener('click', toggleSavedChatsSection);
+        elements.savedChatsBtn.addEventListener('click', showSavedChatsModal);
     }
 
     // Sidebar hover functionality for desktop
@@ -5106,9 +5100,10 @@ window.checkOAuthProviders = async function() {
     console.log('=== END PROVIDER CHECK ===');
 };
 
-// Remove old toggleSavedChatsSection and related sidebar logic
-// Add modal show/hide logic for Saved Chats
-function showSavedChatsModal() {
+// Show saved chats modal
+async function showSavedChatsModal() {
+    console.log('🔖 Opening saved chats modal...');
+    
     // If modal not in DOM, inject from template
     let modal = document.getElementById('savedChatsModal');
     if (!modal) {
@@ -5116,22 +5111,39 @@ function showSavedChatsModal() {
         if (template) {
             document.body.appendChild(template.content.cloneNode(true));
             modal = document.getElementById('savedChatsModal');
+            console.log('✅ Saved chats modal created from template');
+        } else {
+            console.error('❌ Saved chats modal template not found');
+            return;
         }
     }
+    
     if (modal) {
         modal.classList.add('show');
-        updateSavedChatsList();
+        console.log('✅ Saved chats modal shown');
+        
+        // Load saved chats
+        await updateSavedChatsList();
+        
         // Add close button handler
         const closeBtn = document.getElementById('closeSavedChatsBtn');
         if (closeBtn) {
             closeBtn.onclick = () => {
                 modal.classList.remove('show');
+                console.log('✅ Saved chats modal closed');
             };
         }
+        
+        // Add overlay click to close
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                console.log('✅ Saved chats modal closed via overlay');
+            }
+        };
+    } else {
+        console.error('❌ Failed to create saved chats modal');
     }
 }
 
-// Update event listener for Saved Chats button
-if (elements.savedChatsBtn) {
-    elements.savedChatsBtn.addEventListener('click', showSavedChatsModal);
-}
+// Event listener is set up in initializeEventListeners()

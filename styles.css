@@ -3218,3 +3218,41 @@ textarea:focus-visible {
     padding: 30px 0;
     font-size: 1rem;
 }
+
+/* Saved Chats Modal Specific Styles */
+.saved-chats-modal {
+    width: 600px;
+    max-width: 90vw;
+    max-height: 80vh;
+}
+
+.saved-chats-modal .modal-body {
+    padding: var(--spacing-4);
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.saved-chats-modal .saved-count {
+    background: var(--accent-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: var(--font-size-sm);
+    margin-left: var(--spacing-2);
+}
+
+.saved-chats-modal .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.saved-chats-modal .close-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
