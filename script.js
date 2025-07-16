@@ -1543,20 +1543,42 @@ async function updateSavedChatsList() {
             bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}', null, false)`);
         }
         const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
-        menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
-        // Use the same dropdown ID format for both sections
+        menuBtn.setAttribute('onclick', `toggleSavedChatMenu(event, '${conversation.id}')`);
+        // Use unique dropdown ID for saved chats section
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
-        dropdown.id = `dropdown-${conversation.id}`;
-        // Add Remove from Saved as the first item in the dropdown (only in Saved Chats)
+        dropdown.id = `saved-dropdown-${conversation.id}`;
+        // Clear existing dropdown content and rebuild for saved chats
+        dropdown.innerHTML = '';
+        
+        // Add Rename option
+        const renameBtn = document.createElement('button');
+        renameBtn.className = 'conversation-dropdown-item';
+        renameBtn.innerHTML = '<i class="fas fa-edit"></i><span>Rename</span>';
+        renameBtn.onclick = function(e) { 
+            e.stopPropagation(); 
+            renameSavedConversation(conversation.id); 
+        };
+        dropdown.appendChild(renameBtn);
+        
+        // Add Remove from Saved option
         const removeFromSavedBtn = document.createElement('button');
         removeFromSavedBtn.className = 'conversation-dropdown-item';
         removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
-        removeFromSavedBtn.onclick = function(e) { e.stopPropagation(); removeFromSavedWithAnimation(conversation.id); };
-        dropdown.insertBefore(removeFromSavedBtn, dropdown.firstChild);
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:nth-child(2)');
-        renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
-        const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
-        deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
+        removeFromSavedBtn.onclick = function(e) { 
+            e.stopPropagation(); 
+            removeFromSavedWithAnimation(conversation.id); 
+        };
+        dropdown.appendChild(removeFromSavedBtn);
+        
+        // Add Delete option
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'conversation-dropdown-item danger';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i><span>Delete</span>';
+        deleteBtn.onclick = function(e) { 
+            e.stopPropagation(); 
+            deleteSavedConversation(conversation.id); 
+        };
+        dropdown.appendChild(deleteBtn);
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
                 // Always load from Supabase if using Supabase storage
@@ -1689,6 +1711,136 @@ function toggleConversationMenu(event, conversationId) {
     const dropdown = document.getElementById(`dropdown-${conversationId}`);
     if (dropdown) {
         dropdown.classList.toggle('show');
+    }
+}
+
+// Saved Chat Menu Management (separate from regular conversation menu)
+function toggleSavedChatMenu(event, conversationId) {
+    event.stopPropagation();
+    // Close all other dropdowns first (both regular and saved)
+    document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+        if (dropdown.id !== `saved-dropdown-${conversationId}`) {
+            dropdown.classList.remove('show');
+        }
+    });
+    // Toggle the target saved chat dropdown
+    const dropdown = document.getElementById(`saved-dropdown-${conversationId}`);
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// Cross-linked rename function for saved chats (syncs with all conversations)
+async function renameSavedConversation(conversationId) {
+    console.log('🔄 Renaming saved conversation:', conversationId);
+    
+    // Find the conversation
+    const conversation = chatState.conversations.find(c => c.id === conversationId);
+    if (!conversation) {
+        console.error('❌ Conversation not found:', conversationId);
+        return;
+    }
+    
+    // Show rename modal with current title
+    const newTitle = prompt('Enter new conversation title:', conversation.title);
+    if (!newTitle || newTitle.trim() === '' || newTitle === conversation.title) {
+        return; // User cancelled or no change
+    }
+    
+    const trimmedTitle = newTitle.trim();
+    
+    try {
+        // Update in chatState
+        conversation.title = trimmedTitle;
+        
+        // Update in Supabase if logged in
+        if (chatState.useSupabaseStorage && window.supabaseDB) {
+            console.log('🔄 Updating conversation title in Supabase...');
+            const { error } = await window.supabaseDB.updateConversationTitle(conversationId, trimmedTitle);
+            
+            if (error) {
+                console.error('❌ Error updating title in Supabase:', error);
+                toast.show('Failed to update title in cloud', 'error');
+                return;
+            }
+            
+            console.log('✅ Conversation title updated in Supabase');
+        }
+        
+        // Update current chat title if this is the active conversation
+        if (chatState.currentConversationId === conversationId) {
+            elements.chatTitle.textContent = trimmedTitle;
+        }
+        
+        // Save state locally
+        chatState.saveState();
+        
+        // Update both UI sections
+        updateConversationsList(); // Updates all conversations section
+        updateSavedChatsList(); // Updates saved chats modal
+        
+        // Close any open dropdowns
+        document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+        
+        toast.show('Conversation renamed successfully', 'success');
+        console.log('✅ Conversation renamed and synced across all sections');
+        
+    } catch (error) {
+        console.error('❌ Error renaming conversation:', error);
+        toast.show('Failed to rename conversation', 'error');
+    }
+}
+
+// Cross-linked delete function for saved chats (syncs with all conversations)
+async function deleteSavedConversation(conversationId) {
+    console.log('🔄 Deleting saved conversation:', conversationId);
+    
+    // Find the conversation
+    const conversation = chatState.conversations.find(c => c.id === conversationId);
+    if (!conversation) {
+        console.error('❌ Conversation not found:', conversationId);
+        return;
+    }
+    
+    // Confirm deletion
+    const confirmed = confirm(`Are you sure you want to delete "${conversation.title}"? This action cannot be undone.`);
+    if (!confirmed) {
+        return;
+    }
+    
+    try {
+        // Delete using the existing chatState method (which handles Supabase sync)
+        const success = await chatState.deleteConversation(conversationId);
+        
+        if (success) {
+            // Update both UI sections
+            updateConversationsList(); // Updates all conversations section
+            updateSavedChatsList(); // Updates saved chats modal
+            
+            // Close any open dropdowns
+            document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+            
+            // If this was the current conversation, clear the chat
+            if (chatState.currentConversationId === conversationId) {
+                chatState.currentConversationId = null;
+                chatState.currentMessages = [];
+                elements.chatTitle.textContent = 'New Chat';
+                chatManager.renderMessages();
+            }
+            
+            toast.show('Conversation deleted successfully', 'success');
+            console.log('✅ Conversation deleted and synced across all sections');
+        } else {
+            toast.show('Failed to delete conversation', 'error');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error deleting conversation:', error);
+        toast.show('Failed to delete conversation', 'error');
     }
 }
 

@@ -56,6 +56,7 @@
         <h2>🔧 Quick Tests</h2>
         <button class="test-button" onclick="runQuickTest()">Run Quick Test</button>
         <button class="test-button" onclick="testBookmarkFunctionality()">Test Bookmarks</button>
+        <button class="test-button" onclick="testSavedChats()">Test Saved Chats</button>
         <button class="test-button" onclick="testChatSaving()">Test Chat Saving</button>
         <button class="test-button" onclick="openMainApp()">Open Main App</button>
         <div id="testResults"></div>
@@ -148,6 +149,13 @@
             showStatus('🔖 Testing bookmark functionality...', 'info');
             showStatus('📝 Please check the main app and console for detailed results', 'info');
             showStatus('💡 Run testBookmarks.runAllTests() in the main app console', 'info');
+        }
+        
+        function testSavedChats() {
+            document.getElementById('testResults').innerHTML = '';
+            showStatus('🔖 Testing saved chats functionality...', 'info');
+            showStatus('📝 Please check the main app and console for detailed results', 'info');
+            showStatus('💡 Run testSavedChats.runAllTests() in the main app console', 'info');
         }
         
         function testChatSaving() {
