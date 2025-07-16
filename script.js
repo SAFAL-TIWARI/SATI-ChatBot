@@ -75,8 +75,17 @@ function listenForAuthChanges() {
             if (event === 'SIGNED_IN') {
                 // Determine auth provider
                 let authProvider = 'email';
+                let profilePhoto = '';
                 if (session.user.app_metadata && session.user.app_metadata.provider) {
                     authProvider = session.user.app_metadata.provider;
+                }
+                // Extract profile photo from user_metadata
+                if (session.user.user_metadata) {
+                    if (authProvider === 'google' && session.user.user_metadata.picture) {
+                        profilePhoto = session.user.user_metadata.picture;
+                    } else if (authProvider === 'github' && session.user.user_metadata.avatar_url) {
+                        profilePhoto = session.user.user_metadata.avatar_url;
+                    }
                 }
                 
                 // Check if this is a fresh login or just a session restoration
@@ -88,6 +97,7 @@ function listenForAuthChanges() {
                 chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
                 chatState.email = session.user.email || '';
                 chatState.authProvider = authProvider;
+                chatState.profilePhoto = profilePhoto;
                 chatState.saveState();
                 
                 // Initialize Supabase storage for authenticated user
@@ -226,6 +236,7 @@ class ChatBotState {
         this.username = localStorage.getItem('sati_username') || '';
         this.email = localStorage.getItem('sati_email') || '';
         this.authProvider = localStorage.getItem('sati_auth_provider') || '';
+        this.profilePhoto = localStorage.getItem('sati_profile_photo') || '';
         this.settings = JSON.parse(localStorage.getItem('sati_settings') || '{}');
         this.theme = localStorage.getItem('sati_theme') || 'dark';
         this.isTyping = false;
@@ -344,6 +355,7 @@ class ChatBotState {
         localStorage.setItem('sati_username', this.username);
         localStorage.setItem('sati_email', this.email);
         localStorage.setItem('sati_auth_provider', this.authProvider);
+        localStorage.setItem('sati_profile_photo', this.profilePhoto || '');
         localStorage.setItem('sati_theme', this.theme);
         localStorage.setItem('sati_selected_model', this.selectedModel);
         localStorage.setItem('sati_api_provider', this.apiProvider);
@@ -4419,6 +4431,14 @@ function showProfileModal() {
                 const { data, error } = await supabase.auth.getSession();
                 if (!error && data.session && data.session.user.app_metadata && data.session.user.app_metadata.provider) {
                     chatState.authProvider = data.session.user.app_metadata.provider;
+                    // Extract profile photo from user_metadata
+                    if (data.session.user.user_metadata) {
+                        if (chatState.authProvider === 'google' && data.session.user.user_metadata.picture) {
+                            chatState.profilePhoto = data.session.user.user_metadata.picture;
+                        } else if (chatState.authProvider === 'github' && data.session.user.user_metadata.avatar_url) {
+                            chatState.profilePhoto = data.session.user.user_metadata.avatar_url;
+                        }
+                    }
                     chatState.saveState();
                 }
             } catch (err) {
@@ -4426,284 +4446,237 @@ function showProfileModal() {
             }
         }
         // Now update the UI as before
-    if (chatState.isLoggedIn) {
-        // Set username and email
-        profileUsername.textContent = chatState.username || 'User';
-        profileEmail.textContent = chatState.email || 'No email provided';
-        
-        // Set avatar with first letter of username
-        if (profileAvatarLarge) {
-            profileAvatarLarge.textContent = chatState.username.charAt(0).toUpperCase();
-            profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
-        }
-        
-        // Calculate stats
-        const chatCount = chatState.conversations.length;
-        let messageCount = 0;
-        chatState.conversations.forEach(conv => {
-            if (conv.messages) {
-                messageCount += conv.messages.length;
-            }
-        });
-        
-        // Update stats
-        profileChatCount.textContent = chatCount;
-        profileMessageCount.textContent = messageCount;
-        
-        // Get login count from local storage or set default
-        const loginCount = localStorage.getItem('sati_login_count') || 1;
-        profileLoginCount.textContent = loginCount;
-        
-        // Set account details
-        profileAccountType.textContent = 'Standard';
-        
-        // Determine login method
-        let loginMethod = 'Email';
-        if (chatState.authProvider) {
-            if (chatState.authProvider === 'google') {
-                loginMethod = 'Google';
-            } else if (chatState.authProvider === 'github') {
-                loginMethod = 'GitHub';
-            }
-        }
-        profileLoginMethod.textContent = loginMethod;
-        
-        // Set last login date
-        const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
-        const lastLoginDate = new Date(lastLogin);
-        profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
-        
-        // Update profile actions to show logout button
-        if (profileActions) {
-            profileActions.innerHTML = `
-                <button class="btn btn-primary" onclick="exportUserData()">
-                    <i class="fas fa-download"></i> Export Data
-                </button>
-                <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            `;
-        }
-    } else {
-        // Default values for logged out state
-        profileUsername.textContent = 'Guest';
-        profileEmail.textContent = 'Not logged in';
-        
-        // Set default avatar
-        if (profileAvatarLarge) {
-            profileAvatarLarge.textContent = '?';
-            profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
-        }
-        
-        profileChatCount.textContent = chatState.conversations.length;
-        profileMessageCount.textContent = '0';
-        profileLoginCount.textContent = '0';
-        profileAccountType.textContent = 'Guest';
-        profileLoginMethod.textContent = 'None';
-        profileLastLogin.textContent = 'N/A';
-        
-        // Update profile actions to show login button
-        if (profileActions) {
-            profileActions.innerHTML = `
-                <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-            `;
-        }
-    }
-    // Show the modal
-    modal.show('profileModal');
-    }
-    // Call the async update function
-    updateProfileWithCurrentProvider();
-}
-
-// Show welcome modal with personalized greeting
-function showWelcomeModal(username) {
-    const welcomeUsername = document.getElementById('welcomeUsername');
-    const welcomeHeading = document.getElementById('welcomeHeading');
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    
-    // Set username
-    welcomeUsername.textContent = username || 'User';
-    
-    // Determine if this is first login or return user
-    const isFirstLogin = !localStorage.getItem('sati_last_login');
-    
-    if (isFirstLogin) {
-        welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
-        welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
-        
-        // Show a welcome toast for first-time users
-        showWelcomeToast(username, true);
-    } else {
-        welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
-        welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
-        
-        // Show a welcome back toast for returning users
-        showWelcomeToast(username, false);
-    }
-    
-    // Show the modal for all fresh logins (both first-time and returning users)
-    modal.show('welcomeModal');
-}
-
-// Show welcome toast notification
-function showWelcomeToast(username, isFirstLogin) {
-    // Get the current time to personalize the greeting
-    const currentHour = new Date().getHours();
-    let timeGreeting = 'Hello';
-    
-    if (currentHour < 12) {
-        timeGreeting = 'Good morning';
-    } else if (currentHour < 18) {
-        timeGreeting = 'Good afternoon';
-    } else {
-        timeGreeting = 'Good evening';
-    }
-    
-    // Create different messages for first-time vs returning users
-    let message = '';
-    
-    if (isFirstLogin) {
-        message = `👋 ${timeGreeting}, ${username}! Welcome to SATI ChatBot`;
-    } else {
-        message = `👋 ${timeGreeting}, ${username}! Welcome back`;
-    }
-    
-    // Show the toast with a longer duration (5 seconds)
-    toast.show(message, 'success', 5000);
-}
-
-
-// Initialize sidebar toggle button position
-function initializeSidebarToggle() {
-    const sidebar = elements.sidebar;
-
-    if (!sidebar) return;
-
-    // Initialize hover trigger for desktop if sidebar is collapsed
-    if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
-        createHoverTrigger();
-    }
-}
-
-// Update theme toggle button appearance
-function updateThemeToggleButton() {
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    if (themeToggleBtn) {
-        const icon = themeToggleBtn.querySelector('i');
-        const text = themeToggleBtn.querySelector('span');
-
-        if (icon && text) {
-            if (chatState.theme === 'dark') {
-                icon.className = 'fas fa-desktop';
-                text.textContent = 'System Theme';
-            } else if (chatState.theme === 'light') {
-                icon.className = 'fas fa-moon';
-                text.textContent = 'Dark Mode';
-            } else if (chatState.theme === 'system') {
-                icon.className = 'fas fa-sun';
-                text.textContent = 'Light Mode';
-            }
-        }
-    }
-}
-
-// Check if user is already logged in with Supabase
-async function checkExistingSession() {
-    if (!supabase) return false;
-    
-    try {
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            console.error('Error checking session:', error);
-            return false;
-        }
-        
-        if (data.session) {
-            console.log('✅ User already has an active session');
+        if (chatState.isLoggedIn) {
+            // Set username and email
+            profileUsername.textContent = chatState.username || 'User';
+            profileEmail.textContent = chatState.email || 'No email provided';
             
-            // Set user state
-            let authProvider = 'email';
-            if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
-                authProvider = data.session.user.app_metadata.provider;
-            }
-            chatState.isLoggedIn = true;
-            chatState.username = data.session.user.email.split('@')[0];
-            chatState.email = data.session.user.email;
-            chatState.authProvider = authProvider;
-            chatState.saveState();
-            
-            // Initialize Supabase storage and load conversations
-            if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
-                window.supabaseDB.setCurrentUserEmail(data.session.user.email);
-                chatState.initSupabaseStorage();
-                
-                // Load conversations from Supabase
-                chatState.loadConversationsFromSupabase().then(() => {
-                    console.log('✅ Conversations loaded for existing session');
-                });
+            // Set avatar with first letter of username
+            if (profileAvatarLarge) {
+                // Remove any previous img
+                const prevImg = profileAvatarLarge.querySelector('img.profile-photo');
+                if (prevImg) prevImg.remove();
+                if (chatState.profilePhoto) {
+                    const img = document.createElement('img');
+                    img.src = chatState.profilePhoto;
+                    img.alt = 'Profile Photo';
+                    img.className = 'profile-photo';
+                    img.style.width = '80px';
+                    img.style.height = '80px';
+                    img.style.borderRadius = '50%';
+                    img.style.objectFit = 'cover';
+                    img.style.display = 'block';
+                    profileAvatarLarge.innerHTML = '';
+                    profileAvatarLarge.appendChild(img);
+                } else {
+                    profileAvatarLarge.innerHTML = chatState.username.charAt(0).toUpperCase();
+                }
+                profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
             }
             
-            // Update UI
-            updateLoginStatus();
+            // Calculate stats
+            const chatCount = chatState.conversations.length;
+            let messageCount = 0;
+            chatState.conversations.forEach(conv => {
+                if (conv.messages) {
+                    messageCount += conv.messages.length;
+                }
+            });
             
-            return true;
+            // Update stats
+            profileChatCount.textContent = chatCount;
+            profileMessageCount.textContent = messageCount;
+            
+            // Get login count from local storage or set default
+            const loginCount = localStorage.getItem('sati_login_count') || 1;
+            profileLoginCount.textContent = loginCount;
+            
+            // Set account details
+            profileAccountType.textContent = 'Standard';
+            
+            // Determine login method
+            let loginMethod = 'Email';
+            if (chatState.authProvider) {
+                if (chatState.authProvider === 'google') {
+                    loginMethod = 'Google';
+                } else if (chatState.authProvider === 'github') {
+                    loginMethod = 'GitHub';
+                }
+            }
+            profileLoginMethod.textContent = loginMethod;
+            
+            // Set last login date
+            const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
+            const lastLoginDate = new Date(lastLogin);
+            profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
+            
+            // Update profile actions to show logout button
+            if (profileActions) {
+                profileActions.innerHTML = `
+                    <button class="btn btn-primary" onclick="exportUserData()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            }
+        } else {
+            // Default values for logged out state
+            profileUsername.textContent = 'Guest';
+            profileEmail.textContent = 'Not logged in';
+            
+            // Set default avatar
+            if (profileAvatarLarge) {
+                // Remove any previous img
+                const prevImg = profileAvatarLarge.querySelector('img.profile-photo');
+                if (prevImg) prevImg.remove();
+                profileAvatarLarge.innerHTML = '?';
+                profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
+            }
+            
+            profileChatCount.textContent = chatState.conversations.length;
+            profileMessageCount.textContent = '0';
+            profileLoginCount.textContent = '0';
+            profileAccountType.textContent = 'Guest';
+            profileLoginMethod.textContent = 'None';
+            profileLastLogin.textContent = 'N/A';
+            
+            // Update profile actions to show login button
+            if (profileActions) {
+                profileActions.innerHTML = `
+                    <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                `;
+            }
+        }
+        // Show the modal
+        modal.show('profileModal');
+        }
+        // Call the async update function
+        updateProfileWithCurrentProvider();
+    }
+
+    // Show welcome modal with personalized greeting
+    function showWelcomeModal(username) {
+        const welcomeUsername = document.getElementById('welcomeUsername');
+        const welcomeHeading = document.getElementById('welcomeHeading');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        
+        // Set username
+        welcomeUsername.textContent = username || 'User';
+        
+        // Determine if this is first login or return user
+        const isFirstLogin = !localStorage.getItem('sati_last_login');
+        
+        if (isFirstLogin) {
+            welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
+            welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
+            
+            // Show a welcome toast for first-time users
+            showWelcomeToast(username, true);
+        } else {
+            welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
+            welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
+            
+            // Show a welcome back toast for returning users
+            showWelcomeToast(username, false);
         }
         
-        return false;
-    } catch (err) {
-        console.error('Session check error:', err);
-        return false;
+        // Show the modal for all fresh logins (both first-time and returning users)
+        modal.show('welcomeModal');
     }
-}
 
-// Handle email verification and password reset when user returns from email link
-async function handleEmailVerification() {
-    if (!supabase) return false;
-    
-    try {
-        // Check URL parameters for password reset
-        const urlParams = new URLSearchParams(window.location.search);
-        const isReset = urlParams.get('reset') === 'true';
+    // Show welcome toast notification
+    function showWelcomeToast(username, isFirstLogin) {
+        // Get the current time to personalize the greeting
+        const currentHour = new Date().getHours();
+        let timeGreeting = 'Hello';
         
-        // Check if we have a hash in the URL that might be from email verification or password reset
-        const hash = window.location.hash;
-        if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
-            console.log('Detected auth hash in URL, processing...');
-            
-            // Process the hash
+        if (currentHour < 12) {
+            timeGreeting = 'Good morning';
+        } else if (currentHour < 18) {
+            timeGreeting = 'Good afternoon';
+        } else {
+            timeGreeting = 'Good evening';
+        }
+        
+        // Create different messages for first-time vs returning users
+        let message = '';
+        
+        if (isFirstLogin) {
+            message = `👋 ${timeGreeting}, ${username}! Welcome to SATI ChatBot`;
+        } else {
+            message = `👋 ${timeGreeting}, ${username}! Welcome back`;
+        }
+        
+        // Show the toast with a longer duration (5 seconds)
+        toast.show(message, 'success', 5000);
+    }
+
+
+    // Initialize sidebar toggle button position
+    function initializeSidebarToggle() {
+        const sidebar = elements.sidebar;
+
+        if (!sidebar) return;
+
+        // Initialize hover trigger for desktop if sidebar is collapsed
+        if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
+            createHoverTrigger();
+        }
+    }
+
+    // Update theme toggle button appearance
+    function updateThemeToggleButton() {
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        if (themeToggleBtn) {
+            const icon = themeToggleBtn.querySelector('i');
+            const text = themeToggleBtn.querySelector('span');
+
+            if (icon && text) {
+                if (chatState.theme === 'dark') {
+                    icon.className = 'fas fa-desktop';
+                    text.textContent = 'System Theme';
+                } else if (chatState.theme === 'light') {
+                    icon.className = 'fas fa-moon';
+                    text.textContent = 'Dark Mode';
+                } else if (chatState.theme === 'system') {
+                    icon.className = 'fas fa-sun';
+                    text.textContent = 'Light Mode';
+                }
+            }
+        }
+    }
+
+    // Check if user is already logged in with Supabase
+    async function checkExistingSession() {
+        if (!supabase) return false;
+        
+        try {
             const { data, error } = await supabase.auth.getSession();
             
             if (error) {
-                console.error('Error processing verification:', error);
-                toast.show('Verification failed: ' + error.message, 'error', 5000);
+                console.error('Error checking session:', error);
                 return false;
             }
             
-            if (data?.session) {
-                // Check if this is a password reset
-                if (hash.includes('type=recovery') || isReset) {
-                    console.log('✅ Password reset link verified!');
-                    
-                    // Show password reset form
-                    showPasswordUpdateModal();
-                    
-                    // Clear the hash and params from URL to prevent reprocessing
-                    window.history.replaceState(null, null, window.location.pathname);
-                    
-                    return true;
-                }
-                
-                // Otherwise, it's an email verification
-                console.log('✅ Email verified successfully!');
+            if (data.session) {
+                console.log('✅ User already has an active session');
                 
                 // Set user state
                 let authProvider = 'email';
                 if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
                     authProvider = data.session.user.app_metadata.provider;
+                }
+                // Extract profile photo from user_metadata
+                if (data.session.user.user_metadata) {
+                    if (authProvider === 'google' && data.session.user.user_metadata.picture) {
+                        chatState.profilePhoto = data.session.user.user_metadata.picture;
+                    } else if (authProvider === 'github' && data.session.user.user_metadata.avatar_url) {
+                        chatState.profilePhoto = data.session.user.user_metadata.avatar_url;
+                    }
                 }
                 chatState.isLoggedIn = true;
                 chatState.username = data.session.user.email.split('@')[0];
@@ -4711,759 +4684,842 @@ async function handleEmailVerification() {
                 chatState.authProvider = authProvider;
                 chatState.saveState();
                 
-                // Update login statistics
-                updateLoginStats();
+                // Initialize Supabase storage and load conversations
+                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                    window.supabaseDB.setCurrentUserEmail(data.session.user.email);
+                    chatState.initSupabaseStorage();
+                    
+                    // Load conversations from Supabase
+                    chatState.loadConversationsFromSupabase().then(() => {
+                        console.log('✅ Conversations loaded for existing session');
+                    });
+                }
                 
                 // Update UI
                 updateLoginStatus();
                 
-                // Show welcome modal
-                setTimeout(() => {
-                    showWelcomeModal(chatState.username);
-                    toast.show('Email verified successfully! Welcome to SATI ChatBot.', 'success', 5000);
-                }, 500);
-                
-                // Clear the hash from URL to prevent reprocessing
-                window.history.replaceState(null, null, window.location.pathname);
-                
                 return true;
             }
+            
+            return false;
+        } catch (err) {
+            console.error('Session check error:', err);
+            return false;
         }
-        return false;
-    } catch (err) {
-        console.error('Email verification error:', err);
-        return false;
     }
-}
 
-// Show password update modal after reset
-function showPasswordUpdateModal() {
-    // Create and show a custom password update modal
-    const resetModal = document.createElement('div');
-    resetModal.className = 'modal-overlay';
-    resetModal.id = 'passwordUpdateModal';
-    resetModal.innerHTML = `
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>🔐 Set New Password</h2>
-            </div>
-            <div class="modal-body">
-                <div style="text-align: center; padding: 20px;">
-                    <i class="fas fa-key" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;"></i>
-                    <h3>Create a New Password</h3>
-                    <p>Please enter a new password for your account.</p>
-                    <form id="passwordUpdateForm" style="margin-top: 20px;">
-                        <div class="form-group">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" required minlength="6">
-                            <small>Password must be at least 6 characters</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" id="confirmPassword" required minlength="6">
-                        </div>
-                        <div style="margin-top: 20px;">
-                            <button type="submit" class="login-btn">Update Password</button>
-                        </div>
-                    </form>
+    // Handle email verification and password reset when user returns from email link
+    async function handleEmailVerification() {
+        if (!supabase) return false;
+        
+        try {
+            // Check URL parameters for password reset
+            const urlParams = new URLSearchParams(window.location.search);
+            const isReset = urlParams.get('reset') === 'true';
+            
+            // Check if we have a hash in the URL that might be from email verification or password reset
+            const hash = window.location.hash;
+            if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
+                console.log('Detected auth hash in URL, processing...');
+                
+                // Process the hash
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error('Error processing verification:', error);
+                    toast.show('Verification failed: ' + error.message, 'error', 5000);
+                    return false;
+                }
+                
+                if (data?.session) {
+                    // Check if this is a password reset
+                    if (hash.includes('type=recovery') || isReset) {
+                        console.log('✅ Password reset link verified!');
+                        
+                        // Show password reset form
+                        showPasswordUpdateModal();
+                        
+                        // Clear the hash and params from URL to prevent reprocessing
+                        window.history.replaceState(null, null, window.location.pathname);
+                        
+                        return true;
+                    }
+                    
+                    // Otherwise, it's an email verification
+                    console.log('✅ Email verified successfully!');
+                    
+                    // Set user state
+                    let authProvider = 'email';
+                    if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
+                        authProvider = data.session.user.app_metadata.provider;
+                    }
+                    // Extract profile photo from user_metadata
+                    if (data.session.user.user_metadata) {
+                        if (authProvider === 'google' && data.session.user.user_metadata.picture) {
+                            chatState.profilePhoto = data.session.user.user_metadata.picture;
+                        } else if (authProvider === 'github' && data.session.user.user_metadata.avatar_url) {
+                            chatState.profilePhoto = data.session.user.user_metadata.avatar_url;
+                        }
+                    }
+                    chatState.isLoggedIn = true;
+                    chatState.username = data.session.user.email.split('@')[0];
+                    chatState.email = data.session.user.email;
+                    chatState.authProvider = authProvider;
+                    chatState.saveState();
+                    
+                    // Update login statistics
+                    updateLoginStats();
+                    
+                    // Update UI
+                    updateLoginStatus();
+                    
+                    // Show welcome modal
+                    setTimeout(() => {
+                        showWelcomeModal(chatState.username);
+                        toast.show('Email verified successfully! Welcome to SATI ChatBot.', 'success', 5000);
+                    }, 500);
+                    
+                    // Clear the hash from URL to prevent reprocessing
+                    window.history.replaceState(null, null, window.location.pathname);
+                    
+                    return true;
+                }
+            }
+            return false;
+        } catch (err) {
+            console.error('Email verification error:', err);
+            return false;
+        }
+    }
+
+    // Show password update modal after reset
+    function showPasswordUpdateModal() {
+        // Create and show a custom password update modal
+        const resetModal = document.createElement('div');
+        resetModal.className = 'modal-overlay';
+        resetModal.id = 'passwordUpdateModal';
+        resetModal.innerHTML = `
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>🔐 Set New Password</h2>
+                </div>
+                <div class="modal-body">
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-key" style="font-size: 48px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                        <h3>Create a New Password</h3>
+                        <p>Please enter a new password for your account.</p>
+                        <form id="passwordUpdateForm" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" required minlength="6">
+                                <small>Password must be at least 6 characters</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <input type="password" id="confirmPassword" required minlength="6">
+                            </div>
+                            <div style="margin-top: 20px;">
+                                <button type="submit" class="login-btn">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
-    document.body.appendChild(resetModal);
-    
-    // Add form submission handler
-    const form = resetModal.querySelector('#passwordUpdateForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        `;
+        document.body.appendChild(resetModal);
         
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        if (newPassword !== confirmPassword) {
-            toast.show('Passwords do not match', 'error');
-            return;
-        }
-        
-        const success = await handlePasswordReset(newPassword);
-        if (success) {
-            modal.hide('passwordUpdateModal');
+        // Add form submission handler
+        const form = resetModal.querySelector('#passwordUpdateForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Show login modal after successful password reset
-            setTimeout(() => {
-                modal.show('loginModal');
-                toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
-            }, 500);
-        }
-    });
-    
-    // Show the modal
-    modal.show('passwordUpdateModal');
-}
-
-// Initialize Cool Mode for login buttons
-// Applies particle effects to Login, Sign Up, Google, GitHub, and Continue as Guest buttons
-function initializeCoolMode() {
-    try {
-        // Wait for cool mode to be available
-        if (typeof window.coolMode === 'undefined') {
-            console.warn('⚠️ Cool Mode not available, retrying...');
-            setTimeout(initializeCoolMode, 100);
-            return;
-        }
-
-        // Apply cool mode to login buttons
-        const loginButtons = [
-            '.login-btn',           // Login and Sign Up buttons
-            '#googleSSOBtn',        // Google SSO button
-            '#githubSSOBtn',        // GitHub SSO button
-            '.guest-btn'            // Continue as Guest button
-        ];
-
-        // Apply cool mode to each button type with different options
-        loginButtons.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(element => {
-                if (element && !element.hasAttribute('data-cool-mode-applied')) {
-                    // Different particle options for different button types
-                    let options = {};
-                    
-                    if (selector.includes('google')) {
-                        options = {
-                            particleCount: 30,
-                            speedHorz: 8,
-                            speedUp: 20,
-                            size: 25
-                        };
-                    } else if (selector.includes('github')) {
-                        options = {
-                            particleCount: 35,
-                            speedHorz: 10,
-                            speedUp: 25,
-                            size: 30
-                        };
-                    } else if (selector.includes('guest-btn')) {
-                        // Special options for guest button - more subtle effect
-                        options = {
-                            particleCount: 20,
-                            speedHorz: 5,
-                            speedUp: 15,
-                            size: 18
-                        };
-                    } else {
-                        // Default for Login/Sign Up buttons
-                        options = {
-                            particleCount: 25,
-                            speedHorz: 6,
-                            speedUp: 18,
-                            size: 20
-                        };
-                    }
-
-                    // Apply the cool mode effect
-                    window.coolMode.applyParticleEffect(element, options);
-                    
-                    // Mark as applied to avoid duplicate applications
-                    element.setAttribute('data-cool-mode-applied', 'true');
-                    
-                    console.log(`✨ Cool Mode applied to: ${selector}`);
-                }
-            });
-        });
-
-        console.log('✅ Cool Mode initialization completed');
-        
-    } catch (error) {
-        console.error('❌ Error initializing Cool Mode:', error);
-    }
-}
-
-// Initialize Application
-function initializeApp() {
-    try {
-        // Initialize DOM elements first
-        initializeElements();
-        
-        // Initialize Supabase client
-        let supabaseInitialized = false;
-        
-        // Try to initialize Supabase with a retry mechanism
-        const initSupabaseWithRetry = (retries = 3) => {
-            supabaseInitialized = initializeSupabase();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             
-            if (supabaseInitialized) {
-                console.log('✅ Supabase client initialized successfully');
-                
-                // Now that Supabase is initialized and all functions are defined,
-                // we can set up the auth state listener
-                if (typeof listenForAuthChanges === 'function') {
-                    listenForAuthChanges();
-                    console.log('✅ Supabase auth listener set up');
-                    
-                    // Check for email verification first
-                    handleEmailVerification().then(verified => {
-                        if (!verified) {
-                            // If not verified, check if user is already logged in
-                            checkExistingSession().then(isLoggedIn => {
-                                console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
-                            });
-                        }
-                    });
-                } else {
-                    console.warn('⚠️ Auth listener function not found');
-                }
-                
-            } else if (retries > 0) {
-                console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
-                setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
-            } else {
-                console.error('❌ Supabase client initialization failed after multiple attempts - SSO login may not work');
+            if (newPassword !== confirmPassword) {
+                toast.show('Passwords do not match', 'error');
+                return;
             }
-        };
-        
-        // Start initialization with retries
-        initSupabaseWithRetry();
-        
-        // Wait for API manager to be ready before initializing model select
-        const initializeWithApiManager = () => {
-            if (window.apiManager) {
-                // Initialize main model select with proper options
-                updateMainModelSelect();
-                console.log('✅ Model selection initialized');
-            } else {
-                console.log('⚠️ API Manager not ready, retrying in 500ms...');
-                setTimeout(initializeWithApiManager, 500);
-            }
-        };
-        
-        // Start initialization
-        initializeWithApiManager();
-
-        // Update login status
-        updateLoginStatus();
-
-        // Render initial state
-        chatManager.renderMessages();
-        updateConversationsList();
-        
-        // Clear guest conversations if user is not logged in
-        if (!chatState.isLoggedIn) {
-            console.log('👤 Guest mode detected - clearing any stored conversations');
-            chatState.conversations = [];
-            localStorage.removeItem('sati_conversations');
-            updateConversationsList();
-        }
-        
-        // Clear guest conversations if user is not logged in
-        if (!chatState.isLoggedIn) {
-            console.log('👤 Guest mode detected - clearing any stored conversations');
-            chatState.conversations = [];
-            localStorage.removeItem('sati_conversations');
-            updateConversationsList();
-        }
-
-        // Initialize event listeners
-        initializeEventListeners();
-
-        // Initialize Cool Mode for login buttons
-        initializeCoolMode();
-
-        // Apply saved theme and update theme toggle button
-        updateThemeToggleButton();
-
-        // Initialize sidebar toggle button position
-        initializeSidebarToggle();
-
-
-
-        // Mobile-specific initialization
-        if (window.innerWidth <= 768) {
-            initializeMobileLayout();
-        }
-
-        // Focus message input (delay for mobile)
-        if (elements.messageInput) {
-            if (window.innerWidth <= 768) {
-                // Small delay for mobile to ensure layout is stable
+            
+            const success = await handlePasswordReset(newPassword);
+            if (success) {
+                modal.hide('passwordUpdateModal');
+                
+                // Show login modal after successful password reset
                 setTimeout(() => {
-                    elements.messageInput.focus();
-                }, 100);
-            } else {
-                elements.messageInput.focus();
+                    modal.show('loginModal');
+                    toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
+                }, 500);
             }
-        }
-
-        console.log('SATI ChatBot initialized successfully');
-    } catch (error) {
-        console.error('Error initializing SATI ChatBot:', error);
-    }
-}
-
-// Mobile-specific initialization
-function initializeMobileLayout() {
-    try {
-        // Ensure all elements are visible
-        const topBar = document.querySelector('.top-bar');
-        const mainContent = document.querySelector('.main-content');
-        const inputArea = document.querySelector('.input-area');
-        const chatWindow = document.querySelector('.chat-window');
-
-        if (topBar) {
-            topBar.style.display = 'flex';
-            topBar.style.visibility = 'visible';
-            topBar.style.opacity = '1';
-        }
-
-        if (mainContent) {
-            mainContent.style.display = 'flex';
-            mainContent.style.visibility = 'visible';
-            mainContent.style.opacity = '1';
-        }
-
-        if (inputArea) {
-            inputArea.style.display = 'block';
-            inputArea.style.visibility = 'visible';
-            inputArea.style.opacity = '1';
-        }
-
-        if (chatWindow) {
-            chatWindow.style.display = 'flex';
-            chatWindow.style.visibility = 'visible';
-            chatWindow.style.opacity = '1';
-        }
-
-        // Force layout recalculation
-        document.body.offsetHeight;
-
-        // Ensure proper viewport height calculation
-        const setVH = () => {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        };
-
-        setVH();
-        window.addEventListener('resize', setVH);
-        window.addEventListener('orientationchange', () => {
-            setTimeout(setVH, 100);
         });
-
-    } catch (error) {
-        console.error('Error initializing mobile layout:', error);
+        
+        // Show the modal
+        modal.show('passwordUpdateModal');
     }
-}
 
-// Start the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp);
+    // Initialize Cool Mode for login buttons
+    // Applies particle effects to Login, Sign Up, Google, GitHub, and Continue as Guest buttons
+    function initializeCoolMode() {
+        try {
+            // Wait for cool mode to be available
+            if (typeof window.coolMode === 'undefined') {
+                console.warn('⚠️ Cool Mode not available, retrying...');
+                setTimeout(initializeCoolMode, 100);
+                return;
+            }
 
-// Handle window resize
-window.addEventListener('resize', () => {
-    const sidebar = elements.sidebar;
-    const appContainer = document.getElementById('appContainer');
-    const sidebarToggle = elements.sidebarToggle;
+            // Apply cool mode to login buttons
+            const loginButtons = [
+                '.login-btn',           // Login and Sign Up buttons
+                '#googleSSOBtn',        // Google SSO button
+                '#githubSSOBtn',        // GitHub SSO button
+                '.guest-btn'            // Continue as Guest button
+            ];
 
-    if (window.innerWidth > 768) {
-        // Desktop mode
-        sidebar.classList.remove('show');
-        appContainer.classList.remove('sidebar-open');
+            // Apply cool mode to each button type with different options
+            loginButtons.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                    if (element && !element.hasAttribute('data-cool-mode-applied')) {
+                        // Different particle options for different button types
+                        let options = {};
+                        
+                        if (selector.includes('google')) {
+                            options = {
+                                particleCount: 30,
+                                speedHorz: 8,
+                                speedUp: 20,
+                                size: 25
+                            };
+                        } else if (selector.includes('github')) {
+                            options = {
+                                particleCount: 35,
+                                speedHorz: 10,
+                                speedUp: 25,
+                                size: 30
+                            };
+                        } else if (selector.includes('guest-btn')) {
+                            // Special options for guest button - more subtle effect
+                            options = {
+                                particleCount: 20,
+                                speedHorz: 5,
+                                speedUp: 15,
+                                size: 18
+                            };
+                        } else {
+                            // Default for Login/Sign Up buttons
+                            options = {
+                                particleCount: 25,
+                                speedHorz: 6,
+                                speedUp: 18,
+                                size: 20
+                            };
+                        }
 
-        // Clean up mobile click outside behavior
-        cleanupMobileClickOutside();
+                        // Apply the cool mode effect
+                        window.coolMode.applyParticleEffect(element, options);
+                        
+                        // Mark as applied to avoid duplicate applications
+                        element.setAttribute('data-cool-mode-applied', 'true');
+                        
+                        console.log(`✨ Cool Mode applied to: ${selector}`);
+                    }
+                });
+            });
 
-        // Maintain collapsed state and hover trigger
-        if (sidebar.classList.contains('collapsed')) {
-            createHoverTrigger();
+            console.log('✅ Cool Mode initialization completed');
+            
+        } catch (error) {
+            console.error('❌ Error initializing Cool Mode:', error);
+        }
+    }
+
+    // Initialize Application
+    function initializeApp() {
+        try {
+            // Initialize DOM elements first
+            initializeElements();
+            
+            // Initialize Supabase client
+            let supabaseInitialized = false;
+            
+            // Try to initialize Supabase with a retry mechanism
+            const initSupabaseWithRetry = (retries = 3) => {
+                supabaseInitialized = initializeSupabase();
+                
+                if (supabaseInitialized) {
+                    console.log('✅ Supabase client initialized successfully');
+                    
+                    // Now that Supabase is initialized and all functions are defined,
+                    // we can set up the auth state listener
+                    if (typeof listenForAuthChanges === 'function') {
+                        listenForAuthChanges();
+                        console.log('✅ Supabase auth listener set up');
+                        
+                        // Check for email verification first
+                        handleEmailVerification().then(verified => {
+                            if (!verified) {
+                                // If not verified, check if user is already logged in
+                                checkExistingSession().then(isLoggedIn => {
+                                    console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
+                                });
+                            }
+                        });
+                    } else {
+                        console.warn('⚠️ Auth listener function not found');
+                    }
+                    
+                } else if (retries > 0) {
+                    console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
+                    setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
+                } else {
+                    console.error('❌ Supabase client initialization failed after multiple attempts - SSO login may not work');
+                }
+            };
+            
+            // Start initialization with retries
+            initSupabaseWithRetry();
+            
+            // Wait for API manager to be ready before initializing model select
+            const initializeWithApiManager = () => {
+                if (window.apiManager) {
+                    // Initialize main model select with proper options
+                    updateMainModelSelect();
+                    console.log('✅ Model selection initialized');
+                } else {
+                    console.log('⚠️ API Manager not ready, retrying in 500ms...');
+                    setTimeout(initializeWithApiManager, 500);
+                }
+            };
+            
+            // Start initialization
+            initializeWithApiManager();
+
+            // Update login status
+            updateLoginStatus();
+
+            // Render initial state
+            chatManager.renderMessages();
+            updateConversationsList();
+            
+            // Clear guest conversations if user is not logged in
+            if (!chatState.isLoggedIn) {
+                console.log('👤 Guest mode detected - clearing any stored conversations');
+                chatState.conversations = [];
+                localStorage.removeItem('sati_conversations');
+                updateConversationsList();
+            }
+            
+            // Clear guest conversations if user is not logged in
+            if (!chatState.isLoggedIn) {
+                console.log('👤 Guest mode detected - clearing any stored conversations');
+                chatState.conversations = [];
+                localStorage.removeItem('sati_conversations');
+                updateConversationsList();
+            }
+
+            // Initialize event listeners
+            initializeEventListeners();
+
+            // Initialize Cool Mode for login buttons
+            initializeCoolMode();
+
+            // Apply saved theme and update theme toggle button
+            updateThemeToggleButton();
+
+            // Initialize sidebar toggle button position
+            initializeSidebarToggle();
+
+
+
+            // Mobile-specific initialization
+            if (window.innerWidth <= 768) {
+                initializeMobileLayout();
+            }
+
+            // Focus message input (delay for mobile)
+            if (elements.messageInput) {
+                if (window.innerWidth <= 768) {
+                    // Small delay for mobile to ensure layout is stable
+                    setTimeout(() => {
+                        elements.messageInput.focus();
+                    }, 100);
+                } else {
+                    elements.messageInput.focus();
+                }
+            }
+
+            console.log('SATI ChatBot initialized successfully');
+        } catch (error) {
+            console.error('Error initializing SATI ChatBot:', error);
+        }
+    }
+
+    // Mobile-specific initialization
+    function initializeMobileLayout() {
+        try {
+            // Ensure all elements are visible
+            const topBar = document.querySelector('.top-bar');
+            const mainContent = document.querySelector('.main-content');
+            const inputArea = document.querySelector('.input-area');
+            const chatWindow = document.querySelector('.chat-window');
+
+            if (topBar) {
+                topBar.style.display = 'flex';
+                topBar.style.visibility = 'visible';
+                topBar.style.opacity = '1';
+            }
+
+            if (mainContent) {
+                mainContent.style.display = 'flex';
+                mainContent.style.visibility = 'visible';
+                mainContent.style.opacity = '1';
+            }
+
+            if (inputArea) {
+                inputArea.style.display = 'block';
+                inputArea.style.visibility = 'visible';
+                inputArea.style.opacity = '1';
+            }
+
+            if (chatWindow) {
+                chatWindow.style.display = 'flex';
+                chatWindow.style.visibility = 'visible';
+                chatWindow.style.opacity = '1';
+            }
+
+            // Force layout recalculation
+            document.body.offsetHeight;
+
+            // Ensure proper viewport height calculation
+            const setVH = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            };
+
+            setVH();
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(setVH, 100);
+            });
+
+        } catch (error) {
+            console.error('Error initializing mobile layout:', error);
+        }
+    }
+
+    // Start the application when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        const sidebar = elements.sidebar;
+        const appContainer = document.getElementById('appContainer');
+        const sidebarToggle = elements.sidebarToggle;
+
+        if (window.innerWidth > 768) {
+            // Desktop mode
+            sidebar.classList.remove('show');
+            appContainer.classList.remove('sidebar-open');
+
+            // Clean up mobile click outside behavior
+            cleanupMobileClickOutside();
+
+            // Maintain collapsed state and hover trigger
+            if (sidebar.classList.contains('collapsed')) {
+                createHoverTrigger();
+            } else {
+                // Reset toggle button position for expanded sidebar
+                sidebarToggle.style.left = '';
+                sidebarToggle.style.transition = '';
+                removeHoverTrigger();
+            }
         } else {
-            // Reset toggle button position for expanded sidebar
+            // Mobile mode
+            sidebar.classList.remove('collapsed');
+            appContainer.classList.remove('sidebar-collapsed');
+
+            // Reset any hover transforms
+            sidebar.style.transform = '';
+            sidebar.style.boxShadow = '';
+
+            // Reset toggle button position on mobile
             sidebarToggle.style.left = '';
             sidebarToggle.style.transition = '';
+
+            // Handle mobile toggle translation
+            handleMobileToggleTranslation();
+
+            // Remove hover trigger on mobile
             removeHoverTrigger();
+
+            // Setup mobile click outside behavior if sidebar is open
+            if (sidebar.classList.contains('show')) {
+                setupMobileClickOutside();
+            }
         }
-    } else {
-        // Mobile mode
-        sidebar.classList.remove('collapsed');
-        appContainer.classList.remove('sidebar-collapsed');
 
-        // Reset any hover transforms
-        sidebar.style.transform = '';
-        sidebar.style.boxShadow = '';
+    });
 
-        // Reset toggle button position on mobile
-        sidebarToggle.style.left = '';
-        sidebarToggle.style.transition = '';
-
-        // Handle mobile toggle translation
-        handleMobileToggleTranslation();
-
-        // Remove hover trigger on mobile
-        removeHoverTrigger();
-
-        // Setup mobile click outside behavior if sidebar is open
-        if (sidebar.classList.contains('show')) {
-            setupMobileClickOutside();
+    // Handle page visibility change
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            // Refresh conversations list when page becomes visible
+            updateConversationsList();
+            // Also refresh saved chats if modal is open
+            const savedChatsModal = document.getElementById('savedChatsModal');
+            if (savedChatsModal && savedChatsModal.classList.contains('show')) {
+                updateSavedChatsList();
+            }
         }
-    }
+    });
 
-});
-
-// Handle page visibility change
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        // Refresh conversations list when page becomes visible
+    // Handle window focus to ensure UI sync when switching tabs
+    window.addEventListener('focus', () => {
+        // Refresh both conversation lists when window gains focus
         updateConversationsList();
         // Also refresh saved chats if modal is open
         const savedChatsModal = document.getElementById('savedChatsModal');
         if (savedChatsModal && savedChatsModal.classList.contains('show')) {
             updateSavedChatsList();
         }
-    }
-});
-
-// Handle window focus to ensure UI sync when switching tabs
-window.addEventListener('focus', () => {
-    // Refresh both conversation lists when window gains focus
-    updateConversationsList();
-    // Also refresh saved chats if modal is open
-    const savedChatsModal = document.getElementById('savedChatsModal');
-    if (savedChatsModal && savedChatsModal.classList.contains('show')) {
-        updateSavedChatsList();
-    }
-});
-
-// Clean up event listeners when page is unloaded
-window.addEventListener('beforeunload', () => {
-    cleanupMobileClickOutside();
-    cleanupToggleHoverBehavior();
-});
-
-// Export for potential external use
-window.SATIChatBot = {
-    state: chatState,
-    chat: chatManager,
-    modal: modal,
-    toast: toast,
-    utils: utils
-};
-
-// Debug function to test Supabase connection
-window.debugSupabase = function() {
-    console.log('=== SUPABASE DEBUG INFO ===');
-    console.log('window.supabase (CDN):', !!window.supabase);
-    console.log('supabase client instance:', !!supabase);
-    console.log('window.supabaseClient:', !!window.supabaseClient);
-    console.log('Supabase config available:', !!window.SUPABASE_CONFIG?.CONFIGURED);
-    console.log('Current hostname:', window.location.hostname);
-    console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    console.log('Current URL:', window.location.href);
-    
-    // Try to initialize if not done
-    if (!supabase && window.SUPABASE_CONFIG?.CONFIGURED) {
-        console.log('🔄 Attempting manual initialization...');
-        const result = initializeSupabase();
-        console.log('Manual initialization result:', result);
-    }
-    
-    if (supabase) {
-        console.log('✅ Supabase client is initialized');
-        console.log('Supabase client object:', supabase);
-        // Test connection
-        supabase.auth.getSession().then(({ data, error }) => {
-            if (error) {
-                console.log('❌ Supabase connection error:', error);
-            } else {
-                console.log('✅ Supabase connection successful');
-                console.log('Current session:', data.session);
-            }
-        }).catch(err => {
-            console.log('❌ Error testing connection:', err);
-        });
-    } else {
-        console.log('❌ Supabase client is NOT initialized');
-        console.log('Trying to initialize now...');
-        if (window.initializeSupabase) {
-            const result = window.initializeSupabase();
-            console.log('Initialization attempt result:', result);
-        }
-    }
-    
-    console.log('=== END DEBUG INFO ===');
-};
-
-// Manual initialization function for debugging
-window.forceInitializeSupabase = function() {
-    console.log('🔄 Force initializing Supabase...');
-    
-    // Set fallback config if not already set
-    if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
-        window.SUPABASE_CONFIG = {
-            URL: process.env.SUPABASE_URL,
-            KEY: process.env.SUPABASE_KEY,
-            CONFIGURED: true
-        };
-        console.log('✅ Fallback config set');
-    }
-    
-    // Force initialize
-    const result = initializeSupabase();
-    console.log('Force initialization result:', result);
-    
-    if (supabase) {
-        console.log('✅ Supabase is now available:', supabase);
-        window.supabaseClient = supabase;
-    } else {
-        console.log('❌ Supabase still not available');
-    }
-    
-    return !!supabase;
-};
-
-// Test login function for debugging
-window.testLogin = async function(email = 'test@example.com', password = 'testpassword123') {
-    console.log('=== TESTING LOGIN ===');
-    console.log('Email:', email);
-    console.log('Password:', password);
-    
-    if (!supabase) {
-        console.log('❌ Supabase not initialized, trying to force initialize...');
-        const initialized = window.forceInitializeSupabase();
-        if (!initialized) {
-            console.log('❌ Force initialization failed');
-            return;
-        }
-    }
-    
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        
-        if (error) {
-            console.log('❌ Login error:', error);
-            if (error.message.includes('Invalid login credentials')) {
-                console.log('🔄 Trying to sign up instead...');
-                const { data: signupData, error: signupError } = await supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
-                
-                if (signupError) {
-                    console.log('❌ Signup error:', signupError);
-                } else {
-                    console.log('✅ Signup successful:', signupData);
-                }
-            }
-        } else {
-            console.log('✅ Login successful:', data);
-        }
-    } catch (err) {
-        console.log('❌ Unexpected error:', err);
-    }
-    
-    console.log('=== END TEST LOGIN ===');
-};
-
-// Test SSO function
-window.testGoogleSSO = async function() {
-    console.log('=== TESTING GOOGLE SSO ===');
-    
-    if (!supabase) {
-        console.log('❌ Supabase not initialized, trying to force initialize...');
-        const initialized = window.forceInitializeSupabase();
-        if (!initialized) {
-            console.log('❌ Force initialization failed');
-            return;
-        }
-    }
-    
-    try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + '/'
-            }
-        });
-        
-        if (error) {
-            console.log('❌ Google SSO error:', error);
-        } else {
-            console.log('✅ Google SSO initiated:', data);
-        }
-    } catch (err) {
-        console.log('❌ Google SSO exception:', err);
-    }
-    
-    console.log('=== END GOOGLE SSO TEST ===');
-};
-
-// Test GitHub SSO function
-window.testGitHubSSO = async function() {
-    console.log('=== TESTING GITHUB SSO ===');
-    
-    if (!supabase) {
-        console.log('❌ Supabase not initialized, trying to force initialize...');
-        const initialized = window.forceInitializeSupabase();
-        if (!initialized) {
-            console.log('❌ Force initialization failed');
-            return;
-        }
-    }
-    
-    try {
-        console.log('🔄 Attempting GitHub OAuth...');
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'github',
-            options: {
-                redirectTo: window.location.origin + '/'
-            }
-        });
-        
-        if (error) {
-            console.log('❌ GitHub SSO error:', error);
-            console.log('Error details:', {
-                message: error.message,
-                status: error.status,
-                statusCode: error.statusCode
-            });
-        } else {
-            console.log('✅ GitHub SSO initiated:', data);
-        }
-    } catch (err) {
-        console.log('❌ GitHub SSO exception:', err);
-    }
-    
-    console.log('=== END GITHUB SSO TEST ===');
-};
-
-// Test API endpoint
-window.testSupabaseAPI = async function() {
-    console.log('=== TESTING SUPABASE API ENDPOINT ===');
-    
-    try {
-        console.log('Testing /api/supabase-config...');
-        const response = await fetch('/api/supabase-config');
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('✅ API Response:', data);
-        } else {
-            const text = await response.text();
-            console.log('❌ API Error Response:', text);
-        }
-    } catch (error) {
-        console.log('❌ API Request Failed:', error);
-    }
-    
-    console.log('=== END API TEST ===');
-};
-
-// Check which OAuth providers are available
-window.checkOAuthProviders = async function() {
-    console.log('=== CHECKING OAUTH PROVIDERS ===');
-    
-    if (!supabase) {
-        console.log('❌ Supabase not initialized');
-        return;
-    }
-    
-    try {
-        // Try to get session to test connection
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        console.log('Session check:', sessionError ? 'Failed' : 'Success');
-        
-        // Test Google OAuth
-        console.log('🔄 Testing Google OAuth availability...');
-        try {
-            const googleTest = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
-            });
-            console.log('Google OAuth test result:', googleTest.error ? 'Failed' : 'Available');
-            if (googleTest.error) console.log('Google error:', googleTest.error.message);
-        } catch (e) {
-            console.log('Google OAuth test failed:', e.message);
-        }
-        
-        // Test GitHub OAuth
-        console.log('🔄 Testing GitHub OAuth availability...');
-        try {
-            const githubTest = await supabase.auth.signInWithOAuth({
-                provider: 'github',
-                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
-            });
-            console.log('GitHub OAuth test result:', githubTest.error ? 'Failed' : 'Available');
-            if (githubTest.error) console.log('GitHub error:', githubTest.error.message);
-        } catch (e) {
-            console.log('GitHub OAuth test failed:', e.message);
-        }
-        
-    } catch (error) {
-        console.log('❌ Provider check failed:', error);
-    }
-    
-    console.log('=== END PROVIDER CHECK ===');
-};
-
-// Show saved chats modal
-async function showSavedChatsModal() {
-    console.log('🔖 Opening saved chats modal...');
-    
-    // If modal not in DOM, inject from template
-    let modal = document.getElementById('savedChatsModal');
-    if (!modal) {
-        const template = document.getElementById('savedChatsModalTemplate');
-        if (template) {
-            document.body.appendChild(template.content.cloneNode(true));
-            modal = document.getElementById('savedChatsModal');
-            console.log('✅ Saved chats modal created from template');
-        } else {
-            console.error('❌ Saved chats modal template not found');
-            return;
-        }
-    }
-    
-    if (modal) {
-        modal.classList.add('show');
-        console.log('✅ Saved chats modal shown');
-        
-        // Load saved chats
-        await updateSavedChatsList();
-        
-        // Add close button handler
-        const closeBtn = document.getElementById('closeSavedChatsBtn');
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                modal.classList.remove('show');
-                console.log('✅ Saved chats modal closed');
-            };
-        }
-        
-        // Add overlay click to close
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-                console.log('✅ Saved chats modal closed via overlay');
-            }
-        };
-    } else {
-        console.error('❌ Failed to create saved chats modal');
-    }
-}
-
-// Event listener is set up in initializeEventListeners()
-
-// Add a global click listener to close any open conversation dropdown if clicking outside
-if (!window._conversationDropdownClickListenerAdded) {
-    document.addEventListener('click', function (event) {
-        // Only close if click is outside any open dropdown or menu button
-        const isDropdown = event.target.closest('.conversation-dropdown');
-        const isMenuBtn = event.target.closest('.conversation-menu-btn');
-        if (!isDropdown && !isMenuBtn) {
-            document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
-                dropdown.classList.remove('show');
-            });
-        }
     });
-    window._conversationDropdownClickListenerAdded = true;
-}
+
+    // Clean up event listeners when page is unloaded
+    window.addEventListener('beforeunload', () => {
+        cleanupMobileClickOutside();
+        cleanupToggleHoverBehavior();
+    });
+
+    // Export for potential external use
+    window.SATIChatBot = {
+        state: chatState,
+        chat: chatManager,
+        modal: modal,
+        toast: toast,
+        utils: utils
+    };
+
+    // Debug function to test Supabase connection
+    window.debugSupabase = function() {
+        console.log('=== SUPABASE DEBUG INFO ===');
+        console.log('window.supabase (CDN):', !!window.supabase);
+        console.log('supabase client instance:', !!supabase);
+        console.log('window.supabaseClient:', !!window.supabaseClient);
+        console.log('Supabase config available:', !!window.SUPABASE_CONFIG?.CONFIGURED);
+        console.log('Current hostname:', window.location.hostname);
+        console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+        console.log('Current URL:', window.location.href);
+        
+        // Try to initialize if not done
+        if (!supabase && window.SUPABASE_CONFIG?.CONFIGURED) {
+            console.log('🔄 Attempting manual initialization...');
+            const result = initializeSupabase();
+            console.log('Manual initialization result:', result);
+        }
+        
+        if (supabase) {
+            console.log('✅ Supabase client is initialized');
+            console.log('Supabase client object:', supabase);
+            // Test connection
+            supabase.auth.getSession().then(({ data, error }) => {
+                if (error) {
+                    console.log('❌ Supabase connection error:', error);
+                } else {
+                    console.log('✅ Supabase connection successful');
+                    console.log('Current session:', data.session);
+                }
+            }).catch(err => {
+                console.log('❌ Error testing connection:', err);
+            });
+        } else {
+            console.log('❌ Supabase client is NOT initialized');
+            console.log('Trying to initialize now...');
+            if (window.initializeSupabase) {
+                const result = window.initializeSupabase();
+                console.log('Initialization attempt result:', result);
+            }
+        }
+        
+        console.log('=== END DEBUG INFO ===');
+    };
+
+    // Manual initialization function for debugging
+    window.forceInitializeSupabase = function() {
+        console.log('�� Force initializing Supabase...');
+        
+        // Set fallback config if not already set
+        if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
+            window.SUPABASE_CONFIG = {
+                URL: process.env.SUPABASE_URL,
+                KEY: process.env.SUPABASE_KEY,
+                CONFIGURED: true
+            };
+            console.log('✅ Fallback config set');
+        }
+        
+        // Force initialize
+        const result = initializeSupabase();
+        console.log('Force initialization result:', result);
+        
+        if (supabase) {
+            console.log('✅ Supabase is now available:', supabase);
+            window.supabaseClient = supabase;
+        } else {
+            console.log('❌ Supabase still not available');
+        }
+        
+        return !!supabase;
+    };
+
+    // Test login function for debugging
+    window.testLogin = async function(email = 'test@example.com', password = 'testpassword123') {
+        console.log('=== TESTING LOGIN ===');
+        console.log('Email:', email);
+        console.log('Password:', password);
+        
+        if (!supabase) {
+            console.log('❌ Supabase not initialized, trying to force initialize...');
+            const initialized = window.forceInitializeSupabase();
+            if (!initialized) {
+                console.log('❌ Force initialization failed');
+                return;
+            }
+        }
+        
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                console.log('❌ Login error:', error);
+                if (error.message.includes('Invalid login credentials')) {
+                    console.log('🔄 Trying to sign up instead...');
+                    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (signupError) {
+                        console.log('❌ Signup error:', signupError);
+                    } else {
+                        console.log('✅ Signup successful:', signupData);
+                    }
+                }
+            } else {
+                console.log('✅ Login successful:', data);
+            }
+        } catch (err) {
+            console.log('❌ Unexpected error:', err);
+        }
+        
+        console.log('=== END TEST LOGIN ===');
+    };
+
+    // Test SSO function
+    window.testGoogleSSO = async function() {
+        console.log('=== TESTING GOOGLE SSO ===');
+        
+        if (!supabase) {
+            console.log('❌ Supabase not initialized, trying to force initialize...');
+            const initialized = window.forceInitializeSupabase();
+            if (!initialized) {
+                console.log('❌ Force initialization failed');
+                return;
+            }
+        }
+        
+        try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/'
+                }
+            });
+            
+            if (error) {
+                console.log('❌ Google SSO error:', error);
+            } else {
+                console.log('✅ Google SSO initiated:', data);
+            }
+        } catch (err) {
+            console.log('❌ Google SSO exception:', err);
+        }
+        
+        console.log('=== END GOOGLE SSO TEST ===');
+    };
+
+    // Test GitHub SSO function
+    window.testGitHubSSO = async function() {
+        console.log('=== TESTING GITHUB SSO ===');
+        
+        if (!supabase) {
+            console.log('❌ Supabase not initialized, trying to force initialize...');
+            const initialized = window.forceInitializeSupabase();
+            if (!initialized) {
+                console.log('❌ Force initialization failed');
+                return;
+            }
+        }
+        
+        try {
+            console.log('🔄 Attempting GitHub OAuth...');
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'github',
+                options: {
+                    redirectTo: window.location.origin + '/'
+                }
+            });
+            
+            if (error) {
+                console.log('❌ GitHub SSO error:', error);
+                console.log('Error details:', {
+                    message: error.message,
+                    status: error.status,
+                    statusCode: error.statusCode
+                });
+            } else {
+                console.log('✅ GitHub SSO initiated:', data);
+            }
+        } catch (err) {
+            console.log('❌ GitHub SSO exception:', err);
+        }
+        
+        console.log('=== END GITHUB SSO TEST ===');
+    };
+
+    // Test API endpoint
+    window.testSupabaseAPI = async function() {
+        console.log('=== TESTING SUPABASE API ENDPOINT ===');
+        
+        try {
+            console.log('Testing /api/supabase-config...');
+            const response = await fetch('/api/supabase-config');
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ API Response:', data);
+            } else {
+                const text = await response.text();
+                console.log('❌ API Error Response:', text);
+            }
+        } catch (error) {
+            console.log('❌ API Request Failed:', error);
+        }
+        
+        console.log('=== END API TEST ===');
+    };
+
+    // Check which OAuth providers are available
+    window.checkOAuthProviders = async function() {
+        console.log('=== CHECKING OAUTH PROVIDERS ===');
+        
+        if (!supabase) {
+            console.log('❌ Supabase not initialized');
+            return;
+        }
+        
+        try {
+            // Try to get session to test connection
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            console.log('Session check:', sessionError ? 'Failed' : 'Success');
+            
+            // Test Google OAuth
+            console.log('🔄 Testing Google OAuth availability...');
+            try {
+                const googleTest = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+                });
+                console.log('Google OAuth test result:', googleTest.error ? 'Failed' : 'Available');
+                if (googleTest.error) console.log('Google error:', googleTest.error.message);
+            } catch (e) {
+                console.log('Google OAuth test failed:', e.message);
+            }
+            
+            // Test GitHub OAuth
+            console.log('🔄 Testing GitHub OAuth availability...');
+            try {
+                const githubTest = await supabase.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+                });
+                console.log('GitHub OAuth test result:', githubTest.error ? 'Failed' : 'Available');
+                if (githubTest.error) console.log('GitHub error:', githubTest.error.message);
+            } catch (e) {
+                console.log('GitHub OAuth test failed:', e.message);
+            }
+            
+        } catch (error) {
+            console.log('❌ Provider check failed:', error);
+        }
+        
+        console.log('=== END PROVIDER CHECK ===');
+    };
+
+    // Show saved chats modal
+    async function showSavedChatsModal() {
+        console.log('🔖 Opening saved chats modal...');
+        
+        // If modal not in DOM, inject from template
+        let modal = document.getElementById('savedChatsModal');
+        if (!modal) {
+            const template = document.getElementById('savedChatsModalTemplate');
+            if (template) {
+                document.body.appendChild(template.content.cloneNode(true));
+                modal = document.getElementById('savedChatsModal');
+                console.log('✅ Saved chats modal created from template');
+            } else {
+                console.error('❌ Saved chats modal template not found');
+                return;
+            }
+        }
+        
+        if (modal) {
+            modal.classList.add('show');
+            console.log('✅ Saved chats modal shown');
+            
+            // Load saved chats
+            await updateSavedChatsList();
+            
+            // Add close button handler
+            const closeBtn = document.getElementById('closeSavedChatsBtn');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modal.classList.remove('show');
+                    console.log('✅ Saved chats modal closed');
+                };
+            }
+            
+            // Add overlay click to close
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                    console.log('✅ Saved chats modal closed via overlay');
+                }
+            };
+        } else {
+            console.error('❌ Failed to create saved chats modal');
+        }
+    }
+
+    // Event listener is set up in initializeEventListeners()
+
+    // Add a global click listener to close any open conversation dropdown if clicking outside
+    if (!window._conversationDropdownClickListenerAdded) {
+        document.addEventListener('click', function (event) {
+            // Only close if click is outside any open dropdown or menu button
+            const isDropdown = event.target.closest('.conversation-dropdown');
+            const isMenuBtn = event.target.closest('.conversation-menu-btn');
+            if (!isDropdown && !isMenuBtn) {
+                document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+        window._conversationDropdownClickListenerAdded = true;
+    }
