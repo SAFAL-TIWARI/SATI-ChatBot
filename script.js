@@ -4980,13 +4980,6 @@ function initializeApp() {
         }
 
         console.log('SATI ChatBot initialized successfully');
-        
-        // Test toast notification after initialization
-        setTimeout(() => {
-            if (toast && typeof toast.show === 'function') {
-                toast.show('SATI ChatBot initialized successfully!', 'success', 2000);
-            }
-        }, 1000);
     } catch (error) {
         console.error('Error initializing SATI ChatBot:', error);
     }
@@ -5046,17 +5039,7 @@ function initializeMobileLayout() {
 }
 
 // Start the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    
-    // Additional test for toast after a delay
-    setTimeout(() => {
-        console.log('🧪 Running additional toast test...');
-        if (window.testToast) {
-            window.testToast('Toast system is working!', 'success');
-        }
-    }, 2000);
-});
+document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Handle window resize
 window.addEventListener('resize', () => {
