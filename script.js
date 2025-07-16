@@ -156,6 +156,7 @@ function listenForAuthChanges() {
                         localStorage.removeItem('sati_fresh_login');
                     }
                 }
+                afterLoginOrSignup();
             } else if (event === 'SIGNED_OUT') {
                 console.log('User signed out');
                 
@@ -4725,6 +4726,7 @@ function showProfileModal() {
                 
                 // Update UI
                 updateLoginStatus();
+                afterLoginOrSignup();
                 
                 return true;
             }
@@ -4800,6 +4802,7 @@ function showProfileModal() {
                     
                     // Update UI
                     updateLoginStatus();
+                    afterLoginOrSignup();
                     
                     // Show welcome modal
                     setTimeout(() => {
@@ -5551,3 +5554,83 @@ function showProfileModal() {
         });
         window._conversationDropdownClickListenerAdded = true;
     }
+
+    // Username Modal Logic
+    function showUsernameModal(force = false) {
+        if (!chatState.isLoggedIn) return;
+        // Only show if username is missing or force is true
+        if (!chatState.username || chatState.username === '' || force) {
+            document.getElementById('usernameModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            // Autofocus input
+            setTimeout(() => {
+                document.getElementById('usernameInput').focus();
+            }, 100);
+        }
+    }
+    function hideUsernameModal() {
+        document.getElementById('usernameModal').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    // Save username and update state
+    function handleUsernameSubmit(event) {
+        event.preventDefault();
+        const input = document.getElementById('usernameInput');
+        const username = input.value.trim();
+        if (!username || username.length < 2) {
+            input.classList.add('input-error');
+            input.focus();
+            toast.show('Please enter a valid username (min 2 characters)', 'warning');
+            return;
+        }
+        chatState.username = username;
+        chatState.saveState();
+        hideUsernameModal();
+        updateLoginStatus();
+        toast.show('Username set successfully!', 'success');
+    }
+    // Prevent closing modal without username
+    function preventUsernameModalClose(e) {
+        e.stopPropagation();
+        const input = document.getElementById('usernameInput');
+        if (!input.value.trim()) {
+            toast.show('Please enter a username to continue', 'warning');
+        }
+    }
+    // Add event listeners after DOMContentLoaded
+    window.addEventListener('DOMContentLoaded', function () {
+        const usernameForm = document.getElementById('usernameForm');
+        if (usernameForm) {
+            usernameForm.addEventListener('submit', handleUsernameSubmit);
+        }
+        const closeUsernameBtn = document.getElementById('closeUsernameBtn');
+        if (closeUsernameBtn) {
+            closeUsernameBtn.addEventListener('click', preventUsernameModalClose);
+        }
+        // Prevent clicking overlay to close
+        const usernameModal = document.getElementById('usernameModal');
+        if (usernameModal) {
+            usernameModal.addEventListener('click', function (e) {
+                if (e.target === usernameModal) {
+                    preventUsernameModalClose(e);
+                }
+            });
+        }
+    });
+    // Show username modal after login/signup if needed
+    function afterLoginOrSignup() {
+        if (chatState.isLoggedIn && (!chatState.username || chatState.username === '')) {
+            showUsernameModal();
+        }
+    }
+    // Patch login/signup flows to call afterLoginOrSignup
+    // In listenForAuthChanges, after successful login:
+    // ... existing code ...
+                updateLoginStatus();
+                afterLoginOrSignup();
+    // ... existing code ...
+    // In checkExistingSession and handleEmailVerification, after updateLoginStatus():
+    // ... existing code ...
+        updateLoginStatus();
+        afterLoginOrSignup();
+    // ... existing code ...

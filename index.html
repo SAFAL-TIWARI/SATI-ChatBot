@@ -507,6 +507,26 @@
         </div>
     </div>
 
+    <!-- Username Modal -->
+    <div class="modal-overlay" id="usernameModal">
+        <div class="modal-container username-modal">
+            <div class="modal-header">
+                <h3>Set Your Username</h3>
+                <button class="close-btn" id="closeUsernameBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="username-form" id="usernameForm">
+                    <input type="text" class="username-input" id="usernameInput" placeholder="Enter a username..." maxlength="32" required>
+                    <div class="username-actions">
+                        <button type="submit" class="username-btn primary" id="usernameSaveBtn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div class="toast-container" id="toastContainer">
         <!-- Toasts will be added here dynamically -->
