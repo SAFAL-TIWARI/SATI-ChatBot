@@ -102,7 +102,10 @@ function listenForAuthChanges() {
                 
                 // Update user state
                 chatState.isLoggedIn = true;
-                chatState.username = session.user.email ? session.user.email.split('@')[0] : session.user.id;
+                let username = (session.user.user_metadata && session.user.user_metadata.username)
+                    ? session.user.user_metadata.username
+                    : (session.user.email ? session.user.email.split('@')[0] : session.user.id);
+                chatState.username = username;
                 chatState.email = session.user.email || '';
                 chatState.authProvider = authProvider;
                 chatState.profilePhoto = profilePhoto;
@@ -3683,7 +3686,10 @@ async function signup() {
                 authProvider = data.user.app_metadata.provider;
             }
             chatState.isLoggedIn = true;
-            chatState.username = data.user.email.split('@')[0];
+            let username4 = (data.user.user_metadata && data.user.user_metadata.username)
+                ? data.user.user_metadata.username
+                : (data.user.email ? data.user.email.split('@')[0] : data.user.id);
+            chatState.username = username4;
             chatState.email = data.user.email;
             chatState.authProvider = authProvider;
             chatState.saveState();
@@ -4109,7 +4115,8 @@ function fallbackLogin(email) {
                                localStorage.getItem('sati_username') === email.split('@')[0];
     
     chatState.isLoggedIn = true;
-    chatState.username = email.split('@')[0];
+    let username5 = (typeof email === 'string' && email.includes('@')) ? email.split('@')[0] : email;
+    chatState.username = username5;
     chatState.email = email;
     chatState.authProvider = 'email';
     chatState.saveState();
@@ -4716,7 +4723,10 @@ function showProfileModal() {
                     }
                 }
                 chatState.isLoggedIn = true;
-                chatState.username = data.session.user.email.split('@')[0];
+                let username2 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
+                    ? data.session.user.user_metadata.username
+                    : (data.session.user.email ? data.session.user.email.split('@')[0] : data.session.user.id);
+                chatState.username = username2;
                 chatState.email = data.session.user.email;
                 chatState.authProvider = authProvider;
                 chatState.saveState();
@@ -4800,7 +4810,10 @@ function showProfileModal() {
                         }
                     }
                     chatState.isLoggedIn = true;
-                    chatState.username = data.session.user.email.split('@')[0];
+                    let username3 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
+                        ? data.session.user.user_metadata.username
+                        : (data.session.user.email ? data.session.user.email.split('@')[0] : data.session.user.id);
+                    chatState.username = username3;
                     chatState.email = data.session.user.email;
                     chatState.authProvider = authProvider;
                     chatState.saveState();
