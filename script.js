@@ -2699,6 +2699,14 @@ async function clearAllConversations() {
     );
 
     if (confirmed) {
+        if (chatState.useSupabaseStorage && window.supabaseDB) {
+            // Delete all conversations from Supabase
+            const conversationIds = chatState.conversations.map(c => c.id);
+            for (const id of conversationIds) {
+                await chatState.deleteConversation(id);
+            }
+        }
+        // Clear local state
         chatState.conversations = [];
         chatState.currentConversationId = null;
         chatState.currentMessages = [];
@@ -2712,7 +2720,7 @@ async function clearAllConversations() {
     }
 }
 
-function exportAllChats() {
+async function exportAllChats() {
     if (chatState.conversations.length === 0) {
         toast.show('No conversations to export', 'warning');
         return;
@@ -2721,12 +2729,37 @@ function exportAllChats() {
     let content = 'SATI ChatBot - All Conversations Export\n';
     content += '='.repeat(60) + '\n\n';
 
-    chatState.conversations.forEach((conversation, index) => {
+    let conversationsToExport = chatState.conversations;
+    let allMessagesMap = {};
+
+    if (chatState.useSupabaseStorage && window.supabaseDB) {
+        // Fetch all messages for each conversation from Supabase
+        const fetchPromises = conversationsToExport.map(async (conversation) => {
+            const { data: messages, error } = await window.supabaseDB.getConversationMessages(conversation.id);
+            if (!error && messages) {
+                allMessagesMap[conversation.id] = messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content,
+                    timestamp: msg.created_at
+                }));
+            } else {
+                allMessagesMap[conversation.id] = [];
+            }
+        });
+        await Promise.all(fetchPromises);
+    }
+
+    conversationsToExport.forEach((conversation, index) => {
         content += `Conversation ${index + 1}: ${conversation.title}\n`;
         content += `Created: ${new Date(conversation.createdAt).toLocaleString()}\n`;
         content += '-'.repeat(40) + '\n\n';
 
-        conversation.messages.forEach(message => {
+        let messages = conversation.messages;
+        if (chatState.useSupabaseStorage && window.supabaseDB) {
+            messages = allMessagesMap[conversation.id] || [];
+        }
+
+        messages.forEach(message => {
             const role = message.role === 'user' ? 'You' : 'SATI Bot';
             const time = utils.formatTime(message.timestamp);
             content += `[${time}] ${role}: ${message.content}\n\n`;
