@@ -1413,6 +1413,7 @@ async function updateSavedChatsList() {
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
             const { data, error } = await window.supabaseDB.getBookmarkedConversations();
+            console.log('[SavedChats] Supabase fetched data:', data, 'Error:', error);
             if (!error && data && data.length > 0) {
                 data.forEach(supabaseConv => {
                     let localConv = chatState.conversations.find(c => c.id === supabaseConv.id);
@@ -1434,13 +1435,14 @@ async function updateSavedChatsList() {
                 chatState.saveState();
             }
         } catch (error) {
-            // ignore
+            console.error('[SavedChats] Error fetching from Supabase:', error);
         }
     }
     // Remove loading indicator
     container.innerHTML = '';
     // Filter bookmarked conversations from local state
     bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    console.log('[SavedChats] Bookmarked conversations to render:', bookmarkedConversations);
     // Update the saved chats count
     const savedCountElement = document.getElementById('savedChatsCount');
     if (savedCountElement) {
@@ -2501,6 +2503,7 @@ async function updateSavedChatsList() {
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         try {
             const { data, error } = await window.supabaseDB.getBookmarkedConversations();
+            console.log('[SavedChats] Supabase fetched data:', data, 'Error:', error);
             if (!error && data && data.length > 0) {
                 data.forEach(supabaseConv => {
                     let localConv = chatState.conversations.find(c => c.id === supabaseConv.id);
@@ -2522,13 +2525,14 @@ async function updateSavedChatsList() {
                 chatState.saveState();
             }
         } catch (error) {
-            // ignore
+            console.error('[SavedChats] Error fetching from Supabase:', error);
         }
     }
     // Remove loading indicator
     container.innerHTML = '';
     // Filter bookmarked conversations from local state
     bookmarkedConversations = chatState.conversations.filter(c => c.is_bookmarked);
+    console.log('[SavedChats] Bookmarked conversations to render:', bookmarkedConversations);
     // Update the saved chats count
     const savedCountElement = document.getElementById('savedChatsCount');
     if (savedCountElement) {
