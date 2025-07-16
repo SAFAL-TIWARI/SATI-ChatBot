@@ -79,10 +79,18 @@ function listenForAuthChanges() {
                 if (session.user.app_metadata && session.user.app_metadata.provider) {
                     authProvider = session.user.app_metadata.provider;
                 }
+                // Debug: print user_metadata for Google logins
+                console.log('user_metadata:', session.user.user_metadata);
                 // Extract profile photo from user_metadata
                 if (session.user.user_metadata) {
-                    if (authProvider === 'google' && session.user.user_metadata.picture) {
-                        profilePhoto = session.user.user_metadata.picture;
+                    if (authProvider === 'google') {
+                        if (session.user.user_metadata.picture) {
+                            profilePhoto = session.user.user_metadata.picture;
+                        } else if (session.user.user_metadata.avatar_url) {
+                            profilePhoto = session.user.user_metadata.avatar_url;
+                        } else if (session.user.user_metadata.photo_url) {
+                            profilePhoto = session.user.user_metadata.photo_url;
+                        }
                     } else if (authProvider === 'github' && session.user.user_metadata.avatar_url) {
                         profilePhoto = session.user.user_metadata.avatar_url;
                     }
@@ -4374,10 +4382,30 @@ function updateLoginStatus() {
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.add('logged-in');
             
-            // Set the first letter of username as the avatar text
+            // Remove any previous img
+            const prevImg = elements.profileAvatar.querySelector('img.profile-photo');
+            if (prevImg) prevImg.remove();
+            // Set the first letter of username as the avatar text, or show image if available
             const avatarText = elements.profileAvatar.querySelector('.avatar-text');
-            if (avatarText && chatState.username) {
-                avatarText.textContent = chatState.username.charAt(0).toUpperCase();
+            if (chatState.profilePhoto) {
+                // Insert image as the only child
+                const img = document.createElement('img');
+                img.src = chatState.profilePhoto;
+                img.alt = 'Profile Photo';
+                img.className = 'profile-photo';
+                img.style.width = '32px';
+                img.style.height = '32px';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                img.style.position = 'static';
+                img.style.display = 'block';
+                // Remove all children and add only the image
+                elements.profileAvatar.innerHTML = '';
+                elements.profileAvatar.appendChild(img);
+            } else if (avatarText && chatState.username) {
+                elements.profileAvatar.innerHTML = '<span class="avatar-text">' + chatState.username.charAt(0).toUpperCase() + '</span>';
+            } else {
+                elements.profileAvatar.innerHTML = '<span class="avatar-text">?</span>';
             }
         }
         
@@ -4395,11 +4423,11 @@ function updateLoginStatus() {
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.remove('logged-in');
             
+            // Remove any previous img
+            const prevImg = elements.profileAvatar.querySelector('img.profile-photo');
+            if (prevImg) prevImg.remove();
             // Reset avatar text
-            const avatarText = elements.profileAvatar.querySelector('.avatar-text');
-            if (avatarText) {
-                avatarText.textContent = '?';
-            }
+            elements.profileAvatar.innerHTML = '<span class="avatar-text">?</span>';
         }
         
         // Reset My Profile button text
