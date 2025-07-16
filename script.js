@@ -1469,7 +1469,12 @@ async function updateSavedChatsList() {
         console.log('📱 savedChatsList container not found - modal may not be open yet');
         return;
     }
+    
+    // Force clear and refresh
     container.innerHTML = '';
+    container.style.display = 'none';
+    container.offsetHeight; // Force reflow
+    container.style.display = 'block';
     // Show loading indicator
     const loadingElement = document.createElement('div');
     loadingElement.className = 'saved-chats-loading';
@@ -1559,16 +1564,6 @@ async function updateSavedChatsList() {
             renameSavedConversation(conversation.id); 
         };
         dropdown.appendChild(renameBtn);
-        
-        // Add Remove from Saved option
-        const removeFromSavedBtn = document.createElement('button');
-        removeFromSavedBtn.className = 'conversation-dropdown-item';
-        removeFromSavedBtn.innerHTML = '<i class="fas fa-bookmark-slash"></i><span>Remove from Saved</span>';
-        removeFromSavedBtn.onclick = function(e) { 
-            e.stopPropagation(); 
-            removeFromSavedWithAnimation(conversation.id); 
-        };
-        dropdown.appendChild(removeFromSavedBtn);
         
         // Add Delete option
         const deleteBtn = document.createElement('button');
@@ -1815,14 +1810,26 @@ async function deleteSavedConversation(conversationId) {
         const success = await chatState.deleteConversation(conversationId);
         
         if (success) {
-            // Update both UI sections
-            updateConversationsList(); // Updates all conversations section
-            updateSavedChatsList(); // Updates saved chats modal
-            
-            // Close any open dropdowns
+            // Close any open dropdowns first
             document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
                 dropdown.classList.remove('show');
             });
+            
+            // Force immediate UI updates with multiple refresh attempts to ensure proper sync
+            updateConversationsList(); // Updates all conversations section immediately
+            updateSavedChatsList(); // Updates saved chats modal immediately
+            
+            // Additional refresh after a short delay to ensure sync
+            setTimeout(() => {
+                updateConversationsList();
+                updateSavedChatsList();
+            }, 100);
+            
+            // Final refresh to ensure UI is completely synced
+            setTimeout(() => {
+                updateConversationsList();
+                updateSavedChatsList();
+            }, 300);
             
             // If this was the current conversation, clear the chat
             if (chatState.currentConversationId === conversationId) {
@@ -4973,6 +4980,22 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         // Refresh conversations list when page becomes visible
         updateConversationsList();
+        // Also refresh saved chats if modal is open
+        const savedChatsModal = document.getElementById('savedChatsModal');
+        if (savedChatsModal && savedChatsModal.classList.contains('show')) {
+            updateSavedChatsList();
+        }
+    }
+});
+
+// Handle window focus to ensure UI sync when switching tabs
+window.addEventListener('focus', () => {
+    // Refresh both conversation lists when window gains focus
+    updateConversationsList();
+    // Also refresh saved chats if modal is open
+    const savedChatsModal = document.getElementById('savedChatsModal');
+    if (savedChatsModal && savedChatsModal.classList.contains('show')) {
+        updateSavedChatsList();
     }
 });
 

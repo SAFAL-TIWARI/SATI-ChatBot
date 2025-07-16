@@ -3178,17 +3178,21 @@ textarea:focus-visible {
 }
 
 .saved-chats-list {
-    max-height: 350px;
+    min-height: 300px;
+    max-height: 450px;
     overflow-y: auto;
     padding: 0 10px;
     margin-top: 10px;
 }
 
 .saved-chats-list .conversation-item {
-    padding: 12px 10px;
+    padding: 15px 12px;
     font-size: 1rem;
     border-radius: var(--radius-md);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
 }
 
 .saved-chats-list .conversation-title {
@@ -3198,7 +3202,12 @@ textarea:focus-visible {
 
 .saved-chats-list .conversation-bookmark-btn,
 .saved-chats-list .conversation-menu-btn {
-    font-size: 1rem;
+    font-size: 1.1rem;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .saved-chats-list .conversation-dropdown {
@@ -3221,14 +3230,15 @@ textarea:focus-visible {
 
 /* Saved Chats Modal Specific Styles */
 .saved-chats-modal {
-    width: 600px;
+    width: 700px;
     max-width: 90vw;
-    max-height: 80vh;
+    max-height: 85vh;
 }
 
 .saved-chats-modal .modal-body {
-    padding: var(--spacing-4);
-    max-height: 60vh;
+    padding: var(--spacing-5);
+    min-height: 400px;
+    max-height: 65vh;
     overflow-y: auto;
 }
 
