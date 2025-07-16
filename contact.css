@@ -544,13 +544,30 @@
 
             .contact-form,
             .contact-info,
-            /* .social-section, */
             .faq-section {
-                padding: 1.5rem;
+                padding: 1rem;
             }
 
             .social-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Fix contact item icon alignment on mobile */
+            .contact-item {
+                align-items: flex-start;
+                padding: 1rem;
+                margin-bottom:10px;
+            }
+
+            .contact-icon {
+                width: 45px;
+                height: 45px;
+                min-width: 45px;
+                min-height: 45px;
+                flex-shrink: 0;
+                margin-right: 0.75rem;
+                margin-top: 0.25rem;
+                font-size: 1.1rem;
             }
 
             /* Theme switch mobile styles */
