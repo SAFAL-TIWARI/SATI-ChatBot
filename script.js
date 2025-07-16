@@ -3022,9 +3022,9 @@ function initializeEventListeners() {
     // Sidebar menu items
     const savedChatsBtn = document.getElementById('savedChatsBtn');
     if (savedChatsBtn) {
-        savedChatsBtn.addEventListener('click', () => {
-            toast.show('Saved chats feature coming soon', 'info');
-        });
+        // Remove the toast notification for 'Saved chats feature coming soon'
+        // If you want to add functionality for saved chats, do it here.
+        // Otherwise, leave the button with no action for now.
     }
 
     const promptLibraryBtn = document.getElementById('promptLibraryBtn');
