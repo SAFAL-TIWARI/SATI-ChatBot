@@ -1363,52 +1363,38 @@ function updateConversationsList() {
         return;
     }
     
-    // Also update saved chats list if it's active
-    if (document.getElementById('savedChatsSection').classList.contains('active')) {
-        updateSavedChatsList();
-    }
-
     chatState.conversations.forEach(conversation => {
         const conversationElement = templateHelper.clone('conversationItemTemplate');
         if (!conversationElement) return;
-        
         const item = conversationElement.querySelector('.conversation-item');
         item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
-
         // Populate template content
         const titleElement = conversationElement.querySelector('.conversation-title');
         titleElement.setAttribute('title', conversation.title);
         titleElement.textContent = conversation.title;
-        
         // Setup bookmark button
         const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
         if (conversation.is_bookmarked) {
             bookmarkBtn.classList.add('active');
-            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark'; // Solid icon when bookmarked
+            bookmarkBtn.querySelector('i').className = 'fas fa-bookmark';
         } else {
             bookmarkBtn.classList.remove('active');
-            bookmarkBtn.querySelector('i').className = 'far fa-bookmark'; // Regular icon when not bookmarked
+            bookmarkBtn.querySelector('i').className = 'far fa-bookmark';
         }
         bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}')`);
-        
         const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
         menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
-        
         const dropdown = conversationElement.querySelector('.conversation-dropdown');
         dropdown.id = `dropdown-${conversation.id}`;
-        
         const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
         renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
-        
         const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
         deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
-
         item.addEventListener('click', async (e) => {
             if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
                 await loadConversation(conversation.id);
             }
         });
-
         container.appendChild(conversationElement);
     });
 }
@@ -1461,7 +1447,7 @@ async function updateSavedChatsList() {
     if (bookmarkedConversations.length === 0) {
         const noSavedChats = document.createElement('div');
         noSavedChats.className = 'no-saved-chats';
-        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats</p><p class="no-saved-chats-hint">Bookmark conversations to see them here</p>';
+        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats, bookmark to save.</p>';
         container.appendChild(noSavedChats);
         return;
     }
@@ -2539,7 +2525,7 @@ async function updateSavedChatsList() {
     if (bookmarkedConversations.length === 0) {
         const noSavedChats = document.createElement('div');
         noSavedChats.className = 'no-saved-chats';
-        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats</p><p class="no-saved-chats-hint">Bookmark conversations to see them here</p>';
+        noSavedChats.innerHTML = '<i class="fas fa-bookmark"></i><p>No saved chats, bookmark to save.</p>';
         container.appendChild(noSavedChats);
         return;
     }
