@@ -3629,3 +3629,7 @@ textarea:focus-visible {
     background: var(--bg-tertiary);
     color: var(--text-primary);
 }
+
+#savedChatsModal.modal-overlay {
+    z-index: 1000 !important;
+}
