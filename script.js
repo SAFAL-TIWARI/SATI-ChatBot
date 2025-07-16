@@ -4545,10 +4545,18 @@ function showProfileModal() {
                     <button class="btn btn-primary" onclick="exportUserData()">
                         <i class="fas fa-download"></i> Export Data
                     </button>
+                    <button class="btn btn-secondary" id="editUsernameBtn">
+                        <i class="fas fa-user-edit"></i> Edit Username
+                    </button>
                     <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
+                // Re-attach the event listener for Edit Username
+                const editUsernameBtn = document.getElementById('editUsernameBtn');
+                if (editUsernameBtn) {
+                    editUsernameBtn.addEventListener('click', showEditUsernameModal);
+                }
             }
         } else {
             // Default values for logged out state
