@@ -28,8 +28,8 @@
 
     <!-- Your custom styles -->
     <link rel="stylesheet" href="styles.css">
-    
-    
+
+
     <!-- Cool Mode Effect -->
     <script src="cool-mode.js"></script>
 
@@ -131,10 +131,6 @@
                     <i class="fas fa-bookmark"></i>
                     <span>Saved Chats</span>
                 </div>
-                <div class="menu-item" id="promptLibraryBtn">
-                    <i class="fas fa-flask"></i>
-                    <span>Prompt Library</span>
-                </div>
                 <div class="menu-item danger" id="clearAllBtn">
                     <i class="fas fa-trash"></i>
                     <span>Clear All Chats</span>
@@ -167,14 +163,13 @@
                                 <i class="fas fa-cog"></i>
                                 <span>Settings</span>
                             </div>
-                            <div class="profile-dropdown-item" id="customizeDropdownBtn">
-                                <i class="fas fa-palette"></i>
-                                <span>Customize Appearance</span>
-                            </div>
 
                             <div class="profile-dropdown-item theme-menu-item" id="themeMenuBtn">
-                                <svg class="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z" fill="currentColor"/>
+                                <svg class="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"
+                                        fill="currentColor" />
                                 </svg>
                                 <span>Themes</span>
                                 <i class="fas fa-chevron-right theme-arrow"></i>
@@ -302,6 +297,10 @@
                         <i class="fas fa-cog"></i>
                         <span>General Settings</span>
                     </div>
+                    <div class="settings-tab" data-tab="appearance">
+                        <i class="fas fa-palette"></i>
+                        <span>Customize Appearance</span>
+                    </div>
                     <div class="settings-tab" data-tab="chat">
                         <i class="fas fa-comments"></i>
                         <span>Chat Settings</span>
@@ -323,23 +322,6 @@
                     <div id="settingsContent">
                         <!-- Settings content will be populated here -->
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Customize Appearance Modal -->
-    <div class="modal-overlay" id="customizeModal">
-        <div class="modal-container customize-modal">
-            <div class="modal-header">
-                <h2>🎨 Customize Appearance</h2>
-                <button class="close-btn" id="closeCustomizeBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="customizeContent">
-                    <!-- Customize content will be populated here -->
                 </div>
             </div>
         </div>
@@ -433,7 +415,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Profile Modal -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal-container profile-modal">
@@ -452,7 +434,7 @@
                         <h3 id="profileUsername">Username</h3>
                         <p id="profileEmail">user@example.com</p>
                     </div>
-                    
+
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-value" id="profileChatCount">0</div>
@@ -467,27 +449,11 @@
                             <div class="stat-label">Logins</div>
                         </div>
                     </div>
-                    
-                    <div class="profile-details">
-                        <h4>Account Details</h4>
-                        <div class="detail-item">
-                            <div class="detail-label">Account Type</div>
-                            <div class="detail-value" id="profileAccountType">Standard</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Login Method</div>
-                            <div class="detail-value" id="profileLoginMethod">Email</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Last Login</div>
-                            <div class="detail-value" id="profileLastLogin">Today</div>
-                        </div>
-                    </div>
-                    
+
+
+
                     <div class="profile-actions" id="profileActions">
-                        <button class="btn btn-primary" onclick="exportUserData()">
-                            <i class="fas fa-download"></i> Export Data
-                        </button>
+
                         <button class="btn btn-secondary" id="editUsernameBtn">
                             <i class="fas fa-user-edit"></i> Edit Username
                         </button>
@@ -499,7 +465,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Edit Username Modal -->
     <div class="modal-overlay" id="editUsernameModal">
         <div class="modal-container rename-modal">
@@ -511,7 +477,8 @@
             </div>
             <div class="modal-body">
                 <form class="rename-form" id="editUsernameForm">
-                    <input type="text" class="rename-input" id="editUsernameInput" placeholder="Enter new username..." maxlength="32" required>
+                    <input type="text" class="rename-input" id="editUsernameInput" placeholder="Enter new username..."
+                        maxlength="32" required>
                     <div class="rename-actions">
                         <button type="button" class="rename-btn secondary" id="editUsernameCancelBtn">Cancel</button>
                         <button type="submit" class="rename-btn primary" id="editUsernameSaveBtn">Save</button>
@@ -520,7 +487,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Welcome Modal -->
     <div class="modal-overlay" id="welcomeModal">
         <div class="modal-container welcome-modal">
@@ -537,7 +504,7 @@
                     </div>
                     <h3 id="welcomeHeading">Hello, <span id="welcomeUsername">User</span>!</h3>
                     <p id="welcomeMessage">Welcome back to SATI ChatBot. We're excited to assist you today!</p>
-                    
+
                     <div class="welcome-features">
                         <div class="feature-item">
                             <i class="fas fa-brain"></i>
@@ -552,7 +519,7 @@
                             <span>SATI Knowledge</span>
                         </div>
                     </div>
-                    
+
                     <button class="btn primary-btn" id="startChattingBtn">
                         Start Chatting
                     </button>
@@ -568,7 +535,7 @@
 
     <!-- HTML Templates -->
     <div id="templates" style="display: none;">
-        
+
         <!-- Toast Template -->
         <template id="toastTemplate">
             <div class="toast-icon"></div>
@@ -594,7 +561,8 @@
                 <div class="message-content">
                     <div class="message-text">
                         <h3>🎓 Hello! I'm your SATI AI Assistant</h3>
-                        <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute (SATI), Vidisha</strong>. I can help you with:</p>
+                        <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute
+                                (SATI), Vidisha</strong>. I can help you with:</p>
                         <ul>
                             <li>📚 Academic programs and courses</li>
                             <li>🏠 Hostel and campus facilities</li>
@@ -674,67 +642,54 @@
                     </div>
                 </div>
             </div>
-            
+        </template>
+
+        <!-- Settings Appearance Tab Template -->
+        <template id="settingsAppearanceTemplate">
+
             <div class="form-section">
-                <h3>General Settings</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label>Default Chat Name</label>
-                        <select class="form-control" id="chatNameSetting">
-                            <option value="auto">Auto-generate</option>
-                            <option value="timestamp">Use timestamp</option>
-                            <option value="custom">Custom prefix</option>
-                        </select>
+                <h3>Accent Color</h3>
+                <div class="color-grid">
+                    <div class="color-option" data-color="#10a37f" style="background-color: #10a37f;"
+                        title="Default Green #10a37f"></div>
+                    <div class="color-option" data-color="#1976d2" style="background-color: #1976d2;"
+                        title="Blue #1976d2">
                     </div>
-                </div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="chatHistorySetting" checked>
-                        <label for="chatHistorySetting">Enable chat history</label>
+                    <div class="color-option" data-color="#7c3aed" style="background-color: #7c3aed;"
+                        title="Purple #7c3aed">
+                    </div>
+                    <div class="color-option" data-color="#dc2626" style="background-color: #dc2626;"
+                        title="Red #dc2626"></div>
+                    <div class="color-option" data-color="#ea580c" style="background-color: #ea580c;"
+                        title="Orange #ea580c">
+                    </div>
+                    <div class="color-option" data-color="#16a34a" style="background-color: #16a34a;"
+                        title="Green #16a34a">
+                    </div>
+                    <div class="color-option" data-color="#0891b2" style="background-color: #0891b2;"
+                        title="Cyan #0891b2">
+                    </div>
+                    <div class="color-option" data-color="#be185d" style="background-color: #be185d;"
+                        title="Pink #be185d">
                     </div>
                 </div>
             </div>
-        </template>
 
-        <!-- Settings Chat Tab Template -->
-        <template id="settingsChatTemplate">
             <div class="form-section">
-                <h3>Chat Settings</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label>Response Style</label>
-                        <select class="form-control" id="responseStyleSetting">
-                            <option value="concise">Concise</option>
-                            <option value="detailed">Detailed</option>
-                            <option value="comprehensive">Comprehensive</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label>Prompt Tone</label>
-                        <select class="form-control" id="promptToneSetting">
-                            <option value="friendly">Friendly</option>
-                            <option value="professional">Professional</option>
-                            <option value="casual">Casual</option>
-                        </select>
-                    </div>
-                </div>
+                <h3>Font Size</h3>
                 <div class="slider-group">
                     <div class="slider-label">
-                        <span>Model Behavior (Creativity vs Accuracy)</span>
-                        <span id="behaviorValue">0.7</span>
+                        <span>Font Size</span>
+                        <span id="settingsFontSizeValue">16px</span>
                     </div>
-                    <input type="range" class="slider" id="behaviorSlider" min="0" max="1" step="0.1" value="0.7">
+                    <input type="range" class="slider" id="settingsFontSizeSlider" min="12" max="24" value="16">
                 </div>
             </div>
-        </template>
 
-        <!-- Settings Accessibility Tab Template -->
-        <template id="settingsAccessibilityTemplate">
             <div class="form-section">
-                <h3>Accessibility</h3>
+                <h3>Font Style</h3>
                 <div class="form-row">
                     <div class="form-col">
-                        <label for="fontStyleSetting">Font Style</label>
                         <select class="form-control" id="fontStyleSetting">
                             <option value="Inter">Inter (Default)</option>
                             <option value="Verdana">Verdana</option>
@@ -751,33 +706,46 @@
                         </select>
                     </div>
                 </div>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="voiceInputSetting">
-                        <label for="voiceInputSetting">Enable voice input</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="animationsSetting" checked>
-                        <label for="animationsSetting">Enable animations</label>
+            </div>
+
+        </template>
+
+        <!-- Settings Chat Tab Template -->
+        <template id="settingsChatTemplate">
+            <div class="form-section">
+                <h3>Chat Settings</h3>
+                <p>Advanced chat settings will be available in future updates.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Prompt Library</h3>
+                <div class="form-row">
+                    <div class="form-col">
+                        <button class="form-control" id="promptLibraryBtn"
+                            style="background-color: var(--accent-color); color: white; border: none; display: flex; align-items: center; gap: var(--spacing-2); justify-content: center;">
+                            <i class="fas fa-flask"></i>
+                            <span>Open Prompt Library</span>
+                        </button>
                     </div>
                 </div>
+                <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--spacing-2);">
+                    Access pre-built prompts to enhance your conversations with SATI ChatBot.
+                </p>
+            </div>
+        </template>
+
+        <!-- Settings Accessibility Tab Template -->
+        <template id="settingsAccessibilityTemplate">
+            <div class="form-section">
+                <h3>Accessibility</h3>
+                <p>Accessibility settings will be available in future updates.</p>
             </div>
         </template>
 
         <!-- Settings Notifications Tab Template -->
         <template id="settingsNotificationsTemplate">
             <div class="form-section">
-                <h3>Notification Settings</h3>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="soundOnReplySetting">
-                        <label for="soundOnReplySetting">Sound on reply</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="chatHighlightSetting" checked>
-                        <label for="chatHighlightSetting">Chat highlight notifications</label>
-                    </div>
-                </div>
+                <p>Notification settings will be available in future updates.</p>
             </div>
         </template>
 
@@ -785,88 +753,18 @@
         <template id="settingsPrivacyTemplate">
             <div class="form-section">
                 <h3>Privacy & Data</h3>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="dataCollectionSetting">
-                        <label for="dataCollectionSetting">Allow data collection for improvements</label>
-                    </div>
-                </div>
                 <div class="form-row">
                     <div class="form-col">
-                        <button class="form-control" onclick="clearAllConversations()" style="background-color: var(--danger-color); color: white; border: none;">
+                        <button class="form-control" onclick="clearAllConversations()"
+                            style="background-color: var(--danger-color); color: white; border: none;">
                             Clear All Conversation History
                         </button>
                     </div>
                     <div class="form-col">
-                        <button class="form-control" onclick="exportAllChats()" style="background-color: var(--accent-color); color: white; border: none;">
+                        <button class="form-control" onclick="exportAllChats()"
+                            style="background-color: var(--accent-color); color: white; border: none;">
                             Export All Chat History
                         </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- Customize Appearance Template -->
-        <template id="customizeContentTemplate">
-            <div class="form-section">
-                <h3>Theme</h3>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" id="lightTheme" name="theme" value="light">
-                        <label for="lightTheme">Light</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="darkTheme" name="theme" value="dark">
-                        <label for="darkTheme">Dark</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="systemTheme" name="theme" value="system">
-                        <label for="systemTheme">System Default</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-section">
-                <h3>Accent Color</h3>
-                <div class="color-picker-group">
-                    <div class="color-option selected" style="background-color: #10a37f;" data-color="#10a37f"></div>
-                    <div class="color-option" style="background-color: #3182ce;" data-color="#3182ce"></div>
-                    <div class="color-option" style="background-color: #e53e3e;" data-color="#e53e3e"></div>
-                    <div class="color-option" style="background-color: #ed8936;" data-color="#ed8936"></div>
-                    <div class="color-option" style="background-color: #38a169;" data-color="#38a169"></div>
-                    <div class="color-option" style="background-color: #805ad5;" data-color="#805ad5"></div>
-                </div>
-            </div>
-            
-            <div class="form-section">
-                <h3>Font Options</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="slider-group">
-                            <div class="slider-label">
-                                <span>Font Size</span>
-                                <span id="customizeFontSizeValue">16px</span>
-                            </div>
-                            <input type="range" class="slider" id="customizeFontSizeSlider" min="12" max="24" value="16">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-section">
-                <h3>Layout Options</h3>
-                <div class="radio-group">
-                    <div class="radio-item">
-                        <input type="radio" id="compactLayout" name="layout" value="compact">
-                        <label for="compactLayout">Compact</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="comfortableLayout" name="layout" value="comfortable" checked>
-                        <label for="comfortableLayout">Comfortable</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="expandedLayout" name="layout" value="expanded">
-                        <label for="expandedLayout">Expanded</label>
                     </div>
                 </div>
             </div>
@@ -882,7 +780,8 @@
             <div class="modal-overlay" id="savedChatsModal">
                 <div class="modal-container saved-chats-modal">
                     <div class="modal-header">
-                        <h2><i class="fas fa-bookmark"></i> Saved Chats <span class="saved-count" id="savedChatsCount"></span></h2>
+                        <h2><i class="fas fa-bookmark"></i> Saved Chats <span class="saved-count"
+                                id="savedChatsCount"></span></h2>
                         <button class="close-btn" id="closeSavedChatsBtn">
                             <i class="fas fa-times"></i>
                         </button>
@@ -907,14 +806,8 @@
         console.log('Supabase version:', window.supabase?.VERSION || 'unknown');
     </script>
     <script src="supabase-db.js"></script>
-    <script src="test-chat-saving.js"></script>
-    <script src="debug-chat-saving.js"></script>
-    <script src="debug-chat-saving-enhanced.js"></script>
     <script src="script.js"></script>
-    <script src="test-fixes.js"></script>
-    <script src="test-bookmark-functionality.js"></script>
-    <script src="test-saved-chats-functionality.js"></script>
-    
+
 </body>
 
 </html>

@@ -51,6 +51,33 @@ body {
     transition: var(--transition);
 }
 
+/* Fade Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Performance optimizations for animations */
+.left-sidebar,
+.main-preview,
+.right-sidebar {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* Staggered animations for menu items */
+.menu-item {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+
 /* Navbar Styles */
 .navbar {
     background: var(--card-bg);
@@ -376,6 +403,7 @@ body {
     height: calc(100vh - 70px);
     overflow-y: auto;
     min-height: fit-content;
+    animation: fadeInUp 0.8s ease-out;
 }
 
 .sidebar-header {
@@ -563,6 +591,7 @@ body {
     width: 50%;
     padding: 20px;
     background: var(--bg-color);
+    animation: fadeInUp 0.8s ease-out forwards;
 }
 
 .preview-header {
@@ -661,6 +690,7 @@ body {
     top: 70px;
     height: calc(100vh - 70px);
     overflow-y: auto;
+    animation: fadeInUp 0.8s ease-out forwards;
 }
 
 .search-container {

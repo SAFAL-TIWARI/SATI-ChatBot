@@ -283,6 +283,9 @@ class ChatBotState {
         // Apply font style
         this.applyFontStyle();
 
+        // Apply appearance settings
+        this.applyAppearanceSettings();
+
         // Validate model selection - prevent Gemini 1.5 Pro from being selected
         this.validateModelSelection();
     }
@@ -327,26 +330,23 @@ class ChatBotState {
     initializeDefaultSettings() {
         const defaultSettings = {
             general: {
-                defaultChatName: 'auto',
-                chatHistory: true,
                 apiProvider: 'groq'
             },
             chat: {
-                responseStyle: 'detailed',
-                modelBehavior: 0.7,
-                promptTone: 'friendly'
+                // Chat settings removed - will be available in future updates
             },
             accessibility: {
-                fontStyle: 'Inter',
-                voiceInput: false,
-                animations: true
+                fontStyle: 'Inter'
             },
             notifications: {
-                soundOnReply: false,
-                chatHighlight: true
+                // Notification settings removed - will be available in future updates
             },
             privacy: {
-                dataCollection: false
+                // Only keeping the buttons functionality, no checkbox settings
+            },
+            appearance: {
+                accentColor: '#10a37f',
+                fontSize: 16
             }
         };
 
@@ -419,6 +419,16 @@ class ChatBotState {
     applyFontStyle() {
         const fontStyle = this.settings.accessibility?.fontStyle || 'Inter';
         document.documentElement.style.setProperty('--font-family', `'${fontStyle}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
+    }
+
+    applyAppearanceSettings() {
+        // Apply accent color
+        const accentColor = this.settings.appearance?.accentColor || '#10a37f';
+        document.documentElement.style.setProperty('--accent-color', accentColor);
+        
+        // Apply font size
+        const fontSize = this.settings.appearance?.fontSize || 16;
+        document.documentElement.style.fontSize = fontSize + 'px';
     }
 
     validateModelSelection() {
@@ -2137,7 +2147,7 @@ function renderSettingsContent(tab) {
 
     // Remove all tab-specific classes
     if (settingsModal) {
-        settingsModal.classList.remove('tab-general', 'tab-chat', 'tab-accessibility', 'tab-notifications', 'tab-privacy');
+        settingsModal.classList.remove('tab-general', 'tab-appearance', 'tab-chat', 'tab-accessibility', 'tab-notifications', 'tab-privacy');
         // Add current tab class
         settingsModal.classList.add(`tab-${tab}`);
     }
@@ -2145,6 +2155,10 @@ function renderSettingsContent(tab) {
     switch (tab) {
         case 'general':
             templateHelper.replaceTo('settingsGeneralTemplate', content);
+            break;
+
+        case 'appearance':
+            templateHelper.replaceTo('settingsAppearanceTemplate', content);
             break;
 
         case 'chat':
@@ -2255,13 +2269,6 @@ function loadSettingsValues() {
     // Load values from chatState.settings
     const settings = chatState.settings;
 
-    // General settings
-    const chatNameSetting = document.getElementById('chatNameSetting');
-    if (chatNameSetting) chatNameSetting.value = settings.general?.defaultChatName || 'auto';
-
-    const chatHistorySetting = document.getElementById('chatHistorySetting');
-    if (chatHistorySetting) chatHistorySetting.checked = settings.general?.chatHistory !== false;
-
     // API settings
     const apiProviderSetting = document.getElementById('apiProviderSetting');
     if (apiProviderSetting && window.apiManager) {
@@ -2274,45 +2281,29 @@ function loadSettingsValues() {
         aiModelSetting.value = window.apiManager.currentModel;
     }
 
-    // Load API keys
-
-
-    // Chat settings
-    const responseStyleSetting = document.getElementById('responseStyleSetting');
-    if (responseStyleSetting) responseStyleSetting.value = settings.chat?.responseStyle || 'detailed';
-
-    const promptToneSetting = document.getElementById('promptToneSetting');
-    if (promptToneSetting) promptToneSetting.value = settings.chat?.promptTone || 'friendly';
-
-    const behaviorSlider = document.getElementById('behaviorSlider');
-    const behaviorValue = document.getElementById('behaviorValue');
-    if (behaviorSlider && behaviorValue) {
-        behaviorSlider.value = settings.chat?.modelBehavior || 0.7;
-        behaviorValue.textContent = behaviorSlider.value;
-    }
-
-    // Accessibility settings
+    // Font style setting (now in appearance)
     const fontStyleSetting = document.getElementById('fontStyleSetting');
     if (fontStyleSetting) {
-        fontStyleSetting.value = settings.accessibility?.fontStyle || 'Inter';
+        fontStyleSetting.value = settings.appearance?.fontStyle || 'Inter';
     }
 
-    const voiceInputSetting = document.getElementById('voiceInputSetting');
-    if (voiceInputSetting) voiceInputSetting.checked = settings.accessibility?.voiceInput || false;
+    // Appearance settings
+    const currentAccentColor = settings.appearance?.accentColor || '#10a37f';
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.color === currentAccentColor) {
+            option.classList.add('selected');
+        }
+    });
 
-    const animationsSetting = document.getElementById('animationsSetting');
-    if (animationsSetting) animationsSetting.checked = settings.accessibility?.animations !== false;
-
-    // Notification settings
-    const soundOnReplySetting = document.getElementById('soundOnReplySetting');
-    if (soundOnReplySetting) soundOnReplySetting.checked = settings.notifications?.soundOnReply || false;
-
-    const chatHighlightSetting = document.getElementById('chatHighlightSetting');
-    if (chatHighlightSetting) chatHighlightSetting.checked = settings.notifications?.chatHighlight !== false;
-
-    // Privacy settings
-    const dataCollectionSetting = document.getElementById('dataCollectionSetting');
-    if (dataCollectionSetting) dataCollectionSetting.checked = settings.privacy?.dataCollection || false;
+    const currentFontSize = settings.appearance?.fontSize || 16;
+    const settingsFontSizeSlider = document.getElementById('settingsFontSizeSlider');
+    const settingsFontSizeValue = document.getElementById('settingsFontSizeValue');
+    if (settingsFontSizeSlider && settingsFontSizeValue) {
+        settingsFontSizeSlider.value = currentFontSize;
+        settingsFontSizeValue.textContent = currentFontSize + 'px';
+    }
 }
 //delete here above
 
@@ -2404,7 +2395,7 @@ function addSettingsEventListeners() {
         });
     }
 
-    // Font style handling for accessibility
+    // Font style handling (now in appearance settings)
     const fontStyleSetting = document.getElementById('fontStyleSetting');
     if (fontStyleSetting) {
         fontStyleSetting.addEventListener('change', (e) => {
@@ -2412,6 +2403,56 @@ function addSettingsEventListeners() {
             document.documentElement.style.setProperty('--font-family', `'${selectedFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif`);
             toast.show(`Font changed to ${selectedFont}`, 'success');
             saveSettingsFromForm();
+        });
+    }
+
+    // Appearance settings - Color selection
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            colorOptions.forEach(opt => opt.classList.remove('selected'));
+            e.target.classList.add('selected');
+
+            const color = e.target.dataset.color;
+            
+            // Save to settings
+            if (!chatState.settings.appearance) {
+                chatState.settings.appearance = {};
+            }
+            chatState.settings.appearance.accentColor = color;
+            chatState.saveSettings();
+            
+            // Apply the change
+            document.documentElement.style.setProperty('--accent-color', color);
+            toast.show('Accent color updated', 'success');
+        });
+    });
+
+    // Appearance settings - Font size slider
+    const settingsFontSizeSlider = document.getElementById('settingsFontSizeSlider');
+    const settingsFontSizeValue = document.getElementById('settingsFontSizeValue');
+    if (settingsFontSizeSlider && settingsFontSizeValue) {
+        settingsFontSizeSlider.addEventListener('input', (e) => {
+            const fontSize = parseInt(e.target.value);
+            settingsFontSizeValue.textContent = fontSize + 'px';
+            
+            // Save to settings
+            if (!chatState.settings.appearance) {
+                chatState.settings.appearance = {};
+            }
+            chatState.settings.appearance.fontSize = fontSize;
+            chatState.saveSettings();
+            
+            // Apply the change
+            document.documentElement.style.fontSize = fontSize + 'px';
+        });
+    }
+
+    // Prompt Library button in Chat Settings
+    const promptLibraryBtn = document.getElementById('promptLibraryBtn');
+    if (promptLibraryBtn) {
+        promptLibraryBtn.addEventListener('click', () => {
+            toast.show('Prompt library feature coming soon', 'info');
         });
     }
 
@@ -2424,13 +2465,6 @@ function addSettingsEventListeners() {
 function saveSettingsFromForm() {
     // Save all settings from form to chatState.settings
     const settings = chatState.settings;
-
-    // General settings
-    const chatNameSetting = document.getElementById('chatNameSetting');
-    if (chatNameSetting) settings.general.defaultChatName = chatNameSetting.value;
-
-    const chatHistorySetting = document.getElementById('chatHistorySetting');
-    if (chatHistorySetting) settings.general.chatHistory = chatHistorySetting.checked;
 
     const apiProviderSetting = document.getElementById('apiProviderSetting');
     if (apiProviderSetting) {
@@ -2448,36 +2482,12 @@ function saveSettingsFromForm() {
         chatState.saveState();
     }
 
-    // Chat settings
-    const responseStyleSetting = document.getElementById('responseStyleSetting');
-    if (responseStyleSetting) settings.chat.responseStyle = responseStyleSetting.value;
-
-    const promptToneSetting = document.getElementById('promptToneSetting');
-    if (promptToneSetting) settings.chat.promptTone = promptToneSetting.value;
-
-    const behaviorSlider = document.getElementById('behaviorSlider');
-    if (behaviorSlider) settings.chat.modelBehavior = parseFloat(behaviorSlider.value);
-
-    // Accessibility settings
+    // Font style setting (now in appearance)
     const fontStyleSetting = document.getElementById('fontStyleSetting');
-    if (fontStyleSetting) settings.accessibility.fontStyle = fontStyleSetting.value;
-
-    const voiceInputSetting = document.getElementById('voiceInputSetting');
-    if (voiceInputSetting) settings.accessibility.voiceInput = voiceInputSetting.checked;
-
-    const animationsSetting = document.getElementById('animationsSetting');
-    if (animationsSetting) settings.accessibility.animations = animationsSetting.checked;
-
-    // Notification settings
-    const soundOnReplySetting = document.getElementById('soundOnReplySetting');
-    if (soundOnReplySetting) settings.notifications.soundOnReply = soundOnReplySetting.checked;
-
-    const chatHighlightSetting = document.getElementById('chatHighlightSetting');
-    if (chatHighlightSetting) settings.notifications.chatHighlight = chatHighlightSetting.checked;
-
-    // Privacy settings
-    const dataCollectionSetting = document.getElementById('dataCollectionSetting');
-    if (dataCollectionSetting) settings.privacy.dataCollection = dataCollectionSetting.checked;
+    if (fontStyleSetting) {
+        if (!settings.appearance) settings.appearance = {};
+        settings.appearance.fontStyle = fontStyleSetting.value;
+    }
 
     chatState.saveSettings();
     toast.show('Settings saved', 'success');
@@ -2623,72 +2633,7 @@ function updateModelSelectionVisibility() {
 //delete here above
 
 
-//delete here below
-// Customize Appearance
-function renderCustomizeContent() {
-    const content = document.getElementById('customizeContent');
-    const customizeContent = templateHelper.replaceTo('customizeContentTemplate', content);
-    
-    if (customizeContent) {
-        // Set the current theme selection
-        const lightTheme = content.querySelector('#lightTheme');
-        const darkTheme = content.querySelector('#darkTheme');
-        const systemTheme = content.querySelector('#systemTheme');
-        
-        if (chatState.theme === 'light') lightTheme.checked = true;
-        else if (chatState.theme === 'dark') darkTheme.checked = true;
-        else if (chatState.theme === 'system') systemTheme.checked = true;
-    }
 
-    // Add event listeners
-    addCustomizeEventListeners();
-}
-//delete here above
-
-
-//delete here below
-function addCustomizeEventListeners() {
-    // Theme selection
-    const themeRadios = document.querySelectorAll('input[name="theme"]');
-    themeRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            chatState.theme = e.target.value;
-            chatState.applyTheme();
-            chatState.saveState();
-            updateThemeToggleButton();
-
-            let message = 'Theme updated';
-            if (e.target.value === 'system') {
-                message = 'Theme set to system default';
-            }
-            toast.show(message, 'success');
-        });
-    });
-
-    // Color selection
-    const colorOptions = document.querySelectorAll('.color-option');
-    colorOptions.forEach(option => {
-        option.addEventListener('click', (e) => {
-            colorOptions.forEach(opt => opt.classList.remove('selected'));
-            e.target.classList.add('selected');
-
-            const color = e.target.dataset.color;
-            document.documentElement.style.setProperty('--accent-color', color);
-            toast.show('Accent color updated', 'success');
-        });
-    });
-
-    // Font size slider
-    const fontSizeSlider = document.getElementById('customizeFontSizeSlider');
-    const fontSizeValue = document.getElementById('customizeFontSizeValue');
-    if (fontSizeSlider && fontSizeValue) {
-        fontSizeSlider.addEventListener('input', (e) => {
-            fontSizeValue.textContent = e.target.value + 'px';
-            document.documentElement.style.fontSize = e.target.value + 'px';
-        });
-    }
-}
-//delete here above
 
 
 // Utility Functions for Settings
@@ -2981,16 +2926,7 @@ function initializeEventListeners() {
         });
     }
 
-    const customizeDropdownBtn = document.getElementById('customizeDropdownBtn');
-    if (customizeDropdownBtn) {
-        customizeDropdownBtn.addEventListener('click', () => {
-            modal.show('customizeModal');
-            renderCustomizeContent();
-            if (elements.profileDropdown) {
-                elements.profileDropdown.classList.remove('show');
-            }
-        });
-    }
+
 
 
 
@@ -3110,13 +3046,7 @@ function initializeEventListeners() {
         });
     }
 
-    const customizeBtn = document.getElementById('customizeBtn');
-    if (customizeBtn) {
-        customizeBtn.addEventListener('click', () => {
-            modal.show('customizeModal');
-            renderCustomizeContent();
-        });
-    }
+
 
     const clearAllBtn = document.getElementById('clearAllBtn');
     if (clearAllBtn) {
@@ -3131,12 +3061,7 @@ function initializeEventListeners() {
         });
     }
 
-    const closeCustomizeBtn = document.getElementById('closeCustomizeBtn');
-    if (closeCustomizeBtn) {
-        closeCustomizeBtn.addEventListener('click', () => {
-            modal.hide('customizeModal');
-        });
-    }
+
 
     const closeLoginBtn = document.getElementById('closeLoginBtn');
     if (closeLoginBtn) {
@@ -3241,12 +3166,7 @@ function initializeEventListeners() {
         });
     }
     
-    const exportDataBtn = document.getElementById('exportDataBtn');
-    if (exportDataBtn) {
-        exportDataBtn.addEventListener('click', () => {
-            exportUserData();
-        });
-    }
+
     
     // Welcome modal event listeners
     const closeWelcomeBtn = document.getElementById('closeWelcomeBtn');
@@ -4226,59 +4146,7 @@ function updateLoginStats() {
     }
 }
 
-// Export user data from profile
-function exportUserData() {
-    try {
-        // Collect user data
-        const userData = {
-            profile: {
-                username: chatState.username || 'Guest',
-                email: chatState.email || 'No email provided',
-                isLoggedIn: chatState.isLoggedIn,
-                authProvider: chatState.authProvider || 'none',
-                lastLogin: localStorage.getItem('sati_last_login') || new Date().toISOString(),
-                loginCount: parseInt(localStorage.getItem('sati_login_count') || '0')
-            },
-            stats: {
-                conversationCount: chatState.conversations.length,
-                messageCount: chatState.conversations.reduce((total, conv) => {
-                    return total + (conv.messages ? conv.messages.length : 0);
-                }, 0),
-                modelUsage: {}
-            },
-            settings: chatState.settings,
-            theme: chatState.theme,
-            exportDate: new Date().toISOString()
-        };
-        
-        // Count model usage
-        chatState.conversations.forEach(conv => {
-            if (conv.messages) {
-                conv.messages.forEach(msg => {
-                    if (msg.model) {
-                        userData.stats.modelUsage[msg.model] = (userData.stats.modelUsage[msg.model] || 0) + 1;
-                    }
-                });
-            }
-        });
-        
-        // Create JSON file
-        const dataStr = JSON.stringify(userData, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-        
-        // Create download link
-        const exportFileDefaultName = `sati_user_data_${chatState.username || 'guest'}_${new Date().toISOString().split('T')[0]}.json`;
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-        
-        toast.show('User data exported successfully', 'success');
-    } catch (err) {
-        console.error('Error exporting user data:', err);
-        toast.show('Failed to export user data', 'error');
-    }
-}
+
 
 // Function to resend confirmation email
 async function resendConfirmationEmail(email) {
@@ -4520,9 +4388,7 @@ function showProfileModal() {
     const profileChatCount = document.getElementById('profileChatCount');
     const profileMessageCount = document.getElementById('profileMessageCount');
     const profileLoginCount = document.getElementById('profileLoginCount');
-    const profileAccountType = document.getElementById('profileAccountType');
-    const profileLoginMethod = document.getElementById('profileLoginMethod');
-    const profileLastLogin = document.getElementById('profileLastLogin');
+
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileActions = document.getElementById('profileActions');
     
@@ -4593,31 +4459,11 @@ function showProfileModal() {
             const loginCount = localStorage.getItem('sati_login_count') || 1;
             profileLoginCount.textContent = loginCount;
             
-            // Set account details
-            profileAccountType.textContent = 'Standard';
-            
-            // Determine login method
-            let loginMethod = 'Email';
-            if (chatState.authProvider) {
-                if (chatState.authProvider === 'google') {
-                    loginMethod = 'Google';
-                } else if (chatState.authProvider === 'github') {
-                    loginMethod = 'GitHub';
-                }
-            }
-            profileLoginMethod.textContent = loginMethod;
-            
-            // Set last login date
-            const lastLogin = localStorage.getItem('sati_last_login') || new Date().toISOString();
-            const lastLoginDate = new Date(lastLogin);
-            profileLastLogin.textContent = lastLoginDate.toLocaleDateString() + ' ' + lastLoginDate.toLocaleTimeString();
+
             
             // Update profile actions to show logout button
             if (profileActions) {
                 profileActions.innerHTML = `
-                    <button class="btn btn-primary" onclick="exportUserData()">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
                     <button class="btn btn-secondary" id="editUsernameBtn">
                         <i class="fas fa-user-edit"></i> Edit Username
                     </button>
@@ -4648,9 +4494,6 @@ function showProfileModal() {
             profileChatCount.textContent = chatState.conversations.length;
             profileMessageCount.textContent = '0';
             profileLoginCount.textContent = '0';
-            profileAccountType.textContent = 'Guest';
-            profileLoginMethod.textContent = 'None';
-            profileLastLogin.textContent = 'N/A';
             
             // Update profile actions to show login button
             if (profileActions) {

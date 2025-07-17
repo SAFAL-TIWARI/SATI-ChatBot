@@ -336,7 +336,7 @@ body {
 }
 
 
-    
+
 .sidebar-section {
     padding: var(--spacing-3);
 }
@@ -742,7 +742,8 @@ body {
 }
 
 .conversation-bookmark-btn.active i {
-    font-weight: 900; /* Use solid icon when active */
+    font-weight: 900;
+    /* Use solid icon when active */
 }
 
 /* Saved Chats Section */
@@ -752,31 +753,38 @@ body {
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     margin-bottom: 0;
     margin-top: 0;
-    padding: 0 !important; /* Override the sidebar-section padding */
+    padding: 0 !important;
+    /* Override the sidebar-section padding */
     opacity: 0;
     transform: translateY(-20px);
     position: relative;
     z-index: 1;
-    height: 0; /* Ensure it takes no space when not active */
+    height: 0;
+    /* Ensure it takes no space when not active */
 }
 
 .saved-chats-section.active {
-    max-height: 300px; /* Same as conversations section */
+    max-height: 300px;
+    /* Same as conversations section */
     margin-bottom: var(--spacing-2);
     opacity: 1;
     transform: translateY(0);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     background-color: rgba(var(--accent-rgb), 0.05);
     border-radius: var(--radius-md);
-    padding: var(--spacing-2) var(--spacing-1) !important; /* Override the !important from the default state */
-    height: auto; /* Allow it to take space when active */
+    padding: var(--spacing-2) var(--spacing-1) !important;
+    /* Override the !important from the default state */
+    height: auto;
+    /* Allow it to take space when active */
 }
 
 /* Animation for conversations section when saved chats is active */
-.saved-chats-section.active + .conversations-section {
-    transform: translateY(5px); /* Reduced from 10px to 5px for subtler movement */
+.saved-chats-section.active+.conversations-section {
+    transform: translateY(5px);
+    /* Reduced from 10px to 5px for subtler movement */
     transition: transform 0.3s ease-in-out;
-    padding-top: var(--spacing-2); /* Maintain consistent padding */
+    padding-top: var(--spacing-2);
+    /* Maintain consistent padding */
 }
 
 .conversations-section {
@@ -784,7 +792,8 @@ body {
     z-index: 0;
     transition: transform 0.3s ease-in-out, margin-top 0.3s ease-in-out;
     transform: translateY(0);
-    margin-top: 0; /* Reset to normal position */
+    margin-top: 0;
+    /* Reset to normal position */
 }
 
 .saved-chats-list {
@@ -873,8 +882,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .conversation-item:hover {
@@ -891,8 +905,10 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     word-break: break-all;
-    min-width: 120px; /* Ensure minimum width */
-    max-width: 180px; /* Consistent width for both sections */
+    min-width: 120px;
+    /* Ensure minimum width */
+    max-width: 180px;
+    /* Consistent width for both sections */
     margin-right: var(--spacing-2);
 }
 
@@ -1257,7 +1273,7 @@ body {
 
 .theme-submenu {
     position: absolute;
-    right:100%;
+    right: 100%;
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
@@ -1284,7 +1300,7 @@ body {
         left: -140px;
         transform: translateX(10px);
     }
-    
+
     /* Disable hover effects on mobile */
     .theme-menu-item:hover .theme-submenu,
     .theme-submenu:hover {
@@ -1292,19 +1308,19 @@ body {
         visibility: hidden;
         transform: translateX(10px);
     }
-    
+
     /* Enable click-based show on mobile */
     .theme-submenu.show-mobile {
         opacity: 1 !important;
         visibility: visible !important;
         transform: translateX(0) !important;
     }
-    
+
     /* Add visual feedback for mobile theme button */
     .theme-menu-item {
         position: relative;
     }
-    
+
     .theme-menu-item::after {
         content: '';
         position: absolute;
@@ -1317,7 +1333,7 @@ body {
         border-radius: 50%;
         opacity: 0.6;
     }
-    
+
     /* Hide the desktop chevron arrow on mobile */
     .theme-arrow {
         display: none;
@@ -1344,6 +1360,39 @@ body {
     opacity: 0;
     transform: translateX(-10px);
     animation: slideInThemeOption 0.2s ease-out forwards;
+    position: relative;
+}
+
+.theme-option:hover {
+    background: var(--sidebar-hover);
+    color: var(--accent-color);
+    transform: translateX(2px);
+}
+
+.theme-option.active {
+    background: var(--accent-color);
+    color: var(--bg-primary);
+    font-weight: 600;
+}
+
+.theme-option.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--success-color);
+    border-radius: 0 2px 2px 0;
+}
+
+.theme-option.active i {
+    color: var(--bg-primary);
+}
+
+.theme-option.active:hover {
+    background: var(--accent-hover);
+    transform: translateX(0);
 }
 
 @keyframes slideInThemeOption {
@@ -1353,9 +1402,17 @@ body {
     }
 }
 
-.theme-option:nth-child(1) { animation-delay: 0.05s; }
-.theme-option:nth-child(2) { animation-delay: 0.1s; }
-.theme-option:nth-child(3) { animation-delay: 0.15s; }
+.theme-option:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.theme-option:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.theme-option:nth-child(3) {
+    animation-delay: 0.15s;
+}
 
 .theme-option:last-child {
     border-bottom: none;
@@ -1478,7 +1535,7 @@ body {
 
 .message-content {
     flex: 1;
-    max-width: calc(100% - 48px);
+    max-width: calc(100% - 50px);
     padding: var(--spacing-4);
     border: 1px solid var(--border-color);
     position: relative;
@@ -1912,8 +1969,9 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.45);
-    z-index: 9999; /* Ensure modals are always on top */
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9999;
+    /* Ensure modals are always on top */
     display: none;
     align-items: center;
     justify-content: center;
@@ -2504,11 +2562,13 @@ body {
 }
 
 /* Color Picker */
-.color-picker-group {
+.color-picker-group,
+.color-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    grid-template-columns: repeat(10, 1fr);
     gap: var(--spacing-2);
     margin-bottom: var(--spacing-4);
+    max-width: 200px;
 }
 
 .color-option {
@@ -2900,7 +2960,7 @@ body {
 
     .modal-container {
         max-width: 95vw;
-        max-height: 95vh;
+        max-height: 105vh;
         margin: var(--spacing-4);
         width: 90vw;
         min-width: 90vw;
@@ -2910,12 +2970,14 @@ body {
         width: auto;
         height: auto;
         min-width: 90vw;
+        max-height: 90vh;
     }
 
     .settings-modal .modal-body {
         flex-direction: column;
         height: auto;
         min-width: 100%;
+        max-height: calc(90vh - 80px);
     }
 
     .settings-sidebar {
@@ -2929,6 +2991,39 @@ body {
         min-width: 100%;
         width: 100%;
         flex-shrink: 0;
+        max-height: 30vh;
+        overflow-y: auto;
+        padding: var(--spacing-4);
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Custom scrollbar for mobile settings content */
+    .settings-content::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .settings-content::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+        border-radius: 2px;
+    }
+
+    .settings-content::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 2px;
+    }
+
+    .settings-content::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-color);
+    }
+
+    .color-picker-group,
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: var(--spacing-2);
+        margin-bottom: var(--spacing-4);
+        max-width: 200px;
     }
 
     .form-row {

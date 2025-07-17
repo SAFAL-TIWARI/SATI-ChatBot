@@ -228,7 +228,40 @@
             transform: translateY(-50%);
         }
 
+        /* Fade Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        /* Performance optimizations for animations */
+        .hero-section,
+        .contact-grid,
+        .faq-section {
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+
+        /* Staggered animations for FAQ items */
+        .faq-item {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .faq-item:nth-child(1) { animation-delay: 0.2s; }
+        .faq-item:nth-child(2) { animation-delay: 0.3s; }
+        .faq-item:nth-child(3) { animation-delay: 0.4s; }
+        .faq-item:nth-child(4) { animation-delay: 0.5s; }
+        .faq-item:nth-child(5) { animation-delay: 0.6s; }
+        .faq-item:nth-child(6) { animation-delay: 0.7s; }
+        .faq-item:nth-child(7) { animation-delay: 0.8s; }
+        
         .contact-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -242,6 +275,7 @@
             border-radius: 20px;
             margin-bottom: 3rem;
             color: white;
+            animation: fadeInUp 0.8s ease-out;
         }
 
         .hero-section h1 {
@@ -262,6 +296,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 3rem;
             margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out forwards;
         }
 
         .contact-form {
@@ -270,6 +305,9 @@
             padding: 2.5rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            animation-delay: 0.2s;
         }
 
         .contact-info {
@@ -278,6 +316,9 @@
             padding: 2.5rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            animation-delay: 0.4s;
         }
 
         /* Light theme specific improvements */
@@ -457,6 +498,7 @@
             padding: 2.5rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
+            animation: fadeInUp 1.2s ease-out forwards;
         }
 
         .faq-item {
