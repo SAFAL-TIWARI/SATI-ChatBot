@@ -1918,6 +1918,13 @@ async function updateSavedChatsList() {
                     chatManager.renderMessages();
                     updateConversationsList();
                 }
+                
+                // Close the saved chats modal after selecting a conversation
+                const savedChatsModal = document.getElementById('savedChatsModal');
+                if (savedChatsModal) {
+                    savedChatsModal.classList.remove('show');
+                    console.log('✅ Saved chats modal closed after conversation selection');
+                }
             }
         });
         container.appendChild(conversationElement);
@@ -3194,9 +3201,9 @@ function initializeEventListeners() {
     // Sidebar menu items
     const savedChatsBtn = document.getElementById('savedChatsBtn');
     if (savedChatsBtn) {
-        // Remove the toast notification for 'Saved chats feature coming soon'
-        // If you want to add functionality for saved chats, do it here.
-        // Otherwise, leave the button with no action for now.
+        savedChatsBtn.addEventListener('click', () => {
+            showSavedChatsModal();
+        });
     }
 
     const promptLibraryBtn = document.getElementById('promptLibraryBtn');
@@ -5805,6 +5812,17 @@ async function showSavedChatsModal() {
         // Load saved chats
         await updateSavedChatsList();
 
+        // Initialize search functionality
+        initializeSavedChatsSearch();
+        
+        // Focus on search input for better UX
+        setTimeout(() => {
+            const searchInput = document.getElementById('savedChatsSearchInput');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }, 100);
+
         // Add close button handler
         const closeBtn = document.getElementById('closeSavedChatsBtn');
         if (closeBtn) {
@@ -5823,6 +5841,115 @@ async function showSavedChatsModal() {
         };
     } else {
         console.error('❌ Failed to create saved chats modal');
+    }
+}
+
+// Initialize saved chats search functionality
+function initializeSavedChatsSearch() {
+    const searchInput = document.getElementById('savedChatsSearchInput');
+    const clearSearchBtn = document.getElementById('clearSavedChatsSearch');
+    
+    if (!searchInput || !clearSearchBtn) {
+        console.log('Search elements not found in saved chats modal');
+        return;
+    }
+
+    // Store original conversations for filtering
+    let originalConversations = [];
+
+    // Function to filter and display conversations
+    function filterConversations(searchTerm) {
+        const container = document.getElementById('savedChatsList');
+        if (!container) return;
+
+        const conversationItems = container.querySelectorAll('.conversation-item');
+        let visibleCount = 0;
+
+        conversationItems.forEach(item => {
+            const titleElement = item.querySelector('.conversation-title');
+            if (titleElement) {
+                const title = titleElement.textContent.toLowerCase();
+                const matches = title.includes(searchTerm.toLowerCase());
+                
+                if (matches || searchTerm === '') {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        });
+
+        // Show/hide "no results" message
+        let noResultsMsg = container.querySelector('.no-search-results');
+        if (searchTerm && visibleCount === 0) {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-search-results';
+                noResultsMsg.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <p>No conversations found for "${searchTerm}"</p>
+                `;
+                container.appendChild(noResultsMsg);
+            }
+            noResultsMsg.style.display = 'block';
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+
+    // Search input event listener
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim();
+        
+        // Show/hide clear button
+        if (searchTerm) {
+            clearSearchBtn.style.display = 'flex';
+        } else {
+            clearSearchBtn.style.display = 'none';
+        }
+
+        // Filter conversations
+        filterConversations(searchTerm);
+    });
+
+    // Clear search button event listener
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.style.display = 'none';
+        filterConversations('');
+        searchInput.focus();
+    });
+
+    // Enter key to focus on first visible conversation
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const container = document.getElementById('savedChatsList');
+            if (container) {
+                const firstVisibleItem = container.querySelector('.conversation-item[style*="flex"], .conversation-item:not([style*="none"])');
+                if (firstVisibleItem) {
+                    firstVisibleItem.click();
+                }
+            }
+        }
+    });
+
+    // Clear search when modal is closed
+    const modal = document.getElementById('savedChatsModal');
+    if (modal) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (!modal.classList.contains('show')) {
+                        // Modal is being closed, clear search
+                        searchInput.value = '';
+                        clearSearchBtn.style.display = 'none';
+                        filterConversations('');
+                    }
+                }
+            });
+        });
+        observer.observe(modal, { attributes: true });
     }
 }
 
