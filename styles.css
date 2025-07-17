@@ -2264,8 +2264,7 @@ body {
     text-decoration: underline;
 }
 
-.login-btn,
-.guest-btn {
+.login-btn {
     padding: var(--spacing-3) var(--spacing-4);
     border-radius: var(--radius-lg);
     font-size: var(--font-size-base);
@@ -2289,6 +2288,7 @@ body {
     display: flex;
     gap: var(--spacing-2);
     margin-bottom: var(--spacing-2);
+    margin-top: var(--spacing-3);
 }
 
 .auth-actions .login-btn {
@@ -2299,6 +2299,12 @@ body {
     background: none;
     color: var(--text-secondary);
     border: 1px solid var(--border-color);
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .guest-btn:hover {
@@ -3402,6 +3408,294 @@ textarea:focus-visible {
     color: var(--text-muted);
     font-size: 0.8rem;
     padding: 0 15px;
+}
+
+/* Monkey Avatar Styles */
+.monkey-login-card {
+    position: relative;
+    padding-top: 0px; /* Add space for the monkey avatar */
+    margin-top: -40px; /* Additional top margin */
+}
+
+.monkey-login-card .login-content {
+    position: relative;
+    padding-top: 80px; /* Additional padding for better spacing */
+}
+
+.blind-check {
+    display: none;
+}
+
+/* Password input container */
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-container input {
+    padding-right: 60px; /* Make space for the separator and toggle button */
+}
+
+/* Vertical separator line */
+.password-toggle-separator {
+    position: absolute;
+    right: 55px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 30px;
+    background-color: var(--text-secondary);
+    opacity: 0.5;
+    transition: all var(--transition-fast);
+    border-radius: 1px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    z-index: 2;
+}
+
+.password-toggle-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--accent-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Hover effect for separator when hovering the toggle button */
+.password-input-container:hover .password-toggle-separator {
+    opacity: 100;
+    background-color: var(--accent-color);
+}
+
+.password-toggle-btn svg {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+}
+
+.password-toggle-btn svg path,
+.password-toggle-btn svg circle,
+.password-toggle-btn svg line {
+    stroke: currentColor;
+    fill: none;
+    transition: stroke var(--transition-fast);
+}
+
+.password-toggle-btn svg g {
+    transition: opacity var(--transition-fast);
+}
+
+/* Default state - show the "show" icon (eye open) */
+.password-toggle-btn .show-icon {
+    display: block;
+}
+
+.password-toggle-btn .hide-icon {
+    display: none;
+}
+
+/* When checkbox is checked - show the "hide" icon (eye closed with slash) */
+.blind-check:checked ~ .login-form .password-toggle-btn .show-icon {
+    display: none !important;
+}
+
+.blind-check:checked ~ .login-form .password-toggle-btn .hide-icon {
+    display: block !important;
+}
+
+/* Debug styles to ensure visibility */
+.password-toggle-btn .show-icon,
+.password-toggle-btn .hide-icon {
+    transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover .show-icon path,
+.password-toggle-btn:hover .show-icon circle,
+.password-toggle-btn:hover .hide-icon path,
+.password-toggle-btn:hover .hide-icon line {
+    stroke: var(--accent-color);
+}
+
+.password-group {
+    position: relative;
+}
+
+.blind-check:checked ~ .login-form .password-group input[type="password"] {
+    -webkit-text-security: none;
+    font-family: inherit;
+}
+
+.monkey-avatar {
+    position: absolute;
+    top: -45px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--border-color);
+    background: var(--bg-primary);
+    cursor: pointer;
+    z-index: 5;
+    perspective: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 20px;
+}
+
+.monkey-avatar:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.monkey-avatar svg {
+    position: absolute;
+    transition: transform 0.2s ease-in, opacity 0.1s;
+    transform-origin: 50% 100%;
+    pointer-events: none;
+}
+
+.monkey-avatar svg#monkey {
+    z-index: 1;
+    width: 110px;
+    height: 110px;
+}
+
+.monkey-avatar svg#monkey-hands {
+    z-index: 2;
+    width: 110px;
+    height: 110px;
+    transform-style: preserve-3d;
+    transform: translateY(60px) rotateX(-21deg);
+}
+
+.monkey-avatar::before {
+    content: "";
+    border-radius: 45%;
+    width: 28px;
+    height: 20px;
+    border: 0;
+    border-bottom: 4px solid #3c302a;
+    bottom: 20%;
+    position: absolute;
+    transition: all 0.2s ease;
+    z-index: 3;
+}
+
+.blind-check:checked ~ .login-form ~ .monkey-avatar::before {
+    width: 10px;
+    height: 0;
+    border-radius: 50%;
+    border-bottom: 12px solid #3c302a;
+}
+
+.monkey-avatar svg#monkey .monkey-eye-r,
+.monkey-avatar svg#monkey .monkey-eye-l {
+    animation: blink 10s 1s infinite;
+    transition: all 0.2s ease;
+}
+
+@keyframes blink {
+    0%, 2%, 4%, 26%, 28%, 71%, 73%, 100% {
+        ry: 4.5;
+        cy: 31.7;
+    }
+    1%, 3%, 27%, 72% {
+        ry: 0.5;
+        cy: 30;
+    }
+}
+
+.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey .monkey-eye-l {
+    ry: 0.5;
+    cy: 30;
+}
+
+.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey-hands {
+    transform: translate3d(0, 0, 0) rotateX(0deg);
+}
+
+.monkey-avatar svg#monkey,
+.monkey-avatar::before,
+.monkey-avatar svg#monkey .monkey-eye-nose,
+.monkey-avatar svg#monkey .monkey-eye-r,
+.monkey-avatar svg#monkey .monkey-eye-l {
+    transition: all 0.2s ease;
+}
+
+.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey,
+.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar::before,
+.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-nose,
+.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-l {
+    animation: none;
+}
+
+.login-form:focus-within ~ .monkey-avatar svg#monkey {
+    animation: slick 3s ease infinite 1s;
+    --center: rotateY(0deg);
+    --left: rotateY(-4deg);
+    --right: rotateY(4deg);
+}
+
+.login-form:focus-within ~ .monkey-avatar::before,
+.login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-nose,
+.blind-check:not(:checked) ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:not(:checked) ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-l {
+    ry: 3;
+    cy: 35;
+    animation: slick 3s ease infinite 1s;
+    --center: translateX(0);
+    --left: translateX(-0.5px);
+    --right: translateX(0.5px);
+}
+
+@keyframes slick {
+    0%, 100% {
+        transform: var(--center);
+    }
+    25% {
+        transform: var(--left);
+    }
+    75% {
+        transform: var(--right);
+    }
+}
+
+/* Eye tracking styles */
+.monkey-avatar.tracking svg#monkey .monkey-eye-r,
+.monkey-avatar.tracking svg#monkey .monkey-eye-l {
+    animation: none !important;
+    transition: transform 0.1s ease-out;
+}
+
+/* Adjust modal positioning for monkey avatar */
+.monkey-login-card .modal-body {
+    padding-top: 60px;
 }
 
 /* Profile Modal Styles */

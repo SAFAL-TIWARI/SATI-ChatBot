@@ -3123,23 +3123,131 @@ function initializeEventListeners() {
         });
     }
     
-    const guestBtn = document.getElementById('guestBtn');
-    if (guestBtn) {
-        guestBtn.addEventListener('click', () => {
-            // Clear any existing conversations for guest mode
-            chatState.conversations = [];
-            chatState.currentConversationId = null;
-            chatState.currentMessages = [];
-            localStorage.removeItem('sati_conversations'); // Remove any stored conversations
+
+
+    // Monkey Eye Tracking Functionality
+    function initializeMonkeyEyeTracking() {
+        const monkeyAvatar = document.getElementById('monkeyAvatar');
+        const loginModal = document.getElementById('loginModal');
+        
+        if (!monkeyAvatar || !loginModal) return;
+        
+        let isTracking = false;
+        
+        function startEyeTracking() {
+            if (isTracking) return;
+            isTracking = true;
+            monkeyAvatar.classList.add('tracking');
             
-            // Update UI to show empty state
-            updateConversationsList();
-            chatManager.renderMessages();
+            function updateEyePosition(e) {
+                if (!loginModal.classList.contains('show')) {
+                    stopEyeTracking();
+                    return;
+                }
+                
+                const rect = monkeyAvatar.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                // Calculate angle from center to mouse
+                const deltaX = mouseX - centerX;
+                const deltaY = mouseY - centerY;
+                
+                // Limit eye movement range
+                const maxDistance = 2; // Maximum pixel movement for eyes
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const limitedDistance = Math.min(distance, 100); // Limit how far eyes can look
+                
+                const normalizedX = (deltaX / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
+                const normalizedY = (deltaY / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
+                
+                // Apply eye movement
+                const leftEye = monkeyAvatar.querySelector('.monkey-eye-l');
+                const rightEye = monkeyAvatar.querySelector('.monkey-eye-r');
+                
+                if (leftEye && rightEye) {
+                    leftEye.style.transform = `translate(${normalizedX}px, ${normalizedY}px)`;
+                    rightEye.style.transform = `translate(${normalizedX}px, ${normalizedY}px)`;
+                }
+            }
             
-            modal.hide('loginModal');
-            toast.show('Continuing as guest - chats will not be saved', 'info');
+            document.addEventListener('mousemove', updateEyePosition);
+            
+            // Store the function reference for cleanup
+            monkeyAvatar._eyeTrackingHandler = updateEyePosition;
+        }
+        
+        function stopEyeTracking() {
+            if (!isTracking) return;
+            isTracking = false;
+            monkeyAvatar.classList.remove('tracking');
+            
+            // Reset eye positions
+            const leftEye = monkeyAvatar.querySelector('.monkey-eye-l');
+            const rightEye = monkeyAvatar.querySelector('.monkey-eye-r');
+            
+            if (leftEye && rightEye) {
+                leftEye.style.transform = '';
+                rightEye.style.transform = '';
+            }
+            
+            if (monkeyAvatar._eyeTrackingHandler) {
+                document.removeEventListener('mousemove', monkeyAvatar._eyeTrackingHandler);
+                delete monkeyAvatar._eyeTrackingHandler;
+            }
+        }
+        
+        // Start tracking when modal is shown
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    if (loginModal.classList.contains('show')) {
+                        setTimeout(startEyeTracking, 100); // Small delay to ensure modal is fully rendered
+                    } else {
+                        stopEyeTracking();
+                    }
+                }
+            });
+        });
+        
+        observer.observe(loginModal, { attributes: true });
+        
+        // Also check if modal is already shown
+        if (loginModal.classList.contains('show')) {
+            startEyeTracking();
+        }
+    }
+    
+    // Initialize monkey eye tracking
+    initializeMonkeyEyeTracking();
+    
+    // Password visibility toggle functionality
+    function initializePasswordToggle() {
+        const blindCheck = document.getElementById('blind-input');
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('passwordToggleBtn');
+        
+        if (!blindCheck || !passwordInput || !toggleBtn) return;
+        
+        // Set initial title
+        toggleBtn.title = 'Show password';
+        
+        blindCheck.addEventListener('change', function() {
+            if (this.checked) {
+                passwordInput.type = 'text';
+                toggleBtn.title = 'Hide password';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.title = 'Show password';
+            }
         });
     }
+    
+    // Initialize password toggle
+    initializePasswordToggle();
 
     // Close modals when clicking overlay
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -4851,8 +4959,7 @@ function showThemeChangeToast(newTheme, oldTheme) {
             const loginButtons = [
                 '.login-btn',           // Login and Sign Up buttons
                 '#googleSSOBtn',        // Google SSO button
-                '#githubSSOBtn',        // GitHub SSO button
-                '.guest-btn'            // Continue as Guest button
+                '#githubSSOBtn'         // GitHub SSO button
             ];
 
             // Apply cool mode to each button type with different options
@@ -4876,14 +4983,6 @@ function showThemeChangeToast(newTheme, oldTheme) {
                                 speedHorz: 10,
                                 speedUp: 25,
                                 size: 30
-                            };
-                        } else if (selector.includes('guest-btn')) {
-                            // Special options for guest button - more subtle effect
-                            options = {
-                                particleCount: 20,
-                                speedHorz: 5,
-                                speedUp: 15,
-                                size: 18
                             };
                         } else {
                             // Default for Login/Sign Up buttons
