@@ -3006,16 +3006,7 @@ function initializeEventListeners() {
         });
     }
 
-    // Delete account button
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-    if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener('click', async () => {
-            if (elements.profileDropdown) {
-                elements.profileDropdown.classList.remove('show');
-            }
-            await handleDeleteAccount();
-        });
-    }
+
 
     // Share button
     if (elements.shareBtn) {
@@ -4494,7 +4485,6 @@ async function handleDeleteAccount() {
 
 function updateLoginStatus() {
     const loginLogoutBtn = document.getElementById('loginLogoutBtn');
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const icon = loginLogoutBtn.querySelector('i');
     const text = loginLogoutBtn.querySelector('span');
 
@@ -4502,11 +4492,6 @@ function updateLoginStatus() {
         // Update login button to show logout
         icon.className = 'fas fa-sign-out-alt';
         text.textContent = 'Logout';
-
-        // Show delete account button
-        if (deleteAccountBtn) {
-            deleteAccountBtn.style.display = 'flex';
-        }
 
         // Update profile avatar to show logged in state
         if (elements.profileAvatar) {
@@ -4548,11 +4533,6 @@ function updateLoginStatus() {
         // Update login button to show login
         icon.className = 'fas fa-sign-in-alt';
         text.textContent = 'Login';
-
-        // Hide delete account button
-        if (deleteAccountBtn) {
-            deleteAccountBtn.style.display = 'none';
-        }
 
         // Update profile avatar to show logged out state
         if (elements.profileAvatar) {
@@ -4654,20 +4634,34 @@ function showProfileModal() {
 
 
 
-            // Update profile actions to show logout button
+            // Update profile actions to show logout and delete account buttons
             if (profileActions) {
                 profileActions.innerHTML = `
                     <button class="btn btn-secondary" id="editUsernameBtn">
                         <i class="fas fa-user-edit"></i> Edit Username
                     </button>
+                    <button class="btn btn-secondary" id="editProfileBtn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button class="btn btn-danger" id="deleteAccountBtn">
+                        <i class="fas fa-user-times"></i> Delete Account
+                    </button>
                     <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
-                // Re-attach the event listener for Edit Username
+                // Re-attach the event listeners
                 const editUsernameBtn = document.getElementById('editUsernameBtn');
                 if (editUsernameBtn) {
                     editUsernameBtn.addEventListener('click', showEditUsernameModal);
+                }
+                
+                const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+                if (deleteAccountBtn) {
+                    deleteAccountBtn.addEventListener('click', async () => {
+                        modal.hide('profileModal');
+                        await handleDeleteAccount();
+                    });
                 }
             }
         } else {

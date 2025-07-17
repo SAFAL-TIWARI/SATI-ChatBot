@@ -107,6 +107,23 @@
     box-sizing: border-box;
 }
 
+/* List styling improvements */
+ul, ol {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+}
+
+/* Remove default list styling where needed */
+.no-list-style {
+    list-style: none;
+    padding-left: 0;
+}
+
 /* Prevent flash of unstyled content */
 .app-container {
     opacity: 1;
@@ -3352,6 +3369,36 @@ textarea:focus-visible {
     font-size: var(--font-size-sm);
 }
 
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.btn-danger:hover {
+    background: var(--danger-hover);
+    border-color: var(--danger-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
+}
+
+.btn-danger:active {
+    transform: translateY(1px);
+}
+
+.btn-danger i {
+    font-size: var(--font-size-sm);
+}
+
 .or-section {
     display: flex;
     align-items: center;
@@ -3846,13 +3893,17 @@ textarea:focus-visible {
 
 .profile-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     width: 100%;
+    justify-content: center;
 }
 
 .profile-actions button {
     flex: 1;
-    padding: 10px;
+    min-width: 140px;
+    max-width: 200px;
+    padding: 10px 12px;
     border-radius: 8px;
     font-size: 0.9rem;
     display: flex;
@@ -3861,6 +3912,20 @@ textarea:focus-visible {
     gap: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+/* Responsive layout for profile actions */
+@media (max-width: 600px) {
+    .profile-actions {
+        flex-direction: column;
+    }
+    
+    .profile-actions button {
+        flex: none;
+        width: 100%;
+        max-width: none;
+    }
 }
 
 .profile-actions .primary-btn {
