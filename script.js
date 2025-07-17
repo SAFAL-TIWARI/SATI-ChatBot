@@ -1128,8 +1128,7 @@ class ModalManager {
             const confirmCancel = document.getElementById('confirmCancel');
 
             confirmTitle.textContent = title;
-            // Use innerHTML to support HTML formatting and convert line breaks
-            confirmMessage.innerHTML = message.replace(/\n/g, '<br>');
+            confirmMessage.textContent = message;
 
             const handleConfirm = () => {
                 this.hide('confirmModal');
@@ -4430,18 +4429,7 @@ async function handleDeleteAccount() {
     // Show confirmation dialog with more detailed warning
     const confirmed = await modal.confirm(
         'Delete Account',
-        `<p>Are you sure you want to delete your account?</p>
-        
-        <p><strong>This will permanently delete:</strong></p>
-        
-        <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>Your account data</li>
-            <li>All your conversations (${chatState.conversations.length} total)</li>
-            <li>All your messages</li>
-            <li>All your saved data</li>
-        </ul>
-        
-        <p style="color: #e53e3e; font-weight: bold;">This action cannot be undone!</p>`
+        `Are you sure you want to delete your account? This will permanently delete all your conversations (${chatState.conversations.length} total), messages, and account data. This action cannot be undone.`
     );
 
     if (!confirmed) {

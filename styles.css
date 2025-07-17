@@ -2351,27 +2351,7 @@ body {
 
 /* Confirm Modal */
 .confirm-modal {
-    width: 450px;
-    max-width: 90vw;
-}
-
-#confirmMessage {
-    line-height: 1.6;
-    color: var(--text-primary);
-}
-
-#confirmMessage p {
-    margin-bottom: 12px;
-}
-
-#confirmMessage ul {
-    margin: 12px 0;
-    padding-left: 20px;
-}
-
-#confirmMessage li {
-    margin-bottom: 6px;
-    line-height: 1.5;
+    width: 400px;
 }
 
 .confirm-actions {
