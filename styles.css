@@ -565,10 +565,10 @@ body {
 [data-theme="light"] .resources-btn {
     background: linear-gradient(135deg, #3b82f6, #8b5cf6);
     box-shadow:
-        inset 6px 6px 12px rgba(0, 0, 0, 0.08),
-        inset -6px -6px 12px rgba(255, 255, 255, 0.9),
-        6px 6px 12px rgba(0, 0, 0, 0.08),
-        -6px -6px 12px rgba(255, 255, 255, 0.9);
+        inset 1px 1px 1px var(--accent-color),
+        inset -6px -6px 12px rgba(113, 131, 130, 0.9),
+        1px 1px 1px rgba(78, 109, 91, 0.282),
+        -6px -6px 5px rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] .resources-btn:after {
@@ -3413,13 +3413,16 @@ textarea:focus-visible {
 /* Monkey Avatar Styles */
 .monkey-login-card {
     position: relative;
-    padding-top: 0px; /* Add space for the monkey avatar */
-    margin-top: -40px; /* Additional top margin */
+    padding-top: 0px;
+    /* Add space for the monkey avatar */
+    margin-top: -40px;
+    /* Additional top margin */
 }
 
 .monkey-login-card .login-content {
     position: relative;
-    padding-top: 80px; /* Additional padding for better spacing */
+    padding-top: 80px;
+    /* Additional padding for better spacing */
 }
 
 .blind-check {
@@ -3434,7 +3437,8 @@ textarea:focus-visible {
 }
 
 .password-input-container input {
-    padding-right: 60px; /* Make space for the separator and toggle button */
+    padding-right: 60px;
+    /* Make space for the separator and toggle button */
 }
 
 /* Vertical separator line */
@@ -3514,11 +3518,11 @@ textarea:focus-visible {
 }
 
 /* When checkbox is checked - show the "hide" icon (eye closed with slash) */
-.blind-check:checked ~ .login-form .password-toggle-btn .show-icon {
+.blind-check:checked~.login-form .password-toggle-btn .show-icon {
     display: none !important;
 }
 
-.blind-check:checked ~ .login-form .password-toggle-btn .hide-icon {
+.blind-check:checked~.login-form .password-toggle-btn .hide-icon {
     display: block !important;
 }
 
@@ -3539,7 +3543,7 @@ textarea:focus-visible {
     position: relative;
 }
 
-.blind-check:checked ~ .login-form .password-group input[type="password"] {
+.blind-check:checked~.login-form .password-group input[type="password"] {
     -webkit-text-security: none;
     font-family: inherit;
 }
@@ -3605,7 +3609,7 @@ textarea:focus-visible {
     z-index: 3;
 }
 
-.blind-check:checked ~ .login-form ~ .monkey-avatar::before {
+.blind-check:checked~.login-form~.monkey-avatar::before {
     width: 10px;
     height: 0;
     border-radius: 50%;
@@ -3619,23 +3623,35 @@ textarea:focus-visible {
 }
 
 @keyframes blink {
-    0%, 2%, 4%, 26%, 28%, 71%, 73%, 100% {
+
+    0%,
+    2%,
+    4%,
+    26%,
+    28%,
+    71%,
+    73%,
+    100% {
         ry: 4.5;
         cy: 31.7;
     }
-    1%, 3%, 27%, 72% {
+
+    1%,
+    3%,
+    27%,
+    72% {
         ry: 0.5;
         cy: 30;
     }
 }
 
-.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey .monkey-eye-r,
-.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey .monkey-eye-l {
+.blind-check:checked~.login-form~.monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:checked~.login-form~.monkey-avatar svg#monkey .monkey-eye-l {
     ry: 0.5;
     cy: 30;
 }
 
-.blind-check:checked ~ .login-form ~ .monkey-avatar svg#monkey-hands {
+.blind-check:checked~.login-form~.monkey-avatar svg#monkey-hands {
     transform: translate3d(0, 0, 0) rotateX(0deg);
 }
 
@@ -3647,25 +3663,25 @@ textarea:focus-visible {
     transition: all 0.2s ease;
 }
 
-.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey,
-.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar::before,
-.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-nose,
-.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-r,
-.blind-check:checked ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-l {
+.blind-check:checked~.login-form:focus-within~.monkey-avatar svg#monkey,
+.blind-check:checked~.login-form:focus-within~.monkey-avatar::before,
+.blind-check:checked~.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-nose,
+.blind-check:checked~.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:checked~.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-l {
     animation: none;
 }
 
-.login-form:focus-within ~ .monkey-avatar svg#monkey {
+.login-form:focus-within~.monkey-avatar svg#monkey {
     animation: slick 3s ease infinite 1s;
     --center: rotateY(0deg);
     --left: rotateY(-4deg);
     --right: rotateY(4deg);
 }
 
-.login-form:focus-within ~ .monkey-avatar::before,
-.login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-nose,
-.blind-check:not(:checked) ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-r,
-.blind-check:not(:checked) ~ .login-form:focus-within ~ .monkey-avatar svg#monkey .monkey-eye-l {
+.login-form:focus-within~.monkey-avatar::before,
+.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-nose,
+.blind-check:not(:checked)~.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-r,
+.blind-check:not(:checked)~.login-form:focus-within~.monkey-avatar svg#monkey .monkey-eye-l {
     ry: 3;
     cy: 35;
     animation: slick 3s ease infinite 1s;
@@ -3675,12 +3691,16 @@ textarea:focus-visible {
 }
 
 @keyframes slick {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: var(--center);
     }
+
     25% {
         transform: var(--left);
     }
+
     75% {
         transform: var(--right);
     }

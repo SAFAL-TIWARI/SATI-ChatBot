@@ -7,33 +7,35 @@
     <title>404 - Page Not Found | SATI ChatBot</title>
     <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
     <link rel="canonical" href="https://sati-chatbot.vercel.app/404.html">
-    
+
     <!-- Primary Meta Tags -->
     <meta name="title" content="404 - Page Not Found | SATI ChatBot">
-    <meta name="description" content="Oops! The page you're looking for doesn't exist. Return to SATI ChatBot homepage or explore our resources about Samrat Ashok Technological Institute.">
+    <meta name="description"
+        content="Oops! The page you're looking for doesn't exist. Return to SATI ChatBot homepage or explore our resources about Samrat Ashok Technological Institute.">
     <meta name="keywords" content="404 error, page not found, SATI ChatBot, error page, Team FluxoNauts">
     <meta name="author" content="Team FluxoNauts">
     <meta name="robots" content="noindex, follow">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://sati-chatbot.vercel.app/404.html">
     <meta property="og:title" content="404 - Page Not Found | SATI ChatBot">
-    <meta property="og:description" content="Oops! The page you're looking for doesn't exist. Return to SATI ChatBot homepage.">
+    <meta property="og:description"
+        content="Oops! The page you're looking for doesn't exist. Return to SATI ChatBot homepage.">
     <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <meta property="og:site_name" content="SATI ChatBot">
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://sati-chatbot.vercel.app/404.html">
     <meta name="twitter:title" content="404 - Page Not Found | SATI ChatBot">
     <meta name="twitter:description" content="Oops! The page you're looking for doesn't exist.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="resources.css">
-    
+
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -56,12 +58,11 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            margin-top: -80px;
         }
 
         .error-content {
+            max-width: 70vw;
             text-align: center;
-            max-width: 600px;
             background: var(--card-bg);
             border-radius: 20px;
             padding: 3rem;
@@ -119,7 +120,7 @@
         }
 
         .error-btn:hover {
-            background: var(--primary-hover);
+            background: var(--primary-color);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
@@ -175,88 +176,31 @@
             text-decoration: underline;
         }
 
-        .search-box {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
                 transform: translateY(0);
             }
+
             40% {
                 transform: translateY(-20px);
             }
+
             60% {
                 transform: translateY(-10px);
             }
         }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .floating-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .floating-element {
-            position: absolute;
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating-element:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .floating-element:nth-child(2) {
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-
-        .floating-element:nth-child(3) {
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
-
         @media (max-width: 768px) {
             .error-content {
-                padding: 2rem;
-                margin: 1rem;
+                padding: 1rem;
+                margin: 0 -1rem;
+                max-width: 90vw;
             }
 
             .error-icon {
@@ -376,26 +320,24 @@
 
     <!-- 404 Error Content -->
     <div class="error-container">
-        <div class="floating-elements">
-            <i class="fas fa-robot floating-element" style="font-size: 3rem;"></i>
-            <i class="fas fa-graduation-cap floating-element" style="font-size: 2.5rem;"></i>
-            <i class="fas fa-university floating-element" style="font-size: 2rem;"></i>
-        </div>
-
         <div class="error-content">
             <div class="error-icon">
                 <i class="fas fa-robot"></i>
             </div>
-            
+
             <h1 class="error-title">404</h1>
             <h2 class="error-subtitle">Oops! Page Not Found</h2>
-            
+
             <p class="error-message">
-                The page you're looking for seems to have wandered off into the digital void. 
+                The page you're looking for seems to have wandered off into the digital void.
                 Don't worry, even our AI assistant gets lost sometimes! Let's get you back on track.
             </p>
 
             <div class="error-actions">
+                <button onclick="history.back()" class="error-btn secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Go Back
+                </button>
                 <a href="index.html" class="error-btn">
                     <i class="fas fa-home"></i>
                     Go Home
@@ -404,10 +346,6 @@
                     <i class="fas fa-book"></i>
                     Browse Resources
                 </a>
-                <button onclick="history.back()" class="error-btn secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Go Back
-                </button>
             </div>
 
             <div class="suggestions">
@@ -418,15 +356,6 @@
                     <li><a href="about.html">Learn About Us</a> - Discover how SATI ChatBot works</li>
                     <li><a href="contact.html">Contact Support</a> - Report this issue or get help</li>
                 </ul>
-            </div>
-
-            <div class="search-box">
-                <h3><i class="fas fa-search"></i> Quick Search</h3>
-                <input type="text" class="search-input" placeholder="Search for SATI information..." id="quickSearch">
-                <button class="error-btn" onclick="performSearch()">
-                    <i class="fas fa-search"></i>
-                    Search
-                </button>
             </div>
         </div>
     </div>
@@ -445,6 +374,11 @@
                     <li><a href="resources.html">Resources</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
                     <li><a href="privacy-policy.html">Privacy Policy</a></li>
                     <li><a href="terms-of-service.html">Terms of Service</a></li>
                 </ul>
@@ -453,7 +387,8 @@
                 <h3>Connect with Us</h3>
                 <div class="social-links">
                     <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
+                            class="fab fa-linkedin"></i></a>
                     <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
                 </div>
             </div>
@@ -463,37 +398,7 @@
         </div>
     </footer>
 
-    <script src="resources.js"></script>
-    <script>
-        function performSearch() {
-            const searchTerm = document.getElementById('quickSearch').value.trim();
-            if (searchTerm) {
-                // Redirect to home page with search query
-                window.location.href = `index.html?search=${encodeURIComponent(searchTerm)}`;
-            }
-        }
-
-        // Allow Enter key to trigger search
-        document.getElementById('quickSearch').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // Add some interactive elements
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add click effect to floating elements
-            const floatingElements = document.querySelectorAll('.floating-element');
-            floatingElements.forEach(element => {
-                element.addEventListener('click', function() {
-                    this.style.animation = 'bounce 0.5s ease';
-                    setTimeout(() => {
-                        this.style.animation = 'float 6s ease-in-out infinite';
-                    }, 500);
-                });
-            });
-        });
-    </script>
+    <script src="static-pages.js"></script>
 </body>
 
 </html>

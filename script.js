@@ -7,7 +7,7 @@ function initializeSupabase() {
         console.log('🔄 Attempting to initialize Supabase...');
         console.log('window.supabase available:', !!window.supabase);
         console.log('SUPABASE_CONFIG configured:', !!window.SUPABASE_CONFIG?.CONFIGURED);
-        
+
         // Ensure Supabase JS library is loaded
         if (!window.supabase) {
             console.error('❌ Supabase JS library not loaded');
@@ -22,25 +22,25 @@ function initializeSupabase() {
             document.head.appendChild(script);
             return false;
         }
-        
+
         if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.CONFIGURED) {
             const supabaseUrl = window.SUPABASE_CONFIG.URL;
             const supabaseKey = window.SUPABASE_CONFIG.KEY;
-            
+
             console.log('Supabase URL configured:', !!supabaseUrl);
             console.log('Supabase Key available:', !!supabaseKey);
-            
+
             if (supabaseUrl && supabaseKey) {
                 // Create Supabase client
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 console.log('✅ Supabase client initialized successfully');
-                
+
                 // Make supabase available globally for debugging
                 window.supabaseClient = supabase;
-                
+
                 // Set up auth state listener (will be called later after function is defined)
                 // We'll set up the listener in initializeApp after all functions are defined
-                
+
                 return true;
             } else {
                 console.warn('⚠️ Supabase initialization failed - missing URL or KEY in SUPABASE_CONFIG');
@@ -52,9 +52,9 @@ function initializeSupabase() {
             console.log('SUPABASE_CONFIG available:', !!window.SUPABASE_CONFIG);
             console.log('CONFIGURED:', !!window.SUPABASE_CONFIG?.CONFIGURED);
         }
-        
 
-        
+
+
         return false;
     } catch (err) {
         console.error('❌ Failed to initialize Supabase client:', err);
@@ -95,11 +95,11 @@ function listenForAuthChanges() {
                         profilePhoto = session.user.user_metadata.avatar_url;
                     }
                 }
-                
+
                 // Check if this is a fresh login or just a session restoration
-                const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' && 
-                                           localStorage.getItem('sati_username') === (session.user.email ? session.user.email.split('@')[0] : session.user.id);
-                
+                const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' &&
+                    localStorage.getItem('sati_username') === (session.user.email ? session.user.email.split('@')[0] : session.user.id);
+
                 // Update user state
                 chatState.isLoggedIn = true;
                 let username = (session.user.user_metadata && session.user.user_metadata.username)
@@ -110,17 +110,17 @@ function listenForAuthChanges() {
                 chatState.authProvider = authProvider;
                 chatState.profilePhoto = profilePhoto;
                 chatState.saveState();
-                
+
                 // Initialize Supabase storage for authenticated user
                 if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
                     window.supabaseDB.setCurrentUserEmail(session.user.email);
                     chatState.initSupabaseStorage();
-                    
+
                     // Load conversations from Supabase and update UI
                     chatState.loadConversationsFromSupabase().then(() => {
                         console.log('✅ Conversations loaded after login');
                     });
-                    
+
                     // Set up real-time subscriptions
                     if (window.supabaseDB.subscribeToConversations) {
                         const subscription = window.supabaseDB.subscribeToConversations((payload) => {
@@ -128,21 +128,21 @@ function listenForAuthChanges() {
                             // Refresh conversations list when changes occur
                             chatState.loadConversationsFromSupabase();
                         });
-                        
+
                         // Store subscription for cleanup
                         chatState.supabaseSubscription = subscription;
                     }
                 }
-                
+
                 // Update login statistics
                 updateLoginStats();
-                
+
                 // Hide login modal
                 modal.hide('loginModal');
-                
+
                 // Update UI
                 updateLoginStatus();
-                
+
                 // Only show welcome modal and toast for fresh logins, not session restorations
                 if (!isSessionRestoration) {
                     // Check if this is a fresh login triggered by user action
@@ -151,10 +151,10 @@ function listenForAuthChanges() {
                         setTimeout(() => {
                             showWelcomeModal(chatState.username);
                         }, 500);
-                        
+
                         // Show success toast (only one)
                         toast.show('Logged in successfully', 'success');
-                        
+
                         // Clear the fresh login flag
                         localStorage.removeItem('sati_fresh_login');
                     }
@@ -162,38 +162,38 @@ function listenForAuthChanges() {
                 afterLoginOrSignup();
             } else if (event === 'SIGNED_OUT') {
                 console.log('User signed out');
-                
+
                 // Clean up Supabase storage and subscriptions
                 if (chatState.supabaseSubscription) {
                     chatState.supabaseSubscription.unsubscribe();
                     chatState.supabaseSubscription = null;
                 }
-                
+
                 // Reset Supabase storage
                 chatState.useSupabaseStorage = false;
                 if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
                     window.supabaseDB.setCurrentUserEmail(null);
                 }
-                
+
                 // Clear conversations from UI and localStorage
                 chatState.conversations = [];
                 localStorage.removeItem('sati_conversations'); // Clear any stored conversations
                 updateConversationsList();
-                
+
                 // Clear current chat messages and reset chat area
                 chatState.currentConversationId = null;
                 chatState.currentMessages = [];
-                
+
                 // Clear the chat area and show welcome message
                 if (chatManager) {
                     chatManager.renderMessages();
                 }
-                
+
                 // Reset chat title
                 if (elements.chatTitle) {
                     elements.chatTitle.textContent = 'New Chat';
                 }
-                
+
             } else if (event === 'USER_UPDATED') {
                 console.log('User updated');
             } else if (event === 'TOKEN_REFRESHED') {
@@ -219,7 +219,7 @@ const templateHelper = {
         }
         return template.content.cloneNode(true);
     },
-    
+
     // Clone template and append to container
     appendTo: (templateId, container) => {
         const content = templateHelper.clone(templateId);
@@ -229,7 +229,7 @@ const templateHelper = {
         }
         return null;
     },
-    
+
     // Clone template and replace container content
     replaceTo: (templateId, container) => {
         const content = templateHelper.clone(templateId);
@@ -263,7 +263,7 @@ class ChatBotState {
             // For guest users, start with empty conversations (no persistence)
             this.conversations = [];
         }
-        
+
         this.currentConversationId = null;
         this.currentMessages = [];
 
@@ -289,7 +289,7 @@ class ChatBotState {
         // Validate model selection - prevent Gemini 1.5 Pro from being selected
         this.validateModelSelection();
     }
-    
+
     // Initialize Supabase storage if user is logged in with Supabase
     initSupabaseStorage() {
         if (!supabase || !this.isLoggedIn) {
@@ -297,14 +297,14 @@ class ChatBotState {
             this.useSupabaseStorage = false;
             return false;
         }
-        
+
         // Initialize Supabase DB operations
         if (window.supabaseDB && window.supabaseDB.initialize) {
             try {
                 const initialized = window.supabaseDB.initialize(supabase);
                 this.useSupabaseStorage = initialized;
                 console.log('✅ Supabase storage initialized:', initialized);
-                
+
                 if (initialized) {
                     console.log('🔄 Supabase DB functions available:', {
                         createConversation: !!window.supabaseDB.createConversation,
@@ -313,7 +313,7 @@ class ChatBotState {
                         updateBookmarkStatus: !!window.supabaseDB.updateBookmarkStatus
                     });
                 }
-                
+
                 return initialized;
             } catch (error) {
                 console.error('❌ Error initializing Supabase storage:', error);
@@ -321,7 +321,7 @@ class ChatBotState {
                 return false;
             }
         }
-        
+
         console.log('❌ Supabase DB operations not available');
         this.useSupabaseStorage = false;
         return false;
@@ -357,12 +357,12 @@ class ChatBotState {
     saveState() {
         // Only save conversations to localStorage for logged-in users
         if (this.isLoggedIn) {
-        localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
+            localStorage.setItem('sati_conversations', JSON.stringify(this.conversations));
         } else {
             // For guest users, don't save conversations to localStorage
             localStorage.removeItem('sati_conversations');
         }
-        
+
         localStorage.setItem('sati_logged_in', JSON.stringify(this.isLoggedIn));
         localStorage.setItem('sati_username', this.username);
         localStorage.setItem('sati_email', this.email);
@@ -425,7 +425,7 @@ class ChatBotState {
         // Apply accent color
         const accentColor = this.settings.appearance?.accentColor || '#10a37f';
         document.documentElement.style.setProperty('--accent-color', accentColor);
-        
+
         // Apply font size
         const fontSize = this.settings.appearance?.fontSize || 16;
         document.documentElement.style.fontSize = fontSize + 'px';
@@ -448,21 +448,21 @@ class ChatBotState {
             isLoggedIn: this.isLoggedIn,
             email: this.email
         });
-        
+
         // If using Supabase storage and user is logged in
         if (this.useSupabaseStorage && window.supabaseDB) {
             try {
                 console.log('✅ Creating conversation in Supabase...');
                 const { data, error } = await window.supabaseDB.createConversation(title);
-                
+
                 if (error) {
                     console.error('❌ Error creating conversation in Supabase:', error);
                     // Fall back to local storage
                     return this.createLocalConversation(title);
                 }
-                
+
                 console.log('✅ Conversation created in Supabase:', data);
-                
+
                 // Use the conversation from Supabase
                 const conversation = {
                     id: data.id,
@@ -471,14 +471,14 @@ class ChatBotState {
                     createdAt: data.created_at,
                     updatedAt: data.updated_at
                 };
-                
+
                 // Add to local cache
                 this.conversations.unshift(conversation);
                 this.currentConversationId = conversation.id;
                 this.currentMessages = [];
                 this.saveState();
                 return conversation;
-                
+
             } catch (err) {
                 console.error('❌ Error in createNewConversation:', err);
                 // Fall back to local storage
@@ -490,7 +490,7 @@ class ChatBotState {
             return this.createLocalConversation(title);
         }
     }
-    
+
     // Create conversation in local storage
     createLocalConversation(title = 'New Chat') {
         const conversation = {
@@ -524,7 +524,7 @@ class ChatBotState {
                 try {
                     // Update the conversation's updated_at timestamp
                     await window.supabaseDB.updateConversationTitle(
-                        this.currentConversationId, 
+                        this.currentConversationId,
                         conversation.title
                     );
                     console.log('✅ Conversation metadata updated in Supabase');
@@ -542,7 +542,7 @@ class ChatBotState {
         if (this.useSupabaseStorage && window.supabaseDB) {
             try {
                 const { success, error } = await window.supabaseDB.deleteConversation(id);
-                
+
                 if (error) {
                     console.error('Error deleting conversation in Supabase:', error);
                     // Continue with local deletion anyway
@@ -551,7 +551,7 @@ class ChatBotState {
                 console.error('Error in deleteConversation:', err);
             }
         }
-        
+
         // Always delete from local storage too
         this.conversations = this.conversations.filter(c => c.id !== id);
         if (this.currentConversationId === id) {
@@ -566,7 +566,7 @@ class ChatBotState {
         if (this.useSupabaseStorage && window.supabaseDB) {
             try {
                 const { success, error } = await window.supabaseDB.updateConversationTitle(id, newTitle);
-                
+
                 if (error) {
                     console.error('Error renaming conversation in Supabase:', error);
                     // Continue with local rename anyway
@@ -575,7 +575,7 @@ class ChatBotState {
                 console.error('Error in renameConversation:', err);
             }
         }
-        
+
         // Always update local storage too
         const conversation = this.conversations.find(c => c.id === id);
         if (conversation) {
@@ -593,7 +593,7 @@ class ChatBotState {
             try {
                 // Get messages from Supabase
                 const { data: messages, error } = await window.supabaseDB.getConversationMessages(id);
-                
+
                 if (error) {
                     console.error('Error loading messages from Supabase:', error);
                     // Fall back to local storage
@@ -606,11 +606,11 @@ class ChatBotState {
                         model: msg.model,
                         timestamp: new Date(msg.created_at).toISOString()
                     }));
-                    
+
                     // Update current conversation
                     this.currentConversationId = id;
                     this.currentMessages = formattedMessages;
-                    
+
                     // Find the conversation in local cache
                     const conversation = this.conversations.find(c => c.id === id);
                     if (conversation) {
@@ -630,7 +630,7 @@ class ChatBotState {
                                     createdAt: matchingConv.created_at,
                                     updatedAt: matchingConv.updated_at
                                 };
-                                
+
                                 // Add to local cache
                                 this.conversations.push(newConv);
                                 this.saveState();
@@ -644,7 +644,7 @@ class ChatBotState {
                 // Fall back to local storage
             }
         }
-        
+
         // Fall back to local storage
         const conversation = this.conversations.find(c => c.id === id);
         if (conversation) {
@@ -654,26 +654,26 @@ class ChatBotState {
         }
         return null;
     }
-    
+
     // Load all conversations from Supabase
     async loadConversationsFromSupabase() {
         if (!this.useSupabaseStorage || !window.supabaseDB) {
             console.log('📱 Not using Supabase storage or DB not available');
             return false;
         }
-        
+
         try {
             console.log('🔄 Loading conversations from Supabase...');
             const { data, error } = await window.supabaseDB.getUserConversations();
-            
+
             if (error) {
                 console.error('❌ Error loading conversations from Supabase:', error);
                 return false;
             }
-            
+
             if (data && data.length > 0) {
                 console.log('✅ Found conversations in Supabase:', data.length);
-                
+
                 // Convert to app format
                 const conversations = data.map(conv => ({
                     id: conv.id,
@@ -683,20 +683,20 @@ class ChatBotState {
                     updatedAt: conv.updated_at,
                     is_bookmarked: conv.is_bookmarked || false // Include bookmark status
                 }));
-                
+
                 // Replace local conversations with Supabase ones
                 this.conversations = conversations;
                 this.saveState();
-                
+
                 // Update the UI to show the loaded conversations
                 updateConversationsList();
-                
+
                 // Also update saved chats list if modal is open
                 const savedChatsModal = document.getElementById('savedChatsModal');
                 if (savedChatsModal && savedChatsModal.classList.contains('show')) {
                     updateSavedChatsList();
                 }
-                
+
                 console.log('✅ Conversations loaded and UI updated');
                 return true;
             } else {
@@ -707,7 +707,7 @@ class ChatBotState {
                 updateConversationsList();
                 return true;
             }
-            
+
         } catch (err) {
             console.error('❌ Error in loadConversationsFromSupabase:', err);
             return false;
@@ -779,7 +779,7 @@ function initializeElements() {
         // Toast container
         toastContainer: document.getElementById('toastContainer')
     };
-    
+
     console.log('✅ DOM elements initialized');
     console.log('Toast container found:', !!elements.toastContainer);
 }
@@ -833,13 +833,13 @@ class ToastManager {
     show(message, type = 'info', duration = 3000, actions = []) {
         try {
             console.log('🍞 Toast.show called:', { message, type, duration });
-            
+
             // Check if toast container exists
             if (!elements.toastContainer) {
                 console.error('❌ Toast container not found');
                 return;
             }
-            
+
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
 
@@ -856,10 +856,10 @@ class ToastManager {
                 // Populate template content
                 const iconElement = toastContent.querySelector('.toast-icon');
                 const messageElement = toastContent.querySelector('.toast-message');
-                
+
                 if (iconElement) iconElement.innerHTML = icons[type];
                 if (messageElement) messageElement.textContent = message;
-                
+
                 // Add to toast element
                 toast.appendChild(toastContent);
             } else {
@@ -871,28 +871,28 @@ class ToastManager {
                     <button class="toast-close">&times;</button>
                 `;
             }
-        
-        // Add action buttons if provided
-        if (actions && actions.length > 0) {
-            const actionsContent = templateHelper.clone('toastActionsTemplate');
-            if (actionsContent) {
-                const actionsContainer = actionsContent.querySelector('.toast-actions');
-                const actionButton = actionsContainer.querySelector('.toast-action-btn');
-                
-                // Remove the template button and add actual buttons
-                actionButton.remove();
-                
-                actions.forEach(action => {
-                    const btn = document.createElement('button');
-                    btn.className = 'toast-action-btn';
-                    btn.textContent = action.text;
-                    actionsContainer.appendChild(btn);
-                });
-            
-                toast.appendChild(actionsContent);
+
+            // Add action buttons if provided
+            if (actions && actions.length > 0) {
+                const actionsContent = templateHelper.clone('toastActionsTemplate');
+                if (actionsContent) {
+                    const actionsContainer = actionsContent.querySelector('.toast-actions');
+                    const actionButton = actionsContainer.querySelector('.toast-action-btn');
+
+                    // Remove the template button and add actual buttons
+                    actionButton.remove();
+
+                    actions.forEach(action => {
+                        const btn = document.createElement('button');
+                        btn.className = 'toast-action-btn';
+                        btn.textContent = action.text;
+                        actionsContainer.appendChild(btn);
+                    });
+
+                    toast.appendChild(actionsContent);
+                }
             }
-        }
-        
+
             // Add to DOM
             elements.toastContainer.appendChild(toast);
             console.log('✅ Toast added to DOM');
@@ -922,7 +922,7 @@ class ToastManager {
             if (closeBtn) {
                 closeBtn.addEventListener('click', removeToast);
             }
-            
+
             // Add event listeners for action buttons
             if (actions && actions.length > 0) {
                 const actionButtons = toast.querySelectorAll('.toast-action-btn');
@@ -930,28 +930,28 @@ class ToastManager {
                     btn.addEventListener('click', () => {
                         // Clear the auto-remove timeout
                         clearTimeout(timeoutId);
-                        
+
                         // Execute the action
                         if (actions[index] && typeof actions[index].onClick === 'function') {
                             actions[index].onClick();
                         }
-                        
+
                         // Remove the toast
                         removeToast();
                     });
                 });
             }
-            
+
             return {
                 close: removeToast
             };
-            
+
         } catch (error) {
             console.error('❌ Error in toast.show:', error);
             return null;
         }
     }
-    
+
     // New method to show custom HTML content in toast
     showCustom(contentElement, type = 'info', duration = 3000, actions = []) {
         const toast = document.createElement('div');
@@ -969,33 +969,33 @@ class ToastManager {
         if (toastContent) {
             // Populate template content
             toastContent.querySelector('.toast-icon').innerHTML = icons[type];
-            
+
             // Replace text message with custom content
             const messageContainer = toastContent.querySelector('.toast-message');
             messageContainer.innerHTML = '';
             messageContainer.appendChild(contentElement);
-            
+
             // Add to toast element
             toast.appendChild(toastContent);
         }
-        
+
         // Add action buttons if provided
         if (actions && actions.length > 0) {
             const actionsContent = templateHelper.clone('toastActionsTemplate');
             if (actionsContent) {
                 const actionsContainer = actionsContent.querySelector('.toast-actions');
                 const actionButton = actionsContainer.querySelector('.toast-action-btn');
-                
+
                 // Remove the template button and add actual buttons
                 actionButton.remove();
-                
-            actions.forEach(action => {
+
+                actions.forEach(action => {
                     const btn = document.createElement('button');
                     btn.className = 'toast-action-btn';
                     btn.textContent = action.text;
                     actionsContainer.appendChild(btn);
-            });
-        
+                });
+
                 toast.appendChild(actionsContent);
             }
         }
@@ -1019,7 +1019,7 @@ class ToastManager {
 
         // Manual close
         toast.querySelector('.toast-close').addEventListener('click', removeToast);
-        
+
         // Add event listeners for action buttons
         if (actions && actions.length > 0) {
             const actionButtons = toast.querySelectorAll('.toast-action-btn');
@@ -1027,18 +1027,18 @@ class ToastManager {
                 btn.addEventListener('click', () => {
                     // Clear the auto-remove timeout
                     clearTimeout(timeoutId);
-                    
+
                     // Execute the action
                     if (actions[index] && typeof actions[index].onClick === 'function') {
                         actions[index].onClick();
                     }
-                    
+
                     // Remove the toast
                     removeToast();
                 });
             });
         }
-        
+
         return {
             close: removeToast
         };
@@ -1049,7 +1049,7 @@ class ToastManager {
 const toast = new ToastManager();
 
 // Test function for toast (can be called from console)
-window.testToast = function(message = 'Test toast notification', type = 'info') {
+window.testToast = function (message = 'Test toast notification', type = 'info') {
     console.log('🧪 Testing toast:', { message, type });
     return toast.show(message, type);
 };
@@ -1062,31 +1062,31 @@ class ModalManager {
         if (modal) {
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
-            
+
             // Special handling for login modal
             if (modalId === 'loginModal') {
                 // Wait for modal to be fully visible before checking state
                 setTimeout(() => {
                     checkLoginFormState();
-                    
+
                     // Initialize cool mode for login buttons when modal is shown
                     initializeCoolMode();
-                    
+
                     // Add event listener to email input to check state when email changes
                     const emailInput = document.getElementById('email');
                     if (emailInput) {
                         // Remove any existing listeners to prevent duplicates
                         emailInput.removeEventListener('blur', this._emailBlurHandler);
-                        
+
                         // Store the handlers so we can remove them later
                         this._emailBlurHandler = () => checkLoginFormState(emailInput.value);
-                        
+
                         // Handler for input changes - remove any error message when email changes
                         this._emailInputHandler = () => {
                             // Remove any error message
                             removePasswordResetMessage();
                         };
-                        
+
                         // Add the listeners
                         emailInput.addEventListener('blur', this._emailBlurHandler);
                         emailInput.addEventListener('input', this._emailInputHandler);
@@ -1101,7 +1101,7 @@ class ModalManager {
         if (modal) {
             modal.classList.remove('show');
             document.body.style.overflow = '';
-            
+
             // Clean up event listeners for login modal
             if (modalId === 'loginModal') {
                 const emailInput = document.getElementById('email');
@@ -1113,7 +1113,7 @@ class ModalManager {
                         emailInput.removeEventListener('input', this._emailInputHandler);
                     }
                 }
-                
+
                 // Clear any error messages
                 removePasswordResetMessage();
             }
@@ -1211,7 +1211,7 @@ class ChatManager {
 
         chatState.currentMessages.push(userMessage);
         this.renderMessages();
-        
+
         // Save user message to Supabase immediately
         if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
             try {
@@ -1221,14 +1221,14 @@ class ChatManager {
                     supabaseDB: !!window.supabaseDB,
                     isLoggedIn: chatState.isLoggedIn
                 });
-                
+
                 const result = await window.supabaseDB.addMessage(
                     chatState.currentConversationId,
                     'user',
                     content,
                     chatState.selectedModel
                 );
-                
+
                 if (result.error) {
                     console.error('❌ Error saving user message to Supabase:', result.error);
                     toast.show('Failed to save message to cloud', 'warning');
@@ -1247,16 +1247,16 @@ class ChatManager {
                 isLoggedIn: chatState.isLoggedIn
             });
         }
-        
+
         // Auto-generate title if this is the first user message in a new chat
         if (chatState.currentConversationId) {
             const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
             if (conversation && conversation.title === 'New Chat') {
                 const newTitle = content.substring(0, 50) + (content.length > 50 ? '...' : '');
                 conversation.title = newTitle;
-                
+
                 console.log('🔄 Auto-generating title from first message:', newTitle);
-                
+
                 // Update title in Supabase if using Supabase storage
                 if (chatState.useSupabaseStorage && window.supabaseDB) {
                     try {
@@ -1266,17 +1266,17 @@ class ChatManager {
                         console.error('❌ Error updating conversation title in Supabase:', err);
                     }
                 }
-                
+
                 // Update the UI to reflect the new title
                 updateConversationsList();
-                
+
                 // Update the chat title in the header
                 if (elements.chatTitle) {
                     elements.chatTitle.textContent = newTitle;
                 }
             }
         }
-        
+
         this.showTypingIndicator();
 
         try {
@@ -1300,19 +1300,19 @@ class ChatManager {
             };
 
             chatState.currentMessages.push(botMessage);
-            
+
             // Save assistant message to Supabase immediately
             if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
                 try {
                     console.log('🔄 Saving assistant message to Supabase...');
-                    
+
                     const result = await window.supabaseDB.addMessage(
                         chatState.currentConversationId,
                         'assistant',
                         response,
                         chatState.selectedModel
                     );
-                    
+
                     if (result.error) {
                         console.error('❌ Error saving assistant message to Supabase:', result.error);
                         toast.show('Failed to save response to cloud', 'warning');
@@ -1324,7 +1324,7 @@ class ChatManager {
                     toast.show('Failed to save response to cloud', 'warning');
                 }
             }
-            
+
             // Update conversation in local state
             await chatState.updateConversation(chatState.currentMessages);
 
@@ -1399,7 +1399,7 @@ class ChatManager {
     createMessageElement(message) {
         const messageElement = templateHelper.clone('chatMessageTemplate');
         if (!messageElement) return null;
-        
+
         const messageDiv = messageElement.querySelector('.message');
         messageDiv.className = `message ${message.role}-message`;
 
@@ -1411,7 +1411,7 @@ class ChatManager {
         const avatarDiv = messageElement.querySelector('.avatar');
         avatarDiv.className = avatarClass;
         avatarDiv.innerHTML = avatar;
-        
+
         messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(message.content));
         messageElement.querySelector('.message-timestamp').textContent = utils.formatTime(message.timestamp);
         messageElement.querySelector('.copy-btn').setAttribute('data-message-id', message.id);
@@ -1605,7 +1605,7 @@ function updateConversationsList() {
                 elements.chatTitle.textContent = conversation.title;
                 chatManager.renderMessages();
                 updateConversationsList();
-                
+
                 // Close sidebar on mobile
                 if (window.innerWidth <= 768) {
                     toggleSidebar();
@@ -1624,7 +1624,7 @@ async function updateSavedChatsList() {
         console.log('📱 savedChatsList container not found - modal may not be open yet');
         return;
     }
-    
+
     // Force clear and refresh
     container.innerHTML = '';
     container.style.display = 'none';
@@ -1721,18 +1721,18 @@ async function updateSavedChatsList() {
         const renameBtn = document.createElement('button');
         renameBtn.className = 'conversation-dropdown-item';
         renameBtn.innerHTML = '<i class="fas fa-edit"></i><span>Rename</span>';
-        renameBtn.onclick = function(e) { 
-            e.stopPropagation(); 
-            renameSavedConversation(conversation.id); 
+        renameBtn.onclick = function (e) {
+            e.stopPropagation();
+            renameSavedConversation(conversation.id);
         };
         dropdown.appendChild(renameBtn);
         // Add Delete option
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'conversation-dropdown-item danger';
         deleteBtn.innerHTML = '<i class="fas fa-trash"></i><span>Delete</span>';
-        deleteBtn.onclick = function(e) { 
-            e.stopPropagation(); 
-            deleteSavedConversation(conversation.id); 
+        deleteBtn.onclick = function (e) {
+            e.stopPropagation();
+            deleteSavedConversation(conversation.id);
         };
         dropdown.appendChild(deleteBtn);
         item.addEventListener('click', async (e) => {
@@ -1803,7 +1803,7 @@ async function toggleBookmark(event, conversationId, forceBookmarkStatus = null,
             }
         }
     });
-    
+
     // Also update bookmark buttons in saved chats list
     document.querySelectorAll(`.saved-chats-list .conversation-item[data-id="${conversationId}"] .conversation-bookmark-btn`).forEach(btn => {
         if (btn && btn.classList) {
@@ -1831,7 +1831,7 @@ async function toggleBookmark(event, conversationId, forceBookmarkStatus = null,
     updateConversationsList();
     updateSavedChatsList();
     chatState.saveState();
-    
+
     // Force refresh from Supabase if logged in to ensure sync
     if (chatState.useSupabaseStorage && window.supabaseDB) {
         setTimeout(async () => {
@@ -1889,60 +1889,60 @@ function toggleSavedChatMenu(event, conversationId) {
 // Cross-linked rename function for saved chats (syncs with all conversations)
 async function renameSavedConversation(conversationId) {
     console.log('🔄 Renaming saved conversation:', conversationId);
-    
+
     // Find the conversation
     const conversation = chatState.conversations.find(c => c.id === conversationId);
     if (!conversation) {
         console.error('❌ Conversation not found:', conversationId);
         return;
     }
-    
+
     // Show rename modal with current title
     const newTitle = prompt('Enter new conversation title:', conversation.title);
     if (!newTitle || newTitle.trim() === '' || newTitle === conversation.title) {
         return; // User cancelled or no change
     }
-    
+
     const trimmedTitle = newTitle.trim();
-    
+
     try {
         // Update in chatState
         conversation.title = trimmedTitle;
-        
+
         // Update in Supabase if logged in
         if (chatState.useSupabaseStorage && window.supabaseDB) {
             console.log('🔄 Updating conversation title in Supabase...');
             const { error } = await window.supabaseDB.updateConversationTitle(conversationId, trimmedTitle);
-            
+
             if (error) {
                 console.error('❌ Error updating title in Supabase:', error);
                 toast.show('Failed to update title in cloud', 'error');
                 return;
             }
-            
+
             console.log('✅ Conversation title updated in Supabase');
         }
-        
+
         // Update current chat title if this is the active conversation
         if (chatState.currentConversationId === conversationId) {
             elements.chatTitle.textContent = trimmedTitle;
         }
-        
+
         // Save state locally
         chatState.saveState();
-        
+
         // Update both UI sections
         updateConversationsList(); // Updates all conversations section
         updateSavedChatsList(); // Updates saved chats modal
-        
+
         // Close any open dropdowns
         document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
             dropdown.classList.remove('show');
         });
-        
+
         toast.show('Conversation renamed successfully', 'success');
         console.log('✅ Conversation renamed and synced across all sections');
-        
+
     } catch (error) {
         console.error('❌ Error renaming conversation:', error);
         toast.show('Failed to rename conversation', 'error');
@@ -1952,46 +1952,46 @@ async function renameSavedConversation(conversationId) {
 // Cross-linked delete function for saved chats (syncs with all conversations)
 async function deleteSavedConversation(conversationId) {
     console.log('🔄 Deleting saved conversation:', conversationId);
-    
+
     // Find the conversation
     const conversation = chatState.conversations.find(c => c.id === conversationId);
     if (!conversation) {
         console.error('❌ Conversation not found:', conversationId);
         return;
     }
-    
+
     // Confirm deletion
     const confirmed = confirm(`Are you sure you want to delete "${conversation.title}"? This action cannot be undone.`);
     if (!confirmed) {
         return;
     }
-    
+
     try {
         // Delete using the existing chatState method (which handles Supabase sync)
         const success = await chatState.deleteConversation(conversationId);
-        
+
         if (success) {
             // Close any open dropdowns first
             document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
                 dropdown.classList.remove('show');
             });
-            
+
             // Force immediate UI updates with multiple refresh attempts to ensure proper sync
             updateConversationsList(); // Updates all conversations section immediately
             updateSavedChatsList(); // Updates saved chats modal immediately
-            
+
             // Additional refresh after a short delay to ensure sync
             setTimeout(() => {
                 updateConversationsList();
                 updateSavedChatsList();
             }, 100);
-            
+
             // Final refresh to ensure UI is completely synced
             setTimeout(() => {
                 updateConversationsList();
                 updateSavedChatsList();
             }, 300);
-            
+
             // If this was the current conversation, clear the chat
             if (chatState.currentConversationId === conversationId) {
                 chatState.currentConversationId = null;
@@ -1999,13 +1999,13 @@ async function deleteSavedConversation(conversationId) {
                 elements.chatTitle.textContent = 'New Chat';
                 chatManager.renderMessages();
             }
-            
+
             toast.show('Conversation deleted successfully', 'success');
             console.log('✅ Conversation deleted and synced across all sections');
         } else {
             toast.show('Failed to delete conversation', 'error');
         }
-        
+
     } catch (error) {
         console.error('❌ Error deleting conversation:', error);
         toast.show('Failed to delete conversation', 'error');
@@ -2119,7 +2119,7 @@ function getActiveSettingsTab() {
     if (activeTab && activeTab.dataset.tab) {
         return activeTab.dataset.tab;
     }
-    
+
     // Fallback to localStorage
     return localStorage.getItem('sati_active_settings_tab') || 'general';
 }
@@ -2414,14 +2414,14 @@ function addSettingsEventListeners() {
             e.target.classList.add('selected');
 
             const color = e.target.dataset.color;
-            
+
             // Save to settings
             if (!chatState.settings.appearance) {
                 chatState.settings.appearance = {};
             }
             chatState.settings.appearance.accentColor = color;
             chatState.saveSettings();
-            
+
             // Apply the change
             document.documentElement.style.setProperty('--accent-color', color);
             toast.show('Accent color updated', 'success');
@@ -2435,14 +2435,14 @@ function addSettingsEventListeners() {
         settingsFontSizeSlider.addEventListener('input', (e) => {
             const fontSize = parseInt(e.target.value);
             settingsFontSizeValue.textContent = fontSize + 'px';
-            
+
             // Save to settings
             if (!chatState.settings.appearance) {
                 chatState.settings.appearance = {};
             }
             chatState.settings.appearance.fontSize = fontSize;
             chatState.saveSettings();
-            
+
             // Apply the change
             document.documentElement.style.fontSize = fontSize + 'px';
         });
@@ -2736,7 +2736,7 @@ function initializeEventListeners() {
     if (elements.sidebarToggle) {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
     }
-    
+
     // Saved chats button - use modal instead
     if (elements.savedChatsBtn) {
         elements.savedChatsBtn.addEventListener('click', showSavedChatsModal);
@@ -2934,27 +2934,27 @@ function initializeEventListeners() {
     const themeOptions = document.querySelectorAll('.theme-option');
     const themeSubmenu = document.getElementById('themeSubmenu');
     const themeMenuBtn = document.getElementById('themeMenuBtn');
-    
+
     if (themeOptions.length > 0) {
         themeOptions.forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const selectedTheme = option.getAttribute('data-theme');
                 const oldTheme = chatState.theme;
-                
+
                 chatState.theme = selectedTheme;
                 chatState.applyTheme();
                 chatState.saveState();
                 updateThemeMenuSelection();
-                
+
                 // Show toast message immediately
                 showThemeChangeToast(selectedTheme, oldTheme);
-                
+
                 // Close theme submenu on mobile
                 if (themeSubmenu) {
                     themeSubmenu.classList.remove('show-mobile');
                 }
-                
+
                 // Close profile dropdown
                 if (elements.profileDropdown) {
                     elements.profileDropdown.classList.remove('show');
@@ -2962,7 +2962,7 @@ function initializeEventListeners() {
             });
         });
     }
-    
+
     // Mobile theme menu toggle functionality
     if (themeMenuBtn && themeSubmenu) {
         themeMenuBtn.addEventListener('click', (e) => {
@@ -2973,14 +2973,14 @@ function initializeEventListeners() {
             }
         });
     }
-    
+
     // Prevent theme submenu from closing profile dropdown
     if (themeSubmenu) {
         themeSubmenu.addEventListener('click', (e) => {
             e.stopPropagation();
         });
     }
-    
+
     // Close theme submenu when clicking outside on mobile
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 768 && themeSubmenu) {
@@ -3099,7 +3099,7 @@ function initializeEventListeners() {
                 t.classList.remove('active');
             });
             tab.classList.add('active');
-            
+
             // Store the active tab
             setActiveSettingsTab(tab.dataset.tab);
             renderSettingsContent(tab.dataset.tab);
@@ -3122,84 +3122,84 @@ function initializeEventListeners() {
             signup();
         });
     }
-    
+
 
 
     // Monkey Eye Tracking Functionality
     function initializeMonkeyEyeTracking() {
         const monkeyAvatar = document.getElementById('monkeyAvatar');
         const loginModal = document.getElementById('loginModal');
-        
+
         if (!monkeyAvatar || !loginModal) return;
-        
+
         let isTracking = false;
-        
+
         function startEyeTracking() {
             if (isTracking) return;
             isTracking = true;
             monkeyAvatar.classList.add('tracking');
-            
+
             function updateEyePosition(e) {
                 if (!loginModal.classList.contains('show')) {
                     stopEyeTracking();
                     return;
                 }
-                
+
                 const rect = monkeyAvatar.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
-                
+
                 const mouseX = e.clientX;
                 const mouseY = e.clientY;
-                
+
                 // Calculate angle from center to mouse
                 const deltaX = mouseX - centerX;
                 const deltaY = mouseY - centerY;
-                
+
                 // Limit eye movement range
                 const maxDistance = 2; // Maximum pixel movement for eyes
                 const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                 const limitedDistance = Math.min(distance, 100); // Limit how far eyes can look
-                
+
                 const normalizedX = (deltaX / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
                 const normalizedY = (deltaY / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
-                
+
                 // Apply eye movement
                 const leftEye = monkeyAvatar.querySelector('.monkey-eye-l');
                 const rightEye = monkeyAvatar.querySelector('.monkey-eye-r');
-                
+
                 if (leftEye && rightEye) {
                     leftEye.style.transform = `translate(${normalizedX}px, ${normalizedY}px)`;
                     rightEye.style.transform = `translate(${normalizedX}px, ${normalizedY}px)`;
                 }
             }
-            
+
             document.addEventListener('mousemove', updateEyePosition);
-            
+
             // Store the function reference for cleanup
             monkeyAvatar._eyeTrackingHandler = updateEyePosition;
         }
-        
+
         function stopEyeTracking() {
             if (!isTracking) return;
             isTracking = false;
             monkeyAvatar.classList.remove('tracking');
-            
+
             // Reset eye positions
             const leftEye = monkeyAvatar.querySelector('.monkey-eye-l');
             const rightEye = monkeyAvatar.querySelector('.monkey-eye-r');
-            
+
             if (leftEye && rightEye) {
                 leftEye.style.transform = '';
                 rightEye.style.transform = '';
             }
-            
+
             if (monkeyAvatar._eyeTrackingHandler) {
                 document.removeEventListener('mousemove', monkeyAvatar._eyeTrackingHandler);
                 delete monkeyAvatar._eyeTrackingHandler;
             }
         }
-        
+
         // Start tracking when modal is shown
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -3212,30 +3212,30 @@ function initializeEventListeners() {
                 }
             });
         });
-        
+
         observer.observe(loginModal, { attributes: true });
-        
+
         // Also check if modal is already shown
         if (loginModal.classList.contains('show')) {
             startEyeTracking();
         }
     }
-    
+
     // Initialize monkey eye tracking
     initializeMonkeyEyeTracking();
-    
+
     // Password visibility toggle functionality
     function initializePasswordToggle() {
         const blindCheck = document.getElementById('blind-input');
         const passwordInput = document.getElementById('password');
         const toggleBtn = document.getElementById('passwordToggleBtn');
-        
+
         if (!blindCheck || !passwordInput || !toggleBtn) return;
-        
+
         // Set initial title
         toggleBtn.title = 'Show password';
-        
-        blindCheck.addEventListener('change', function() {
+
+        blindCheck.addEventListener('change', function () {
             if (this.checked) {
                 passwordInput.type = 'text';
                 toggleBtn.title = 'Hide password';
@@ -3245,7 +3245,7 @@ function initializeEventListeners() {
             }
         });
     }
-    
+
     // Initialize password toggle
     initializePasswordToggle();
 
@@ -3258,7 +3258,7 @@ function initializeEventListeners() {
             }
         });
     });
-    
+
     // Profile modal event listeners
     const closeProfileBtn = document.getElementById('closeProfileBtn');
     if (closeProfileBtn) {
@@ -3266,16 +3266,16 @@ function initializeEventListeners() {
             modal.hide('profileModal');
         });
     }
-    
+
     const editProfileBtn = document.getElementById('editProfileBtn');
     if (editProfileBtn) {
         editProfileBtn.addEventListener('click', () => {
             toast.show('Profile editing coming soon', 'info');
         });
     }
-    
 
-    
+
+
     // Welcome modal event listeners
     const closeWelcomeBtn = document.getElementById('closeWelcomeBtn');
     if (closeWelcomeBtn) {
@@ -3283,7 +3283,7 @@ function initializeEventListeners() {
             modal.hide('welcomeModal');
         });
     }
-    
+
     const startChattingBtn = document.getElementById('startChattingBtn');
     if (startChattingBtn) {
         startChattingBtn.addEventListener('click', () => {
@@ -3344,7 +3344,7 @@ function initializeEventListeners() {
         try {
             console.log('🔄 Google sign-in clicked');
             console.log('Supabase client status:', !!supabase);
-            
+
             // Try to initialize Supabase if not already done
             if (!supabase) {
                 console.log('🔄 Supabase not initialized, attempting to force initialize...');
@@ -3354,31 +3354,31 @@ function initializeEventListeners() {
                     return toast.show('Authentication service not available. Please refresh the page.', 'error');
                 }
             }
-            
+
             if (!supabase) {
                 console.error('❌ Supabase client still not initialized after retry');
                 return toast.show('Supabase not initialized', 'error');
             }
-            
+
             console.log('✅ Supabase client available, attempting Google SSO login...');
-            
+
             // Set flag to indicate this is a fresh login attempt
             localStorage.setItem('sati_fresh_login', '1');
-            
-            const { data, error } = await supabase.auth.signInWithOAuth({ 
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: window.location.origin + '/'
                 }
             });
-            
+
             if (error) {
                 console.error('❌ Google login error:', error);
-                
+
                 // Check for the specific provider not enabled error
                 if (error.message && error.message.includes('provider is not enabled')) {
                     toast.show('Google login is not enabled in Supabase project settings. Please contact the administrator.', 'error', 8000);
-                    
+
                     // Show a more detailed message in the console for developers
                     console.warn('CONFIGURATION REQUIRED: Google OAuth provider needs to be enabled in Supabase dashboard.');
                     console.warn('Go to: Supabase Dashboard > Authentication > Providers > Google > Enable');
@@ -3399,7 +3399,7 @@ function initializeEventListeners() {
         try {
             console.log('🔄 GitHub sign-in clicked');
             console.log('Supabase client status:', !!supabase);
-            
+
             // Try to initialize Supabase if not already done
             if (!supabase) {
                 console.log('🔄 Supabase not initialized, attempting to force initialize...');
@@ -3409,24 +3409,24 @@ function initializeEventListeners() {
                     return toast.show('Authentication service not available. Please refresh the page.', 'error');
                 }
             }
-            
+
             if (!supabase) {
                 console.error('❌ Supabase client still not initialized after retry');
                 return toast.show('Supabase not initialized', 'error');
             }
-            
+
             console.log('✅ Supabase client available, attempting GitHub SSO login...');
-            
+
             // Set flag to indicate this is a fresh login attempt
             localStorage.setItem('sati_fresh_login', '1');
-            
-            const { data, error } = await supabase.auth.signInWithOAuth({ 
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'github',
                 options: {
                     redirectTo: window.location.origin + '/'
                 }
             });
-            
+
             if (error) {
                 console.error('❌ GitHub login error:', error);
                 console.log('Error details:', {
@@ -3435,11 +3435,11 @@ function initializeEventListeners() {
                     statusCode: error.statusCode,
                     details: error
                 });
-                
+
                 // Check for the specific provider not enabled error
                 if (error.message && error.message.includes('provider is not enabled')) {
                     toast.show('GitHub login is not enabled in Supabase project settings. Please contact the administrator.', 'error', 8000);
-                    
+
                     // Show a more detailed message in the console for developers
                     console.warn('CONFIGURATION REQUIRED: GitHub OAuth provider needs to be enabled in Supabase dashboard.');
                     console.warn('Go to: Supabase Dashboard > Authentication > Providers > GitHub > Enable');
@@ -3468,7 +3468,7 @@ function initializeEventListeners() {
     function addSSOEventListeners() {
         const googleBtn = document.getElementById('googleSSOBtn');
         const githubBtn = document.getElementById('githubSSOBtn');
-        
+
         // Add tooltips to explain SSO configuration if needed
         if (googleBtn) {
             googleBtn.title = "Sign in with Google";
@@ -3477,7 +3477,7 @@ function initializeEventListeners() {
                 googleBtn.hasListener = true;
             }
         }
-        
+
         if (githubBtn) {
             githubBtn.title = "Sign in with GitHub";
             if (!githubBtn.hasListener) {
@@ -3485,23 +3485,23 @@ function initializeEventListeners() {
                 githubBtn.hasListener = true;
             }
         }
-        
+
         // Check if we should show a message about SSO configuration
         checkSSOConfiguration();
     }
-    
+
     // Check if SSO providers are properly configured
     async function checkSSOConfiguration() {
         if (!supabase) return;
-        
+
         try {
             // Try to get the list of enabled auth providers
             const { data, error } = await supabase.auth.getSession();
-            
+
             // If we can't get the session, we'll assume SSO might not be configured
             if (error) {
                 console.warn('Could not verify SSO configuration:', error);
-                
+
                 // Add a note to the login form about possible SSO configuration issues
                 const ssoSection = document.querySelector('.sso-buttons');
                 if (ssoSection) {
@@ -3727,7 +3727,7 @@ async function signup() {
         if (!email || !password) {
             return toast.show('Please enter both email and password', 'error');
         }
-        
+
         if (password.length < 6) {
             return toast.show('Password must be at least 6 characters', 'error');
         }
@@ -3739,7 +3739,7 @@ async function signup() {
         }
 
         toast.show('Creating account...', 'info', 2000);
-        
+
         // Try to sign up with Supabase with additional options
         const { data, error } = await supabase.auth.signUp({
             email: email,
@@ -3754,26 +3754,26 @@ async function signup() {
                 emailRedirectTo: window.location.origin
             }
         });
-        
+
         console.log('Signup response:', data);
-        
+
         if (error) {
             console.error('Signup error:', error);
             toast.show('Signup failed: ' + error.message, 'error');
             return;
         }
-        
+
         // Check if email confirmation is required
         if (data?.user?.identities?.length === 0) {
             toast.show('This email is already registered. Please login instead.', 'info', 5000);
             return;
         }
-        
+
         // Check if email confirmation is required
         if (data?.user?.confirmed_at || data?.session) {
             // Auto-login if confirmation not required
             toast.show('Account created successfully! Logging you in...', 'success', 3000);
-            
+
             // Set user state
             let authProvider = 'email';
             if (data.user.app_metadata && data.user.app_metadata.provider) {
@@ -3787,19 +3787,19 @@ async function signup() {
             chatState.email = data.user.email;
             chatState.authProvider = authProvider;
             chatState.saveState();
-            
+
             // Set flag for welcome toast/console
             localStorage.setItem('sati_show_welcome', '1');
-            
+
             // Update login statistics
             updateLoginStats();
-            
+
             // Hide login modal
             modal.hide('loginModal');
-            
+
             // Update UI
             updateLoginStatus();
-            
+
             // Show welcome modal
             setTimeout(() => {
                 showWelcomeModal(chatState.username);
@@ -3807,7 +3807,7 @@ async function signup() {
         } else {
             // Show detailed confirmation instructions
             modal.hide('loginModal');
-            
+
             // Create and show a custom confirmation modal
             const confirmationModal = document.createElement('div');
             confirmationModal.className = 'modal-overlay';
@@ -3836,7 +3836,7 @@ async function signup() {
                 </div>
             `;
             document.body.appendChild(confirmationModal);
-            
+
             // Show the modal
             setTimeout(() => {
                 modal.show('emailConfirmationModal');
@@ -3860,7 +3860,7 @@ function getLoginAttempts(email) {
                 return attempts[email];
             }
         }
-        
+
         // If not in session, check localStorage for persistent data
         const storedAttempts = localStorage.getItem('sati_login_attempts');
         if (storedAttempts) {
@@ -3872,7 +3872,7 @@ function getLoginAttempts(email) {
                 return attempts[email];
             }
         }
-        
+
         // Check if user has attempts stored in Supabase profile
         if (supabase && chatState.isLoggedIn) {
             // We'll implement this in the future to store attempts in user metadata
@@ -3881,7 +3881,7 @@ function getLoginAttempts(email) {
     } catch (err) {
         console.error('Error reading login attempts:', err);
     }
-    
+
     // Default values if no data exists
     return {
         count: 0,
@@ -3896,10 +3896,10 @@ function updateSessionAttempts(email, data) {
         // Get all attempts from session
         const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
         const attempts = JSON.parse(sessionAttempts);
-        
+
         // Update for this email
         attempts[email] = data;
-        
+
         // Save back to sessionStorage
         sessionStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
     } catch (err) {
@@ -3912,17 +3912,17 @@ function updateLoginAttempts(email, data) {
     try {
         // Update session storage first
         updateSessionAttempts(email, data);
-        
+
         // Then update local storage for persistence
         const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
         const attempts = JSON.parse(storedAttempts);
-        
+
         // Update for this email
         attempts[email] = data;
-        
+
         // Save back to localStorage
         localStorage.setItem('sati_login_attempts', JSON.stringify(attempts));
-        
+
         // If user is logged in, we could also store this in Supabase user metadata
         // This would be implemented in the future
     } catch (err) {
@@ -3940,14 +3940,14 @@ async function login() {
         if (!email || !password) {
             return toast.show('Please enter both email and password', 'error');
         }
-        
+
         // Get stored login attempts for this email
         const attempts = getLoginAttempts(email);
         const now = Date.now();
-        
+
         // We no longer show any warnings on initial form load
         // Errors will only be shown during actual login attempts
-        
+
         // Reset lock if it has expired
         if (attempts.lockUntil > 0 && attempts.lockUntil < now) {
             attempts.lockUntil = 0;
@@ -3966,21 +3966,21 @@ async function login() {
 
                 if (error) {
                     console.error('Supabase login error:', error);
-                    
+
                     // Increment failed attempts
                     if (error.message.includes('Invalid login credentials')) {
                         attempts.count++;
                         attempts.lastAttempt = Date.now();
-                        
+
                         // Update the attempts in localStorage
                         updateLoginAttempts(email, attempts);
-                        
+
                         // Show appropriate message based on attempt count
                         if (attempts.count >= 3) {
                             // Add message below password field
                             addPasswordResetMessage(email, `${attempts.count} failed login attempts. Consider resetting your password.`);
-                            
-                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000, 
+
+                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000,
                                 [
                                     {
                                         text: 'Reset Password',
@@ -3988,12 +3988,12 @@ async function login() {
                                     }
                                 ]);
                         }
-                        
+
                         // Show appropriate message based on attempt count
                         if (attempts.count === 1) {
                             toast.show('Invalid email or password. Please try again.', 'error', 4000);
                         } else {
-                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000, 
+                            toast.show(`Invalid password. ${attempts.count} failed login attempts.`, 'error', 4000,
                                 [
                                     {
                                         text: 'Forgot Password?',
@@ -4002,7 +4002,7 @@ async function login() {
                                 ]);
                         }
                     } else if (error.message.includes('Email not confirmed')) {
-                        toast.show('Please confirm your email address before logging in. Check your inbox for a confirmation link.', 'warning', 5000, 
+                        toast.show('Please confirm your email address before logging in. Check your inbox for a confirmation link.', 'warning', 5000,
                             [
                                 {
                                     text: 'Resend Email',
@@ -4018,7 +4018,7 @@ async function login() {
                 // Login successful - completely reset attempts for this email
                 try {
                     console.log('Login successful, clearing attempts for:', email);
-                    
+
                     // Clear from session storage
                     const sessionAttempts = sessionStorage.getItem('sati_login_attempts') || '{}';
                     let sessionAttemptsObj = JSON.parse(sessionAttempts);
@@ -4026,7 +4026,7 @@ async function login() {
                         delete sessionAttemptsObj[email];
                         sessionStorage.setItem('sati_login_attempts', JSON.stringify(sessionAttemptsObj));
                     }
-                    
+
                     // Clear from local storage
                     const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
                     let attemptsObj = JSON.parse(storedAttempts);
@@ -4044,16 +4044,16 @@ async function login() {
                         console.error('Failed to remove login attempts:', e);
                     }
                 }
-                
+
                 // Remove any password reset message
                 removePasswordResetMessage();
-                
+
                 // Set flag to indicate this is a fresh login
                 localStorage.setItem('sati_fresh_login', '1');
-                
+
                 // The auth state change listener will handle the rest of the login process
                 console.log('Login successful, auth state change listener will handle the rest');
-                
+
             } catch (err) {
                 console.error('Supabase auth error:', err);
                 // Fall back to simple login if Supabase auth fails
@@ -4077,12 +4077,12 @@ function checkLoginFormState(email = '') {
             email = emailInput.value;
         }
     }
-    
+
     if (!email) return; // No email to check
-    
+
     // Remove any existing reset message
     removePasswordResetMessage();
-    
+
     // We no longer show any warnings on initial form load
     // Errors will only be shown during actual login attempts
 }
@@ -4091,14 +4091,14 @@ function checkLoginFormState(email = '') {
 function addPasswordResetMessage(email, message) {
     // Remove any existing message first
     removePasswordResetMessage();
-    
+
     // Get the password input's parent element (form-group)
     const passwordInput = document.getElementById('password');
     if (!passwordInput) return;
-    
+
     const formGroup = passwordInput.closest('.form-group');
     if (!formGroup) return;
-    
+
     // Create the message element
     const messageDiv = document.createElement('div');
     messageDiv.className = 'password-reset-message';
@@ -4106,10 +4106,10 @@ function addPasswordResetMessage(email, message) {
         <span class="error-message">${message}</span>
         <a href="#" class="reset-password-link">Reset password</a>
     `;
-    
+
     // Add the message after the form group
     formGroup.parentNode.insertBefore(messageDiv, formGroup.nextSibling);
-    
+
     // Add click event to the reset link
     const resetLink = messageDiv.querySelector('.reset-password-link');
     if (resetLink) {
@@ -4185,7 +4185,7 @@ function showPasswordResetModal(email) {
         </div>
     `;
     document.body.appendChild(resetModal);
-    
+
     // Show the modal
     modal.show('passwordResetModal');
 }
@@ -4205,9 +4205,9 @@ window.sendResetAndClose = sendResetAndClose;
 // Simple fallback login when Supabase is not available
 function fallbackLogin(email) {
     // Check if this is a fresh login or just a session restoration
-    const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' && 
-                               localStorage.getItem('sati_username') === email.split('@')[0];
-    
+    const isSessionRestoration = localStorage.getItem('sati_logged_in') === 'true' &&
+        localStorage.getItem('sati_username') === email.split('@')[0];
+
     chatState.isLoggedIn = true;
     let username5 = (typeof email === 'string' && email.includes('@')) ? email.split('@')[0] : email;
     chatState.username = username5;
@@ -4220,10 +4220,10 @@ function fallbackLogin(email) {
 
     // Hide login modal
     modal.hide('loginModal');
-    
+
     // Update UI
     updateLoginStatus();
-    
+
     // Only show welcome modal and toast for fresh logins, not session restorations
     if (!isSessionRestoration) {
         // Check if this is a fresh login triggered by user action
@@ -4232,10 +4232,10 @@ function fallbackLogin(email) {
             setTimeout(() => {
                 showWelcomeModal(chatState.username);
             }, 500);
-            
+
             // Show success toast
             toast.show('Logged in as guest with username: ' + chatState.username, 'success');
-            
+
             // Clear the fresh login flag
             localStorage.removeItem('sati_fresh_login');
         }
@@ -4247,7 +4247,7 @@ function updateLoginStats() {
     // Only update last login time if this is a fresh login
     if (localStorage.getItem('sati_fresh_login') === '1') {
         localStorage.setItem('sati_last_login', new Date().toISOString());
-        
+
         // Increment login count
         const currentCount = parseInt(localStorage.getItem('sati_login_count') || '0');
         localStorage.setItem('sati_login_count', (currentCount + 1).toString());
@@ -4262,15 +4262,15 @@ async function resendConfirmationEmail(email) {
         toast.show('Email address is required', 'error');
         return;
     }
-    
+
     if (!supabase) {
         toast.show('Authentication service not available', 'error');
         return;
     }
-    
+
     try {
         toast.show('Resending confirmation email...', 'info');
-        
+
         const { data, error } = await supabase.auth.resend({
             type: 'signup',
             email: email,
@@ -4278,13 +4278,13 @@ async function resendConfirmationEmail(email) {
                 emailRedirectTo: window.location.origin
             }
         });
-        
+
         if (error) {
             console.error('Error resending confirmation:', error);
             toast.show('Failed to resend: ' + error.message, 'error');
             return;
         }
-        
+
         toast.show('Confirmation email resent! Please check your inbox.', 'success', 5000);
     } catch (err) {
         console.error('Resend confirmation error:', err);
@@ -4298,25 +4298,25 @@ async function sendPasswordResetEmail(email) {
         toast.show('Email address is required', 'error');
         return false;
     }
-    
+
     if (!supabase) {
         toast.show('Authentication service not available', 'error');
         return false;
     }
-    
+
     try {
         toast.show('Sending password reset email...', 'info');
-        
+
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/?reset=true'
         });
-        
+
         if (error) {
             console.error('Error sending password reset:', error);
             toast.show('Failed to send reset email: ' + error.message, 'error');
             return false;
         }
-        
+
         // Mark that a reset email has been sent for this user
         try {
             const attempts = getLoginAttempts(email);
@@ -4325,7 +4325,7 @@ async function sendPasswordResetEmail(email) {
         } catch (err) {
             console.error('Error updating reset email status:', err);
         }
-        
+
         toast.show('Password reset email sent! Please check your inbox.', 'success', 5000);
         return true;
     } catch (err) {
@@ -4341,33 +4341,33 @@ async function handlePasswordReset(newPassword) {
         toast.show('Authentication service not available', 'error');
         return false;
     }
-    
+
     if (!newPassword || newPassword.length < 6) {
         toast.show('Please enter a password with at least 6 characters', 'error');
         return false;
     }
-    
+
     try {
         const { data, error } = await supabase.auth.updateUser({
             password: newPassword
         });
-        
+
         if (error) {
             console.error('Error resetting password:', error);
             toast.show('Failed to reset password: ' + error.message, 'error');
             return false;
         }
-        
+
         // Get user email from session
         const { data: sessionData } = await supabase.auth.getSession();
         if (sessionData?.session?.user?.email) {
             const email = sessionData.session.user.email;
-            
+
             // Reset login attempts for this email
             try {
                 const storedAttempts = localStorage.getItem('sati_login_attempts') || '{}';
                 const attempts = JSON.parse(storedAttempts);
-                
+
                 // Remove this email from attempts tracking
                 if (attempts[email]) {
                     delete attempts[email];
@@ -4377,7 +4377,7 @@ async function handlePasswordReset(newPassword) {
                 console.error('Error clearing login attempts:', err);
             }
         }
-        
+
         toast.show('Password has been reset successfully!', 'success', 5000);
         return true;
     } catch (err) {
@@ -4405,7 +4405,7 @@ async function logout() {
                 console.error('Supabase signout exception:', err);
             }
         }
-        
+
         // Always update local state regardless of Supabase result
         chatState.isLoggedIn = false;
         chatState.username = '';
@@ -4427,11 +4427,11 @@ function updateLoginStatus() {
         // Update login button to show logout
         icon.className = 'fas fa-sign-out-alt';
         text.textContent = 'Logout';
-        
+
         // Update profile avatar to show logged in state
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.add('logged-in');
-            
+
             // Remove any previous img
             const prevImg = elements.profileAvatar.querySelector('img.profile-photo');
             if (prevImg) prevImg.remove();
@@ -4458,7 +4458,7 @@ function updateLoginStatus() {
                 elements.profileAvatar.innerHTML = '<span class="avatar-text">?</span>';
             }
         }
-        
+
         // Update My Profile button text to show username
         const myProfileBtn = document.getElementById('myProfileBtn');
         if (myProfileBtn) {
@@ -4468,18 +4468,18 @@ function updateLoginStatus() {
         // Update login button to show login
         icon.className = 'fas fa-sign-in-alt';
         text.textContent = 'Login';
-        
+
         // Update profile avatar to show logged out state
         if (elements.profileAvatar) {
             elements.profileAvatar.classList.remove('logged-in');
-            
+
             // Remove any previous img
             const prevImg = elements.profileAvatar.querySelector('img.profile-photo');
             if (prevImg) prevImg.remove();
             // Reset avatar text
             elements.profileAvatar.innerHTML = '<span class="avatar-text">?</span>';
         }
-        
+
         // Reset My Profile button text
         const myProfileBtn = document.getElementById('myProfileBtn');
         if (myProfileBtn) {
@@ -4499,7 +4499,7 @@ function showProfileModal() {
 
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileActions = document.getElementById('profileActions');
-    
+
     // Defensive: Always re-read provider from current session if logged in
     async function updateProfileWithCurrentProvider() {
         if (chatState.isLoggedIn && supabase) {
@@ -4526,7 +4526,7 @@ function showProfileModal() {
             // Set username and email
             profileUsername.textContent = chatState.username || 'User';
             profileEmail.textContent = chatState.email || 'No email provided';
-            
+
             // Set avatar with first letter of username
             if (profileAvatarLarge) {
                 // Remove any previous img
@@ -4549,7 +4549,7 @@ function showProfileModal() {
                 }
                 profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
             }
-            
+
             // Calculate stats
             const chatCount = chatState.conversations.length;
             let messageCount = 0;
@@ -4558,17 +4558,17 @@ function showProfileModal() {
                     messageCount += conv.messages.length;
                 }
             });
-            
+
             // Update stats
             profileChatCount.textContent = chatCount;
             profileMessageCount.textContent = messageCount;
-            
+
             // Get login count from local storage or set default
             const loginCount = localStorage.getItem('sati_login_count') || 1;
             profileLoginCount.textContent = loginCount;
-            
 
-            
+
+
             // Update profile actions to show logout button
             if (profileActions) {
                 profileActions.innerHTML = `
@@ -4589,7 +4589,7 @@ function showProfileModal() {
             // Default values for logged out state
             profileUsername.textContent = 'Guest';
             profileEmail.textContent = 'Not logged in';
-            
+
             // Set default avatar
             if (profileAvatarLarge) {
                 // Remove any previous img
@@ -4598,11 +4598,11 @@ function showProfileModal() {
                 profileAvatarLarge.innerHTML = '?';
                 profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
             }
-            
+
             profileChatCount.textContent = chatState.conversations.length;
             profileMessageCount.textContent = '0';
             profileLoginCount.textContent = '0';
-            
+
             // Update profile actions to show login button
             if (profileActions) {
                 profileActions.innerHTML = `
@@ -4614,80 +4614,80 @@ function showProfileModal() {
         }
         // Show the modal
         modal.show('profileModal');
-        }
-        // Call the async update function
-        updateProfileWithCurrentProvider();
+    }
+    // Call the async update function
+    updateProfileWithCurrentProvider();
+}
+
+// Show welcome modal with personalized greeting
+function showWelcomeModal(username) {
+    const welcomeUsername = document.getElementById('welcomeUsername');
+    const welcomeHeading = document.getElementById('welcomeHeading');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+
+    // Set username
+    welcomeUsername.textContent = username || 'User';
+
+    // Determine if this is first login or return user
+    const isFirstLogin = !localStorage.getItem('sati_last_login');
+
+    if (isFirstLogin) {
+        welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
+        welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
+
+        // Show a welcome toast for first-time users
+        showWelcomeToast(username, true);
+    } else {
+        welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
+        welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
+
+        // Show a welcome back toast for returning users
+        showWelcomeToast(username, false);
     }
 
-    // Show welcome modal with personalized greeting
-    function showWelcomeModal(username) {
-        const welcomeUsername = document.getElementById('welcomeUsername');
-        const welcomeHeading = document.getElementById('welcomeHeading');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        
-        // Set username
-        welcomeUsername.textContent = username || 'User';
-        
-        // Determine if this is first login or return user
-        const isFirstLogin = !localStorage.getItem('sati_last_login');
-        
-        if (isFirstLogin) {
-            welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
-            welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
-            
-            // Show a welcome toast for first-time users
-            showWelcomeToast(username, true);
-        } else {
-            welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
-            welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
-            
-            // Show a welcome back toast for returning users
-            showWelcomeToast(username, false);
-        }
-        
-        // Show the modal for all fresh logins (both first-time and returning users)
-        modal.show('welcomeModal');
+    // Show the modal for all fresh logins (both first-time and returning users)
+    modal.show('welcomeModal');
+}
+
+// Show welcome toast notification
+function showWelcomeToast(username, isFirstLogin) {
+    // Get the current time to personalize the greeting
+    const currentHour = new Date().getHours();
+    let timeGreeting = 'Hello';
+
+    if (currentHour < 12) {
+        timeGreeting = 'Good morning';
+    } else if (currentHour < 18) {
+        timeGreeting = 'Good afternoon';
+    } else {
+        timeGreeting = 'Good evening';
     }
 
-    // Show welcome toast notification
-    function showWelcomeToast(username, isFirstLogin) {
-        // Get the current time to personalize the greeting
-        const currentHour = new Date().getHours();
-        let timeGreeting = 'Hello';
-        
-        if (currentHour < 12) {
-            timeGreeting = 'Good morning';
-        } else if (currentHour < 18) {
-            timeGreeting = 'Good afternoon';
-        } else {
-            timeGreeting = 'Good evening';
-        }
-        
-        // Create different messages for first-time vs returning users
-        let message = '';
-        
-        if (isFirstLogin) {
-            message = `👋 ${timeGreeting}, ${username}! Welcome to SATI ChatBot`;
-        } else {
-            message = `👋 ${timeGreeting}, ${username}! Welcome back`;
-        }
-        
-        // Show the toast with a longer duration (5 seconds)
-        toast.show(message, 'success', 5000);
+    // Create different messages for first-time vs returning users
+    let message = '';
+
+    if (isFirstLogin) {
+        message = `👋 ${timeGreeting}, ${username}! Welcome to SATI ChatBot`;
+    } else {
+        message = `👋 ${timeGreeting}, ${username}! Welcome back`;
     }
 
+    // Show the toast with a longer duration (5 seconds)
+    toast.show(message, 'success', 5000);
+}
 
-    // Initialize sidebar toggle button position
-    function initializeSidebarToggle() {
-        const sidebar = elements.sidebar;
 
-        if (!sidebar) return;
+// Initialize sidebar toggle button position
+function initializeSidebarToggle() {
+    const sidebar = elements.sidebar;
 
-        // Initialize hover trigger for desktop if sidebar is collapsed
-        if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
-            createHoverTrigger();
-        }
+    if (!sidebar) return;
+
+    // Initialize hover trigger for desktop if sidebar is collapsed
+    if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
+        createHoverTrigger();
     }
+}
 
 // Update theme menu selection
 function updateThemeMenuSelection() {
@@ -4712,7 +4712,7 @@ function updateThemeToggleButton() {
 // Show theme change toast message
 function showThemeChangeToast(newTheme, oldTheme) {
     let message = 'Theme updated';
-    
+
     if (newTheme === 'dark') {
         message = 'Switched to dark theme';
     } else if (newTheme === 'light') {
@@ -4720,7 +4720,7 @@ function showThemeChangeToast(newTheme, oldTheme) {
     } else if (newTheme === 'system') {
         message = 'Switched to system default theme';
     }
-    
+
     // Show toast if toast system is available
     if (typeof toast !== 'undefined' && toast.show) {
         toast.show(message, 'success');
@@ -4729,21 +4729,108 @@ function showThemeChangeToast(newTheme, oldTheme) {
     }
 }
 
-    // Check if user is already logged in with Supabase
-    async function checkExistingSession() {
-        if (!supabase) return false;
-        
-        try {
+// Check if user is already logged in with Supabase
+async function checkExistingSession() {
+    if (!supabase) return false;
+
+    try {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+            console.error('Error checking session:', error);
+            return false;
+        }
+
+        if (data.session) {
+            console.log('✅ User already has an active session');
+
+            // Set user state
+            let authProvider = 'email';
+            if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
+                authProvider = data.session.user.app_metadata.provider;
+            }
+            // Extract profile photo from user_metadata
+            if (data.session.user.user_metadata) {
+                if (authProvider === 'google' && data.session.user.user_metadata.picture) {
+                    chatState.profilePhoto = data.session.user.user_metadata.picture;
+                } else if (authProvider === 'github' && data.session.user.user_metadata.avatar_url) {
+                    chatState.profilePhoto = data.session.user.user_metadata.avatar_url;
+                }
+            }
+            chatState.isLoggedIn = true;
+            let username2 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
+                ? data.session.user.user_metadata.username
+                : (data.session.user.email ? data.session.user.email.split('@')[0] : data.session.user.id);
+            chatState.username = username2;
+            chatState.email = data.session.user.email;
+            chatState.authProvider = authProvider;
+            chatState.saveState();
+
+            // Initialize Supabase storage and load conversations
+            if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
+                window.supabaseDB.setCurrentUserEmail(data.session.user.email);
+                chatState.initSupabaseStorage();
+
+                // Load conversations from Supabase
+                chatState.loadConversationsFromSupabase().then(() => {
+                    console.log('✅ Conversations loaded for existing session');
+                });
+            }
+
+            // Update UI
+            updateLoginStatus();
+            afterLoginOrSignup();
+
+            return true;
+        }
+
+        return false;
+    } catch (err) {
+        console.error('Session check error:', err);
+        return false;
+    }
+}
+
+// Handle email verification and password reset when user returns from email link
+async function handleEmailVerification() {
+    if (!supabase) return false;
+
+    try {
+        // Check URL parameters for password reset
+        const urlParams = new URLSearchParams(window.location.search);
+        const isReset = urlParams.get('reset') === 'true';
+
+        // Check if we have a hash in the URL that might be from email verification or password reset
+        const hash = window.location.hash;
+        if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
+            console.log('Detected auth hash in URL, processing...');
+
+            // Process the hash
             const { data, error } = await supabase.auth.getSession();
-            
+
             if (error) {
-                console.error('Error checking session:', error);
+                console.error('Error processing verification:', error);
+                toast.show('Verification failed: ' + error.message, 'error', 5000);
                 return false;
             }
-            
-            if (data.session) {
-                console.log('✅ User already has an active session');
-                
+
+            if (data?.session) {
+                // Check if this is a password reset
+                if (hash.includes('type=recovery') || isReset) {
+                    console.log('✅ Password reset link verified!');
+
+                    // Show password reset form
+                    showPasswordUpdateModal();
+
+                    // Clear the hash and params from URL to prevent reprocessing
+                    window.history.replaceState(null, null, window.location.pathname);
+
+                    return true;
+                }
+
+                // Otherwise, it's an email verification
+                console.log('✅ Email verified successfully!');
+
                 // Set user state
                 let authProvider = 'email';
                 if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
@@ -4758,134 +4845,47 @@ function showThemeChangeToast(newTheme, oldTheme) {
                     }
                 }
                 chatState.isLoggedIn = true;
-                let username2 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
+                let username3 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
                     ? data.session.user.user_metadata.username
                     : (data.session.user.email ? data.session.user.email.split('@')[0] : data.session.user.id);
-                chatState.username = username2;
+                chatState.username = username3;
                 chatState.email = data.session.user.email;
                 chatState.authProvider = authProvider;
                 chatState.saveState();
-                
-                // Initialize Supabase storage and load conversations
-                if (window.supabaseDB && window.supabaseDB.setCurrentUserEmail) {
-                    window.supabaseDB.setCurrentUserEmail(data.session.user.email);
-                    chatState.initSupabaseStorage();
-                    
-                    // Load conversations from Supabase
-                    chatState.loadConversationsFromSupabase().then(() => {
-                        console.log('✅ Conversations loaded for existing session');
-                    });
-                }
-                
+
+                // Update login statistics
+                updateLoginStats();
+
                 // Update UI
                 updateLoginStatus();
                 afterLoginOrSignup();
-                
+
+                // Show welcome modal
+                setTimeout(() => {
+                    showWelcomeModal(chatState.username);
+                    toast.show('Email verified successfully! Welcome to SATI ChatBot.', 'success', 5000);
+                }, 500);
+
+                // Clear the hash from URL to prevent reprocessing
+                window.history.replaceState(null, null, window.location.pathname);
+
                 return true;
             }
-            
-            return false;
-        } catch (err) {
-            console.error('Session check error:', err);
-            return false;
         }
+        return false;
+    } catch (err) {
+        console.error('Email verification error:', err);
+        return false;
     }
+}
 
-    // Handle email verification and password reset when user returns from email link
-    async function handleEmailVerification() {
-        if (!supabase) return false;
-        
-        try {
-            // Check URL parameters for password reset
-            const urlParams = new URLSearchParams(window.location.search);
-            const isReset = urlParams.get('reset') === 'true';
-            
-            // Check if we have a hash in the URL that might be from email verification or password reset
-            const hash = window.location.hash;
-            if (hash && (hash.includes('type=signup') || hash.includes('type=recovery'))) {
-                console.log('Detected auth hash in URL, processing...');
-                
-                // Process the hash
-                const { data, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error('Error processing verification:', error);
-                    toast.show('Verification failed: ' + error.message, 'error', 5000);
-                    return false;
-                }
-                
-                if (data?.session) {
-                    // Check if this is a password reset
-                    if (hash.includes('type=recovery') || isReset) {
-                        console.log('✅ Password reset link verified!');
-                        
-                        // Show password reset form
-                        showPasswordUpdateModal();
-                        
-                        // Clear the hash and params from URL to prevent reprocessing
-                        window.history.replaceState(null, null, window.location.pathname);
-                        
-                        return true;
-                    }
-                    
-                    // Otherwise, it's an email verification
-                    console.log('✅ Email verified successfully!');
-                    
-                    // Set user state
-                    let authProvider = 'email';
-                    if (data.session.user.app_metadata && data.session.user.app_metadata.provider) {
-                        authProvider = data.session.user.app_metadata.provider;
-                    }
-                    // Extract profile photo from user_metadata
-                    if (data.session.user.user_metadata) {
-                        if (authProvider === 'google' && data.session.user.user_metadata.picture) {
-                            chatState.profilePhoto = data.session.user.user_metadata.picture;
-                        } else if (authProvider === 'github' && data.session.user.user_metadata.avatar_url) {
-                            chatState.profilePhoto = data.session.user.user_metadata.avatar_url;
-                        }
-                    }
-                    chatState.isLoggedIn = true;
-                    let username3 = (data.session.user.user_metadata && data.session.user.user_metadata.username)
-                        ? data.session.user.user_metadata.username
-                        : (data.session.user.email ? data.session.user.email.split('@')[0] : data.session.user.id);
-                    chatState.username = username3;
-                    chatState.email = data.session.user.email;
-                    chatState.authProvider = authProvider;
-                    chatState.saveState();
-                    
-                    // Update login statistics
-                    updateLoginStats();
-                    
-                    // Update UI
-                    updateLoginStatus();
-                    afterLoginOrSignup();
-                    
-                    // Show welcome modal
-                    setTimeout(() => {
-                        showWelcomeModal(chatState.username);
-                        toast.show('Email verified successfully! Welcome to SATI ChatBot.', 'success', 5000);
-                    }, 500);
-                    
-                    // Clear the hash from URL to prevent reprocessing
-                    window.history.replaceState(null, null, window.location.pathname);
-                    
-                    return true;
-                }
-            }
-            return false;
-        } catch (err) {
-            console.error('Email verification error:', err);
-            return false;
-        }
-    }
-
-    // Show password update modal after reset
-    function showPasswordUpdateModal() {
-        // Create and show a custom password update modal
-        const resetModal = document.createElement('div');
-        resetModal.className = 'modal-overlay';
-        resetModal.id = 'passwordUpdateModal';
-        resetModal.innerHTML = `
+// Show password update modal after reset
+function showPasswordUpdateModal() {
+    // Create and show a custom password update modal
+    const resetModal = document.createElement('div');
+    resetModal.className = 'modal-overlay';
+    resetModal.id = 'passwordUpdateModal';
+    resetModal.innerHTML = `
             <div class="modal-container">
                 <div class="modal-header">
                     <h2>🔐 Set New Password</h2>
@@ -4913,866 +4913,866 @@ function showThemeChangeToast(newTheme, oldTheme) {
                 </div>
             </div>
         `;
-        document.body.appendChild(resetModal);
-        
-        // Add form submission handler
-        const form = resetModal.querySelector('#passwordUpdateForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (newPassword !== confirmPassword) {
-                toast.show('Passwords do not match', 'error');
-                return;
-            }
-            
-            const success = await handlePasswordReset(newPassword);
-            if (success) {
-                modal.hide('passwordUpdateModal');
-                
-                // Show login modal after successful password reset
-                setTimeout(() => {
-                    modal.show('loginModal');
-                    toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
-                }, 500);
-            }
-        });
-        
-        // Show the modal
-        modal.show('passwordUpdateModal');
-    }
+    document.body.appendChild(resetModal);
 
-    // Initialize Cool Mode for login buttons
-    // Applies particle effects to Login, Sign Up, Google, GitHub, and Continue as Guest buttons
-    function initializeCoolMode() {
-        try {
-            // Wait for cool mode to be available
-            if (typeof window.coolMode === 'undefined') {
-                console.warn('⚠️ Cool Mode not available, retrying...');
-                setTimeout(initializeCoolMode, 100);
-                return;
-            }
+    // Add form submission handler
+    const form = resetModal.querySelector('#passwordUpdateForm');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            // Apply cool mode to login buttons
-            const loginButtons = [
-                '.login-btn',           // Login and Sign Up buttons
-                '#googleSSOBtn',        // Google SSO button
-                '#githubSSOBtn'         // GitHub SSO button
-            ];
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // Apply cool mode to each button type with different options
-            loginButtons.forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(element => {
-                    if (element && !element.hasAttribute('data-cool-mode-applied')) {
-                        // Different particle options for different button types
-                        let options = {};
-                        
-                        if (selector.includes('google')) {
-                            options = {
-                                particleCount: 30,
-                                speedHorz: 8,
-                                speedUp: 20,
-                                size: 25
-                            };
-                        } else if (selector.includes('github')) {
-                            options = {
-                                particleCount: 35,
-                                speedHorz: 10,
-                                speedUp: 25,
-                                size: 30
-                            };
-                        } else {
-                            // Default for Login/Sign Up buttons
-                            options = {
-                                particleCount: 25,
-                                speedHorz: 6,
-                                speedUp: 18,
-                                size: 20
-                            };
-                        }
-
-                        // Apply the cool mode effect
-                        window.coolMode.applyParticleEffect(element, options);
-                        
-                        // Mark as applied to avoid duplicate applications
-                        element.setAttribute('data-cool-mode-applied', 'true');
-                        
-                        console.log(`✨ Cool Mode applied to: ${selector}`);
-                    }
-                });
-            });
-
-            console.log('✅ Cool Mode initialization completed');
-            
-        } catch (error) {
-            console.error('❌ Error initializing Cool Mode:', error);
+        if (newPassword !== confirmPassword) {
+            toast.show('Passwords do not match', 'error');
+            return;
         }
-    }
 
-    // Initialize Application
-    function initializeApp() {
-        try {
-            // Initialize DOM elements first
-            initializeElements();
-            
-            // Initialize Supabase client
-            let supabaseInitialized = false;
-            
-            // Try to initialize Supabase with a retry mechanism
-            const initSupabaseWithRetry = (retries = 3) => {
-                supabaseInitialized = initializeSupabase();
-                
-                if (supabaseInitialized) {
-                    console.log('✅ Supabase client initialized successfully');
-                    
-                    // Now that Supabase is initialized and all functions are defined,
-                    // we can set up the auth state listener
-                    if (typeof listenForAuthChanges === 'function') {
-                        listenForAuthChanges();
-                        console.log('✅ Supabase auth listener set up');
-                        
-                        // Check for email verification first
-                        handleEmailVerification().then(verified => {
-                            if (!verified) {
-                                // If not verified, check if user is already logged in
-                                checkExistingSession().then(isLoggedIn => {
-                                    console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
-                                });
-                            }
-                        });
+        const success = await handlePasswordReset(newPassword);
+        if (success) {
+            modal.hide('passwordUpdateModal');
+
+            // Show login modal after successful password reset
+            setTimeout(() => {
+                modal.show('loginModal');
+                toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
+            }, 500);
+        }
+    });
+
+    // Show the modal
+    modal.show('passwordUpdateModal');
+}
+
+// Initialize Cool Mode for login buttons
+// Applies particle effects to Login, Sign Up, Google, GitHub, and Continue as Guest buttons
+function initializeCoolMode() {
+    try {
+        // Wait for cool mode to be available
+        if (typeof window.coolMode === 'undefined') {
+            console.warn('⚠️ Cool Mode not available, retrying...');
+            setTimeout(initializeCoolMode, 100);
+            return;
+        }
+
+        // Apply cool mode to login buttons
+        const loginButtons = [
+            '.login-btn',           // Login and Sign Up buttons
+            '#googleSSOBtn',        // Google SSO button
+            '#githubSSOBtn'         // GitHub SSO button
+        ];
+
+        // Apply cool mode to each button type with different options
+        loginButtons.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (element && !element.hasAttribute('data-cool-mode-applied')) {
+                    // Different particle options for different button types
+                    let options = {};
+
+                    if (selector.includes('google')) {
+                        options = {
+                            particleCount: 30,
+                            speedHorz: 8,
+                            speedUp: 20,
+                            size: 25
+                        };
+                    } else if (selector.includes('github')) {
+                        options = {
+                            particleCount: 35,
+                            speedHorz: 10,
+                            speedUp: 25,
+                            size: 30
+                        };
                     } else {
-                        console.warn('⚠️ Auth listener function not found');
+                        // Default for Login/Sign Up buttons
+                        options = {
+                            particleCount: 25,
+                            speedHorz: 6,
+                            speedUp: 18,
+                            size: 20
+                        };
                     }
-                    
-                } else if (retries > 0) {
-                    console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
-                    setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
-                } else {
-                    console.error('❌ Supabase client initialization failed after multiple attempts - SSO login may not work');
+
+                    // Apply the cool mode effect
+                    window.coolMode.applyParticleEffect(element, options);
+
+                    // Mark as applied to avoid duplicate applications
+                    element.setAttribute('data-cool-mode-applied', 'true');
+
+                    console.log(`✨ Cool Mode applied to: ${selector}`);
                 }
-            };
-            
-            // Start initialization with retries
-            initSupabaseWithRetry();
-            
-            // Wait for API manager to be ready before initializing model select
-            const initializeWithApiManager = () => {
-                if (window.apiManager) {
-                    // Initialize main model select with proper options
-                    updateMainModelSelect();
-                    console.log('✅ Model selection initialized');
-                } else {
-                    console.log('⚠️ API Manager not ready, retrying in 500ms...');
-                    setTimeout(initializeWithApiManager, 500);
-                }
-            };
-            
-            // Start initialization
-            initializeWithApiManager();
-
-            // Update login status
-            updateLoginStatus();
-
-            // Render initial state
-            chatManager.renderMessages();
-            updateConversationsList();
-            
-            // Clear guest conversations if user is not logged in
-            if (!chatState.isLoggedIn) {
-                console.log('👤 Guest mode detected - clearing any stored conversations');
-                chatState.conversations = [];
-                localStorage.removeItem('sati_conversations');
-                updateConversationsList();
-            }
-            
-            // Clear guest conversations if user is not logged in
-            if (!chatState.isLoggedIn) {
-                console.log('👤 Guest mode detected - clearing any stored conversations');
-                chatState.conversations = [];
-                localStorage.removeItem('sati_conversations');
-                updateConversationsList();
-            }
-
-            // Initialize event listeners
-            initializeEventListeners();
-
-            // Initialize Cool Mode for login buttons
-            initializeCoolMode();
-
-            // Apply saved theme and update theme toggle button
-            updateThemeToggleButton();
-
-            // Initialize sidebar toggle button position
-            initializeSidebarToggle();
-
-
-
-            // Mobile-specific initialization
-            if (window.innerWidth <= 768) {
-                initializeMobileLayout();
-            }
-
-            // Focus message input (delay for mobile)
-            if (elements.messageInput) {
-                if (window.innerWidth <= 768) {
-                    // Small delay for mobile to ensure layout is stable
-                    setTimeout(() => {
-                        elements.messageInput.focus();
-                    }, 100);
-                } else {
-                    elements.messageInput.focus();
-                }
-            }
-
-            console.log('SATI ChatBot initialized successfully');
-        } catch (error) {
-            console.error('Error initializing SATI ChatBot:', error);
-        }
-    }
-
-    // Mobile-specific initialization
-    function initializeMobileLayout() {
-        try {
-            // Ensure all elements are visible
-            const topBar = document.querySelector('.top-bar');
-            const mainContent = document.querySelector('.main-content');
-            const inputArea = document.querySelector('.input-area');
-            const chatWindow = document.querySelector('.chat-window');
-
-            if (topBar) {
-                topBar.style.display = 'flex';
-                topBar.style.visibility = 'visible';
-                topBar.style.opacity = '1';
-            }
-
-            if (mainContent) {
-                mainContent.style.display = 'flex';
-                mainContent.style.visibility = 'visible';
-                mainContent.style.opacity = '1';
-            }
-
-            if (inputArea) {
-                inputArea.style.display = 'block';
-                inputArea.style.visibility = 'visible';
-                inputArea.style.opacity = '1';
-            }
-
-            if (chatWindow) {
-                chatWindow.style.display = 'flex';
-                chatWindow.style.visibility = 'visible';
-                chatWindow.style.opacity = '1';
-            }
-
-            // Force layout recalculation
-            document.body.offsetHeight;
-
-            // Ensure proper viewport height calculation
-            const setVH = () => {
-                const vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-            };
-
-            setVH();
-            window.addEventListener('resize', setVH);
-            window.addEventListener('orientationchange', () => {
-                setTimeout(setVH, 100);
             });
+        });
 
-        } catch (error) {
-            console.error('Error initializing mobile layout:', error);
-        }
+        console.log('✅ Cool Mode initialization completed');
+
+    } catch (error) {
+        console.error('❌ Error initializing Cool Mode:', error);
     }
+}
 
-    // Start the application when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initializeApp);
+// Initialize Application
+function initializeApp() {
+    try {
+        // Initialize DOM elements first
+        initializeElements();
 
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        const sidebar = elements.sidebar;
-        const appContainer = document.getElementById('appContainer');
-        const sidebarToggle = elements.sidebarToggle;
+        // Initialize Supabase client
+        let supabaseInitialized = false;
 
-        if (window.innerWidth > 768) {
-            // Desktop mode
-            sidebar.classList.remove('show');
-            appContainer.classList.remove('sidebar-open');
+        // Try to initialize Supabase with a retry mechanism
+        const initSupabaseWithRetry = (retries = 3) => {
+            supabaseInitialized = initializeSupabase();
 
-            // Clean up mobile click outside behavior
-            cleanupMobileClickOutside();
+            if (supabaseInitialized) {
+                console.log('✅ Supabase client initialized successfully');
 
-            // Maintain collapsed state and hover trigger
-            if (sidebar.classList.contains('collapsed')) {
-                createHoverTrigger();
+                // Now that Supabase is initialized and all functions are defined,
+                // we can set up the auth state listener
+                if (typeof listenForAuthChanges === 'function') {
+                    listenForAuthChanges();
+                    console.log('✅ Supabase auth listener set up');
+
+                    // Check for email verification first
+                    handleEmailVerification().then(verified => {
+                        if (!verified) {
+                            // If not verified, check if user is already logged in
+                            checkExistingSession().then(isLoggedIn => {
+                                console.log('Session check result:', isLoggedIn ? 'User is logged in' : 'No active session');
+                            });
+                        }
+                    });
+                } else {
+                    console.warn('⚠️ Auth listener function not found');
+                }
+
+            } else if (retries > 0) {
+                console.warn(`⚠️ Supabase initialization failed, retrying... (${retries} attempts left)`);
+                setTimeout(() => initSupabaseWithRetry(retries - 1), 500);
             } else {
-                // Reset toggle button position for expanded sidebar
-                sidebarToggle.style.left = '';
-                sidebarToggle.style.transition = '';
-                removeHoverTrigger();
+                console.error('❌ Supabase client initialization failed after multiple attempts - SSO login may not work');
             }
+        };
+
+        // Start initialization with retries
+        initSupabaseWithRetry();
+
+        // Wait for API manager to be ready before initializing model select
+        const initializeWithApiManager = () => {
+            if (window.apiManager) {
+                // Initialize main model select with proper options
+                updateMainModelSelect();
+                console.log('✅ Model selection initialized');
+            } else {
+                console.log('⚠️ API Manager not ready, retrying in 500ms...');
+                setTimeout(initializeWithApiManager, 500);
+            }
+        };
+
+        // Start initialization
+        initializeWithApiManager();
+
+        // Update login status
+        updateLoginStatus();
+
+        // Render initial state
+        chatManager.renderMessages();
+        updateConversationsList();
+
+        // Clear guest conversations if user is not logged in
+        if (!chatState.isLoggedIn) {
+            console.log('👤 Guest mode detected - clearing any stored conversations');
+            chatState.conversations = [];
+            localStorage.removeItem('sati_conversations');
+            updateConversationsList();
+        }
+
+        // Clear guest conversations if user is not logged in
+        if (!chatState.isLoggedIn) {
+            console.log('👤 Guest mode detected - clearing any stored conversations');
+            chatState.conversations = [];
+            localStorage.removeItem('sati_conversations');
+            updateConversationsList();
+        }
+
+        // Initialize event listeners
+        initializeEventListeners();
+
+        // Initialize Cool Mode for login buttons
+        initializeCoolMode();
+
+        // Apply saved theme and update theme toggle button
+        updateThemeToggleButton();
+
+        // Initialize sidebar toggle button position
+        initializeSidebarToggle();
+
+
+
+        // Mobile-specific initialization
+        if (window.innerWidth <= 768) {
+            initializeMobileLayout();
+        }
+
+        // Focus message input (delay for mobile)
+        if (elements.messageInput) {
+            if (window.innerWidth <= 768) {
+                // Small delay for mobile to ensure layout is stable
+                setTimeout(() => {
+                    elements.messageInput.focus();
+                }, 100);
+            } else {
+                elements.messageInput.focus();
+            }
+        }
+
+        console.log('SATI ChatBot initialized successfully');
+    } catch (error) {
+        console.error('Error initializing SATI ChatBot:', error);
+    }
+}
+
+// Mobile-specific initialization
+function initializeMobileLayout() {
+    try {
+        // Ensure all elements are visible
+        const topBar = document.querySelector('.top-bar');
+        const mainContent = document.querySelector('.main-content');
+        const inputArea = document.querySelector('.input-area');
+        const chatWindow = document.querySelector('.chat-window');
+
+        if (topBar) {
+            topBar.style.display = 'flex';
+            topBar.style.visibility = 'visible';
+            topBar.style.opacity = '1';
+        }
+
+        if (mainContent) {
+            mainContent.style.display = 'flex';
+            mainContent.style.visibility = 'visible';
+            mainContent.style.opacity = '1';
+        }
+
+        if (inputArea) {
+            inputArea.style.display = 'block';
+            inputArea.style.visibility = 'visible';
+            inputArea.style.opacity = '1';
+        }
+
+        if (chatWindow) {
+            chatWindow.style.display = 'flex';
+            chatWindow.style.visibility = 'visible';
+            chatWindow.style.opacity = '1';
+        }
+
+        // Force layout recalculation
+        document.body.offsetHeight;
+
+        // Ensure proper viewport height calculation
+        const setVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(setVH, 100);
+        });
+
+    } catch (error) {
+        console.error('Error initializing mobile layout:', error);
+    }
+}
+
+// Start the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    const sidebar = elements.sidebar;
+    const appContainer = document.getElementById('appContainer');
+    const sidebarToggle = elements.sidebarToggle;
+
+    if (window.innerWidth > 768) {
+        // Desktop mode
+        sidebar.classList.remove('show');
+        appContainer.classList.remove('sidebar-open');
+
+        // Clean up mobile click outside behavior
+        cleanupMobileClickOutside();
+
+        // Maintain collapsed state and hover trigger
+        if (sidebar.classList.contains('collapsed')) {
+            createHoverTrigger();
         } else {
-            // Mobile mode
-            sidebar.classList.remove('collapsed');
-            appContainer.classList.remove('sidebar-collapsed');
-
-            // Reset any hover transforms
-            sidebar.style.transform = '';
-            sidebar.style.boxShadow = '';
-
-            // Reset toggle button position on mobile
+            // Reset toggle button position for expanded sidebar
             sidebarToggle.style.left = '';
             sidebarToggle.style.transition = '';
-
-            // Handle mobile toggle translation
-            handleMobileToggleTranslation();
-
-            // Remove hover trigger on mobile
             removeHoverTrigger();
-
-            // Setup mobile click outside behavior if sidebar is open
-            if (sidebar.classList.contains('show')) {
-                setupMobileClickOutside();
-            }
         }
+    } else {
+        // Mobile mode
+        sidebar.classList.remove('collapsed');
+        appContainer.classList.remove('sidebar-collapsed');
 
-    });
+        // Reset any hover transforms
+        sidebar.style.transform = '';
+        sidebar.style.boxShadow = '';
 
-    // Handle page visibility change
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            // Refresh conversations list when page becomes visible
-            updateConversationsList();
-            // Also refresh saved chats if modal is open
-            const savedChatsModal = document.getElementById('savedChatsModal');
-            if (savedChatsModal && savedChatsModal.classList.contains('show')) {
-                updateSavedChatsList();
-            }
+        // Reset toggle button position on mobile
+        sidebarToggle.style.left = '';
+        sidebarToggle.style.transition = '';
+
+        // Handle mobile toggle translation
+        handleMobileToggleTranslation();
+
+        // Remove hover trigger on mobile
+        removeHoverTrigger();
+
+        // Setup mobile click outside behavior if sidebar is open
+        if (sidebar.classList.contains('show')) {
+            setupMobileClickOutside();
         }
-    });
+    }
 
-    // Handle window focus to ensure UI sync when switching tabs
-    window.addEventListener('focus', () => {
-        // Refresh both conversation lists when window gains focus
+});
+
+// Handle page visibility change
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        // Refresh conversations list when page becomes visible
         updateConversationsList();
         // Also refresh saved chats if modal is open
         const savedChatsModal = document.getElementById('savedChatsModal');
         if (savedChatsModal && savedChatsModal.classList.contains('show')) {
             updateSavedChatsList();
         }
-    });
+    }
+});
 
-    // Clean up event listeners when page is unloaded
-    window.addEventListener('beforeunload', () => {
-        cleanupMobileClickOutside();
-        cleanupToggleHoverBehavior();
-    });
+// Handle window focus to ensure UI sync when switching tabs
+window.addEventListener('focus', () => {
+    // Refresh both conversation lists when window gains focus
+    updateConversationsList();
+    // Also refresh saved chats if modal is open
+    const savedChatsModal = document.getElementById('savedChatsModal');
+    if (savedChatsModal && savedChatsModal.classList.contains('show')) {
+        updateSavedChatsList();
+    }
+});
 
-    // Export for potential external use
-    window.SATIChatBot = {
-        state: chatState,
-        chat: chatManager,
-        modal: modal,
-        toast: toast,
-        utils: utils
-    };
+// Clean up event listeners when page is unloaded
+window.addEventListener('beforeunload', () => {
+    cleanupMobileClickOutside();
+    cleanupToggleHoverBehavior();
+});
 
-    // Debug function to test Supabase connection
-    window.debugSupabase = function() {
-        console.log('=== SUPABASE DEBUG INFO ===');
-        console.log('window.supabase (CDN):', !!window.supabase);
-        console.log('supabase client instance:', !!supabase);
-        console.log('window.supabaseClient:', !!window.supabaseClient);
-        console.log('Supabase config available:', !!window.SUPABASE_CONFIG?.CONFIGURED);
-        console.log('Current hostname:', window.location.hostname);
-        console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-        console.log('Current URL:', window.location.href);
-        
-        // Try to initialize if not done
-        if (!supabase && window.SUPABASE_CONFIG?.CONFIGURED) {
-            console.log('🔄 Attempting manual initialization...');
-            const result = initializeSupabase();
-            console.log('Manual initialization result:', result);
-        }
-        
-        if (supabase) {
-            console.log('✅ Supabase client is initialized');
-            console.log('Supabase client object:', supabase);
-            // Test connection
-            supabase.auth.getSession().then(({ data, error }) => {
-                if (error) {
-                    console.log('❌ Supabase connection error:', error);
-                } else {
-                    console.log('✅ Supabase connection successful');
-                    console.log('Current session:', data.session);
-                }
-            }).catch(err => {
-                console.log('❌ Error testing connection:', err);
-            });
-        } else {
-            console.log('❌ Supabase client is NOT initialized');
-            console.log('Trying to initialize now...');
-            if (window.initializeSupabase) {
-                const result = window.initializeSupabase();
-                console.log('Initialization attempt result:', result);
-            }
-        }
-        
-        console.log('=== END DEBUG INFO ===');
-    };
+// Export for potential external use
+window.SATIChatBot = {
+    state: chatState,
+    chat: chatManager,
+    modal: modal,
+    toast: toast,
+    utils: utils
+};
 
-    // Manual initialization function for debugging
-    window.forceInitializeSupabase = function() {
-        console.log('�� Force initializing Supabase...');
-        
-        // Set fallback config if not already set
-        if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
-            window.SUPABASE_CONFIG = {
-                URL: process.env.SUPABASE_URL,
-                KEY: process.env.SUPABASE_KEY,
-                CONFIGURED: true
-            };
-            console.log('✅ Fallback config set');
-        }
-        
-        // Force initialize
+// Debug function to test Supabase connection
+window.debugSupabase = function () {
+    console.log('=== SUPABASE DEBUG INFO ===');
+    console.log('window.supabase (CDN):', !!window.supabase);
+    console.log('supabase client instance:', !!supabase);
+    console.log('window.supabaseClient:', !!window.supabaseClient);
+    console.log('Supabase config available:', !!window.SUPABASE_CONFIG?.CONFIGURED);
+    console.log('Current hostname:', window.location.hostname);
+    console.log('Is localhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    console.log('Current URL:', window.location.href);
+
+    // Try to initialize if not done
+    if (!supabase && window.SUPABASE_CONFIG?.CONFIGURED) {
+        console.log('🔄 Attempting manual initialization...');
         const result = initializeSupabase();
-        console.log('Force initialization result:', result);
-        
-        if (supabase) {
-            console.log('✅ Supabase is now available:', supabase);
-            window.supabaseClient = supabase;
-        } else {
-            console.log('❌ Supabase still not available');
-        }
-        
-        return !!supabase;
-    };
+        console.log('Manual initialization result:', result);
+    }
 
-    // Test login function for debugging
-    window.testLogin = async function(email = 'test@example.com', password = 'testpassword123') {
-        console.log('=== TESTING LOGIN ===');
-        console.log('Email:', email);
-        console.log('Password:', password);
-        
-        if (!supabase) {
-            console.log('❌ Supabase not initialized, trying to force initialize...');
-            const initialized = window.forceInitializeSupabase();
-            if (!initialized) {
-                console.log('❌ Force initialization failed');
-                return;
-            }
-        }
-        
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-            
+    if (supabase) {
+        console.log('✅ Supabase client is initialized');
+        console.log('Supabase client object:', supabase);
+        // Test connection
+        supabase.auth.getSession().then(({ data, error }) => {
             if (error) {
-                console.log('❌ Login error:', error);
-                if (error.message.includes('Invalid login credentials')) {
-                    console.log('🔄 Trying to sign up instead...');
-                    const { data: signupData, error: signupError } = await supabase.auth.signUp({
-                        email: email,
-                        password: password
-                    });
-                    
-                    if (signupError) {
-                        console.log('❌ Signup error:', signupError);
-                    } else {
-                        console.log('✅ Signup successful:', signupData);
-                    }
-                }
+                console.log('❌ Supabase connection error:', error);
             } else {
-                console.log('✅ Login successful:', data);
+                console.log('✅ Supabase connection successful');
+                console.log('Current session:', data.session);
             }
-        } catch (err) {
-            console.log('❌ Unexpected error:', err);
-        }
-        
-        console.log('=== END TEST LOGIN ===');
-    };
-
-    // Test SSO function
-    window.testGoogleSSO = async function() {
-        console.log('=== TESTING GOOGLE SSO ===');
-        
-        if (!supabase) {
-            console.log('❌ Supabase not initialized, trying to force initialize...');
-            const initialized = window.forceInitializeSupabase();
-            if (!initialized) {
-                console.log('❌ Force initialization failed');
-                return;
-            }
-        }
-        
-        try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/'
-                }
-            });
-            
-            if (error) {
-                console.log('❌ Google SSO error:', error);
-            } else {
-                console.log('✅ Google SSO initiated:', data);
-            }
-        } catch (err) {
-            console.log('❌ Google SSO exception:', err);
-        }
-        
-        console.log('=== END GOOGLE SSO TEST ===');
-    };
-
-    // Test GitHub SSO function
-    window.testGitHubSSO = async function() {
-        console.log('=== TESTING GITHUB SSO ===');
-        
-        if (!supabase) {
-            console.log('❌ Supabase not initialized, trying to force initialize...');
-            const initialized = window.forceInitializeSupabase();
-            if (!initialized) {
-                console.log('❌ Force initialization failed');
-                return;
-            }
-        }
-        
-        try {
-            console.log('🔄 Attempting GitHub OAuth...');
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'github',
-                options: {
-                    redirectTo: window.location.origin + '/'
-                }
-            });
-            
-            if (error) {
-                console.log('❌ GitHub SSO error:', error);
-                console.log('Error details:', {
-                    message: error.message,
-                    status: error.status,
-                    statusCode: error.statusCode
-                });
-            } else {
-                console.log('✅ GitHub SSO initiated:', data);
-            }
-        } catch (err) {
-            console.log('❌ GitHub SSO exception:', err);
-        }
-        
-        console.log('=== END GITHUB SSO TEST ===');
-    };
-
-    // Test API endpoint
-    window.testSupabaseAPI = async function() {
-        console.log('=== TESTING SUPABASE API ENDPOINT ===');
-        
-        try {
-            console.log('Testing /api/supabase-config...');
-            const response = await fetch('/api/supabase-config');
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('✅ API Response:', data);
-            } else {
-                const text = await response.text();
-                console.log('❌ API Error Response:', text);
-            }
-        } catch (error) {
-            console.log('❌ API Request Failed:', error);
-        }
-        
-        console.log('=== END API TEST ===');
-    };
-
-    // Check which OAuth providers are available
-    window.checkOAuthProviders = async function() {
-        console.log('=== CHECKING OAUTH PROVIDERS ===');
-        
-        if (!supabase) {
-            console.log('❌ Supabase not initialized');
-            return;
-        }
-        
-        try {
-            // Try to get session to test connection
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            console.log('Session check:', sessionError ? 'Failed' : 'Success');
-            
-            // Test Google OAuth
-            console.log('🔄 Testing Google OAuth availability...');
-            try {
-                const googleTest = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
-                });
-                console.log('Google OAuth test result:', googleTest.error ? 'Failed' : 'Available');
-                if (googleTest.error) console.log('Google error:', googleTest.error.message);
-            } catch (e) {
-                console.log('Google OAuth test failed:', e.message);
-            }
-            
-            // Test GitHub OAuth
-            console.log('🔄 Testing GitHub OAuth availability...');
-            try {
-                const githubTest = await supabase.auth.signInWithOAuth({
-                    provider: 'github',
-                    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
-                });
-                console.log('GitHub OAuth test result:', githubTest.error ? 'Failed' : 'Available');
-                if (githubTest.error) console.log('GitHub error:', githubTest.error.message);
-            } catch (e) {
-                console.log('GitHub OAuth test failed:', e.message);
-            }
-            
-        } catch (error) {
-            console.log('❌ Provider check failed:', error);
-        }
-        
-        console.log('=== END PROVIDER CHECK ===');
-    };
-
-    // Show saved chats modal
-    async function showSavedChatsModal() {
-        console.log('🔖 Opening saved chats modal...');
-        
-        // If modal not in DOM, inject from template
-        let modal = document.getElementById('savedChatsModal');
-        if (!modal) {
-            const template = document.getElementById('savedChatsModalTemplate');
-            if (template) {
-                document.body.appendChild(template.content.cloneNode(true));
-                modal = document.getElementById('savedChatsModal');
-                console.log('✅ Saved chats modal created from template');
-            } else {
-                console.error('❌ Saved chats modal template not found');
-                return;
-            }
-        }
-        
-        if (modal) {
-            modal.classList.add('show');
-            console.log('✅ Saved chats modal shown');
-            
-            // Load saved chats
-            await updateSavedChatsList();
-            
-            // Add close button handler
-            const closeBtn = document.getElementById('closeSavedChatsBtn');
-            if (closeBtn) {
-                closeBtn.onclick = () => {
-                    modal.classList.remove('show');
-                    console.log('✅ Saved chats modal closed');
-                };
-            }
-            
-            // Add overlay click to close
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('show');
-                    console.log('✅ Saved chats modal closed via overlay');
-                }
-            };
-        } else {
-            console.error('❌ Failed to create saved chats modal');
+        }).catch(err => {
+            console.log('❌ Error testing connection:', err);
+        });
+    } else {
+        console.log('❌ Supabase client is NOT initialized');
+        console.log('Trying to initialize now...');
+        if (window.initializeSupabase) {
+            const result = window.initializeSupabase();
+            console.log('Initialization attempt result:', result);
         }
     }
 
-    // Event listener is set up in initializeEventListeners()
+    console.log('=== END DEBUG INFO ===');
+};
 
-    // Add a global click listener to close any open conversation dropdown if clicking outside
-    if (!window._conversationDropdownClickListenerAdded) {
-        document.addEventListener('click', function (event) {
-            // Only close if click is outside any open dropdown or menu button
-            const isDropdown = event.target.closest('.conversation-dropdown');
-            const isMenuBtn = event.target.closest('.conversation-menu-btn');
-            if (!isDropdown && !isMenuBtn) {
-                document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
-                    dropdown.classList.remove('show');
+// Manual initialization function for debugging
+window.forceInitializeSupabase = function () {
+    console.log('�� Force initializing Supabase...');
+
+    // Set fallback config if not already set
+    if (!window.SUPABASE_CONFIG || !window.SUPABASE_CONFIG.CONFIGURED) {
+        window.SUPABASE_CONFIG = {
+            URL: process.env.SUPABASE_URL,
+            KEY: process.env.SUPABASE_KEY,
+            CONFIGURED: true
+        };
+        console.log('✅ Fallback config set');
+    }
+
+    // Force initialize
+    const result = initializeSupabase();
+    console.log('Force initialization result:', result);
+
+    if (supabase) {
+        console.log('✅ Supabase is now available:', supabase);
+        window.supabaseClient = supabase;
+    } else {
+        console.log('❌ Supabase still not available');
+    }
+
+    return !!supabase;
+};
+
+// Test login function for debugging
+window.testLogin = async function (email = 'test@example.com', password = 'testpassword123') {
+    console.log('=== TESTING LOGIN ===');
+    console.log('Email:', email);
+    console.log('Password:', password);
+
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
+            return;
+        }
+    }
+
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            console.log('❌ Login error:', error);
+            if (error.message.includes('Invalid login credentials')) {
+                console.log('🔄 Trying to sign up instead...');
+                const { data: signupData, error: signupError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
                 });
+
+                if (signupError) {
+                    console.log('❌ Signup error:', signupError);
+                } else {
+                    console.log('✅ Signup successful:', signupData);
+                }
+            }
+        } else {
+            console.log('✅ Login successful:', data);
+        }
+    } catch (err) {
+        console.log('❌ Unexpected error:', err);
+    }
+
+    console.log('=== END TEST LOGIN ===');
+};
+
+// Test SSO function
+window.testGoogleSSO = async function () {
+    console.log('=== TESTING GOOGLE SSO ===');
+
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
+            return;
+        }
+    }
+
+    try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/'
             }
         });
-        window._conversationDropdownClickListenerAdded = true;
-    }
 
-    // Username Modal Logic
-    function showUsernameModal(force = false) {
-        if (!chatState.isLoggedIn) return;
-        // Only show if username is missing or force is true
-        if (!chatState.username || chatState.username === '' || force) {
-            document.getElementById('usernameModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-            // Autofocus input
-            setTimeout(() => {
-                document.getElementById('usernameInput').focus();
-            }, 100);
-        }
-    }
-    function hideUsernameModal() {
-        document.getElementById('usernameModal').classList.remove('show');
-        document.body.style.overflow = '';
-    }
-    // Save username and update state
-    function handleUsernameSubmit(event) {
-        event.preventDefault();
-        const input = document.getElementById('usernameInput');
-        const username = input.value.trim();
-        if (!username || username.length < 2) {
-            input.classList.add('input-error');
-            input.focus();
-            toast.show('Please enter a valid username (min 2 characters)', 'warning');
-            return;
-        }
-        chatState.username = username;
-        chatState.saveState();
-        hideUsernameModal();
-        updateLoginStatus();
-        toast.show('Username set successfully!', 'success');
-    }
-    // Prevent closing modal without username
-    function preventUsernameModalClose(e) {
-        e.stopPropagation();
-        const input = document.getElementById('usernameInput');
-        if (!input.value.trim()) {
-            toast.show('Please enter a username to continue', 'warning');
-        }
-    }
-    // Add event listeners after DOMContentLoaded
-    window.addEventListener('DOMContentLoaded', function () {
-        const usernameForm = document.getElementById('usernameForm');
-        if (usernameForm) {
-            usernameForm.addEventListener('submit', handleUsernameSubmit);
-        }
-        const closeUsernameBtn = document.getElementById('closeUsernameBtn');
-        if (closeUsernameBtn) {
-            closeUsernameBtn.addEventListener('click', preventUsernameModalClose);
-        }
-        // Prevent clicking overlay to close
-        const usernameModal = document.getElementById('usernameModal');
-        if (usernameModal) {
-            usernameModal.addEventListener('click', function (e) {
-                if (e.target === usernameModal) {
-                    preventUsernameModalClose(e);
-                }
-            });
-        }
-    });
-    // Show username modal after login/signup if needed
-    function afterLoginOrSignup() {
-        if (chatState.isLoggedIn && (!chatState.username || chatState.username === '')) {
-            showUsernameModal();
-        }
-    }
-    // Patch login/signup flows to call afterLoginOrSignup
-    // In listenForAuthChanges, after successful login:
-    // ... existing code ...
-                updateLoginStatus();
-                afterLoginOrSignup();
-    // ... existing code ...
-    // In checkExistingSession and handleEmailVerification, after updateLoginStatus():
-    // ... existing code ...
-        updateLoginStatus();
-        afterLoginOrSignup();
-    // ... existing code ...
-
-    // Username Edit Modal Logic
-    async function updateSupabaseUsername(newUsername) {
-        if (!supabase || !chatState.isLoggedIn) return { error: 'Not logged in' };
-        try {
-            const { data, error } = await supabase.auth.updateUser({
-                data: { username: newUsername }
-            });
-            if (error) {
-                return { error };
-            }
-            return { data };
-        } catch (err) {
-            return { error: err };
-        }
-    }
-    function showEditUsernameModal() {
-        const modal = document.getElementById('editUsernameModal');
-        const input = document.getElementById('editUsernameInput');
-        if (input) input.value = chatState.username || '';
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => { input && input.focus(); }, 100);
-    }
-    function hideEditUsernameModal() {
-        document.getElementById('editUsernameModal').classList.remove('show');
-        document.body.style.overflow = '';
-    }
-    async function handleEditUsernameSubmit(event) {
-        event.preventDefault();
-        const input = document.getElementById('editUsernameInput');
-        const newUsername = input.value.trim();
-        if (!newUsername || newUsername.length < 2) {
-            input.classList.add('input-error');
-            input.focus();
-            toast.show('Please enter a valid username (min 2 characters)', 'warning');
-            return;
-        }
-        // Update in Supabase
-        const { error } = await updateSupabaseUsername(newUsername);
         if (error) {
-            toast.show('Failed to update username in Supabase', 'error');
+            console.log('❌ Google SSO error:', error);
+        } else {
+            console.log('✅ Google SSO initiated:', data);
+        }
+    } catch (err) {
+        console.log('❌ Google SSO exception:', err);
+    }
+
+    console.log('=== END GOOGLE SSO TEST ===');
+};
+
+// Test GitHub SSO function
+window.testGitHubSSO = async function () {
+    console.log('=== TESTING GITHUB SSO ===');
+
+    if (!supabase) {
+        console.log('❌ Supabase not initialized, trying to force initialize...');
+        const initialized = window.forceInitializeSupabase();
+        if (!initialized) {
+            console.log('❌ Force initialization failed');
             return;
         }
-        // Update locally
-        chatState.username = newUsername;
-        chatState.saveState();
-        updateLoginStatus();
-        showProfileModal(); // Refresh modal
-        hideEditUsernameModal();
-        toast.show('Username updated successfully!', 'success');
     }
-    // Add event listeners after DOMContentLoaded
-    window.addEventListener('DOMContentLoaded', function () {
-        const editUsernameBtn = document.getElementById('editUsernameBtn');
-        if (editUsernameBtn) {
-            editUsernameBtn.addEventListener('click', showEditUsernameModal);
+
+    try {
+        console.log('🔄 Attempting GitHub OAuth...');
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'github',
+            options: {
+                redirectTo: window.location.origin + '/'
+            }
+        });
+
+        if (error) {
+            console.log('❌ GitHub SSO error:', error);
+            console.log('Error details:', {
+                message: error.message,
+                status: error.status,
+                statusCode: error.statusCode
+            });
+        } else {
+            console.log('✅ GitHub SSO initiated:', data);
         }
-        const closeEditUsernameBtn = document.getElementById('closeEditUsernameBtn');
-        if (closeEditUsernameBtn) {
-            closeEditUsernameBtn.addEventListener('click', hideEditUsernameModal);
+    } catch (err) {
+        console.log('❌ GitHub SSO exception:', err);
+    }
+
+    console.log('=== END GITHUB SSO TEST ===');
+};
+
+// Test API endpoint
+window.testSupabaseAPI = async function () {
+    console.log('=== TESTING SUPABASE API ENDPOINT ===');
+
+    try {
+        console.log('Testing /api/supabase-config...');
+        const response = await fetch('/api/supabase-config');
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ API Response:', data);
+        } else {
+            const text = await response.text();
+            console.log('❌ API Error Response:', text);
         }
-        const editUsernameCancelBtn = document.getElementById('editUsernameCancelBtn');
-        if (editUsernameCancelBtn) {
-            editUsernameCancelBtn.addEventListener('click', hideEditUsernameModal);
+    } catch (error) {
+        console.log('❌ API Request Failed:', error);
+    }
+
+    console.log('=== END API TEST ===');
+};
+
+// Check which OAuth providers are available
+window.checkOAuthProviders = async function () {
+    console.log('=== CHECKING OAUTH PROVIDERS ===');
+
+    if (!supabase) {
+        console.log('❌ Supabase not initialized');
+        return;
+    }
+
+    try {
+        // Try to get session to test connection
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        console.log('Session check:', sessionError ? 'Failed' : 'Success');
+
+        // Test Google OAuth
+        console.log('🔄 Testing Google OAuth availability...');
+        try {
+            const googleTest = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+            });
+            console.log('Google OAuth test result:', googleTest.error ? 'Failed' : 'Available');
+            if (googleTest.error) console.log('Google error:', googleTest.error.message);
+        } catch (e) {
+            console.log('Google OAuth test failed:', e.message);
         }
-        const editUsernameForm = document.getElementById('editUsernameForm');
-        if (editUsernameForm) {
-            editUsernameForm.addEventListener('submit', handleEditUsernameSubmit);
+
+        // Test GitHub OAuth
+        console.log('🔄 Testing GitHub OAuth availability...');
+        try {
+            const githubTest = await supabase.auth.signInWithOAuth({
+                provider: 'github',
+                options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true }
+            });
+            console.log('GitHub OAuth test result:', githubTest.error ? 'Failed' : 'Available');
+            if (githubTest.error) console.log('GitHub error:', githubTest.error.message);
+        } catch (e) {
+            console.log('GitHub OAuth test failed:', e.message);
         }
-        // Prevent closing modal by clicking overlay if input is invalid
-        const editUsernameModal = document.getElementById('editUsernameModal');
-        if (editUsernameModal) {
-            editUsernameModal.addEventListener('click', function (e) {
-                if (e.target === editUsernameModal) {
-                    const input = document.getElementById('editUsernameInput');
-                    if (!input.value.trim() || input.value.trim().length < 2) {
-                        toast.show('Please enter a valid username to continue', 'warning');
-                    } else {
-                        hideEditUsernameModal();
-                    }
-                }
+
+    } catch (error) {
+        console.log('❌ Provider check failed:', error);
+    }
+
+    console.log('=== END PROVIDER CHECK ===');
+};
+
+// Show saved chats modal
+async function showSavedChatsModal() {
+    console.log('🔖 Opening saved chats modal...');
+
+    // If modal not in DOM, inject from template
+    let modal = document.getElementById('savedChatsModal');
+    if (!modal) {
+        const template = document.getElementById('savedChatsModalTemplate');
+        if (template) {
+            document.body.appendChild(template.content.cloneNode(true));
+            modal = document.getElementById('savedChatsModal');
+            console.log('✅ Saved chats modal created from template');
+        } else {
+            console.error('❌ Saved chats modal template not found');
+            return;
+        }
+    }
+
+    if (modal) {
+        modal.classList.add('show');
+        console.log('✅ Saved chats modal shown');
+
+        // Load saved chats
+        await updateSavedChatsList();
+
+        // Add close button handler
+        const closeBtn = document.getElementById('closeSavedChatsBtn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                modal.classList.remove('show');
+                console.log('✅ Saved chats modal closed');
+            };
+        }
+
+        // Add overlay click to close
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                console.log('✅ Saved chats modal closed via overlay');
+            }
+        };
+    } else {
+        console.error('❌ Failed to create saved chats modal');
+    }
+}
+
+// Event listener is set up in initializeEventListeners()
+
+// Add a global click listener to close any open conversation dropdown if clicking outside
+if (!window._conversationDropdownClickListenerAdded) {
+    document.addEventListener('click', function (event) {
+        // Only close if click is outside any open dropdown or menu button
+        const isDropdown = event.target.closest('.conversation-dropdown');
+        const isMenuBtn = event.target.closest('.conversation-menu-btn');
+        if (!isDropdown && !isMenuBtn) {
+            document.querySelectorAll('.conversation-dropdown.show').forEach(dropdown => {
+                dropdown.classList.remove('show');
             });
         }
     });
+    window._conversationDropdownClickListenerAdded = true;
+}
 
-    // Refactor renameSavedConversation and deleteSavedConversation to call the main modal-based functions for compatibility
-    async function renameSavedConversation(conversationId) {
-        // For compatibility, just call renameConversation
-        renameConversation(conversationId);
+// Username Modal Logic
+function showUsernameModal(force = false) {
+    if (!chatState.isLoggedIn) return;
+    // Only show if username is missing or force is true
+    if (!chatState.username || chatState.username === '' || force) {
+        document.getElementById('usernameModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        // Autofocus input
+        setTimeout(() => {
+            document.getElementById('usernameInput').focus();
+        }, 100);
     }
-    async function deleteSavedConversation(conversationId) {
-        // For compatibility, just call deleteConversation
-        await deleteConversation(conversationId);
+}
+function hideUsernameModal() {
+    document.getElementById('usernameModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+// Save username and update state
+function handleUsernameSubmit(event) {
+    event.preventDefault();
+    const input = document.getElementById('usernameInput');
+    const username = input.value.trim();
+    if (!username || username.length < 2) {
+        input.classList.add('input-error');
+        input.focus();
+        toast.show('Please enter a valid username (min 2 characters)', 'warning');
+        return;
     }
+    chatState.username = username;
+    chatState.saveState();
+    hideUsernameModal();
+    updateLoginStatus();
+    toast.show('Username set successfully!', 'success');
+}
+// Prevent closing modal without username
+function preventUsernameModalClose(e) {
+    e.stopPropagation();
+    const input = document.getElementById('usernameInput');
+    if (!input.value.trim()) {
+        toast.show('Please enter a username to continue', 'warning');
+    }
+}
+// Add event listeners after DOMContentLoaded
+window.addEventListener('DOMContentLoaded', function () {
+    const usernameForm = document.getElementById('usernameForm');
+    if (usernameForm) {
+        usernameForm.addEventListener('submit', handleUsernameSubmit);
+    }
+    const closeUsernameBtn = document.getElementById('closeUsernameBtn');
+    if (closeUsernameBtn) {
+        closeUsernameBtn.addEventListener('click', preventUsernameModalClose);
+    }
+    // Prevent clicking overlay to close
+    const usernameModal = document.getElementById('usernameModal');
+    if (usernameModal) {
+        usernameModal.addEventListener('click', function (e) {
+            if (e.target === usernameModal) {
+                preventUsernameModalClose(e);
+            }
+        });
+    }
+});
+// Show username modal after login/signup if needed
+function afterLoginOrSignup() {
+    if (chatState.isLoggedIn && (!chatState.username || chatState.username === '')) {
+        showUsernameModal();
+    }
+}
+// Patch login/signup flows to call afterLoginOrSignup
+// In listenForAuthChanges, after successful login:
+// ... existing code ...
+updateLoginStatus();
+afterLoginOrSignup();
+// ... existing code ...
+// In checkExistingSession and handleEmailVerification, after updateLoginStatus():
+// ... existing code ...
+updateLoginStatus();
+afterLoginOrSignup();
+// ... existing code ...
+
+// Username Edit Modal Logic
+async function updateSupabaseUsername(newUsername) {
+    if (!supabase || !chatState.isLoggedIn) return { error: 'Not logged in' };
+    try {
+        const { data, error } = await supabase.auth.updateUser({
+            data: { username: newUsername }
+        });
+        if (error) {
+            return { error };
+        }
+        return { data };
+    } catch (err) {
+        return { error: err };
+    }
+}
+function showEditUsernameModal() {
+    const modal = document.getElementById('editUsernameModal');
+    const input = document.getElementById('editUsernameInput');
+    if (input) input.value = chatState.username || '';
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { input && input.focus(); }, 100);
+}
+function hideEditUsernameModal() {
+    document.getElementById('editUsernameModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+async function handleEditUsernameSubmit(event) {
+    event.preventDefault();
+    const input = document.getElementById('editUsernameInput');
+    const newUsername = input.value.trim();
+    if (!newUsername || newUsername.length < 2) {
+        input.classList.add('input-error');
+        input.focus();
+        toast.show('Please enter a valid username (min 2 characters)', 'warning');
+        return;
+    }
+    // Update in Supabase
+    const { error } = await updateSupabaseUsername(newUsername);
+    if (error) {
+        toast.show('Failed to update username in Supabase', 'error');
+        return;
+    }
+    // Update locally
+    chatState.username = newUsername;
+    chatState.saveState();
+    updateLoginStatus();
+    showProfileModal(); // Refresh modal
+    hideEditUsernameModal();
+    toast.show('Username updated successfully!', 'success');
+}
+// Add event listeners after DOMContentLoaded
+window.addEventListener('DOMContentLoaded', function () {
+    const editUsernameBtn = document.getElementById('editUsernameBtn');
+    if (editUsernameBtn) {
+        editUsernameBtn.addEventListener('click', showEditUsernameModal);
+    }
+    const closeEditUsernameBtn = document.getElementById('closeEditUsernameBtn');
+    if (closeEditUsernameBtn) {
+        closeEditUsernameBtn.addEventListener('click', hideEditUsernameModal);
+    }
+    const editUsernameCancelBtn = document.getElementById('editUsernameCancelBtn');
+    if (editUsernameCancelBtn) {
+        editUsernameCancelBtn.addEventListener('click', hideEditUsernameModal);
+    }
+    const editUsernameForm = document.getElementById('editUsernameForm');
+    if (editUsernameForm) {
+        editUsernameForm.addEventListener('submit', handleEditUsernameSubmit);
+    }
+    // Prevent closing modal by clicking overlay if input is invalid
+    const editUsernameModal = document.getElementById('editUsernameModal');
+    if (editUsernameModal) {
+        editUsernameModal.addEventListener('click', function (e) {
+            if (e.target === editUsernameModal) {
+                const input = document.getElementById('editUsernameInput');
+                if (!input.value.trim() || input.value.trim().length < 2) {
+                    toast.show('Please enter a valid username to continue', 'warning');
+                } else {
+                    hideEditUsernameModal();
+                }
+            }
+        });
+    }
+});
+
+// Refactor renameSavedConversation and deleteSavedConversation to call the main modal-based functions for compatibility
+async function renameSavedConversation(conversationId) {
+    // For compatibility, just call renameConversation
+    renameConversation(conversationId);
+}
+async function deleteSavedConversation(conversationId) {
+    // For compatibility, just call deleteConversation
+    await deleteConversation(conversationId);
+}
