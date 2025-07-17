@@ -1244,6 +1244,26 @@ body {
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
+/* Danger style for delete account button */
+.profile-dropdown-item.danger {
+    color: var(--danger-color);
+    transition: all var(--transition-fast);
+}
+
+.profile-dropdown-item.danger:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+    color: var(--danger-hover);
+}
+
+.profile-dropdown-item.danger i {
+    color: var(--danger-color);
+    transition: color var(--transition-fast);
+}
+
+.profile-dropdown-item.danger:hover i {
+    color: var(--danger-hover);
+}
+
 /* Theme Menu Styles */
 .theme-menu-item {
     position: relative;

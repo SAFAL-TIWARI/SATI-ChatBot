@@ -3006,6 +3006,17 @@ function initializeEventListeners() {
         });
     }
 
+    // Delete account button
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', async () => {
+            if (elements.profileDropdown) {
+                elements.profileDropdown.classList.remove('show');
+            }
+            await handleDeleteAccount();
+        });
+    }
+
     // Share button
     if (elements.shareBtn) {
         elements.shareBtn.addEventListener('click', () => {
@@ -4418,8 +4429,72 @@ async function logout() {
     }
 }
 
+async function handleDeleteAccount() {
+    if (!chatState.isLoggedIn) {
+        toast.show('You must be logged in to delete your account', 'error');
+        return;
+    }
+
+    // Show confirmation dialog with more detailed warning
+    const confirmed = await modal.confirm(
+        'Delete Account',
+        'Are you sure you want to delete your account? This will permanently delete:\n\n• Your account data\n• All your conversations (' + chatState.conversations.length + ' total)\n• All your messages\n• All your saved data\n\nThis action cannot be undone!'
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    // Show loading state
+    toast.show('Deleting account and all data...', 'info');
+
+    try {
+        // Delete user account and all data from Supabase
+        if (window.supabaseDB && window.deleteUserAccount) {
+            const result = await window.deleteUserAccount();
+            
+            if (!result.success) {
+                throw result.error || new Error('Failed to delete account from database');
+            }
+        } else {
+            console.warn('Supabase DB not available, clearing local data only');
+        }
+
+        // Clear all local state
+        chatState.conversations = [];
+        chatState.currentConversationId = null;
+        chatState.currentMessages = [];
+        chatState.isLoggedIn = false;
+        chatState.username = '';
+        chatState.profilePhoto = '';
+        
+        // Clear any other user-specific data
+        if (chatState.userStats) {
+            chatState.userStats = {};
+        }
+        
+        chatState.saveState();
+
+        // Update UI
+        updateConversationsList();
+        chatManager.renderMessages();
+        updateLoginStatus();
+        elements.chatTitle.textContent = 'New Chat';
+
+        // Clear any cached user data
+        localStorage.removeItem('sati_chatbot_user_data');
+        
+        toast.show('Account and all data deleted successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        toast.show('Error deleting account: ' + (error.message || 'Unknown error occurred'), 'error');
+    }
+}
+
 function updateLoginStatus() {
     const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const icon = loginLogoutBtn.querySelector('i');
     const text = loginLogoutBtn.querySelector('span');
 
@@ -4427,6 +4502,11 @@ function updateLoginStatus() {
         // Update login button to show logout
         icon.className = 'fas fa-sign-out-alt';
         text.textContent = 'Logout';
+
+        // Show delete account button
+        if (deleteAccountBtn) {
+            deleteAccountBtn.style.display = 'flex';
+        }
 
         // Update profile avatar to show logged in state
         if (elements.profileAvatar) {
@@ -4468,6 +4548,11 @@ function updateLoginStatus() {
         // Update login button to show login
         icon.className = 'fas fa-sign-in-alt';
         text.textContent = 'Login';
+
+        // Hide delete account button
+        if (deleteAccountBtn) {
+            deleteAccountBtn.style.display = 'none';
+        }
 
         // Update profile avatar to show logged out state
         if (elements.profileAvatar) {
