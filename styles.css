@@ -2351,7 +2351,27 @@ body {
 
 /* Confirm Modal */
 .confirm-modal {
-    width: 400px;
+    width: 450px;
+    max-width: 90vw;
+}
+
+#confirmMessage {
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+#confirmMessage p {
+    margin-bottom: 12px;
+}
+
+#confirmMessage ul {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+#confirmMessage li {
+    margin-bottom: 6px;
+    line-height: 1.5;
 }
 
 .confirm-actions {
@@ -3397,6 +3417,82 @@ textarea:focus-visible {
 
 .btn-danger i {
     font-size: var(--font-size-sm);
+}
+
+.btn-dark {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.btn-dark:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.btn-dark:active {
+    transform: translateY(1px);
+}
+
+.btn-dark i {
+    font-size: var(--font-size-sm);
+}
+
+.btn-white {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.btn-white:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-white:active {
+    transform: translateY(1px);
+}
+
+.btn-white i {
+    font-size: var(--font-size-sm);
+    color: #333;
+}
+
+/* Dark theme adjustments for white buttons */
+[data-theme="dark"] .btn-white {
+    background: #f8f9fa;
+    color: #212529;
+    border-color: #dee2e6;
+}
+
+[data-theme="dark"] .btn-white:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+[data-theme="dark"] .btn-white i {
+    color: #212529;
 }
 
 .or-section {

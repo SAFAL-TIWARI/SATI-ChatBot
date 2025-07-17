@@ -1128,7 +1128,8 @@ class ModalManager {
             const confirmCancel = document.getElementById('confirmCancel');
 
             confirmTitle.textContent = title;
-            confirmMessage.textContent = message;
+            // Use innerHTML to support HTML formatting and convert line breaks
+            confirmMessage.innerHTML = message.replace(/\n/g, '<br>');
 
             const handleConfirm = () => {
                 this.hide('confirmModal');
@@ -4429,7 +4430,18 @@ async function handleDeleteAccount() {
     // Show confirmation dialog with more detailed warning
     const confirmed = await modal.confirm(
         'Delete Account',
-        'Are you sure you want to delete your account? This will permanently delete:\n\n• Your account data\n• All your conversations (' + chatState.conversations.length + ' total)\n• All your messages\n• All your saved data\n\nThis action cannot be undone!'
+        `<p>Are you sure you want to delete your account?</p>
+        
+        <p><strong>This will permanently delete:</strong></p>
+        
+        <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Your account data</li>
+            <li>All your conversations (${chatState.conversations.length} total)</li>
+            <li>All your messages</li>
+            <li>All your saved data</li>
+        </ul>
+        
+        <p style="color: #e53e3e; font-weight: bold;">This action cannot be undone!</p>`
     );
 
     if (!confirmed) {
@@ -4634,19 +4646,16 @@ function showProfileModal() {
 
 
 
-            // Update profile actions to show logout and delete account buttons
+            // Update profile actions to show edit username, delete account and logout buttons
             if (profileActions) {
                 profileActions.innerHTML = `
-                    <button class="btn btn-secondary" id="editUsernameBtn">
+                    <button class="btn btn-dark" id="editUsernameBtn">
                         <i class="fas fa-user-edit"></i> Edit Username
                     </button>
-                    <button class="btn btn-secondary" id="editProfileBtn">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <button class="btn btn-danger" id="deleteAccountBtn">
+                    <button class="btn btn-white" id="deleteAccountBtn">
                         <i class="fas fa-user-times"></i> Delete Account
                     </button>
-                    <button class="btn btn-danger" onclick="logout(); modal.hide('profileModal');">
+                    <button class="btn btn-white" onclick="logout(); modal.hide('profileModal');">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
