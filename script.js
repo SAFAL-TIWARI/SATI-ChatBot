@@ -4571,8 +4571,6 @@ function showProfileModal() {
     const profileUsername = document.getElementById('profileUsername');
     const profileEmail = document.getElementById('profileEmail');
     const profileChatCount = document.getElementById('profileChatCount');
-    const profileMessageCount = document.getElementById('profileMessageCount');
-    const profileLoginCount = document.getElementById('profileLoginCount');
 
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileActions = document.getElementById('profileActions');
@@ -4627,22 +4625,10 @@ function showProfileModal() {
                 profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
             }
 
-            // Calculate stats
-            const chatCount = chatState.conversations.length;
-            let messageCount = 0;
-            chatState.conversations.forEach(conv => {
-                if (conv.messages) {
-                    messageCount += conv.messages.length;
-                }
-            });
-
             // Update stats
-            profileChatCount.textContent = chatCount;
-            profileMessageCount.textContent = messageCount;
+            profileChatCount.textContent = chatState.conversations.length;
 
-            // Get login count from local storage or set default
-            const loginCount = localStorage.getItem('sati_login_count') || 1;
-            profileLoginCount.textContent = loginCount;
+
 
 
 
@@ -4688,8 +4674,6 @@ function showProfileModal() {
             }
 
             profileChatCount.textContent = chatState.conversations.length;
-            profileMessageCount.textContent = '0';
-            profileLoginCount.textContent = '0';
 
             // Update profile actions to show login button
             if (profileActions) {
