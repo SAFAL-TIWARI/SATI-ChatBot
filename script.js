@@ -1373,8 +1373,6 @@ class ChatManager {
         }
     }
 
-
-
     renderMessages() {
         const messagesContainer = elements.chatMessages;
         messagesContainer.innerHTML = '';
@@ -1396,23 +1394,23 @@ class ChatManager {
 
     addWelcomeMessage() {
         templateHelper.appendTo('welcomeMessageTemplate', elements.chatMessages);
-        
+
         // Add event listeners to prompt boxes
         const promptBoxes = elements.chatMessages.querySelectorAll('.prompt-box');
         promptBoxes.forEach(box => {
             box.addEventListener('click', async () => {
                 // Prevent multiple clicks
                 if (box.classList.contains('processing')) return;
-                
+
                 // Add visual feedback
                 box.classList.add('processing');
                 box.style.transform = 'scale(0.98)';
                 box.style.opacity = '0.7';
                 box.style.pointerEvents = 'none';
-                
+
                 const promptType = box.getAttribute('data-prompt');
                 const enhancedPrompt = this.getEnhancedPrompt(promptType);
-                
+
                 // Show brief loading state
                 setTimeout(async () => {
                     await this.handlePromptSelection(enhancedPrompt, promptType);
@@ -1423,44 +1421,77 @@ class ChatManager {
 
     getEnhancedPrompt(promptType) {
         const enhancedPrompts = {
-            admissions: "I'm interested in getting admission to SATI Vidisha. Can you provide me with comprehensive information about the admission process? I'd like to know about JEE Main cutoff trends for different engineering branches over the past few years, detailed admission procedures, eligibility criteria, important dates and deadlines, required documents, fee structure, and any special quotas or reservations available. Also, please explain the admission process timeline and any tips for prospective students.",
-            
-            academics: "I want to learn about the academic programs offered at SATI Vidisha. Please provide detailed information about all the B.Tech and M.Tech courses available, their curriculum structure, semester-wise subject breakdown, specializations within each branch, faculty qualifications and expertise, laboratory facilities and equipment, academic calendar, examination patterns, grading system, and any unique academic features or opportunities that SATI offers to its students.",
-            
-            placements: "I'm curious about the career prospects and placement opportunities at SATI Vidisha. Can you share comprehensive information about recent placement statistics, top recruiting companies that visit the campus, average and highest salary packages offered across different branches, placement percentage by department, pre-placement training programs, internship opportunities, career guidance and counseling services, alumni network support, and success stories of SATI graduates?",
-            
-            campus: "I'd like to know about the campus life and facilities at SATI Vidisha. Please tell me about the hostel facilities including room types and amenities, mess services and food quality, accommodation options for different categories of students, campus infrastructure and amenities, sports and recreational facilities, medical facilities, library resources and study spaces, internet connectivity, transportation facilities, and the overall campus environment. Also include information about hostel fees and the room allocation process.",
-            
-            activities: "I'm interested in the extracurricular activities and student life at SATI Vidisha. Can you provide information about technical clubs and societies, cultural organizations, sports teams and competitions, annual events and festivals like technical fests and cultural programs, inter-college competitions, student government and leadership opportunities, community service initiatives, and how students can actively participate and contribute to campus life? Also mention any notable achievements by student groups.",
-            
-            institute: "I want to learn about Samrat Ashok Technological Institute (SATI) Vidisha as an institution. Please provide comprehensive information about the institute's history and establishment, significant achievements and milestones, accreditations and affiliations, current rankings and recognition, notable alumni and their contributions, faculty achievements and research activities, industry collaborations and partnerships, infrastructure development over the years, and SATI's overall reputation and standing in the engineering education sector in Madhya Pradesh and India."
+            admissions: "How do I get admission to SATI Vidisha? Please include JEE Main cutoffs (branch-wise trends), eligibility, admission steps, important dates, required documents, fee structure, and reservation/quota details with timeline and tips for applicants.",
+
+            academics: "What B.Tech and M.Tech programs does SATI Vidisha offer? Please include curriculum details, semester-wise subjects, specializations, faculty expertise, labs, academic calendar, exam pattern, grading system, and unique academic features.",
+
+            placements: "What are SATI Vidisha’s placement records? Please include recent placement stats, top recruiters, branch-wise average and highest salary packages, placement rates, pre-placement training, internships, career services, alumni network, and notable alumni success stories.",
+
+            campus: "Tell me about SATI Vidisha’s campus facilities. Include hostel types and amenities, mess and food quality, accommodation options, infrastructure, sports and recreation, medical services, library, internet, transport, campus environment, hostel fees, and room allocation process.",
+
+            activities: "What activities can I join at SATI Vidisha? Please share details about technical clubs, cultural groups, sports teams, fests and events, inter-college competitions, student leadership roles, community service, and notable student achievements.",
+
+            institute: "Tell me about SATI Vidisha’s background. Include its history, key milestones, accreditations, rankings, notable alumni, faculty achievements, research, industry tie-ups, infrastructure growth, and overall reputation in Madhya Pradesh and India."
         };
-        
+
         return enhancedPrompts[promptType] || "Tell me about SATI Vidisha.";
     }
 
     async handlePromptSelection(prompt, promptType) {
         console.log('🎯 Handling prompt selection:', promptType);
-        
+
         // Get a shorter display version of the prompt for the title
         const displayPrompt = this.getDisplayPrompt(promptType);
         console.log('📝 Display prompt:', displayPrompt);
-        
-        // Create a new conversation for this prompt with the display prompt as title
-        await chatState.createNewConversation(displayPrompt);
-        console.log('✅ New conversation created with ID:', chatState.currentConversationId);
-        
-        // Update chat title to show the prompt title
+
+        // Only create a new conversation if there's no active conversation
+        if (!chatState.currentConversationId) {
+            console.log('🔄 No active conversation, creating new one...');
+            await chatState.createNewConversation(displayPrompt);
+            console.log('✅ New conversation created with ID:', chatState.currentConversationId);
+
+            // Update conversations list in sidebar
+            updateConversationsList();
+        } else {
+            console.log('✅ Using existing conversation with ID:', chatState.currentConversationId);
+        }
+
+        // Update chat title to show the prompt title (for both new and existing conversations)
         if (elements.chatTitle) {
             elements.chatTitle.textContent = displayPrompt;
         }
-        
-        // Update conversations list in sidebar
-        updateConversationsList();
-        
-        // Clear the welcome message
-        elements.chatMessages.innerHTML = '';
-        
+
+        // Update conversation title in storage if using existing conversation
+        if (chatState.currentConversationId) {
+            const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
+            if (conversation) {
+                // Update the conversation title to the prompt display name
+                conversation.title = displayPrompt;
+                console.log('🔄 Updating conversation title to:', displayPrompt);
+
+                // Update title in Supabase if using Supabase storage
+                if (chatState.useSupabaseStorage && window.supabaseDB) {
+                    try {
+                        await window.supabaseDB.updateConversationTitle(chatState.currentConversationId, displayPrompt);
+                        console.log('✅ Conversation title updated in Supabase');
+                    } catch (err) {
+                        console.error('❌ Error updating conversation title in Supabase:', err);
+                    }
+                }
+
+                // Update the conversations list in sidebar to reflect the new title
+                updateConversationsList();
+
+                // Save state to localStorage
+                chatState.saveState();
+            }
+        }
+
+        // Clear the welcome message only if there are no current messages
+        if (chatState.currentMessages.length === 0) {
+            elements.chatMessages.innerHTML = '';
+        }
+
         // Add the enhanced prompt as user message (visible to user)
         const userMessage = {
             role: 'user',
@@ -1468,19 +1499,19 @@ class ChatManager {
             timestamp: new Date().toISOString(),
             id: Date.now().toString()
         };
-        
+
         // Add to current messages and display
         chatState.currentMessages.push(userMessage);
-        
+
         // Create and display the enhanced prompt as user message
         const messageElement = this.createMessageElement(userMessage);
         if (messageElement) {
             elements.chatMessages.appendChild(messageElement);
         }
-        
+
         // Scroll to bottom
         elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-        
+
         // Save enhanced prompt message to Supabase if logged in
         if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
             try {
@@ -1501,13 +1532,13 @@ class ChatManager {
                 console.error('❌ Exception saving enhanced prompt to Supabase:', err);
             }
         }
-        
+
         // Show typing indicator
         this.showTypingIndicator();
-        
+
         // Send the enhanced prompt to AI (skip adding another user message)
         await this.sendMessage(prompt, chatState.selectedModel, true); // true flag indicates prompt selection
-        
+
         // Close sidebar on mobile after prompt selection
         if (window.innerWidth <= 768) {
             const appContainer = document.querySelector('.app-container');
@@ -1526,7 +1557,7 @@ class ChatManager {
             activities: "What activities can I join at SATI?",
             institute: "Tell me about SATI's background"
         };
-        
+
         return displayPrompts[promptType] || "Tell me about SATI Vidisha.";
     }
 
@@ -3620,7 +3651,7 @@ function initializeEventListeners() {
     function addLoginModalEventListeners() {
         // Add SSO listeners
         addSSOEventListeners();
-        
+
         // Add login form listener
         const loginForm = document.getElementById('loginForm');
         if (loginForm && !loginForm.hasLoginListener) {
@@ -4592,7 +4623,7 @@ async function handleDeleteAccount() {
         // Delete user account and all data from Supabase
         if (window.supabaseDB && window.deleteUserAccount) {
             const result = await window.deleteUserAccount();
-            
+
             if (!result.success) {
                 throw result.error || new Error('Failed to delete account from database');
             }
@@ -4607,12 +4638,12 @@ async function handleDeleteAccount() {
         chatState.isLoggedIn = false;
         chatState.username = '';
         chatState.profilePhoto = '';
-        
+
         // Clear any other user-specific data
         if (chatState.userStats) {
             chatState.userStats = {};
         }
-        
+
         chatState.saveState();
 
         // Update UI
@@ -4623,9 +4654,9 @@ async function handleDeleteAccount() {
 
         // Clear any cached user data
         localStorage.removeItem('sati_chatbot_user_data');
-        
+
         toast.show('Account and all data deleted successfully', 'success');
-        
+
     } catch (error) {
         console.error('Error deleting account:', error);
         toast.show('Error deleting account: ' + (error.message || 'Unknown error occurred'), 'error');
@@ -4787,7 +4818,7 @@ function showProfileModal() {
                 if (editUsernameBtn) {
                     editUsernameBtn.addEventListener('click', showEditUsernameModal);
                 }
-                
+
                 const deleteAccountBtn = document.getElementById('deleteAccountBtn');
                 if (deleteAccountBtn) {
                     deleteAccountBtn.addEventListener('click', async () => {
