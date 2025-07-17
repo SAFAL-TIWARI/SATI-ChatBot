@@ -2998,7 +2998,7 @@ function initializeEventListeners() {
                 logout();
             } else {
                 modal.show('loginModal');
-                setTimeout(addSSOEventListeners, 0); // Ensure DOM is updated before attaching listeners
+                setTimeout(addLoginModalEventListeners, 0); // Ensure DOM is updated before attaching listeners
             }
             if (elements.profileDropdown) {
                 elements.profileDropdown.classList.remove('show');
@@ -3108,22 +3108,9 @@ function initializeEventListeners() {
         }
     });
 
-    // Login form
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            login();
-        });
-    }
-
-    // Sign up button
-    const signupBtn = document.getElementById('signupBtn');
-    if (signupBtn) {
-        signupBtn.addEventListener('click', () => {
-            signup();
-        });
-    }
+    // Login form and signup button listeners are now handled by addLoginModalEventListeners()
+    // This ensures they work properly when modal is opened from different places
+    addLoginModalEventListeners();
 
 
 
@@ -3490,6 +3477,31 @@ function initializeEventListeners() {
 
         // Check if we should show a message about SSO configuration
         checkSSOConfiguration();
+    }
+
+    // Function to ensure all login modal event listeners are attached
+    function addLoginModalEventListeners() {
+        // Add SSO listeners
+        addSSOEventListeners();
+        
+        // Add login form listener
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm && !loginForm.hasLoginListener) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                login();
+            });
+            loginForm.hasLoginListener = true;
+        }
+
+        // Add signup button listener
+        const signupBtn = document.getElementById('signupBtn');
+        if (signupBtn && !signupBtn.hasSignupListener) {
+            signupBtn.addEventListener('click', () => {
+                signup();
+            });
+            signupBtn.hasSignupListener = true;
+        }
     }
 
     // Check if SSO providers are properly configured
@@ -4682,7 +4694,7 @@ function showProfileModal() {
             // Update profile actions to show login button
             if (profileActions) {
                 profileActions.innerHTML = `
-                    <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addSSOEventListeners, 0);">
+                    <button class="btn btn-primary" onclick="modal.hide('profileModal'); modal.show('loginModal'); setTimeout(addLoginModalEventListeners, 0);">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </button>
                 `;
@@ -5011,6 +5023,7 @@ function showPasswordUpdateModal() {
             // Show login modal after successful password reset
             setTimeout(() => {
                 modal.show('loginModal');
+                setTimeout(addLoginModalEventListeners, 0);
                 toast.show('Your password has been updated. Please log in with your new password.', 'success', 5000);
             }, 500);
         }
