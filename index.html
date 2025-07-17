@@ -291,44 +291,7 @@
             <!-- Chat Window -->
             <div class="chat-window" id="chatWindow">
                 <div class="chat-messages" id="chatMessages">
-                    <!-- Welcome Message -->
-                    <div class="message bot-message">
-                        <div class="message-avatar">
-                            <div class="bot-avatar">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                        </div>
-                        <div class="message-content">
-                            <div class="message-text">
-                                <h2><i class="fas fa-robot"></i> Welcome to SATI ChatBot - Your AI Assistant for Samrat
-                                    Ashok Technological Institute</h2>
-                                <p>I'm your intelligent AI assistant specialized in providing comprehensive information
-                                    about <strong>Samrat Ashok Technological Institute (SATI), Vidisha, Madhya
-                                        Pradesh</strong>. As your dedicated SATI guide, I can help you with:</p>
-                                <ul>
-                                    <li>📚 <strong>Academic Programs:</strong> B.Tech, M.Tech courses, syllabus, and
-                                        curriculum details</li>
-                                    <li>🏠 <strong>Campus Life:</strong> Hostel facilities, mess services, and
-                                        accommodation information</li>
-                                    <li>💼 <strong>Placements:</strong> Placement statistics, top recruiters, and career
-                                        opportunities</li>
-                                    <li>🎯 <strong>Admissions:</strong> JEE Main cutoffs, admission procedures, and
-                                        eligibility criteria</li>
-                                    <li>🏆 <strong>Student Activities:</strong> Technical clubs, cultural events, and
-                                        extracurricular activities</li>
-                                    <li>📖 <strong>Institute Information:</strong> SATI history, achievements, faculty,
-                                        and infrastructure</li>
-                                    <li>🎓 <strong>Academic Support:</strong> Examination schedules, results, and
-                                        academic calendar</li>
-                                    <li>📍 <strong>Location & Contact:</strong> Campus location, contact details, and
-                                        visiting information</li>
-                                </ul>
-                                <p><strong>Ask me anything about SATI Vidisha - I'm here to help prospective students,
-                                        current students, and parents!</strong></p>
-                            </div>
-                            <div class="message-timestamp">Just now</div>
-                        </div>
-                    </div>
+                    <!-- Messages will be populated here -->
                 </div>
 
                 <!-- Typing Indicator -->
@@ -716,32 +679,61 @@
 
         <!-- Welcome Message Template -->
         <template id="welcomeMessageTemplate">
-            <div class="message bot-message">
-                <div class="message-avatar">
-                    <div class="bot-avatar">
+            <div class="welcome-container">
+                <div class="welcome-header">
+                    <div class="welcome-avatar">
                         <i class="fas fa-robot"></i>
                     </div>
+                    <h2>🎓 Hello! I'm your SATI AI Assistant</h2>
+                    <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute (SATI), Vidisha</strong>. Choose a topic to get started:</p>
                 </div>
-                <div class="message-content">
-                    <div class="message-text">
-                        <h3>🎓 Hello! I'm your SATI AI Assistant</h3>
-                        <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute
-                                (SATI), Vidisha</strong>. I can help you with:</p>
-                        <ul>
-                            <li>📚 Academic programs and courses</li>
-                            <li>🏠 Hostel and campus facilities</li>
-                            <li>💼 Placement statistics and career opportunities</li>
-                            <li>🎯 Admission procedures and requirements</li>
-                            <li>🏆 Student activities and clubs</li>
-                            <li>📖 Institute history and achievements</li>
-                        </ul>
-                        <p><strong>What would you like to know about SATI?</strong></p>
+                
+                <div class="prompt-boxes-grid">
+                    <div class="prompt-box" data-prompt="admissions">
+                        <div class="prompt-icon">🎯</div>
+                        <div class="prompt-title">How do I get admission to SATI?</div>
+                        <div class="prompt-description">JEE cutoffs, procedures, and eligibility criteria</div>
                     </div>
-                    <div class="message-timestamp">Just now</div>
-                    <button class="copy-btn" title="Copy message" data-message-id="welcome">
-                        <i class="fas fa-copy"></i>
-                    </button>
+                    
+                    <div class="prompt-box" data-prompt="academics">
+                        <div class="prompt-icon">📚</div>
+                        <div class="prompt-title">What courses does SATI offer?</div>
+                        <div class="prompt-description">B.Tech, M.Tech programs and curriculum details</div>
+                    </div>
+                    
+                    <div class="prompt-box" data-prompt="placements">
+                        <div class="prompt-icon">💼</div>
+                        <div class="prompt-title">What are SATI's placement records?</div>
+                        <div class="prompt-description">Top recruiters and career opportunities</div>
+                    </div>
+                    
+                    <div class="prompt-box" data-prompt="campus">
+                        <div class="prompt-icon">🏠</div>
+                        <div class="prompt-title">Tell me about campus facilities</div>
+                        <div class="prompt-description">Hostel, mess, and campus amenities</div>
+                    </div>
+                    
+                    <div class="prompt-box" data-prompt="activities">
+                        <div class="prompt-icon">🏆</div>
+                        <div class="prompt-title">What activities can I join at SATI?</div>
+                        <div class="prompt-description">Technical clubs, cultural events, and sports</div>
+                    </div>
+                    
+                    <div class="prompt-box" data-prompt="institute">
+                        <div class="prompt-icon">📖</div>
+                        <div class="prompt-title">Tell me about SATI's background</div>
+                        <div class="prompt-description">History, achievements, and faculty information</div>
+                    </div>
                 </div>
+                
+                <div class="welcome-footer">
+                    <p>Or ask me anything about SATI Vidisha!</p>
+                </div>
+                
+                <!-- Copy button for welcome message -->
+                <button class="copy-btn welcome-copy-btn" title="Copy welcome message" data-message-id="welcome">
+                    <i class="fas fa-copy"></i>
+                </button>
             </div>
         </template>
 

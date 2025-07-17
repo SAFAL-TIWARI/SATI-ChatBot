@@ -1166,7 +1166,7 @@ class ChatManager {
         this.currentController = null;
     }
 
-    async sendMessage(content, model) {
+    async sendMessage(content, model, isPromptSelection = false) {
         if (this.isProcessing) return;
 
         // Ensure API manager is available
@@ -1201,55 +1201,57 @@ class ChatManager {
         this.shouldStop = false;
         this.showStopButton();
 
-        // Add user message
-        const userMessage = {
-            id: utils.generateId(),
-            role: 'user',
-            content: content,
-            timestamp: new Date().toISOString()
-        };
+        // Add user message only if it's not a prompt selection
+        if (!isPromptSelection) {
+            const userMessage = {
+                id: utils.generateId(),
+                role: 'user',
+                content: content,
+                timestamp: new Date().toISOString()
+            };
 
-        chatState.currentMessages.push(userMessage);
-        this.renderMessages();
+            chatState.currentMessages.push(userMessage);
+            this.renderMessages();
 
-        // Save user message to Supabase immediately
-        if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
-            try {
-                console.log('🔄 Saving user message to Supabase...', {
-                    conversationId: chatState.currentConversationId,
+            // Save user message to Supabase immediately
+            if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
+                try {
+                    console.log('🔄 Saving user message to Supabase...', {
+                        conversationId: chatState.currentConversationId,
+                        useSupabaseStorage: chatState.useSupabaseStorage,
+                        supabaseDB: !!window.supabaseDB,
+                        isLoggedIn: chatState.isLoggedIn
+                    });
+
+                    const result = await window.supabaseDB.addMessage(
+                        chatState.currentConversationId,
+                        'user',
+                        content,
+                        chatState.selectedModel
+                    );
+
+                    if (result.error) {
+                        console.error('❌ Error saving user message to Supabase:', result.error);
+                        toast.show('Failed to save message to cloud', 'warning');
+                    } else {
+                        console.log('✅ User message saved to Supabase immediately');
+                    }
+                } catch (err) {
+                    console.error('❌ Exception saving user message to Supabase:', err);
+                    toast.show('Failed to save message to cloud', 'warning');
+                }
+            } else {
+                console.log('📱 Not saving to Supabase:', {
                     useSupabaseStorage: chatState.useSupabaseStorage,
                     supabaseDB: !!window.supabaseDB,
+                    currentConversationId: !!chatState.currentConversationId,
                     isLoggedIn: chatState.isLoggedIn
                 });
-
-                const result = await window.supabaseDB.addMessage(
-                    chatState.currentConversationId,
-                    'user',
-                    content,
-                    chatState.selectedModel
-                );
-
-                if (result.error) {
-                    console.error('❌ Error saving user message to Supabase:', result.error);
-                    toast.show('Failed to save message to cloud', 'warning');
-                } else {
-                    console.log('✅ User message saved to Supabase immediately');
-                }
-            } catch (err) {
-                console.error('❌ Exception saving user message to Supabase:', err);
-                toast.show('Failed to save message to cloud', 'warning');
             }
-        } else {
-            console.log('📱 Not saving to Supabase:', {
-                useSupabaseStorage: chatState.useSupabaseStorage,
-                supabaseDB: !!window.supabaseDB,
-                currentConversationId: !!chatState.currentConversationId,
-                isLoggedIn: chatState.isLoggedIn
-            });
         }
 
-        // Auto-generate title if this is the first user message in a new chat
-        if (chatState.currentConversationId) {
+        // Auto-generate title if this is the first user message in a new chat (skip for prompt selections)
+        if (!isPromptSelection && chatState.currentConversationId) {
             const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
             if (conversation && conversation.title === 'New Chat') {
                 const newTitle = content.substring(0, 50) + (content.length > 50 ? '...' : '');
@@ -1394,6 +1396,138 @@ class ChatManager {
 
     addWelcomeMessage() {
         templateHelper.appendTo('welcomeMessageTemplate', elements.chatMessages);
+        
+        // Add event listeners to prompt boxes
+        const promptBoxes = elements.chatMessages.querySelectorAll('.prompt-box');
+        promptBoxes.forEach(box => {
+            box.addEventListener('click', async () => {
+                // Prevent multiple clicks
+                if (box.classList.contains('processing')) return;
+                
+                // Add visual feedback
+                box.classList.add('processing');
+                box.style.transform = 'scale(0.98)';
+                box.style.opacity = '0.7';
+                box.style.pointerEvents = 'none';
+                
+                const promptType = box.getAttribute('data-prompt');
+                const enhancedPrompt = this.getEnhancedPrompt(promptType);
+                
+                // Show brief loading state
+                setTimeout(async () => {
+                    await this.handlePromptSelection(enhancedPrompt, promptType);
+                }, 200);
+            });
+        });
+    }
+
+    getEnhancedPrompt(promptType) {
+        const enhancedPrompts = {
+            admissions: "I'm interested in getting admission to SATI Vidisha. Can you provide me with comprehensive information about the admission process? I'd like to know about JEE Main cutoff trends for different engineering branches over the past few years, detailed admission procedures, eligibility criteria, important dates and deadlines, required documents, fee structure, and any special quotas or reservations available. Also, please explain the admission process timeline and any tips for prospective students.",
+            
+            academics: "I want to learn about the academic programs offered at SATI Vidisha. Please provide detailed information about all the B.Tech and M.Tech courses available, their curriculum structure, semester-wise subject breakdown, specializations within each branch, faculty qualifications and expertise, laboratory facilities and equipment, academic calendar, examination patterns, grading system, and any unique academic features or opportunities that SATI offers to its students.",
+            
+            placements: "I'm curious about the career prospects and placement opportunities at SATI Vidisha. Can you share comprehensive information about recent placement statistics, top recruiting companies that visit the campus, average and highest salary packages offered across different branches, placement percentage by department, pre-placement training programs, internship opportunities, career guidance and counseling services, alumni network support, and success stories of SATI graduates?",
+            
+            campus: "I'd like to know about the campus life and facilities at SATI Vidisha. Please tell me about the hostel facilities including room types and amenities, mess services and food quality, accommodation options for different categories of students, campus infrastructure and amenities, sports and recreational facilities, medical facilities, library resources and study spaces, internet connectivity, transportation facilities, and the overall campus environment. Also include information about hostel fees and the room allocation process.",
+            
+            activities: "I'm interested in the extracurricular activities and student life at SATI Vidisha. Can you provide information about technical clubs and societies, cultural organizations, sports teams and competitions, annual events and festivals like technical fests and cultural programs, inter-college competitions, student government and leadership opportunities, community service initiatives, and how students can actively participate and contribute to campus life? Also mention any notable achievements by student groups.",
+            
+            institute: "I want to learn about Samrat Ashok Technological Institute (SATI) Vidisha as an institution. Please provide comprehensive information about the institute's history and establishment, significant achievements and milestones, accreditations and affiliations, current rankings and recognition, notable alumni and their contributions, faculty achievements and research activities, industry collaborations and partnerships, infrastructure development over the years, and SATI's overall reputation and standing in the engineering education sector in Madhya Pradesh and India."
+        };
+        
+        return enhancedPrompts[promptType] || "Tell me about SATI Vidisha.";
+    }
+
+    async handlePromptSelection(prompt, promptType) {
+        console.log('🎯 Handling prompt selection:', promptType);
+        
+        // Get a shorter display version of the prompt for the title
+        const displayPrompt = this.getDisplayPrompt(promptType);
+        console.log('📝 Display prompt:', displayPrompt);
+        
+        // Create a new conversation for this prompt with the display prompt as title
+        await chatState.createNewConversation(displayPrompt);
+        console.log('✅ New conversation created with ID:', chatState.currentConversationId);
+        
+        // Update chat title to show the prompt title
+        if (elements.chatTitle) {
+            elements.chatTitle.textContent = displayPrompt;
+        }
+        
+        // Update conversations list in sidebar
+        updateConversationsList();
+        
+        // Clear the welcome message
+        elements.chatMessages.innerHTML = '';
+        
+        // Add the enhanced prompt as user message (visible to user)
+        const userMessage = {
+            role: 'user',
+            content: prompt, // Enhanced prompt visible to user
+            timestamp: new Date().toISOString(),
+            id: Date.now().toString()
+        };
+        
+        // Add to current messages and display
+        chatState.currentMessages.push(userMessage);
+        
+        // Create and display the enhanced prompt as user message
+        const messageElement = this.createMessageElement(userMessage);
+        if (messageElement) {
+            elements.chatMessages.appendChild(messageElement);
+        }
+        
+        // Scroll to bottom
+        elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        
+        // Save enhanced prompt message to Supabase if logged in
+        if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
+            try {
+                console.log('🔄 Saving enhanced prompt message to Supabase...');
+                const result = await window.supabaseDB.addMessage(
+                    chatState.currentConversationId,
+                    'user',
+                    prompt, // Enhanced prompt
+                    chatState.selectedModel
+                );
+
+                if (result.error) {
+                    console.error('❌ Error saving enhanced prompt to Supabase:', result.error);
+                } else {
+                    console.log('✅ Enhanced prompt saved to Supabase');
+                }
+            } catch (err) {
+                console.error('❌ Exception saving enhanced prompt to Supabase:', err);
+            }
+        }
+        
+        // Show typing indicator
+        this.showTypingIndicator();
+        
+        // Send the enhanced prompt to AI (skip adding another user message)
+        await this.sendMessage(prompt, chatState.selectedModel, true); // true flag indicates prompt selection
+        
+        // Close sidebar on mobile after prompt selection
+        if (window.innerWidth <= 768) {
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) {
+                appContainer.classList.add('sidebar-collapsed');
+            }
+        }
+    }
+
+    getDisplayPrompt(promptType) {
+        const displayPrompts = {
+            admissions: "How do I get admission to SATI?",
+            academics: "What courses does SATI offer?",
+            placements: "What are SATI's placement records?",
+            campus: "Tell me about campus facilities",
+            activities: "What activities can I join at SATI?",
+            institute: "Tell me about SATI's background"
+        };
+        
+        return displayPrompts[promptType] || "Tell me about SATI Vidisha.";
     }
 
     createMessageElement(message) {
@@ -1412,7 +1546,9 @@ class ChatManager {
         avatarDiv.className = avatarClass;
         avatarDiv.innerHTML = avatar;
 
-        messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(message.content));
+        // Use displayContent for user messages if available, otherwise use content
+        const contentToDisplay = message.displayContent || message.content;
+        messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(contentToDisplay));
         messageElement.querySelector('.message-timestamp').textContent = utils.formatTime(message.timestamp);
         messageElement.querySelector('.copy-btn').setAttribute('data-message-id', message.id);
 
@@ -1472,16 +1608,17 @@ class ChatManager {
         if (messageId === 'welcome') {
             content = `Hello! I'm your SATI AI Assistant
 
-I'm specialized in providing information about Samrat Ashok Technological Institute (SATI), Vidisha. I can help you with:
+I'm specialized in providing information about Samrat Ashok Technological Institute (SATI), Vidisha. 
 
-• Academic programs and courses
-• Hostel and campus facilities
-• Placement statistics and career opportunities
-• Admission procedures and requirements
-• Student activities and clubs
-• Institute history and achievements
+Choose from these topics to get started:
+• Admission Information - JEE cutoffs, procedures, and eligibility
+• Academic Programs - B.Tech, M.Tech courses and curriculum  
+• Placement Statistics - Top recruiters and career opportunities
+• Campus Life - Hostel facilities and campus amenities
+• Student Activities - Clubs, events, and extracurriculars
+• Institute Information - History, achievements, and faculty
 
-What would you like to know about SATI?`;
+Or ask me anything about SATI Vidisha!`;
         } else {
             const message = chatState.currentMessages.find(m => m.id === messageId);
             if (!message) return;
