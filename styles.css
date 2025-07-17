@@ -264,8 +264,6 @@ body {
     }
 }
 
-
-
 /* Toggle button positioning when sidebar is expanded */
 .app-container:not(.sidebar-collapsed) .sidebar-toggle {
     left: 280px;
@@ -1582,6 +1580,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     word-wrap: break-word;
+    padding: 0 var(--spacing-2);
 }
 
 .message-text h3 {
@@ -1690,7 +1689,7 @@ body {
     .app-container:not(.sidebar-collapsed) .input-area {
         padding-left: var(--spacing-6);
         /* Normal padding when sidebar is open */
-        padding-right: var(--spacing-6);
+        padding-right: 1rem;
     }
 
     .app-container.sidebar-collapsed .input-area {
@@ -1973,16 +1972,7 @@ body {
     position: relative;
 }
 
-.message-content:hover .copy-btn {
-    opacity: 1;
-}
-
-.copy-btn:hover {
-    background: var(--accent-color);
-    color: white;
-    border-color: var(--accent-color);
-    transform: scale(1.05);
-}
+/* Hover rules moved to media query below */
 
 .copy-btn:active {
     transform: scale(0.95);
@@ -1997,6 +1987,40 @@ body {
 .copy-btn.copied:hover {
     background: #38a169;
     border-color: #38a169;
+}
+
+/* Mobile copy button - always visible on touch devices */
+@media (max-width: 768px) {
+    .copy-btn {
+        opacity: 1;
+        background: var(--bg-tertiary);
+        border-color: var(--border-color);
+    }
+
+    .copy-btn:active {
+        background: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+        transform: scale(0.95);
+    }
+}
+
+/* For devices that support hover, keep the hover behavior */
+@media (hover: hover) and (pointer: fine) {
+    .copy-btn {
+        opacity: 0;
+    }
+
+    .message-content:hover .copy-btn {
+        opacity: 1;
+    }
+
+    .copy-btn:hover {
+        background: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+        transform: scale(1.05);
+    }
 }
 
 /* Modal Styles */
@@ -4202,4 +4226,268 @@ textarea:focus-visible {
 
 #savedChatsModal.modal-overlay {
     z-index: 1000 !important;
+}
+
+/* Welcome Prompt Boxes Styles */
+.welcome-container {
+    padding: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    max-height: calc(100vh - 300px);
+}
+
+.welcome-header {
+    margin-bottom: var(--spacing-8);
+}
+
+.welcome-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-4);
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
+.welcome-header h2 {
+    color: var(--text-primary);
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    margin-bottom: var(--spacing-3);
+    line-height: 1.3;
+}
+
+.welcome-header p {
+    color: var(--text-secondary);
+    font-size: var(--font-size-lg);
+    line-height: 1.5;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.prompt-boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.prompt-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-5);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.prompt-box:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.prompt-box:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.prompt-box:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.prompt-box:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.prompt-box:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.prompt-box:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.prompt-box:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.prompt-box:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.prompt-box.clicked,
+.prompt-box.processing {
+    transform: scale(0.98);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.prompt-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.1), rgba(var(--accent-rgb), 0.05));
+    border-radius: var(--radius-xl);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.prompt-box:hover::before {
+    opacity: 1;
+}
+
+.prompt-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-3);
+    display: flex;
+    justify-content: center;
+}
+
+.prompt-title {
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+    line-height: 1.3;
+}
+
+.prompt-description {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+
+.welcome-footer {
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-6);
+    border-top: 1px solid var(--border-color);
+}
+
+.welcome-footer p {
+    color: var(--text-muted);
+    font-size: var(--font-size-base);
+    font-style: italic;
+}
+
+.welcome-copy-btn {
+    position: absolute;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+}
+
+.welcome-copy-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+}
+
+/* Mobile welcome copy button */
+@media (max-width: 768px) {
+    .welcome-copy-btn:active {
+        background: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+        transform: scale(0.95);
+    }
+}
+
+.welcome-container {
+    position: relative;
+}
+
+/* Responsive adjustments for prompt boxes */
+@media (max-width: 1024px) {
+    .prompt-boxes-grid {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: var(--spacing-4);
+    }
+
+    .prompt-boxes-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+    }
+
+    .prompt-box {
+        padding: var(--spacing-4);
+    }
+
+    .welcome-header h2 {
+        font-size: var(--font-size-xl);
+    }
+
+    .welcome-header p {
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 480px) {
+    .prompt-boxes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-2);
+    }
+
+    .prompt-box {
+        padding: var(--spacing-3);
+    }
+
+    .prompt-icon {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-2);
+        display: flex;
+        justify-content: center;
+    }
+
+    .prompt-title {
+        font-size: var(--font-size-base);
+    }
+
+    .prompt-description {
+        font-size: var(--font-size-xs);
+    }
 }
