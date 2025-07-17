@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://sati-chatbot.vercel.app/sitemap.xml
+
+# Allow all search engines to crawl the site
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Disallow crawling of API endpoints and config files
+Disallow: /api/
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /config.js
+Disallow: /localhost-config.js
+
+# Allow crawling of main pages
+Allow: /index.html
+Allow: /about.html
+Allow: /resources.html
+Allow: /contact.html
+
+# Crawl delay (optional - helps prevent server overload)
+Crawl-delay: 1

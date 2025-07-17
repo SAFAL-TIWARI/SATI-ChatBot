@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - SATI ChatBot | Data Protection & User Privacy</title>
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
+    <link rel="canonical" href="https://sati-chatbot.vercel.app/privacy-policy.html">
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Privacy Policy - SATI ChatBot | Data Protection & User Privacy">
+    <meta name="description" content="Learn about SATI ChatBot's privacy policy, data protection measures, and how we handle user information. Your privacy is our priority.">
+    <meta name="keywords" content="SATI ChatBot privacy policy, data protection, user privacy, information security, Team FluxoNauts privacy, AI chatbot privacy">
+    <meta name="author" content="Team FluxoNauts">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sati-chatbot.vercel.app/privacy-policy.html">
+    <meta property="og:title" content="Privacy Policy - SATI ChatBot | Data Protection & User Privacy">
+    <meta property="og:description" content="Learn about SATI ChatBot's privacy policy and data protection measures. Your privacy is our priority.">
+    <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
+    <meta property="og:site_name" content="SATI ChatBot">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/privacy-policy.html">
+    <meta name="twitter:title" content="Privacy Policy - SATI ChatBot | Data Protection & User Privacy">
+    <meta name="twitter:description" content="Learn about SATI ChatBot's privacy policy and data protection measures.">
+    <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="resources.css">
+    
+    <style>
+        /* Prevent flash of unstyled content */
+        html,
+        body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        html[data-theme="light"],
+        html[data-theme="light"] body {
+            background-color: #f5f7f9 !important;
+            color: #2c3e50 !important;
+        }
+
+        .privacy-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-top: 80px;
+        }
+
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .privacy-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .privacy-header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .privacy-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .privacy-section {
+            margin-bottom: 2rem;
+        }
+
+        .privacy-section h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .privacy-section h3 {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .privacy-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-section li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .last-updated {
+            text-align: center;
+            font-style: italic;
+            opacity: 0.7;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-container {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+
+            .privacy-header h1 {
+                font-size: 2rem;
+            }
+
+            .privacy-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+
+    <script>
+        (function () {
+            // Get theme from localStorage - check multiple possible keys for compatibility
+            const savedTheme = localStorage.getItem('sati_theme') ||
+                localStorage.getItem('light') ||
+                localStorage.getItem('theme') ||
+                'dark';
+
+            // Apply theme immediately to prevent flash
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
+            document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+
+            // Also apply to body when it's available
+            if (document.body) {
+                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
+                document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            }
+
+            // Ensure consistency across all storage keys
+            localStorage.setItem('sati_theme', savedTheme);
+            localStorage.setItem('light', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-robot"></i>
+                <span>SATI ChatBot</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="resources.html" class="nav-link">Resources</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact Us</a>
+
+                <label class="theme-switch">
+                    <input type="checkbox" class="theme-switch__checkbox" id="darkModeToggle">
+                    <div class="theme-switch__container">
+                        <div class="theme-switch__clouds"></div>
+                        <div class="theme-switch__stars-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 26.7112C83.0551 25.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z"
+                                    fill="currentColor"></path>
+                            </svg>
+                        </div>
+                        <div class="theme-switch__circle-container">
+                            <div class="theme-switch__sun-moon-container">
+                                <div class="theme-switch__moon">
+                                    <div class="theme-switch__spot"></div>
+                                    <div class="theme-switch__spot"></div>
+                                    <div class="theme-switch__spot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-nav-menu" id="mobileNavMenu">
+                <a href="index.html" class="mobile-nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="resources.html" class="mobile-nav-link">
+                    <i class="fas fa-book"></i>
+                    <span>Resources</span>
+                </a>
+                <a href="about.html" class="mobile-nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About</span>
+                </a>
+                <a href="contact.html" class="mobile-nav-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blur Overlay for Mobile Menu -->
+    <div class="blur-overlay" id="blurOverlay"></div>
+
+    <!-- Privacy Policy Content -->
+    <div class="privacy-container">
+        <div class="privacy-header">
+            <h1><i class="fas fa-shield-alt"></i> Privacy Policy</h1>
+            <p>Your privacy is important to us. This policy explains how SATI ChatBot collects, uses, and protects your information.</p>
+        </div>
+
+        <div class="privacy-content">
+            <div class="highlight-box">
+                <strong>Quick Summary:</strong> SATI ChatBot is designed with privacy in mind. We don't store personal conversations, don't sell your data, and only collect minimal information necessary to provide our service.
+            </div>
+
+            <div class="privacy-section">
+                <h2>1. Information We Collect</h2>
+                
+                <h3>1.1 Information You Provide</h3>
+                <ul>
+                    <li><strong>Chat Messages:</strong> Questions and messages you send to the chatbot</li>
+                    <li><strong>Contact Information:</strong> Name and email when you contact us through the contact form</li>
+                    <li><strong>Feedback:</strong> Any feedback or suggestions you provide</li>
+                </ul>
+
+                <h3>1.2 Automatically Collected Information</h3>
+                <ul>
+                    <li><strong>Usage Data:</strong> How you interact with our website and chatbot</li>
+                    <li><strong>Device Information:</strong> Browser type, device type, and operating system</li>
+                    <li><strong>Log Data:</strong> IP address, access times, and pages visited</li>
+                    <li><strong>Cookies:</strong> Small files stored on your device for functionality and preferences</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>2. How We Use Your Information</h2>
+                <p>We use the collected information for the following purposes:</p>
+                <ul>
+                    <li><strong>Service Provision:</strong> To provide accurate responses about SATI</li>
+                    <li><strong>Improvement:</strong> To enhance our chatbot's performance and accuracy</li>
+                    <li><strong>Support:</strong> To respond to your inquiries and provide customer support</li>
+                    <li><strong>Analytics:</strong> To understand usage patterns and improve user experience</li>
+                    <li><strong>Security:</strong> To protect against fraud, abuse, and security threats</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>3. Data Storage and Security</h2>
+                
+                <h3>3.1 Data Storage</h3>
+                <ul>
+                    <li>Chat conversations are temporarily stored for processing and may be cached locally</li>
+                    <li>Personal information from contact forms is stored securely</li>
+                    <li>We use industry-standard security measures to protect your data</li>
+                </ul>
+
+                <h3>3.2 Data Retention</h3>
+                <ul>
+                    <li>Chat messages are not permanently stored on our servers</li>
+                    <li>Contact form submissions are retained for customer service purposes</li>
+                    <li>Analytics data is anonymized and aggregated</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>4. Third-Party Services</h2>
+                <p>SATI ChatBot may use third-party services that have their own privacy policies:</p>
+                <ul>
+                    <li><strong>AI Providers:</strong> Groq and other AI services for chat processing</li>
+                    <li><strong>Analytics:</strong> Google Analytics for usage statistics</li>
+                    <li><strong>Hosting:</strong> Vercel for website hosting</li>
+                    <li><strong>CDN Services:</strong> For faster content delivery</li>
+                </ul>
+                <p>We encourage you to review the privacy policies of these third-party services.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>5. Cookies and Local Storage</h2>
+                <p>We use cookies and local storage to:</p>
+                <ul>
+                    <li>Remember your theme preferences (dark/light mode)</li>
+                    <li>Store chat history locally on your device</li>
+                    <li>Improve website functionality and user experience</li>
+                    <li>Analyze website usage patterns</li>
+                </ul>
+                <p>You can control cookies through your browser settings, but some features may not work properly if cookies are disabled.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>6. Your Rights and Choices</h2>
+                <p>You have the following rights regarding your personal information:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request information about data we have about you</li>
+                    <li><strong>Correction:</strong> Request correction of inaccurate information</li>
+                    <li><strong>Deletion:</strong> Request deletion of your personal information</li>
+                    <li><strong>Opt-out:</strong> Opt out of certain data collection practices</li>
+                    <li><strong>Data Portability:</strong> Request a copy of your data in a portable format</li>
+                </ul>
+                <p>To exercise these rights, please contact us at the information provided in the Contact section.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>7. Children's Privacy</h2>
+                <p>SATI ChatBot is intended for users who are at least 13 years old. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete such information.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>8. Changes to This Privacy Policy</h2>
+                <p>We may update this Privacy Policy from time to time. When we do, we will:</p>
+                <ul>
+                    <li>Post the updated policy on this page</li>
+                    <li>Update the "Last Updated" date</li>
+                    <li>Notify users of significant changes through the website</li>
+                </ul>
+                <p>We encourage you to review this Privacy Policy periodically to stay informed about how we protect your information.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>9. Contact Information</h2>
+                <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
+                <ul>
+                    <li><strong>Team:</strong> Team FluxoNauts</li>
+                    <li><strong>Website:</strong> <a href="https://sati-chatbot.vercel.app/contact.html">Contact Us Page</a></li>
+                    <li><strong>Email:</strong> Through our contact form</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>10. Legal Basis for Processing</h2>
+                <p>We process your personal information based on the following legal grounds:</p>
+                <ul>
+                    <li><strong>Consent:</strong> When you voluntarily provide information</li>
+                    <li><strong>Legitimate Interest:</strong> To improve our services and user experience</li>
+                    <li><strong>Performance of Service:</strong> To provide the chatbot functionality</li>
+                    <li><strong>Legal Compliance:</strong> To comply with applicable laws and regulations</li>
+                </ul>
+            </div>
+
+            <div class="last-updated">
+                <p><strong>Last Updated:</strong> January 17, 2025</p>
+                <p>This Privacy Policy is effective as of the date listed above and applies to all users of SATI ChatBot.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About SATI ChatBot</h3>
+                <p>Your intelligent assistant for Samrat Ashok Technological Institute resources and information.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="terms-of-service.html">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect with Us</h3>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SATI ChatBot. Made with ❤️ by Team FluxNauts.</p>
+        </div>
+    </footer>
+
+    <script src="resources.js"></script>
+</body>
+
+</html>
