@@ -2820,6 +2820,46 @@ async function handleRenameSubmit(event) {
 }
 //delete here above
 
+// Keyboard Shortcuts Functions
+function getCurrentConversationId() {
+    console.log('🔍 Getting current conversation ID...');
+    
+    // First check chatState for current conversation
+    if (chatState && chatState.currentConversationId) {
+        console.log('✅ Found in chatState:', chatState.currentConversationId);
+        return chatState.currentConversationId;
+    }
+    
+    // Check for active conversation in the UI
+    const activeConversation = document.querySelector('.conversation-item.active');
+    if (activeConversation) {
+        const id = activeConversation.dataset.conversationId || activeConversation.dataset.id;
+        console.log('✅ Found active conversation in UI:', id);
+        return id;
+    }
+    
+    // Check if there are any conversations at all
+    if (chatState && chatState.conversations && chatState.conversations.length > 0) {
+        const firstConversation = chatState.conversations[0];
+        console.log('✅ Using first conversation as fallback:', firstConversation.id);
+        return firstConversation.id;
+    }
+    
+    console.log('❌ No conversation found');
+    return null;
+}
+
+function showKeyboardShortcuts() {
+    // Open settings modal and navigate to accessibility tab
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+        settingsModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        
+        // Switch to accessibility tab to show keyboard shortcuts
+        renderSettingsContent('accessibility');
+    }
+}
 
 //delete here below
 // Settings Tab Management
@@ -4085,6 +4125,41 @@ function initializeEventListeners() {
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
             e.preventDefault();
             elements.newChatBtn.click();
+        }
+
+        // Ctrl + Shift + O for Open New Chat
+        if (e.ctrlKey && e.shiftKey && e.key === 'O') {
+            e.preventDefault();
+            elements.newChatBtn.click();
+        }
+
+        // Ctrl + Shift + S for Toggle Sidebar
+        if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+            e.preventDefault();
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.click();
+            }
+        }
+
+        // Ctrl + Shift + Backspace for Delete Chat
+        if (e.ctrlKey && e.shiftKey && (e.key === 'Backspace' || e.keyCode === 8)) {
+            e.preventDefault();
+            console.log('🔥 Delete chat shortcut triggered');
+            const currentConversationId = getCurrentConversationId();
+            console.log('📝 Current conversation ID:', currentConversationId);
+            if (currentConversationId) {
+                deleteConversation(currentConversationId);
+            } else {
+                console.log('⚠️ No active conversation to delete');
+                toast.show('No active conversation to delete', 'warning');
+            }
+        }
+
+        // Ctrl + / for Show Shortcuts
+        if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            showKeyboardShortcuts();
         }
 
         // Escape to close modals
