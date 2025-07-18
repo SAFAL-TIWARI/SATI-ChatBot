@@ -193,7 +193,21 @@ class APIManager {
                 throw new Error('Invalid response from Groq serverless function');
             }
 
-            return data.response;
+            // Additional client-side filtering for Deepseek R1 model (fallback)
+            let processedResponse = data.response;
+            if (this.currentModel === 'deepseek-r1-distill-llama-70b') {
+                const originalLength = processedResponse.length;
+                const hasThinkTags = processedResponse.includes('<think>');
+                
+                processedResponse = this.filterDeepseekThinkTags(processedResponse);
+                
+                // Log client-side filtering activity for debugging
+                if (hasThinkTags) {
+                    console.log(`Client-side Deepseek R1 think tags filtered: ${originalLength} -> ${processedResponse.length} chars`);
+                }
+            }
+
+            return processedResponse;
             
         } catch (error) {
             // If it's a network error and we haven't exceeded retries, try again
@@ -327,6 +341,29 @@ class APIManager {
             return this.geminiConfig.models;
         }
         return [];
+    }
+
+    // Filter out <think> tags from Deepseek R1 responses (client-side fallback)
+    filterDeepseekThinkTags(content) {
+        if (!content) return content;
+        
+        // Remove <think>...</think> blocks (including multiline)
+        // This regex matches <think> opening tag, any content (including newlines), and </think> closing tag
+        const thinkTagRegex = /<think>[\s\S]*?<\/think>/gi;
+        
+        // Remove the think tags and clean up extra whitespace
+        let filteredContent = content.replace(thinkTagRegex, '').trim();
+        
+        // Clean up multiple consecutive newlines and spaces
+        filteredContent = filteredContent.replace(/\n\s*\n\s*\n/g, '\n\n');
+        filteredContent = filteredContent.replace(/^\s+|\s+$/g, '');
+        
+        // If the filtered content is empty or only whitespace, return a fallback message
+        if (!filteredContent || filteredContent.length === 0) {
+            return "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
+        }
+        
+        return filteredContent;
     }
 
     // Format model name for display

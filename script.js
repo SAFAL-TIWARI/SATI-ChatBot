@@ -820,12 +820,287 @@ const utils = {
     },
 
     parseMarkdown: (text) => {
-        // Simple markdown parsing
-        return text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code>$1</code>')
-            .replace(/\n/g, '<br>');
+        // Enhanced markdown parsing with code blocks, tables, and structured content
+        let html = text;
+        
+        // Process code blocks first (```language\ncode\n```)
+        html = html.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, language, code) => {
+            const lang = language || 'text';
+            const langDisplay = utils.getLanguageDisplay(lang);
+            const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
+            
+            return `
+                <div class="code-block-container">
+                    <div class="code-block-header">
+                        <div class="code-language">
+                            <i class="fas fa-code code-language-icon"></i>
+                            ${langDisplay}
+                        </div>
+                        <div class="code-block-actions">
+                            <button class="code-action-btn copy-code-btn" data-code-id="${codeId}" title="Copy code">
+                                <i class="fas fa-copy"></i>
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-block-content">
+                        <pre><code id="${codeId}" class="language-${lang}">${utils.escapeHtml(code.trim())}</code></pre>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Process tables (|header|header|\n|------|------|\n|cell|cell|)
+        html = html.replace(/(\|.*\|[\r\n]+\|[-\s|:]+\|[\r\n]+((\|.*\|[\r\n]*)+))/g, (match) => {
+            const lines = match.trim().split('\n');
+            const headers = lines[0].split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+            const rows = lines.slice(2).map(line => 
+                line.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+            );
+            
+            let tableHtml = '<div class="message-table-container"><table class="message-table">';
+            
+            // Headers
+            tableHtml += '<thead><tr>';
+            headers.forEach(header => {
+                tableHtml += `<th>${utils.escapeHtml(header)}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+            
+            // Rows
+            tableHtml += '<tbody>';
+            rows.forEach(row => {
+                tableHtml += '<tr>';
+                row.forEach(cell => {
+                    tableHtml += `<td>${utils.escapeHtml(cell)}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table></div>';
+            
+            return tableHtml;
+        });
+        
+        // Process step-by-step instructions (1. Step one\n2. Step two)
+        html = html.replace(/(?:^|\n)(\d+)\.\s+(.+?)(?=\n\d+\.|$)/gs, (match, ...args) => {
+            const steps = [];
+            let stepMatch;
+            const stepRegex = /(\d+)\.\s+(.+?)(?=\n\d+\.|$)/gs;
+            
+            while ((stepMatch = stepRegex.exec(match)) !== null) {
+                steps.push({
+                    number: stepMatch[1],
+                    content: stepMatch[2].trim()
+                });
+            }
+            
+            if (steps.length > 1) {
+                let stepsHtml = '<div class="steps-container">';
+                steps.forEach(step => {
+                    stepsHtml += `
+                        <div class="step-item">
+                            <div class="step-number">${step.number}</div>
+                            <div class="step-content">
+                                <div class="step-description">${utils.escapeHtml(step.content)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                stepsHtml += '</div>';
+                return stepsHtml;
+            }
+            return match;
+        });
+        
+        // Process alerts/notices (> [!NOTE] content or > [!WARNING] content)
+        html = html.replace(/>\s*\[!(NOTE|WARNING|ERROR|INFO|SUCCESS)\]\s*([\s\S]*?)(?=\n(?!>)|$)/gi, (match, type, content) => {
+            const alertType = type.toLowerCase();
+            const icons = {
+                note: 'fas fa-info-circle',
+                info: 'fas fa-info-circle', 
+                warning: 'fas fa-exclamation-triangle',
+                error: 'fas fa-times-circle',
+                success: 'fas fa-check-circle'
+            };
+            
+            return `
+                <div class="alert-box ${alertType}">
+                    <i class="alert-icon ${icons[alertType] || icons.info}"></i>
+                    <div class="alert-content">${utils.escapeHtml(content.trim())}</div>
+                </div>
+            `;
+        });
+        
+        // Process blockquotes (> content)
+        html = html.replace(/^>\s*(.+)$/gm, '<blockquote>$1</blockquote>');
+        
+        // Process headers (# Header, ## Header, etc.)
+        html = html.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
+            const level = hashes.length;
+            return `<h${level}>${utils.escapeHtml(content)}</h${level}>`;
+        });
+        
+        // Process bold text (**text** or __text__)
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+        
+        // Process italic text (*text* or _text_)
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+        
+        // Process inline code (`code`)
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Process links ([text](url))
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        
+        // Process line breaks
+        html = html.replace(/\n/g, '<br>');
+        
+        return html;
+    },
+    
+    getLanguageDisplay: (lang) => {
+        const languages = {
+            'javascript': 'JavaScript',
+            'js': 'JavaScript',
+            'typescript': 'TypeScript',
+            'ts': 'TypeScript',
+            'python': 'Python',
+            'py': 'Python',
+            'java': 'Java',
+            'cpp': 'C++',
+            'c': 'C',
+            'csharp': 'C#',
+            'cs': 'C#',
+            'php': 'PHP',
+            'ruby': 'Ruby',
+            'go': 'Go',
+            'rust': 'Rust',
+            'swift': 'Swift',
+            'kotlin': 'Kotlin',
+            'html': 'HTML',
+            'css': 'CSS',
+            'scss': 'SCSS',
+            'sass': 'Sass',
+            'json': 'JSON',
+            'xml': 'XML',
+            'yaml': 'YAML',
+            'yml': 'YAML',
+            'sql': 'SQL',
+            'bash': 'Bash',
+            'sh': 'Shell',
+            'powershell': 'PowerShell',
+            'dockerfile': 'Dockerfile',
+            'markdown': 'Markdown',
+            'md': 'Markdown',
+            'text': 'Text',
+            'txt': 'Text'
+        };
+        
+        return languages[lang.toLowerCase()] || lang.toUpperCase();
+    },
+    
+    copyCodeToClipboard: async (code, button) => {
+        try {
+            await navigator.clipboard.writeText(code);
+            
+            // Visual feedback
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.classList.add('copied');
+            
+            setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.classList.remove('copied');
+            }, 2000);
+            
+            // Show toast notification
+            if (window.toast) {
+                window.toast.show('Code copied to clipboard!', 'success', 2000);
+            }
+        } catch (err) {
+            console.error('Failed to copy code:', err);
+            
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                if (window.toast) {
+                    window.toast.show('Code copied to clipboard!', 'success', 2000);
+                }
+            } catch (fallbackErr) {
+                console.error('Fallback copy failed:', fallbackErr);
+                if (window.toast) {
+                    window.toast.show('Failed to copy code', 'error', 3000);
+                }
+            }
+            
+            document.body.removeChild(textArea);
+        }
+    },
+    
+    // Progressive markdown rendering for streaming responses
+    renderProgressiveMarkdown: (text, container) => {
+        // For now, just use the regular parseMarkdown
+        // In the future, this could be enhanced to handle partial code blocks, etc.
+        container.innerHTML = utils.parseMarkdown(utils.escapeHtml(text));
+        
+        // Apply syntax highlighting to any new code blocks
+        setTimeout(() => {
+            if (window.Prism) {
+                const codeBlocks = container.querySelectorAll('pre code');
+                codeBlocks.forEach(block => {
+                    if (!block.classList.contains('prism-highlighted')) {
+                        window.Prism.highlightElement(block);
+                        block.classList.add('prism-highlighted');
+                    }
+                });
+            }
+        }, 0);
+        
+        // Re-attach event listeners for new copy buttons
+        const copyCodeBtns = container.querySelectorAll('.copy-code-btn:not([data-listener-attached])');
+        copyCodeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const codeId = btn.getAttribute('data-code-id');
+                const codeElement = document.getElementById(codeId);
+                if (codeElement) {
+                    utils.copyCodeToClipboard(codeElement.textContent, btn);
+                }
+            });
+            btn.setAttribute('data-listener-attached', 'true');
+        });
+    },
+    
+    // Detect and enhance specific types of responses
+    enhanceResponseFormatting: (content) => {
+        // Detect if response contains code and add appropriate formatting hints
+        if (content.includes('```') || content.includes('function') || content.includes('class ') || content.includes('import ') || content.includes('export ')) {
+            // This is likely a code-heavy response
+            return content;
+        }
+        
+        // Detect if response contains tabular data and suggest table formatting
+        if (content.includes('|') && content.split('\n').filter(line => line.includes('|')).length > 2) {
+            // This might be tabular data
+            return content;
+        }
+        
+        // Detect step-by-step instructions
+        const stepPattern = /^\d+\.\s/gm;
+        const stepMatches = content.match(stepPattern);
+        if (stepMatches && stepMatches.length > 2) {
+            // This is likely a step-by-step guide
+            return content;
+        }
+        
+        return content;
     }
 };
 //delete here above
@@ -1586,6 +1861,42 @@ class ChatManager {
         messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(contentToDisplay));
         messageElement.querySelector('.message-timestamp').textContent = utils.formatTime(message.timestamp);
         messageElement.querySelector('.copy-btn').setAttribute('data-message-id', message.id);
+
+        // Apply syntax highlighting to code blocks after DOM insertion
+        setTimeout(() => {
+            if (window.Prism) {
+                const codeBlocks = messageElement.querySelectorAll('pre code');
+                codeBlocks.forEach(block => {
+                    // Ensure the language class is properly set
+                    if (!block.className.includes('language-')) {
+                        block.className = 'language-text';
+                    }
+                    window.Prism.highlightElement(block);
+                });
+            }
+        }, 100);
+
+        // Add event listeners for code copy buttons
+        const copyCodeBtns = messageElement.querySelectorAll('.copy-code-btn');
+        copyCodeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const codeId = btn.getAttribute('data-code-id');
+                const codeElement = document.getElementById(codeId);
+                if (codeElement) {
+                    utils.copyCodeToClipboard(codeElement.textContent, btn);
+                }
+            });
+        });
+
+        // Add event listeners for collapsible sections
+        const collapsibleHeaders = messageElement.querySelectorAll('.collapsible-header');
+        collapsibleHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.closest('.collapsible-section');
+                section.classList.toggle('expanded');
+            });
+        });
 
         return messageElement;
     }
@@ -4341,8 +4652,6 @@ function checkLoginFormState(email = '') {
     // Remove any existing reset message
     removePasswordResetMessage();
 
-    // We no longer show any warnings on initial form load
-    // Errors will only be shown during actual login attempts
 }
 
 // Function to add password reset message below password field
@@ -4867,12 +5176,6 @@ function showProfileModal() {
                 }
                 profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
             }
-
-
-
-
-
-
 
             // Update profile actions to show edit username, delete account and logout buttons
             if (profileActions) {
@@ -5413,8 +5716,6 @@ function initializeApp() {
 
         // Initialize sidebar toggle button position
         initializeSidebarToggle();
-
-
 
         // Mobile-specific initialization
         if (window.innerWidth <= 768) {
@@ -6096,17 +6397,10 @@ function afterLoginOrSignup() {
         showUsernameModal();
     }
 }
-// Patch login/signup flows to call afterLoginOrSignup
-// In listenForAuthChanges, after successful login:
-// ... existing code ...
 updateLoginStatus();
 afterLoginOrSignup();
-// ... existing code ...
-// In checkExistingSession and handleEmailVerification, after updateLoginStatus():
-// ... existing code ...
 updateLoginStatus();
 afterLoginOrSignup();
-// ... existing code ...
 
 // Username Edit Modal Logic
 async function updateSupabaseUsername(newUsername) {
