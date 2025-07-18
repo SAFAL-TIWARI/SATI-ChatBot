@@ -291,13 +291,38 @@ function getDefaultPrompt() {
     return SATI_AI_PROMPT;
 }
 
+// Enhanced prompts for different categories
+const SATI_ENHANCED_PROMPTS = {
+    admissions: "How do I get admission to SATI Vidisha? Please include JEE Main cutoffs (branch-wise trends), eligibility, admission steps, important dates, required documents, fee structure, and reservation/quota details with timeline and tips for applicants.",
+
+    academics: "What B.Tech and M.Tech programs does SATI Vidisha offer? Please include curriculum details, semester-wise subjects, specializations, faculty expertise, labs, academic calendar, exam pattern, grading system, and unique academic features.",
+
+    placements: "What are SATI Vidisha's placement records? Please include recent placement stats, top recruiters, branch-wise average and highest salary packages, placement rates, pre-placement training, internships, career services, alumni network, and notable alumni success stories.",
+
+    campus: "Tell me about SATI Vidisha's campus facilities. Include hostel types and amenities, mess and food quality, accommodation options, infrastructure, sports and recreation, medical services, library, internet, transport, campus environment, hostel fees, and room allocation process.",
+
+    activities: "What activities can I join at SATI Vidisha? Please share details about technical clubs, cultural groups, sports teams, fests and events, inter-college competitions, student leadership roles, community service, and notable student achievements.",
+
+    institute: "Tell me about SATI Vidisha's background. Include its history, key milestones, accreditations, rankings, notable alumni, faculty achievements, research, industry tie-ups, infrastructure growth, and overall reputation in Madhya Pradesh and India."
+};
+
+// Function to get enhanced prompt by type
+function getEnhancedPrompt(promptType) {
+    return SATI_ENHANCED_PROMPTS[promptType] || "Tell me about SATI Vidisha.";
+}
+
+// Make the function available globally
+window.getEnhancedPrompt = getEnhancedPrompt;
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         SATI_KNOWLEDGE_BASE,
         SATI_AI_PROMPT,
+        SATI_ENHANCED_PROMPTS,
         getContextualPrompt,
         isSATIRelated,
-        getDefaultPrompt
+        getDefaultPrompt,
+        getEnhancedPrompt
     };
 }

@@ -1700,21 +1700,27 @@ class ChatManager {
     }
 
     getEnhancedPrompt(promptType) {
-        const enhancedPrompts = {
-            admissions: "How do I get admission to SATI Vidisha? Please include JEE Main cutoffs (branch-wise trends), eligibility, admission steps, important dates, required documents, fee structure, and reservation/quota details with timeline and tips for applicants.",
+        // Use the enhanced prompts from sati-knowledge.js
+        return window.getEnhancedPrompt ? window.getEnhancedPrompt(promptType) : "Tell me about SATI Vidisha.";
+    }
 
-            academics: "What B.Tech and M.Tech programs does SATI Vidisha offer? Please include curriculum details, semester-wise subjects, specializations, faculty expertise, labs, academic calendar, exam pattern, grading system, and unique academic features.",
+    async handlePromptSelection(prompt, promptType) {
+        console.log('🎯 Handling prompt selection:', promptType);
 
-            placements: "What are SATI Vidisha’s placement records? Please include recent placement stats, top recruiters, branch-wise average and highest salary packages, placement rates, pre-placement training, internships, career services, alumni network, and notable alumni success stories.",
+        // Get a shorter display version of the prompt for the title
+        const displayPrompt = this.getDisplayPrompt(promptType);
+        console.log('📝 Display prompt:', displayPrompt);
 
-            campus: "Tell me about SATI Vidisha’s campus facilities. Include hostel types and amenities, mess and food quality, accommodation options, infrastructure, sports and recreation, medical services, library, internet, transport, campus environment, hostel fees, and room allocation process.",
+        // Only create a new conversation if there's no active conversation
+        if (!chatState.currentConversationId) {
+            console.log('🔄 No active conversation, creating new one...');
+            await chatState.createNewConversation(displayPrompt);
+        } else {
+            console.log('📝 Using existing conversation:', chatState.currentConversationId);
+        }
 
-            activities: "What activities can I join at SATI Vidisha? Please share details about technical clubs, cultural groups, sports teams, fests and events, inter-college competitions, student leadership roles, community service, and notable student achievements.",
-
-            institute: "Tell me about SATI Vidisha’s background. Include its history, key milestones, accreditations, rankings, notable alumni, faculty achievements, research, industry tie-ups, infrastructure growth, and overall reputation in Madhya Pradesh and India."
-        };
-
-        return enhancedPrompts[promptType] || "Tell me about SATI Vidisha.";
+        // Send the message
+        await this.sendMessage(prompt);
     }
 
     async handlePromptSelection(prompt, promptType) {
