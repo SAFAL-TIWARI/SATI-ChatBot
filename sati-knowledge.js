@@ -281,7 +281,7 @@ function isSATIRelated(query) {
         'fee', 'faculty', 'library', 'campus', 'facility', 'history',
         'kailash satyarthi', 'rgpv', 'naac', 'nba'
     ];
-    
+
     const queryLower = query.toLowerCase();
     return satiKeywords.some(keyword => queryLower.includes(keyword));
 }

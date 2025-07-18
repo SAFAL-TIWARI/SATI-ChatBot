@@ -823,13 +823,13 @@ const utils = {
     parseMarkdown: (text) => {
         // Enhanced markdown parsing with code blocks, tables, and structured content
         let html = text;
-        
+
         // Process code blocks first (```language\ncode\n```)
         html = html.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, language, code) => {
             const lang = language || 'text';
             const langDisplay = utils.getLanguageDisplay(lang);
             const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
-            
+
             return `
                 <div class="code-block-container">
                     <div class="code-block-header">
@@ -850,24 +850,24 @@ const utils = {
                 </div>
             `;
         });
-        
+
         // Process tables (|header|header|\n|------|------|\n|cell|cell|)
         html = html.replace(/(\|.*\|[\r\n]+\|[-\s|:]+\|[\r\n]+((\|.*\|[\r\n]*)+))/g, (match) => {
             const lines = match.trim().split('\n');
             const headers = lines[0].split('|').filter(cell => cell.trim()).map(cell => cell.trim());
-            const rows = lines.slice(2).map(line => 
+            const rows = lines.slice(2).map(line =>
                 line.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
             );
-            
+
             let tableHtml = '<div class="message-table-container"><table class="message-table">';
-            
+
             // Headers
             tableHtml += '<thead><tr>';
             headers.forEach(header => {
                 tableHtml += `<th>${utils.escapeHtml(header)}</th>`;
             });
             tableHtml += '</tr></thead>';
-            
+
             // Rows
             tableHtml += '<tbody>';
             rows.forEach(row => {
@@ -879,23 +879,23 @@ const utils = {
                 tableHtml += '</tr>';
             });
             tableHtml += '</tbody></table></div>';
-            
+
             return tableHtml;
         });
-        
+
         // Process step-by-step instructions (1. Step one\n2. Step two)
         html = html.replace(/(?:^|\n)(\d+)\.\s+(.+?)(?=\n\d+\.|$)/gs, (match, ...args) => {
             const steps = [];
             let stepMatch;
             const stepRegex = /(\d+)\.\s+(.+?)(?=\n\d+\.|$)/gs;
-            
+
             while ((stepMatch = stepRegex.exec(match)) !== null) {
                 steps.push({
                     number: stepMatch[1],
                     content: stepMatch[2].trim()
                 });
             }
-            
+
             if (steps.length > 1) {
                 let stepsHtml = '<div class="steps-container">';
                 steps.forEach(step => {
@@ -913,18 +913,18 @@ const utils = {
             }
             return match;
         });
-        
+
         // Process alerts/notices (> [!NOTE] content or > [!WARNING] content)
         html = html.replace(/>\s*\[!(NOTE|WARNING|ERROR|INFO|SUCCESS)\]\s*([\s\S]*?)(?=\n(?!>)|$)/gi, (match, type, content) => {
             const alertType = type.toLowerCase();
             const icons = {
                 note: 'fas fa-info-circle',
-                info: 'fas fa-info-circle', 
+                info: 'fas fa-info-circle',
                 warning: 'fas fa-exclamation-triangle',
                 error: 'fas fa-times-circle',
                 success: 'fas fa-check-circle'
             };
-            
+
             return `
                 <div class="alert-box ${alertType}">
                     <i class="alert-icon ${icons[alertType] || icons.info}"></i>
@@ -932,36 +932,36 @@ const utils = {
                 </div>
             `;
         });
-        
+
         // Process blockquotes (> content)
         html = html.replace(/^>\s*(.+)$/gm, '<blockquote>$1</blockquote>');
-        
+
         // Process headers (# Header, ## Header, etc.)
         html = html.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
             const level = hashes.length;
             return `<h${level}>${utils.escapeHtml(content)}</h${level}>`;
         });
-        
+
         // Process bold text (**text** or __text__)
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
-        
+
         // Process italic text (*text* or _text_)
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
-        
+
         // Process inline code (`code`)
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-        
+
         // Process links ([text](url))
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        
+
         // Process line breaks
         html = html.replace(/\n/g, '<br>');
-        
+
         return html;
     },
-    
+
     getLanguageDisplay: (lang) => {
         const languages = {
             'javascript': 'JavaScript',
@@ -999,37 +999,37 @@ const utils = {
             'text': 'Text',
             'txt': 'Text'
         };
-        
+
         return languages[lang.toLowerCase()] || lang.toUpperCase();
     },
-    
+
     copyCodeToClipboard: async (code, button) => {
         try {
             await navigator.clipboard.writeText(code);
-            
+
             // Visual feedback
             const originalContent = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i> Copied!';
             button.classList.add('copied');
-            
+
             setTimeout(() => {
                 button.innerHTML = originalContent;
                 button.classList.remove('copied');
             }, 2000);
-            
+
             // Show toast notification
             if (window.toast) {
                 window.toast.show('Code copied to clipboard!', 'success', 2000);
             }
         } catch (err) {
             console.error('Failed to copy code:', err);
-            
+
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
             textArea.value = code;
             document.body.appendChild(textArea);
             textArea.select();
-            
+
             try {
                 document.execCommand('copy');
                 if (window.toast) {
@@ -1041,17 +1041,17 @@ const utils = {
                     window.toast.show('Failed to copy code', 'error', 3000);
                 }
             }
-            
+
             document.body.removeChild(textArea);
         }
     },
-    
+
     // Progressive markdown rendering for streaming responses
     renderProgressiveMarkdown: (text, container) => {
         // For now, just use the regular parseMarkdown
         // In the future, this could be enhanced to handle partial code blocks, etc.
         container.innerHTML = utils.parseMarkdown(utils.escapeHtml(text));
-        
+
         // Apply syntax highlighting to any new code blocks
         setTimeout(() => {
             if (window.Prism) {
@@ -1064,7 +1064,7 @@ const utils = {
                 });
             }
         }, 0);
-        
+
         // Re-attach event listeners for new copy buttons
         const copyCodeBtns = container.querySelectorAll('.copy-code-btn:not([data-listener-attached])');
         copyCodeBtns.forEach(btn => {
@@ -1079,7 +1079,7 @@ const utils = {
             btn.setAttribute('data-listener-attached', 'true');
         });
     },
-    
+
     // Detect and enhance specific types of responses
     enhanceResponseFormatting: (content) => {
         // Detect if response contains code and add appropriate formatting hints
@@ -1087,13 +1087,13 @@ const utils = {
             // This is likely a code-heavy response
             return content;
         }
-        
+
         // Detect if response contains tabular data and suggest table formatting
         if (content.includes('|') && content.split('\n').filter(line => line.includes('|')).length > 2) {
             // This might be tabular data
             return content;
         }
-        
+
         // Detect step-by-step instructions
         const stepPattern = /^\d+\.\s/gm;
         const stepMatches = content.match(stepPattern);
@@ -1101,7 +1101,7 @@ const utils = {
             // This is likely a step-by-step guide
             return content;
         }
-        
+
         return content;
     }
 };
@@ -1114,10 +1114,10 @@ class VoiceRecognition {
         this.isSupported = false;
         this.currentTranscript = '';
         this.finalTranscript = '';
-        
+
         this.initializeRecognition();
     }
-    
+
     initializeRecognition() {
         // Check for browser support
         if ('webkitSpeechRecognition' in window) {
@@ -1130,58 +1130,58 @@ class VoiceRecognition {
             console.warn('Speech recognition not supported in this browser');
             return;
         }
-        
+
         // Configure recognition settings
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
         this.recognition.maxAlternatives = 1;
-        
+
         // Set up event listeners
         this.setupEventListeners();
     }
-    
+
     setupEventListeners() {
         if (!this.recognition) return;
-        
+
         this.recognition.onstart = () => {
             console.log('🎤 Voice recognition started');
             this.isListening = true;
             this.updateMicButton(true);
             this.showVoiceIndicator();
         };
-        
+
         this.recognition.onresult = (event) => {
             let interimTranscript = '';
             let finalTranscript = '';
-            
+
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
-                
+
                 if (event.results[i].isFinal) {
                     finalTranscript += transcript;
                 } else {
                     interimTranscript += transcript;
                 }
             }
-            
+
             // Update the input field with real-time transcription
             this.updateInputField(finalTranscript, interimTranscript);
         };
-        
+
         this.recognition.onend = () => {
             console.log('🎤 Voice recognition ended');
             this.isListening = false;
             this.updateMicButton(false);
             this.hideVoiceIndicator();
         };
-        
+
         this.recognition.onerror = (event) => {
             console.error('🎤 Voice recognition error:', event.error);
             this.isListening = false;
             this.updateMicButton(false);
             this.hideVoiceIndicator();
-            
+
             // Show user-friendly error messages
             let errorMessage = 'Voice recognition error occurred.';
             switch (event.error) {
@@ -1198,13 +1198,13 @@ class VoiceRecognition {
                     errorMessage = 'Network error occurred during voice recognition.';
                     break;
             }
-            
+
             if (window.toast) {
                 window.toast.show(errorMessage, 'error');
             }
         };
     }
-    
+
     startListening() {
         if (!this.isSupported) {
             if (window.toast) {
@@ -1212,22 +1212,22 @@ class VoiceRecognition {
             }
             return;
         }
-        
+
         if (this.isListening) {
             this.stopListening();
             return;
         }
-        
+
         try {
             this.currentTranscript = '';
             this.finalTranscript = '';
-            
+
             // Clear the input field when starting voice recognition
             if (elements.messageInput) {
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
             }
-            
+
             this.recognition.start();
         } catch (error) {
             console.error('Error starting voice recognition:', error);
@@ -1236,41 +1236,41 @@ class VoiceRecognition {
             }
         }
     }
-    
+
     stopListening() {
         if (this.recognition && this.isListening) {
             this.recognition.stop();
         }
     }
-    
+
     updateInputField(finalText, interimText) {
         if (!elements.messageInput) return;
-        
+
         // Combine final and interim text
         const fullText = (this.finalTranscript + finalText + interimText).trim();
-        
+
         // Update the textarea
         elements.messageInput.value = fullText;
-        
+
         // Store final transcript for next iteration
         if (finalText) {
             this.finalTranscript += finalText;
         }
-        
+
         // Auto-resize textarea
         elements.messageInput.style.height = 'auto';
         elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
-        
+
         // Focus the input
         elements.messageInput.focus();
-        
+
         // Set cursor to end
         elements.messageInput.setSelectionRange(elements.messageInput.value.length, elements.messageInput.value.length);
     }
-    
+
     updateMicButton(isActive) {
         if (!elements.micBtn) return;
-        
+
         const icon = elements.micBtn.querySelector('i');
         if (isActive) {
             elements.micBtn.classList.add('recording');
@@ -1286,7 +1286,7 @@ class VoiceRecognition {
             }
         }
     }
-    
+
     showVoiceIndicator() {
         // Create or show voice indicator
         let indicator = document.getElementById('voiceIndicator');
@@ -1306,20 +1306,20 @@ class VoiceRecognition {
                     <span class="voice-text">Listening...</span>
                 </div>
             `;
-            
+
             // Add to input area
             const inputArea = document.querySelector('.input-area');
             if (inputArea) {
                 inputArea.appendChild(indicator);
             }
         }
-        
+
         indicator.style.display = 'flex';
         setTimeout(() => {
             indicator.classList.add('show');
         }, 10);
     }
-    
+
     hideVoiceIndicator() {
         const indicator = document.getElementById('voiceIndicator');
         if (indicator) {
@@ -2823,13 +2823,13 @@ async function handleRenameSubmit(event) {
 // Keyboard Shortcuts Functions
 function getCurrentConversationId() {
     console.log('🔍 Getting current conversation ID...');
-    
+
     // First check chatState for current conversation
     if (chatState && chatState.currentConversationId) {
         console.log('✅ Found in chatState:', chatState.currentConversationId);
         return chatState.currentConversationId;
     }
-    
+
     // Check for active conversation in the UI
     const activeConversation = document.querySelector('.conversation-item.active');
     if (activeConversation) {
@@ -2837,14 +2837,14 @@ function getCurrentConversationId() {
         console.log('✅ Found active conversation in UI:', id);
         return id;
     }
-    
+
     // Check if there are any conversations at all
     if (chatState && chatState.conversations && chatState.conversations.length > 0) {
         const firstConversation = chatState.conversations[0];
         console.log('✅ Using first conversation as fallback:', firstConversation.id);
         return firstConversation.id;
     }
-    
+
     console.log('❌ No conversation found');
     return null;
 }
@@ -2855,7 +2855,7 @@ function showKeyboardShortcuts() {
     if (settingsModal) {
         settingsModal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        
+
         // Switch to accessibility tab to show keyboard shortcuts
         renderSettingsContent('accessibility');
     }
@@ -3207,13 +3207,7 @@ function addSettingsEventListeners() {
         });
     }
 
-    // Prompt Library button in Chat Settings
-    const promptLibraryBtn = document.getElementById('promptLibraryBtn');
-    if (promptLibraryBtn) {
-        promptLibraryBtn.addEventListener('click', () => {
-            toast.show('Prompt library feature coming soon', 'info');
-        });
-    }
+
 
 
 }
@@ -3860,12 +3854,7 @@ function initializeEventListeners() {
         });
     }
 
-    const promptLibraryBtn = document.getElementById('promptLibraryBtn');
-    if (promptLibraryBtn) {
-        promptLibraryBtn.addEventListener('click', () => {
-            toast.show('Prompt library feature coming soon', 'info');
-        });
-    }
+
 
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {

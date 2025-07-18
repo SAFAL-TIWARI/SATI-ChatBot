@@ -48,10 +48,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Prism.js for syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
     <!-- Google Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Georgia:wght@400;700&family=Verdana:wght@400;700&family=Trebuchet+MS:wght@400;700&family=Tahoma:wght@400;700&family=Palatino:wght@400;700&family=Garamond:wght@400;700&display=swap"
@@ -865,133 +866,125 @@
         <template id="settingsChatTemplate">
             <div class="form-section">
                 <h3>Chat Statistics</h3>
-                <div class="chat-stats-container" style="display: flex; gap: var(--spacing-4); margin-bottom: var(--spacing-4);">
-                    <div class="stat-item" style="text-align: center; padding: var(--spacing-3); background: var(--surface-color); border-radius: var(--border-radius); border: 1px solid var(--border-color); flex: 1;">
-                        <div class="stat-value" id="settingsChatCount" style="font-size: 2rem; font-weight: 600; color: var(--accent-color); margin-bottom: var(--spacing-1);">0</div>
-                        <div class="stat-label" style="font-size: var(--font-size-sm); color: var(--text-muted);">Total Chats</div>
+                <div class="chat-stats-container"
+                    style="display: flex; gap: var(--spacing-4); margin-bottom: var(--spacing-4);">
+                    <div class="stat-item"
+                        style="text-align: center; padding: var(--spacing-3); background: var(--surface-color); border-radius: var(--border-radius); border: 1px solid var(--border-color); flex: 1;">
+                        <div class="stat-value" id="settingsChatCount"
+                            style="font-size: 2rem; font-weight: 600; color: var(--accent-color); margin-bottom: var(--spacing-1);">
+                            0</div>
+                        <div class="stat-label" style="font-size: var(--font-size-sm); color: var(--text-muted);">Total
+                            Chats</div>
                     </div>
                 </div>
             </div>
 
-            
-            <div class="form-section">
-                <h3>Prompt Library</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <button class="form-control" id="promptLibraryBtn"
-                        style="background-color: rgb(53, 53, 146); color: white; border: none; display: flex; align-items: center; gap: var(--spacing-2); justify-content: center;">
-                        <i class="fas fa-flask"></i>
-                        <span>Open Prompt Library</span>
+
+    </div>
+    <div class="form-section">
+        <h3>Chat Settings</h3>
+        <p>Advanced chat settings will be available in future updates.</p>
+    </div>
+    </template>
+
+    <!-- Settings Accessibility Tab Template -->
+    <template id="settingsAccessibilityTemplate">
+        <div class="form-section">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="keyboard-shortcuts-container">
+                <div class="shortcut-item">
+                    <div class="shortcut-description">Open New Chat</div>
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd>
+                    </div>
+                </div>
+
+                <div class="shortcut-item">
+                    <div class="shortcut-description">Toggle Sidebar</div>
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>
+                    </div>
+                </div>
+
+                <div class="shortcut-item">
+                    <div class="shortcut-description">Delete Chat</div>
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>⌫</kbd>
+                    </div>
+                </div>
+
+                <div class="shortcut-item">
+                    <div class="shortcut-description">Show Shortcuts</div>
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>/</kbd>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Settings Notifications Tab Template -->
+    <template id="settingsNotificationsTemplate">
+        <div class="form-section">
+            <p>Notification settings will be available in future updates.</p>
+        </div>
+    </template>
+
+    <!-- Settings Privacy Tab Template -->
+    <template id="settingsPrivacyTemplate">
+        <div class="form-section">
+            <h3>Privacy & Data</h3>
+            <div class="form-row">
+                <div class="form-col">
+                    <button class="form-control" onclick="clearAllConversations()"
+                        style="background-color: var(--danger-color); color: white; border: none;">
+                        Clear All Conversation History
+                    </button>
+                </div>
+                <div class="form-col">
+                    <button class="form-control" onclick="exportAllChats()"
+                        style="background-color: rgb(218, 128, 37); color: white; border: none;">
+                        Export All Chat History
                     </button>
                 </div>
             </div>
-            <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--spacing-2);">
-                Access pre-built prompts to enhance your conversations with SATI ChatBot.
-            </p>
         </div>
-        <div class="form-section">
-            <h3>Chat Settings</h3>
-            <p>Advanced chat settings will be available in future updates.</p>
+    </template>
+
+    <!-- No Conversations Template -->
+    <template id="noConversationsTemplate">
+        <div class="no-conversations">No conversations yet</div>
+    </template>
+
+    <!-- Saved Chats Modal -->
+    <template id="savedChatsModalTemplate">
+        <div class="modal-overlay" id="savedChatsModal">
+            <div class="modal-container saved-chats-modal">
+                <div class="modal-header">
+                    <h2><i class="fas fa-bookmark"></i> Saved Chats <span class="saved-count"
+                            id="savedChatsCount"></span></h2>
+                    <button class="close-btn" id="closeSavedChatsBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="saved-chats-search-container">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="savedChatsSearchInput" placeholder="Search conversations..."
+                                class="saved-chats-search-input">
+                            <button class="clear-search-btn" id="clearSavedChatsSearch" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="saved-chats-list" id="savedChatsList">
+                        <!-- Saved chats will be populated here -->
+                    </div>
+                </div>
+            </div>
         </div>
-        </template>
-
-        <!-- Settings Accessibility Tab Template -->
-        <template id="settingsAccessibilityTemplate">
-            <div class="form-section">
-                <h3>Keyboard Shortcuts</h3>
-                <div class="keyboard-shortcuts-container">
-                    <div class="shortcut-item">
-                        <div class="shortcut-description">Open New Chat</div>
-                        <div class="shortcut-keys">
-                            <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <div class="shortcut-description">Toggle Sidebar</div>
-                        <div class="shortcut-keys">
-                            <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <div class="shortcut-description">Delete Chat</div>
-                        <div class="shortcut-keys">
-                            <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>⌫</kbd>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <div class="shortcut-description">Show Shortcuts</div>
-                        <div class="shortcut-keys">
-                            <kbd>Ctrl</kbd> + <kbd>/</kbd>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- Settings Notifications Tab Template -->
-        <template id="settingsNotificationsTemplate">
-            <div class="form-section">
-                <p>Notification settings will be available in future updates.</p>
-            </div>
-        </template>
-
-        <!-- Settings Privacy Tab Template -->
-        <template id="settingsPrivacyTemplate">
-            <div class="form-section">
-                <h3>Privacy & Data</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <button class="form-control" onclick="clearAllConversations()"
-                            style="background-color: var(--danger-color); color: white; border: none;">
-                            Clear All Conversation History
-                        </button>
-                    </div>
-                    <div class="form-col">
-                        <button class="form-control" onclick="exportAllChats()"
-                            style="background-color: rgb(218, 128, 37); color: white; border: none;">
-                            Export All Chat History
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- No Conversations Template -->
-        <template id="noConversationsTemplate">
-            <div class="no-conversations">No conversations yet</div>
-        </template>
-
-        <!-- Saved Chats Modal -->
-        <template id="savedChatsModalTemplate">
-            <div class="modal-overlay" id="savedChatsModal">
-                <div class="modal-container saved-chats-modal">
-                    <div class="modal-header">
-                        <h2><i class="fas fa-bookmark"></i> Saved Chats <span class="saved-count"
-                                id="savedChatsCount"></span></h2>
-                        <button class="close-btn" id="closeSavedChatsBtn">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="saved-chats-search-container">
-                            <div class="search-input-wrapper">
-                                <i class="fas fa-search search-icon"></i>
-                                <input type="text" id="savedChatsSearchInput" placeholder="Search conversations..." class="saved-chats-search-input">
-                                <button class="clear-search-btn" id="clearSavedChatsSearch" style="display: none;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="saved-chats-list" id="savedChatsList">
-                            <!-- Saved chats will be populated here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
+    </template>
 
     </div>
 
@@ -1003,13 +996,15 @@
         console.log('✅ Supabase CDN loaded:', !!window.supabase);
         console.log('Supabase version:', window.supabase?.VERSION || 'unknown');
     </script>
-    
+
     <!-- Prism.js for syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
-    
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
     <!-- Common language components -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
@@ -1027,23 +1022,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-html.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    
+
     <!-- Prism.js Configuration -->
     <script>
         // Configure Prism.js
         if (window.Prism) {
             // Disable automatic highlighting
             window.Prism.manual = true;
-            
+
             // Configure autoloader
             if (window.Prism.plugins && window.Prism.plugins.autoloader) {
                 window.Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
             }
-            
+
             console.log('✅ Prism.js configured successfully');
         }
     </script>
-    
+
     <script src="supabase-db.js"></script>
     <script src="script.js"></script>
 

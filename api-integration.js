@@ -8,7 +8,7 @@ class APIManager {
             endpoint: window.API_CONFIG?.GROQ_API_ENDPOINT || '/api/groq',
             models: [
                 'llama-3.1-8b-instant',
-                'llama-3.3-70b-versatile', 
+                'llama-3.3-70b-versatile',
                 'gemma2-9b-it',
                 'deepseek-r1-distill-llama-70b',
                 'llama3-8b-8192',
@@ -27,11 +27,11 @@ class APIManager {
         // Serverless functions handle API keys securely
         this.groqConfigured = window.API_CONFIG?.GROQ_CONFIGURED || true;
         this.geminiConfigured = window.API_CONFIG?.GEMINI_CONFIGURED || true;
-        
+
         // Default provider
         this.currentProvider = localStorage.getItem('sati_api_provider') || window.API_CONFIG?.DEFAULT_PROVIDER || 'groq';
         this.currentModel = localStorage.getItem('sati_selected_model') || window.API_CONFIG?.DEFAULT_MODEL || 'llama-3.1-8b-instant';
-        
+
         // Debug information
         console.log('Serverless API Manager initialized:', {
             configAvailable: !!window.API_CONFIG,
@@ -42,7 +42,7 @@ class APIManager {
             currentProvider: this.currentProvider,
             currentModel: this.currentModel
         });
-        
+
         // Serverless functions should always be available
         if (!this.groqConfigured && !this.geminiConfigured) {
             console.warn('⚠️ Serverless API functions not configured properly!');
@@ -86,7 +86,7 @@ class APIManager {
         try {
             // Determine if query is SATI-related
             const isSATIQuery = isSATIRelated(userMessage);
-            
+
             let prompt;
             if (isSATIQuery) {
                 // Use SATI-specific context for SATI queries
@@ -107,12 +107,12 @@ class APIManager {
 
         } catch (error) {
             console.error('Error in sendMessage:', error);
-            
+
             // Re-throw AbortError so it can be handled properly by the caller
             if (error.name === 'AbortError') {
                 throw error;
             }
-            
+
             return this.getErrorResponse(error);
         }
     }
@@ -149,46 +149,46 @@ class APIManager {
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error || 'Unknown error';
-                
+
                 console.error('Groq serverless API error:', {
                     status: response.status,
                     statusText: response.statusText,
                     errorData,
                     errorMessage
                 });
-                
+
                 // Handle 503 Service Unavailable with retry
                 if (response.status === 503 && retryCount < maxRetries) {
                     const delay = baseDelay * Math.pow(2, retryCount);
                     console.log(`Groq API unavailable (503), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                    
+
                     // Notify user about retry attempt
                     if (window.toast) {
                         window.toast.show(
-                            `🔄 Service unavailable, retrying in ${Math.round(delay/1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            `🔄 Service unavailable, retrying in ${Math.round(delay / 1000)}s... (${retryCount + 1}/${maxRetries})`,
                             'warning',
                             delay
                         );
                     }
-                    
+
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return await this.sendGroqMessage(prompt, retryCount + 1, controller);
                 }
-                
+
                 // Handle 429 Rate Limit with retry
                 if (response.status === 429 && retryCount < maxRetries) {
                     const delay = baseDelay * Math.pow(2, retryCount);
                     console.log(`Groq API rate limited (429), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                    
+
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return await this.sendGroqMessage(prompt, retryCount + 1, controller);
                 }
-                
+
                 throw new Error(`Groq Serverless API Error: ${response.status} - ${errorMessage}`);
             }
 
             const data = await response.json();
-            
+
             if (!data.success || !data.response) {
                 throw new Error('Invalid response from Groq serverless function');
             }
@@ -198,9 +198,9 @@ class APIManager {
             if (this.currentModel === 'deepseek-r1-distill-llama-70b') {
                 const originalLength = processedResponse.length;
                 const hasThinkTags = processedResponse.includes('<think>');
-                
+
                 processedResponse = this.filterDeepseekThinkTags(processedResponse);
-                
+
                 // Log client-side filtering activity for debugging
                 if (hasThinkTags) {
                     console.log(`Client-side Deepseek R1 think tags filtered: ${originalLength} -> ${processedResponse.length} chars`);
@@ -208,17 +208,17 @@ class APIManager {
             }
 
             return processedResponse;
-            
+
         } catch (error) {
             // If it's a network error and we haven't exceeded retries, try again
             if (error.name === 'TypeError' && error.message.includes('fetch') && retryCount < maxRetries) {
                 const delay = baseDelay * Math.pow(2, retryCount);
                 console.log(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                
+
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return await this.sendGroqMessage(prompt, retryCount + 1, controller);
             }
-            
+
             throw error;
         }
     }
@@ -256,62 +256,62 @@ class APIManager {
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 const errorMessage = errorData.error || 'Unknown error';
-                
+
                 console.error('Gemini serverless API error:', {
                     status: response.status,
                     statusText: response.statusText,
                     errorData,
                     errorMessage
                 });
-                
+
                 // Handle 503 Service Unavailable (overloaded) with retry
                 if (response.status === 503 && retryCount < maxRetries) {
                     const delay = baseDelay * Math.pow(2, retryCount); // Exponential backoff
                     console.log(`Gemini API overloaded (503), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                    
+
                     // Notify user about retry attempt
                     if (window.toast) {
                         window.toast.show(
-                            `🔄 Model overloaded, retrying in ${Math.round(delay/1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            `🔄 Model overloaded, retrying in ${Math.round(delay / 1000)}s... (${retryCount + 1}/${maxRetries})`,
                             'warning',
                             delay
                         );
                     }
-                    
+
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
                 }
-                
+
                 // Handle 429 Rate Limit with retry
                 if (response.status === 429 && retryCount < maxRetries) {
                     const delay = baseDelay * Math.pow(2, retryCount);
                     console.log(`Gemini API rate limited (429), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                    
+
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
                 }
-                
+
                 throw new Error(`Gemini Serverless API Error: ${response.status} - ${errorMessage}`);
             }
 
             const data = await response.json();
-            
+
             if (!data.success || !data.response) {
                 throw new Error('Invalid response from Gemini serverless function');
             }
 
             return data.response;
-            
+
         } catch (error) {
             // If it's a network error and we haven't exceeded retries, try again
             if (error.name === 'TypeError' && error.message.includes('fetch') && retryCount < maxRetries) {
                 const delay = baseDelay * Math.pow(2, retryCount);
                 console.log(`Network error, retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
-                
+
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
             }
-            
+
             throw error;
         }
     }
@@ -319,7 +319,7 @@ class APIManager {
     // Test API connection
     async testConnection(provider = null) {
         const testProvider = provider || this.currentProvider;
-        
+
         try {
             if (testProvider === 'groq') {
                 await this.sendGroqMessage('Hello, this is a test message.', 0);
@@ -346,23 +346,23 @@ class APIManager {
     // Filter out <think> tags from Deepseek R1 responses (client-side fallback)
     filterDeepseekThinkTags(content) {
         if (!content) return content;
-        
+
         // Remove <think>...</think> blocks (including multiline)
         // This regex matches <think> opening tag, any content (including newlines), and </think> closing tag
         const thinkTagRegex = /<think>[\s\S]*?<\/think>/gi;
-        
+
         // Remove the think tags and clean up extra whitespace
         let filteredContent = content.replace(thinkTagRegex, '').trim();
-        
+
         // Clean up multiple consecutive newlines and spaces
         filteredContent = filteredContent.replace(/\n\s*\n\s*\n/g, '\n\n');
         filteredContent = filteredContent.replace(/^\s+|\s+$/g, '');
-        
+
         // If the filtered content is empty or only whitespace, return a fallback message
         if (!filteredContent || filteredContent.length === 0) {
             return "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
         }
-        
+
         return filteredContent;
     }
 
@@ -370,7 +370,7 @@ class APIManager {
     formatModelName(modelName) {
         const modelInfo = {
             'llama-3.1-8b-instant': '🟢 Llama 3.1 8B (Latest)',
-            'llama-3.3-70b-versatile': '🟢 Llama 3.3 70B (Latest)', 
+            'llama-3.3-70b-versatile': '🟢 Llama 3.3 70B (Latest)',
             'gemma2-9b-it': '🟢 Gemma2 9B (Latest)',
             'deepseek-r1-distill-llama-70b': '🧠 DeepSeek R1 (Reasoning)',
             'llama3-8b-8192': '🔵 Llama3 8B (Legacy)',
@@ -385,12 +385,12 @@ class APIManager {
     // Error response handler
     getErrorResponse(error) {
         const errorMessage = error.message || 'Unknown error occurred';
-        
+
         // Handle AbortError (user stopped generation)
         if (error.name === 'AbortError' || errorMessage.includes('aborted')) {
             return null; // Return null to indicate this should be handled by the caller
         }
-        
+
         if (errorMessage.includes('API key') || errorMessage.includes('serverless function not configured')) {
             // Provide detailed debug information for serverless function issues
             const debugInfo = {
@@ -401,21 +401,21 @@ class APIManager {
                 groqEndpoint: this.groqConfig.endpoint,
                 geminiEndpoint: this.geminiConfig.endpoint
             };
-            
+
             console.error('Serverless API Configuration Debug Info:', debugInfo);
-            
+
             return `❌ **Serverless API Configuration Error**\n\n${errorMessage}\n\n**Debug Info:**\n- Groq Function: ${debugInfo.groqConfigured ? 'Configured' : 'Not Configured'}\n- Gemini Function: ${debugInfo.geminiConfigured ? 'Configured' : 'Not Configured'}\n- Current Provider: ${this.currentProvider}\n- Config Available: ${debugInfo.configAvailable ? 'Yes' : 'No'}\n\nPlease check if the serverless functions are deployed properly.`;
         } else if (errorMessage.includes('503') && errorMessage.includes('overloaded')) {
             const alternatives = this.getAlternativeModels();
             let suggestionText = '';
-            
+
             if (alternatives.length > 0) {
                 suggestionText = '\n\n**Recommended alternatives:**\n';
                 alternatives.slice(0, 3).forEach((alt, index) => {
                     suggestionText += `${index + 1}. Switch to ${this.formatModelName(alt.model)} (${alt.reason})\n`;
                 });
             }
-            
+
             return `🔄 **Service Temporarily Overloaded**\n\nThe AI model is currently experiencing high demand and is overloaded. The system has automatically attempted to retry your request.\n\n**What you can do:**\n• Wait a few minutes and try again\n• Try one of the alternative models below${suggestionText}\n\nThis is a temporary issue on the provider's servers and should resolve shortly.`;
         } else if (errorMessage.includes('503')) {
             return `🔄 **Service Unavailable**\n\nThe AI service is temporarily unavailable. The system has automatically attempted to retry your request.\n\n**What you can do:**\n• Wait a few minutes and try again\n• Try switching to a different model or provider\n\nThis is usually a temporary issue that resolves quickly.`;
@@ -446,7 +446,7 @@ class APIManager {
     // Get alternative models when current model is overloaded
     getAlternativeModels() {
         const alternatives = [];
-        
+
         if (this.currentProvider === 'gemini') {
             // If using Gemini Flash, suggest Pro
             if (this.currentModel === 'gemini-1.5-flash') {
@@ -456,7 +456,7 @@ class APIManager {
                     reason: 'More stable, less likely to be overloaded'
                 });
             }
-            
+
             // Suggest Groq alternatives if configured
             if (this.isGroqConfigured()) {
                 alternatives.push({
@@ -480,7 +480,7 @@ class APIManager {
                     reason: 'Alternative Groq model'
                 });
             });
-            
+
             // Suggest Gemini if configured
             if (this.isGeminiConfigured()) {
                 alternatives.push({
@@ -490,7 +490,7 @@ class APIManager {
                 });
             }
         }
-        
+
         return alternatives;
     }
 }
@@ -511,7 +511,7 @@ function initializeAPIManager(retryCount = 0) {
                 console.error('❌ Failed to load API keys after 5 attempts');
             }
         }
-        
+
         apiManager = new APIManager();
         window.apiManager = apiManager;
         console.log('✅ API Manager initialized successfully');
@@ -522,11 +522,11 @@ function initializeAPIManager(retryCount = 0) {
 window.initializeAPIManager = initializeAPIManager;
 
 // Debug function to check API configuration
-window.debugAPIConfig = function() {
+window.debugAPIConfig = function () {
     console.log('=== API Configuration Debug ===');
     console.log('window.API_CONFIG:', window.API_CONFIG);
     console.log('API Manager exists:', !!window.apiManager);
-    
+
     if (window.apiManager) {
         console.log('Groq configured:', window.apiManager.isGroqConfigured());
         console.log('Gemini configured:', window.apiManager.isGeminiConfigured());
@@ -534,7 +534,7 @@ window.debugAPIConfig = function() {
         console.log('Current model:', window.apiManager.currentModel);
         console.log('Provider status:', window.apiManager.getProviderStatus());
     }
-    
+
     return {
         configExists: !!window.API_CONFIG,
         apiManagerExists: !!window.apiManager,
@@ -545,7 +545,7 @@ window.debugAPIConfig = function() {
 
 // Initialize when DOM is ready and API keys are loaded
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Wait for API keys to be loaded before initializing
         setTimeout(initializeAPIManager, 100);
     });
@@ -560,9 +560,9 @@ function promptForApiKeys() {
     if (!window.apiManager) {
         return `⚠️ **System Loading**\n\nPlease wait a moment for the system to initialize and try again.`;
     }
-    
+
     const status = window.apiManager.getProviderStatus();
-    
+
     // Since API keys are now pre-configured, only return error if there's a real configuration issue
     if (!status.groq.configured && !status.gemini.configured) {
         const message = `
@@ -574,10 +574,10 @@ Debug Info:
 - Groq API Key: ${window.API_CONFIG?.GROQ_API_KEY ? 'Present' : 'Missing'}
 - Gemini API Key: ${window.API_CONFIG?.GEMINI_API_KEY ? 'Present' : 'Missing'}
         `;
-        
+
         return message;
     }
-    
+
     return null;
 }
 
