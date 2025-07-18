@@ -328,6 +328,15 @@ body {
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.logo-container:hover {
+    background-color: var(--sidebar-hover);
+    transform: scale(1.02);
 }
 
 .logo {
@@ -348,6 +357,12 @@ body {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--sidebar-text);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.app-name:hover {
+    color: var(--accent-color);
 }
 
 
@@ -1170,7 +1185,7 @@ body {
 }
 
 .profile-avatar.logged-in {
-    background-color: var(--accent-color);
+    /* background-color: var(--accent-color); */
     color: white;
     border-color: var(--accent-color);
     position: relative;
@@ -1720,8 +1735,8 @@ body {
     background: none;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-full);
     cursor: pointer;
     display: flex;
@@ -1729,6 +1744,7 @@ body {
     justify-content: center;
     transition: all var(--transition-fast);
     flex-shrink: 0;
+    font-size: 0.9rem;
 }
 
 .attachment-btn:hover {
@@ -1755,7 +1771,8 @@ body {
     background: none;
     border: none;
     padding: var(--spacing-3) var(--spacing-4);
-    padding-right: 120px;
+    padding-left: 50px;
+    padding-right: 140px;
     font-size: var(--font-size-base);
     font-family: var(--font-family);
     color: var(--text-primary);
@@ -1772,12 +1789,26 @@ body {
 
 .input-actions {
     position: absolute;
+    left: var(--spacing-2);
     right: var(--spacing-2);
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--spacing-2);
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+.input-actions > * {
+    pointer-events: auto; /* Re-enable pointer events for child elements */
+}
+
+.input-actions-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    pointer-events: auto; /* Ensure buttons are clickable */
 }
 
 .model-select {
@@ -2952,11 +2983,29 @@ body {
         position: static;
         transform: none;
         margin-top: var(--spacing-2);
+        justify-content: flex-start;
+        gap: var(--spacing-2);
+        flex-wrap: wrap;
+    }
+
+    .input-actions-right {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        flex: 1;
         justify-content: space-between;
     }
 
     #messageInput {
         padding-right: var(--spacing-4);
+        padding-left: var(--spacing-4);
+    }
+
+    /* Mobile-specific attachment button styling */
+    .attachment-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
     }
 
     /* Mobile-specific model select styling to ensure theme compliance */
@@ -3157,12 +3206,12 @@ body {
 
     .settings-modal.tab-general .modal-body,
     .settings-modal.tab-chat .modal-body {
-        max-height: calc(80vh - 60px) !important;
+        max-height: calc(75vh - 1px) !important;
     }
 
     .settings-modal.tab-general .settings-content,
     .settings-modal.tab-chat .settings-content {
-        max-height: calc(70vh - 240px) !important;
+        max-height: calc(60vh - 240px) !important;
         overflow-y: auto;
     }
 }

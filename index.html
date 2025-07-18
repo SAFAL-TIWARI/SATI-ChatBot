@@ -325,23 +325,25 @@
             <!-- Message Input Area -->
             <div class="input-area">
                 <div class="input-container">
-                    <button class="attachment-btn" id="attachmentBtn" title="Attach file">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
                     <div class="input-wrapper">
                         <textarea id="messageInput" placeholder="Ask anything" rows="1" maxlength="2000"></textarea>
                         <div class="input-actions">
-                            <select id="modelSelect" class="model-select" title="Select AI Model">
-                                <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
-                                <option value="llama-3.3-70b-versatile">🟢 Llama 3.3 70B (Latest)</option>
-                                <option value="gemma2-9b-it">🟢 Gemma2 9B (Latest)</option>
-                                <option value="deepseek-r1-distill-llama-70b">🧠 DeepSeek R1 (Reasoning)</option>
-                                <option value="llama3-8b-8192">🔵 Llama3 8B (Legacy)</option>
-                                <option value="llama3-70b-8192">🔵 Llama3 70B (Legacy)</option>
-                            </select>
-                            <button class="mic-btn" id="micBtn" title="Voice input">
-                                <i class="fas fa-microphone"></i>
+                            <button class="attachment-btn" id="attachmentBtn" title="Attach file">
+                                <i class="fas fa-paperclip"></i>
                             </button>
+                            <div class="input-actions-right">
+                                <select id="modelSelect" class="model-select" title="Select AI Model">
+                                    <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
+                                    <option value="llama-3.3-70b-versatile">🟢 Llama 3.3 70B (Latest)</option>
+                                    <option value="gemma2-9b-it">🟢 Gemma2 9B (Latest)</option>
+                                    <option value="deepseek-r1-distill-llama-70b">🧠 DeepSeek R1 (Reasoning)</option>
+                                    <option value="llama3-8b-8192">🔵 Llama3 8B (Legacy)</option>
+                                    <option value="llama3-70b-8192">🔵 Llama3 70B (Legacy)</option>
+                                </select>
+                                <button class="mic-btn" id="micBtn" title="Voice input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <button class="send-btn" id="sendBtn" title="Send message">
@@ -571,13 +573,7 @@
                         <p id="profileEmail">user@example.com</p>
                     </div>
 
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-value" id="profileChatCount">0</div>
-                            <div class="stat-label">Chats</div>
-                        </div>
 
-                    </div>
 
 
 
@@ -872,25 +868,35 @@
         <!-- Settings Chat Tab Template -->
         <template id="settingsChatTemplate">
             <div class="form-section">
-                <h3>Chat Settings</h3>
-                <p>Advanced chat settings will be available in future updates.</p>
+                <h3>Chat Statistics</h3>
+                <div class="chat-stats-container" style="display: flex; gap: var(--spacing-4); margin-bottom: var(--spacing-4);">
+                    <div class="stat-item" style="text-align: center; padding: var(--spacing-3); background: var(--surface-color); border-radius: var(--border-radius); border: 1px solid var(--border-color); flex: 1;">
+                        <div class="stat-value" id="settingsChatCount" style="font-size: 2rem; font-weight: 600; color: var(--accent-color); margin-bottom: var(--spacing-1);">0</div>
+                        <div class="stat-label" style="font-size: var(--font-size-sm); color: var(--text-muted);">Total Chats</div>
+                    </div>
+                </div>
             </div>
 
+            
             <div class="form-section">
                 <h3>Prompt Library</h3>
                 <div class="form-row">
                     <div class="form-col">
                         <button class="form-control" id="promptLibraryBtn"
-                            style="background-color: var(--accent-color); color: white; border: none; display: flex; align-items: center; gap: var(--spacing-2); justify-content: center;">
-                            <i class="fas fa-flask"></i>
-                            <span>Open Prompt Library</span>
-                        </button>
-                    </div>
+                        style="background-color: rgb(53, 53, 146); color: white; border: none; display: flex; align-items: center; gap: var(--spacing-2); justify-content: center;">
+                        <i class="fas fa-flask"></i>
+                        <span>Open Prompt Library</span>
+                    </button>
                 </div>
-                <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--spacing-2);">
-                    Access pre-built prompts to enhance your conversations with SATI ChatBot.
-                </p>
             </div>
+            <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--spacing-2);">
+                Access pre-built prompts to enhance your conversations with SATI ChatBot.
+            </p>
+        </div>
+        <div class="form-section">
+            <h3>Chat Settings</h3>
+            <p>Advanced chat settings will be available in future updates.</p>
+        </div>
         </template>
 
         <!-- Settings Accessibility Tab Template -->
@@ -921,7 +927,7 @@
                     </div>
                     <div class="form-col">
                         <button class="form-control" onclick="exportAllChats()"
-                            style="background-color: var(--accent-color); color: white; border: none;">
+                            style="background-color: rgb(218, 128, 37); color: white; border: none;">
                             Export All Chat History
                         </button>
                     </div>

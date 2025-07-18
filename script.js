@@ -559,6 +559,7 @@ class ChatBotState {
             this.currentMessages = [];
         }
         this.saveState();
+        updateChatStatistics();
     }
 
     async renameConversation(id, newTitle) {
@@ -634,6 +635,7 @@ class ChatBotState {
                                 // Add to local cache
                                 this.conversations.push(newConv);
                                 this.saveState();
+                                updateChatStatistics();
                                 return newConv;
                             }
                         }
@@ -749,6 +751,8 @@ function initializeElements() {
         // Sidebar
         sidebar: document.getElementById('sidebar'),
         sidebarToggle: document.getElementById('sidebarToggle'),
+        logoContainer: document.querySelector('.logo-container'),
+        appName: document.querySelector('.app-name'),
         newChatBtn: document.getElementById('newChatBtn'),
         resourcesBtn: document.getElementById('resourcesBtn'),
         searchInput: document.getElementById('searchInput'),
@@ -1823,6 +1827,7 @@ async function updateSavedChatsList() {
                             messages: []
                         };
                         chatState.conversations.push(localConv);
+                        updateChatStatistics();
                     } else {
                         localConv.is_bookmarked = true;
                     }
@@ -1918,7 +1923,7 @@ async function updateSavedChatsList() {
                     chatManager.renderMessages();
                     updateConversationsList();
                 }
-                
+
                 // Close the saved chats modal after selecting a conversation
                 const savedChatsModal = document.getElementById('savedChatsModal');
                 if (savedChatsModal) {
@@ -2187,12 +2192,6 @@ async function deleteSavedConversation(conversationId) {
     }
 }
 
-//delete here above
-
-
-
-
-
 //delete here below
 async function deleteConversation(id) {
     const confirmed = await modal.confirm(
@@ -2303,6 +2302,14 @@ function setActiveSettingsTab(tab) {
     localStorage.setItem('sati_active_settings_tab', tab);
 }
 
+// Update chat statistics in settings
+function updateChatStatistics() {
+    const settingsChatCount = document.getElementById('settingsChatCount');
+    if (settingsChatCount) {
+        settingsChatCount.textContent = chatState.conversations.length;
+    }
+}
+
 // Settings Management
 function renderSettingsContent(tab) {
     const content = document.getElementById('settingsContent');
@@ -2338,6 +2345,7 @@ function renderSettingsContent(tab) {
 
         case 'chat':
             templateHelper.replaceTo('settingsChatTemplate', content);
+            updateChatStatistics();
             break;
 
         case 'accessibility':
@@ -2835,6 +2843,7 @@ async function clearAllConversations() {
         updateConversationsList();
         chatManager.renderMessages();
         elements.chatTitle.textContent = 'New Chat';
+        updateChatStatistics();
 
         toast.show('All conversations cleared', 'success');
     }
@@ -2910,6 +2919,66 @@ function initializeEventListeners() {
     // Sidebar toggle
     if (elements.sidebarToggle) {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
+    }
+
+    // Logo click to redirect to home
+    if (elements.logoContainer) {
+        elements.logoContainer.addEventListener('click', () => {
+            // If we're already on the home page (index.html), just reload
+            if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '') {
+                window.location.reload();
+            } else {
+                // Redirect to home page
+                window.location.href = 'index.html';
+            }
+        });
+        // Add cursor pointer style to indicate it's clickable
+        elements.logoContainer.style.cursor = 'pointer';
+    }
+
+    // App name click to redirect to home (alternative way to click logo)
+    if (elements.appName) {
+        elements.appName.addEventListener('click', () => {
+            // If we're already on the home page (index.html), just reload
+            if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '') {
+                window.location.reload();
+            } else {
+                // Redirect to home page
+                window.location.href = 'index.html';
+            }
+        });
+        // Add cursor pointer style to indicate it's clickable
+        elements.appName.style.cursor = 'pointer';
+    }
+
+    // Logo click to redirect to home
+    if (elements.logoContainer) {
+        elements.logoContainer.addEventListener('click', () => {
+            // If we're already on the home page (index.html), just reload
+            if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '') {
+                window.location.reload();
+            } else {
+                // Redirect to home page
+                window.location.href = 'index.html';
+            }
+        });
+        // Add cursor pointer style to indicate it's clickable
+        elements.logoContainer.style.cursor = 'pointer';
+    }
+
+    // App name click to redirect to home (alternative way to click logo)
+    if (elements.appName) {
+        elements.appName.addEventListener('click', () => {
+            // If we're already on the home page (index.html), just reload
+            if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html') || window.location.pathname === '') {
+                window.location.reload();
+            } else {
+                // Redirect to home page
+                window.location.href = 'index.html';
+            }
+        });
+        // Add cursor pointer style to indicate it's clickable
+        elements.appName.style.cursor = 'pointer';
     }
 
     // Saved chats button - use modal instead
@@ -4745,7 +4814,6 @@ function showProfileModal() {
     // Get profile elements
     const profileUsername = document.getElementById('profileUsername');
     const profileEmail = document.getElementById('profileEmail');
-    const profileChatCount = document.getElementById('profileChatCount');
 
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileActions = document.getElementById('profileActions');
@@ -4800,8 +4868,7 @@ function showProfileModal() {
                 profileAvatarLarge.style.backgroundColor = 'var(--accent-color)';
             }
 
-            // Update stats
-            profileChatCount.textContent = chatState.conversations.length;
+
 
 
 
@@ -4847,9 +4914,6 @@ function showProfileModal() {
                 profileAvatarLarge.innerHTML = '?';
                 profileAvatarLarge.style.backgroundColor = 'var(--text-muted)';
             }
-
-            profileChatCount.textContent = chatState.conversations.length;
-
             // Update profile actions to show login button
             if (profileActions) {
                 profileActions.innerHTML = `
@@ -5327,6 +5391,7 @@ function initializeApp() {
         // Render initial state
         chatManager.renderMessages();
         updateConversationsList();
+        updateChatStatistics();
 
         // Clear guest conversations if user is not logged in
         if (!chatState.isLoggedIn) {
@@ -5334,14 +5399,7 @@ function initializeApp() {
             chatState.conversations = [];
             localStorage.removeItem('sati_conversations');
             updateConversationsList();
-        }
-
-        // Clear guest conversations if user is not logged in
-        if (!chatState.isLoggedIn) {
-            console.log('👤 Guest mode detected - clearing any stored conversations');
-            chatState.conversations = [];
-            localStorage.removeItem('sati_conversations');
-            updateConversationsList();
+            updateChatStatistics();
         }
 
         // Initialize event listeners
@@ -5814,7 +5872,7 @@ async function showSavedChatsModal() {
 
         // Initialize search functionality
         initializeSavedChatsSearch();
-        
+
         // Focus on search input for better UX
         setTimeout(() => {
             const searchInput = document.getElementById('savedChatsSearchInput');
@@ -5848,7 +5906,7 @@ async function showSavedChatsModal() {
 function initializeSavedChatsSearch() {
     const searchInput = document.getElementById('savedChatsSearchInput');
     const clearSearchBtn = document.getElementById('clearSavedChatsSearch');
-    
+
     if (!searchInput || !clearSearchBtn) {
         console.log('Search elements not found in saved chats modal');
         return;
@@ -5870,7 +5928,7 @@ function initializeSavedChatsSearch() {
             if (titleElement) {
                 const title = titleElement.textContent.toLowerCase();
                 const matches = title.includes(searchTerm.toLowerCase());
-                
+
                 if (matches || searchTerm === '') {
                     item.style.display = 'flex';
                     visibleCount++;
@@ -5901,7 +5959,7 @@ function initializeSavedChatsSearch() {
     // Search input event listener
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.trim();
-        
+
         // Show/hide clear button
         if (searchTerm) {
             clearSearchBtn.style.display = 'flex';

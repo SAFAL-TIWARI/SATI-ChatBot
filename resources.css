@@ -107,6 +107,18 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-logo:hover {
+    color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.nav-logo:visited {
+    color: var(--primary-color);
 }
 
 .nav-logo i {
@@ -519,7 +531,6 @@ body {
 .resource-item:hover {
     background: var(--hover-color, rgba(25, 118, 210, 0.1));
     border-color: var(--primary-color);
-    transform: translateX(5px);
 }
 
 .resource-item.active {
