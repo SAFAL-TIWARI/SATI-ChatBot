@@ -1164,10 +1164,12 @@ body {
 /* Mobile chat title truncation */
 @media (max-width: 768px) {
     .chat-title-container {
-        margin-left: 60px; /* Account for sidebar toggle button */
-        margin-right: 60px; /* Account for top-bar actions */
+        margin-left: 60px;
+        /* Account for sidebar toggle button */
+        margin-right: 60px;
+        /* Account for top-bar actions */
     }
-    
+
     .chat-title {
         font-size: var(--font-size-base);
         white-space: nowrap;
@@ -1184,10 +1186,11 @@ body {
         margin-left: 50px;
         margin-right: 50px;
     }
-    
+
     .chat-title {
         font-size: var(--font-size-sm);
-        max-width: 200px; /* Limit title width more aggressively */
+        max-width: 200px;
+        /* Limit title width more aggressively */
     }
 }
 
@@ -1628,23 +1631,23 @@ body {
     .user-message {
         padding-left: var(--spacing-4);
     }
-    
+
     .user-message .message-content {
         max-width: 85%;
         min-width: 150px;
     }
-    
+
     .bot-message {
         padding-right: var(--spacing-2);
     }
-    
+
     .bot-message .message-content {
         max-width: 95%;
         width: 95%;
     }
 
-    .message-text{
-        padding:0 0 0 0 !important;
+    .message-text {
+        padding: 0 0 0 0 !important;
     }
 }
 
@@ -1652,32 +1655,32 @@ body {
     .user-message {
         padding-left: var(--spacing-2);
     }
-    
+
     .user-message .message-content {
         max-width: 90%;
         min-width: 120px;
     }
-    
+
     .bot-message {
         padding-right: var(--spacing-1);
     }
-    
+
     .bot-message .message-content {
         max-width: 98%;
         width: 98%;
     }
-    
+
     .message-content {
         padding: var(--spacing-3);
     }
-    
+
     /* Mobile-specific code block handling */
     .message-text pre {
         padding: var(--spacing-2);
         font-size: 0.8rem;
         line-height: 1.4;
     }
-    
+
     /* Convert tables to vertical layout on mobile */
     .message-text table,
     .message-text table thead,
@@ -1688,13 +1691,13 @@ body {
         display: block;
         width: 100%;
     }
-    
+
     .message-text table thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
     }
-    
+
     .message-text table tr {
         border: 1px solid var(--border-color);
         margin-bottom: var(--spacing-2);
@@ -1702,7 +1705,7 @@ body {
         border-radius: var(--radius-md);
         background-color: var(--bg-tertiary);
     }
-    
+
     .message-text table td {
         border: none !important;
         position: relative;
@@ -1711,7 +1714,7 @@ body {
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
-    
+
     .message-text table td:before {
         content: attr(data-label) ": ";
         position: absolute;
@@ -1722,7 +1725,7 @@ body {
         font-weight: 600;
         color: var(--text-primary);
     }
-    
+
     /* Additional mobile fixes for very small screens */
     @media (max-width: 480px) {
         .copy-btn {
@@ -1732,22 +1735,22 @@ body {
             height: 20px;
             font-size: 9px;
         }
-        
+
         .message-content {
             padding-right: 28px !important;
         }
-        
+
         .user-message .message-content,
         .bot-message .message-content {
             padding-right: 28px !important;
             padding-left: var(--spacing-2) !important;
         }
-        
+
         /* Special handling for code blocks on very small screens */
         .code-block-container {
             margin-right: -16px;
         }
-        
+
         .message-text pre {
             margin-right: -12px;
         }
@@ -2168,6 +2171,75 @@ body {
     }
 }
 
+/* Voice Indicator Styles */
+.voice-indicator {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3) var(--spacing-4);
+    margin-bottom: var(--spacing-2);
+    display: none;
+    align-items: center;
+    gap: var(--spacing-3);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    opacity: 0;
+    transition: all var(--transition-normal);
+}
+
+.voice-indicator.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+.voice-indicator-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.voice-wave {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 20px;
+}
+
+.wave-bar {
+    width: 3px;
+    background: var(--accent-color);
+    border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) { animation-delay: 0s; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes wave {
+    0%, 40%, 100% {
+        height: 4px;
+        opacity: 0.5;
+    }
+    20% {
+        height: 20px;
+        opacity: 1;
+    }
+}
+
+.voice-text {
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 .send-btn {
     background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
     border: none;
@@ -2283,31 +2355,34 @@ body {
         border-color: var(--accent-color);
         transform: scale(0.95);
     }
-    
+
     /* Add padding to message content to prevent text overlap with copy button */
     .message-content {
-        padding-right: 36px !important; /* Make room for copy button */
+        padding-right: 36px !important;
+        /* Make room for copy button */
     }
-    
+
     /* Adjust padding for user messages specifically */
     .user-message .message-content {
         padding-right: 36px !important;
         padding-left: var(--spacing-3) !important;
     }
-    
+
     /* Adjust padding for bot messages */
     .bot-message .message-content {
         padding-right: 36px !important;
         padding-left: var(--spacing-3) !important;
     }
-    
+
     /* Special handling for code blocks - reduce right padding */
     .code-block-container {
-        margin-right: -20px; /* Extend code block closer to copy button */
+        margin-right: -20px;
+        /* Extend code block closer to copy button */
     }
-    
+
     .message-text pre {
-        margin-right: -16px; /* Extend pre blocks closer to copy button */
+        margin-right: -16px;
+        /* Extend pre blocks closer to copy button */
     }
 }
 
@@ -4902,7 +4977,7 @@ textarea:focus-visible {
 
 /* Code Block Container */
 .code-block-container {
-    margin: -40px 0;
+    margin: -20px 0 -40px 0;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--bg-tertiary);

@@ -766,6 +766,7 @@ function initializeElements() {
         messageInput: document.getElementById('messageInput'),
         sendBtn: document.getElementById('sendBtn'),
         stopBtn: document.getElementById('stopBtn'),
+        micBtn: document.getElementById('micBtn'),
         modelSelect: document.getElementById('modelSelect'),
 
         // Top bar
@@ -1104,6 +1105,232 @@ const utils = {
         return content;
     }
 };
+
+// Voice Recognition System
+class VoiceRecognition {
+    constructor() {
+        this.recognition = null;
+        this.isListening = false;
+        this.isSupported = false;
+        this.currentTranscript = '';
+        this.finalTranscript = '';
+        
+        this.initializeRecognition();
+    }
+    
+    initializeRecognition() {
+        // Check for browser support
+        if ('webkitSpeechRecognition' in window) {
+            this.recognition = new webkitSpeechRecognition();
+            this.isSupported = true;
+        } else if ('SpeechRecognition' in window) {
+            this.recognition = new SpeechRecognition();
+            this.isSupported = true;
+        } else {
+            console.warn('Speech recognition not supported in this browser');
+            return;
+        }
+        
+        // Configure recognition settings
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en-US';
+        this.recognition.maxAlternatives = 1;
+        
+        // Set up event listeners
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        if (!this.recognition) return;
+        
+        this.recognition.onstart = () => {
+            console.log('🎤 Voice recognition started');
+            this.isListening = true;
+            this.updateMicButton(true);
+            this.showVoiceIndicator();
+        };
+        
+        this.recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            // Update the input field with real-time transcription
+            this.updateInputField(finalTranscript, interimTranscript);
+        };
+        
+        this.recognition.onend = () => {
+            console.log('🎤 Voice recognition ended');
+            this.isListening = false;
+            this.updateMicButton(false);
+            this.hideVoiceIndicator();
+        };
+        
+        this.recognition.onerror = (event) => {
+            console.error('🎤 Voice recognition error:', event.error);
+            this.isListening = false;
+            this.updateMicButton(false);
+            this.hideVoiceIndicator();
+            
+            // Show user-friendly error messages
+            let errorMessage = 'Voice recognition error occurred.';
+            switch (event.error) {
+                case 'no-speech':
+                    errorMessage = 'No speech detected. Please try again.';
+                    break;
+                case 'audio-capture':
+                    errorMessage = 'Microphone not accessible. Please check permissions.';
+                    break;
+                case 'not-allowed':
+                    errorMessage = 'Microphone access denied. Please allow microphone access.';
+                    break;
+                case 'network':
+                    errorMessage = 'Network error occurred during voice recognition.';
+                    break;
+            }
+            
+            if (window.toast) {
+                window.toast.show(errorMessage, 'error');
+            }
+        };
+    }
+    
+    startListening() {
+        if (!this.isSupported) {
+            if (window.toast) {
+                window.toast.show('Voice recognition is not supported in this browser.', 'error');
+            }
+            return;
+        }
+        
+        if (this.isListening) {
+            this.stopListening();
+            return;
+        }
+        
+        try {
+            this.currentTranscript = '';
+            this.finalTranscript = '';
+            
+            // Clear the input field when starting voice recognition
+            if (elements.messageInput) {
+                elements.messageInput.value = '';
+                elements.messageInput.style.height = 'auto';
+            }
+            
+            this.recognition.start();
+        } catch (error) {
+            console.error('Error starting voice recognition:', error);
+            if (window.toast) {
+                window.toast.show('Failed to start voice recognition.', 'error');
+            }
+        }
+    }
+    
+    stopListening() {
+        if (this.recognition && this.isListening) {
+            this.recognition.stop();
+        }
+    }
+    
+    updateInputField(finalText, interimText) {
+        if (!elements.messageInput) return;
+        
+        // Combine final and interim text
+        const fullText = (this.finalTranscript + finalText + interimText).trim();
+        
+        // Update the textarea
+        elements.messageInput.value = fullText;
+        
+        // Store final transcript for next iteration
+        if (finalText) {
+            this.finalTranscript += finalText;
+        }
+        
+        // Auto-resize textarea
+        elements.messageInput.style.height = 'auto';
+        elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
+        
+        // Focus the input
+        elements.messageInput.focus();
+        
+        // Set cursor to end
+        elements.messageInput.setSelectionRange(elements.messageInput.value.length, elements.messageInput.value.length);
+    }
+    
+    updateMicButton(isActive) {
+        if (!elements.micBtn) return;
+        
+        const icon = elements.micBtn.querySelector('i');
+        if (isActive) {
+            elements.micBtn.classList.add('recording');
+            elements.micBtn.title = 'Stop recording';
+            if (icon) {
+                icon.className = 'fas fa-stop';
+            }
+        } else {
+            elements.micBtn.classList.remove('recording');
+            elements.micBtn.title = 'Voice input';
+            if (icon) {
+                icon.className = 'fas fa-microphone';
+            }
+        }
+    }
+    
+    showVoiceIndicator() {
+        // Create or show voice indicator
+        let indicator = document.getElementById('voiceIndicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'voiceIndicator';
+            indicator.className = 'voice-indicator';
+            indicator.innerHTML = `
+                <div class="voice-indicator-content">
+                    <div class="voice-wave">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <span class="voice-text">Listening...</span>
+                </div>
+            `;
+            
+            // Add to input area
+            const inputArea = document.querySelector('.input-area');
+            if (inputArea) {
+                inputArea.appendChild(indicator);
+            }
+        }
+        
+        indicator.style.display = 'flex';
+        setTimeout(() => {
+            indicator.classList.add('show');
+        }, 10);
+    }
+    
+    hideVoiceIndicator() {
+        const indicator = document.getElementById('voiceIndicator');
+        if (indicator) {
+            indicator.classList.remove('show');
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 300);
+        }
+    }
+}
+
 //delete here above
 
 
@@ -3379,6 +3606,15 @@ function initializeEventListeners() {
         elements.sendBtn.addEventListener('click', sendMessage);
     }
 
+    // Microphone button
+    if (elements.micBtn) {
+        elements.micBtn.addEventListener('click', () => {
+            if (window.voiceRecognition) {
+                window.voiceRecognition.startListening();
+            }
+        });
+    }
+
     // Stop button
     if (elements.stopBtn) {
         elements.stopBtn.addEventListener('click', () => {
@@ -3861,13 +4097,7 @@ function initializeEventListeners() {
         }
     });
 
-    // Voice input (placeholder)
-    const micBtn = document.getElementById('micBtn');
-    if (micBtn) {
-        micBtn.addEventListener('click', () => {
-            toast.show('Voice input feature coming soon', 'info');
-        });
-    }
+    // Voice input functionality is now handled in initializeEventListeners()
 
     // Attachment button (placeholder)
     const attachmentBtn = document.getElementById('attachmentBtn');
@@ -4268,6 +4498,11 @@ function cleanupToggleHoverBehavior() {
 async function sendMessage() {
     const content = elements.messageInput.value.trim();
     if (!content || chatManager.isProcessing) return;
+
+    // Stop voice recognition if it's active
+    if (window.voiceRecognition && window.voiceRecognition.isListening) {
+        window.voiceRecognition.stopListening();
+    }
 
     // Create new conversation if none exists
     if (!chatState.currentConversationId) {
@@ -5708,6 +5943,10 @@ function initializeApp() {
 
         // Initialize Cool Mode for login buttons
         initializeCoolMode();
+
+        // Initialize Voice Recognition
+        window.voiceRecognition = new VoiceRecognition();
+        console.log('✅ Voice Recognition initialized');
 
         // Apply saved theme and update theme toggle button
         updateThemeToggleButton();
