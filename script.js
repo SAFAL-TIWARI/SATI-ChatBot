@@ -871,8 +871,9 @@ const utils = {
             tableHtml += '<tbody>';
             rows.forEach(row => {
                 tableHtml += '<tr>';
-                row.forEach(cell => {
-                    tableHtml += `<td>${utils.escapeHtml(cell)}</td>`;
+                row.forEach((cell, index) => {
+                    const headerLabel = headers[index] || `Column ${index + 1}`;
+                    tableHtml += `<td data-label="${utils.escapeHtml(headerLabel)}">${utils.escapeHtml(cell)}</td>`;
                 });
                 tableHtml += '</tr>';
             });
@@ -1846,15 +1847,6 @@ class ChatManager {
 
         const messageDiv = messageElement.querySelector('.message');
         messageDiv.className = `message ${message.role}-message`;
-
-        const isUser = message.role === 'user';
-        const avatar = isUser ? '👤' : '<i class="fas fa-robot"></i>';
-        const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
-
-        // Populate template content
-        const avatarDiv = messageElement.querySelector('.avatar');
-        avatarDiv.className = avatarClass;
-        avatarDiv.innerHTML = avatar;
 
         // Use displayContent for user messages if available, otherwise use content
         const contentToDisplay = message.displayContent || message.content;

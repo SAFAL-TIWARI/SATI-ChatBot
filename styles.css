@@ -48,8 +48,8 @@
     --font-size-base: 1rem;
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-2xl: 1.5rem;
+    --font-size-2xl: 1.3rem;
+    --font-size-2xl: 1.2rem;
     --font-size-3xl: 1.875rem;
 
     /* Spacing */
@@ -192,6 +192,8 @@ body {
     height: 100vh;
     width: 100vw;
     position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* Mobile app container fixes */
@@ -1080,6 +1082,8 @@ body {
     margin-left: 260px;
     /* Default sidebar width */
     width: calc(100% - 260px);
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* Main content adjustments for sidebar states - Desktop only */
@@ -1154,8 +1158,37 @@ body {
 
 .chat-title {
     font-size: var(--font-size-lg);
-    font-weight: 600;
     color: var(--text-primary);
+}
+
+/* Mobile chat title truncation */
+@media (max-width: 768px) {
+    .chat-title-container {
+        margin-left: 60px; /* Account for sidebar toggle button */
+        margin-right: 60px; /* Account for top-bar actions */
+    }
+    
+    .chat-title {
+        font-size: var(--font-size-base);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 var(--spacing-2);
+    }
+}
+
+/* Very small screens - more aggressive title truncation */
+@media (max-width: 480px) {
+    .chat-title-container {
+        margin-left: 50px;
+        margin-right: 50px;
+    }
+    
+    .chat-title {
+        font-size: var(--font-size-sm);
+        max-width: 200px; /* Limit title width more aggressively */
+    }
 }
 
 .top-bar-actions {
@@ -1490,8 +1523,11 @@ body {
 .chat-messages {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: var(--spacing-6);
     transition: padding var(--transition-normal);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Chat messages responsive padding adjustments - Desktop only */
@@ -1536,61 +1572,186 @@ body {
 /* Message Styles */
 .message {
     display: flex;
-    gap: var(--spacing-4);
     margin-bottom: var(--spacing-6);
-    max-width: 90%;
+    width: 100%;
 }
 
+/* User messages - right aligned with smaller width */
 .user-message {
-    flex-direction: row-reverse;
+    justify-content: flex-end;
+    padding-left: var(--spacing-8);
 }
 
 .user-message .message-content {
     background-color: var(--user-message-bg);
     border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-md) var(--radius-2xl);
+    max-width: 70%;
+    min-width: 200px;
+    margin-left: auto;
+}
+
+/* Bot messages - left aligned with full width */
+.bot-message {
+    justify-content: flex-start;
+    padding-right: var(--spacing-4);
 }
 
 .bot-message .message-content {
     background-color: var(--bot-message-bg);
     border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-2xl) var(--radius-md);
+    max-width: 90%;
+    width: 90%;
 }
 
+/* Hide message avatars */
 .message-avatar {
-    flex-shrink: 0;
+    display: none;
 }
 
 .user-avatar,
 .bot-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-}
-
-.user-avatar {
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-    color: white;
-}
-
-.bot-avatar {
-    background: linear-gradient(135deg, var(--info-color), #2b77cb);
-    color: white;
-}
-
-.bot-avatar i {
-    font-size: 1.2rem;
+    display: none;
 }
 
 .message-content {
-    flex: 1;
-    max-width: calc(100% - 50px);
     padding: var(--spacing-4);
     border: 1px solid var(--border-color);
     position: relative;
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+}
+
+/* Responsive design for messages */
+@media (max-width: 768px) {
+    .user-message {
+        padding-left: var(--spacing-4);
+    }
+    
+    .user-message .message-content {
+        max-width: 85%;
+        min-width: 150px;
+    }
+    
+    .bot-message {
+        padding-right: var(--spacing-2);
+    }
+    
+    .bot-message .message-content {
+        max-width: 95%;
+        width: 95%;
+    }
+
+    .message-text{
+        padding:0 0 0 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-message {
+        padding-left: var(--spacing-2);
+    }
+    
+    .user-message .message-content {
+        max-width: 90%;
+        min-width: 120px;
+    }
+    
+    .bot-message {
+        padding-right: var(--spacing-1);
+    }
+    
+    .bot-message .message-content {
+        max-width: 98%;
+        width: 98%;
+    }
+    
+    .message-content {
+        padding: var(--spacing-3);
+    }
+    
+    /* Mobile-specific code block handling */
+    .message-text pre {
+        padding: var(--spacing-2);
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+    
+    /* Convert tables to vertical layout on mobile */
+    .message-text table,
+    .message-text table thead,
+    .message-text table tbody,
+    .message-text table th,
+    .message-text table td,
+    .message-text table tr {
+        display: block;
+        width: 100%;
+    }
+    
+    .message-text table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    .message-text table tr {
+        border: 1px solid var(--border-color);
+        margin-bottom: var(--spacing-2);
+        padding: var(--spacing-2);
+        border-radius: var(--radius-md);
+        background-color: var(--bg-tertiary);
+    }
+    
+    .message-text table td {
+        border: none !important;
+        position: relative;
+        padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 35% !important;
+        margin-bottom: var(--spacing-1);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .message-text table td:before {
+        content: attr(data-label) ": ";
+        position: absolute;
+        left: var(--spacing-2);
+        width: 30%;
+        padding-right: var(--spacing-1);
+        white-space: nowrap;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    /* Additional mobile fixes for very small screens */
+    @media (max-width: 480px) {
+        .copy-btn {
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            font-size: 9px;
+        }
+        
+        .message-content {
+            padding-right: 28px !important;
+        }
+        
+        .user-message .message-content,
+        .bot-message .message-content {
+            padding-right: 28px !important;
+            padding-left: var(--spacing-2) !important;
+        }
+        
+        /* Special handling for code blocks on very small screens */
+        .code-block-container {
+            margin-right: -16px;
+        }
+        
+        .message-text pre {
+            margin-right: -12px;
+        }
+    }
 }
 
 .message-text {
@@ -1598,6 +1759,9 @@ body {
     line-height: 1.6;
     word-wrap: break-word;
     padding: 0 var(--spacing-2);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 .message-text h3 {
@@ -1638,11 +1802,86 @@ body {
     border-radius: var(--radius-lg);
     overflow-x: auto;
     margin: var(--spacing-3) 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: pre;
+    word-wrap: normal;
+    overflow-wrap: normal;
 }
 
 .message-text pre code {
     background: none;
     padding: 0;
+    white-space: pre;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Table styles to prevent overflow */
+.message-text table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-3) 0;
+    font-size: var(--font-size-sm);
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
+}
+
+.message-text table thead,
+.message-text table tbody,
+.message-text table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.message-text table th,
+.message-text table td {
+    padding: var(--spacing-2);
+    border: 1px solid var(--border-color);
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.message-text table th {
+    background-color: var(--bg-tertiary);
+    font-weight: 600;
+}
+
+/* Wrapper for tables to handle horizontal scroll */
+.message-text .table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    margin: var(--spacing-3) 0;
+}
+
+/* Additional content overflow handling */
+.message-text img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+.message-text blockquote {
+    border-left: 4px solid var(--accent-color);
+    padding-left: var(--spacing-4);
+    margin: var(--spacing-3) 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* Ensure all content respects container width */
+.message-text * {
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .message-timestamp {
@@ -2031,6 +2270,11 @@ body {
         opacity: 1;
         background: var(--bg-tertiary);
         border-color: var(--border-color);
+        top: 6px;
+        right: 6px;
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
     }
 
     .copy-btn:active {
@@ -2038,6 +2282,32 @@ body {
         color: white;
         border-color: var(--accent-color);
         transform: scale(0.95);
+    }
+    
+    /* Add padding to message content to prevent text overlap with copy button */
+    .message-content {
+        padding-right: 36px !important; /* Make room for copy button */
+    }
+    
+    /* Adjust padding for user messages specifically */
+    .user-message .message-content {
+        padding-right: 36px !important;
+        padding-left: var(--spacing-3) !important;
+    }
+    
+    /* Adjust padding for bot messages */
+    .bot-message .message-content {
+        padding-right: 36px !important;
+        padding-left: var(--spacing-3) !important;
+    }
+    
+    /* Special handling for code blocks - reduce right padding */
+    .code-block-container {
+        margin-right: -20px; /* Extend code block closer to copy button */
+    }
+    
+    .message-text pre {
+        margin-right: -16px; /* Extend pre blocks closer to copy button */
     }
 }
 
