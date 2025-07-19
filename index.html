@@ -331,6 +331,7 @@
                             <button class="attachment-btn" id="attachmentBtn" title="Attach file">
                                 <i class="fas fa-paperclip"></i>
                             </button>
+                            <input type="file" id="txtFileInput" accept=".txt" style="display:none" />
                             <div class="input-actions-right">
                                 <select id="modelSelect" class="model-select" title="Select AI Model">
                                     <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
@@ -352,6 +353,11 @@
                     <button class="stop-btn" id="stopBtn" title="Stop generation" style="display: none;">
                         <i class="fas fa-stop"></i>
                     </button>
+                </div>
+                <!-- Warning card for file type -->
+                <div id="fileTypeWarning" class="alert-box warning" style="display:none;margin-top:10px;">
+                    <i class="alert-icon fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">Currently only txt files could be added.</div>
                 </div>
             </div>
         </main>

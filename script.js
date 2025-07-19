@@ -6797,3 +6797,69 @@ async function deleteSavedConversation(conversationId) {
     // For compatibility, just call deleteConversation
     await deleteConversation(conversationId);
 }
+
+// File Attachment Logic
+function initializeFileAttachment() {
+    const attachmentBtn = document.getElementById('attachmentBtn');
+    const txtFileInput = document.getElementById('txtFileInput');
+    const fileTypeWarning = document.getElementById('fileTypeWarning');
+
+    if (!attachmentBtn || !txtFileInput || !fileTypeWarning) return;
+
+    // Show warning card when attachment button is clicked
+    attachmentBtn.addEventListener('click', () => {
+        fileTypeWarning.style.display = 'flex';
+        setTimeout(() => { fileTypeWarning.style.display = 'none'; }, 3000);
+        txtFileInput.value = '';
+        txtFileInput.click();
+    });
+
+    // Handle file selection
+    txtFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
+            toast.show('Files other than .txt file extension are not accepted currently', 'warning', 4000);
+            return;
+        }
+        // Read file text
+        const reader = new FileReader();
+        reader.onload = async function(evt) {
+            const text = evt.target.result;
+            if (!text || typeof text !== 'string') {
+                toast.show('Failed to extract text from file', 'error');
+                return;
+            }
+            // Upload to Supabase
+            if (!window.supabase) {
+                toast.show('Supabase not initialized', 'error');
+                return;
+            }
+            const userEmail = window.supabaseDB.getCurrentUserEmail && window.supabaseDB.getCurrentUserEmail();
+            if (!userEmail) {
+                toast.show('You must be logged in to upload files', 'warning');
+                return;
+            }
+            const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
+            const { data, error } = await window.supabase.storage.from('user-txt-uploads').upload(filePath, file, { upsert: true, contentType: 'text/plain' });
+            if (error) {
+                toast.show('Failed to upload file to Supabase', 'error');
+                return;
+            }
+            // Schedule deletion after 5 minutes
+            setTimeout(async () => {
+                await window.supabase.storage.from('user-txt-uploads').remove([filePath]);
+            }, 5 * 60 * 1000);
+            // Pass text to chat as user input
+            if (elements.messageInput) {
+                elements.messageInput.value = text;
+                elements.messageInput.style.height = 'auto';
+                elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
+            }
+            toast.show('Text extracted and ready to send!', 'success');
+        };
+        reader.readAsText(file);
+    });
+}
+// Initialize file attachment after DOM is ready
+window.addEventListener('DOMContentLoaded', initializeFileAttachment);

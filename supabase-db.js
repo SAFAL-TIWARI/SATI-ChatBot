@@ -485,6 +485,41 @@ function subscribeToConversations(callback) {
     }
 }
 
+// Helper to upload txt file to Supabase Storage
+async function uploadTxtFileToSupabase(file, userEmail) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { data: null, error: new Error('Database not initialized') };
+    }
+    if (!userEmail) {
+        console.error('❌ User email not provided');
+        return { data: null, error: new Error('User not authenticated') };
+    }
+    const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
+    try {
+        const { data, error } = await supabaseDB.storage.from('user-txt-uploads').upload(filePath, file, { upsert: true, contentType: 'text/plain' });
+        if (error) throw error;
+        return { data, filePath, error: null };
+    } catch (error) {
+        console.error('Error uploading txt file:', error);
+        return { data: null, error };
+    }
+}
+// Helper to delete txt file from Supabase Storage
+async function deleteTxtFileFromSupabase(filePath) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { success: false, error: new Error('Database not initialized') };
+    }
+    try {
+        const { error } = await supabaseDB.storage.from('user-txt-uploads').remove([filePath]);
+        if (error) throw error;
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error deleting txt file:', error);
+        return { success: false, error };
+    }
+}
 
 
 // Export all functions
