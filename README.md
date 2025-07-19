@@ -19,8 +19,8 @@ Modern AI chatbot for Samrat Ashok Technological Institute (SATI) with dual AI p
 ### Local Development
 ```bash
 # Clone repository
-git clone https://github.com/SAFAL-TIWARI/SATI-ChatBot/
-cd SATI-ChatBot
+git clone https://github.com/UtkiVish/redoing_chatbot.git
+cd redoing_chatbot
 
 # Run locally
 npm start
@@ -44,7 +44,7 @@ Get API keys from:
 ## 📁 Project Structure
 
 ```
-SATI-ChatBot/
+redoing_chatbot/
 ├── index.html          # Main chatbot interface
 ├── resources.html      # Academic resources page
 ├── about.html         # About page
@@ -138,7 +138,7 @@ Built for FluxWave Hackathon by Flux Club, [SATI Vidisha](https://satiengg.in/)
 
 ## 🌐 Live Demo
 
-**Application**: [https://sati-chatbot.vercel.app/](https://sati-chatbot.vercel.app/)
+**Application**: [https://redoing-chatbot.vercel.app/](https://redoing-chatbot.vercel.app/)
 
 ## 📄 License
 
