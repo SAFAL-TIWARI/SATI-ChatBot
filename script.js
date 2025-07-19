@@ -6820,43 +6820,76 @@ function initializeFileAttachment() {
         if (!file) return;
         if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
             toast.show('Files other than .txt file extension are not accepted currently', 'warning', 4000);
+            console.warn('[File Validation] Non-txt file rejected:', file.name);
             return;
         }
         // Read file text
         const reader = new FileReader();
         reader.onload = async function(evt) {
-            const text = evt.target.result;
-            if (!text || typeof text !== 'string') {
-                toast.show('Failed to extract text from file', 'error');
-                return;
+            try {
+                const text = evt.target.result;
+                if (!text || typeof text !== 'string') {
+                    toast.show('Failed to extract text from file', 'error');
+                    console.error('[File Extraction] Could not extract text from file:', file.name);
+                    return;
+                }
+                // Upload to Supabase
+                if (!window.supabaseClient) {
+                    toast.show('Supabase not initialized', 'error');
+                    console.error('[Supabase] supabaseClient not available');
+                    return;
+                }
+                const userEmail = window.supabaseDB.getCurrentUserEmail && window.supabaseDB.getCurrentUserEmail();
+                if (!userEmail) {
+                    toast.show('You must be logged in to upload files', 'warning');
+                    console.warn('[Auth] User not logged in for file upload');
+                    return;
+                }
+                const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
+                let uploadResult;
+                try {
+                    uploadResult = await window.supabaseClient.storage.from('user-txt-uploads').upload(filePath, file, { upsert: true, contentType: 'text/plain' });
+                } catch (err) {
+                    toast.show('Supabase upload failed (network/client error)', 'error');
+                    console.error('[Supabase Upload] Network/client error:', err);
+                    return;
+                }
+                const { data, error } = uploadResult || {};
+                if (error) {
+                    toast.show('Failed to upload file to Supabase', 'error');
+                    console.error('[Supabase Upload] API error:', error);
+                    return;
+                }
+                // Schedule deletion after 5 minutes
+                setTimeout(async () => {
+                    try {
+                        await window.supabaseClient.storage.from('user-txt-uploads').remove([filePath]);
+                        console.log('[Supabase] File deleted after 5 minutes:', filePath);
+                    } catch (delErr) {
+                        console.error('[Supabase Delete] Error deleting file after timer:', delErr);
+                    }
+                }, 5 * 60 * 1000);
+                // Pass text to chat as user input
+                if (elements.messageInput) {
+                    elements.messageInput.value = text;
+                    elements.messageInput.style.height = 'auto';
+                    elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
+                }
+                toast.show('Text extracted and ready to send!', 'success');
+                console.log('[File Attachment] .txt file processed and uploaded:', filePath);
+            } catch (err) {
+                // General error catch
+                toast.show('Unexpected error during file processing', 'error');
+                if (err && err.name && err.message) {
+                    console.error(`[File Attachment][${err.name}] ${err.message}`, err);
+                } else {
+                    console.error('[File Attachment] Unknown error:', err);
+                }
             }
-            // Upload to Supabase
-            if (!window.supabase) {
-                toast.show('Supabase not initialized', 'error');
-                return;
-            }
-            const userEmail = window.supabaseDB.getCurrentUserEmail && window.supabaseDB.getCurrentUserEmail();
-            if (!userEmail) {
-                toast.show('You must be logged in to upload files', 'warning');
-                return;
-            }
-            const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
-            const { data, error } = await window.supabase.storage.from('user-txt-uploads').upload(filePath, file, { upsert: true, contentType: 'text/plain' });
-            if (error) {
-                toast.show('Failed to upload file to Supabase', 'error');
-                return;
-            }
-            // Schedule deletion after 5 minutes
-            setTimeout(async () => {
-                await window.supabase.storage.from('user-txt-uploads').remove([filePath]);
-            }, 5 * 60 * 1000);
-            // Pass text to chat as user input
-            if (elements.messageInput) {
-                elements.messageInput.value = text;
-                elements.messageInput.style.height = 'auto';
-                elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
-            }
-            toast.show('Text extracted and ready to send!', 'success');
+        };
+        reader.onerror = function(evt) {
+            toast.show('Error reading file', 'error');
+            console.error('[FileReader] Error reading file:', evt);
         };
         reader.readAsText(file);
     });
