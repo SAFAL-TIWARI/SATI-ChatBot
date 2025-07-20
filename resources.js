@@ -1762,8 +1762,12 @@ function loadResource(resource) {
     // Update title
     previewTitle.textContent = resource.subject;
 
-    // Show loading spinner
+    // Show loading spinner immediately
     showLoading();
+
+    // Always clear the previous PDF src and hide it before loading a new one
+    pdfPreview.src = '';
+    pdfPreview.style.display = 'none';
 
     // Simulate loading delay (remove this in production)
     setTimeout(() => {
@@ -1782,15 +1786,27 @@ function loadResource(resource) {
 function showLoading() {
     loadingSpinner.style.display = 'flex';
     pdfPreview.style.display = 'none';
+    // Optionally, reset spinner content
+    loadingSpinner.innerHTML = `
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading preview...</p>
+    `;
 }
 
 // Load PDF preview
 function loadPDFPreview(url) {
-    pdfPreview.src = url;
     pdfPreview.onload = function () {
         loadingSpinner.style.display = 'none';
         pdfPreview.style.display = 'block';
     };
+    // Fallback: hide spinner after 10s if PDF fails to load
+    setTimeout(() => {
+        if (loadingSpinner.style.display !== 'none') {
+            loadingSpinner.style.display = 'none';
+            pdfPreview.style.display = 'block';
+        }
+    }, 10000);
+    pdfPreview.src = url;
 }
 
 // Show placeholder when no preview URL is available
