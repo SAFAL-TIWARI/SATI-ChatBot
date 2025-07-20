@@ -1473,6 +1473,7 @@ const resourceList = document.getElementById('resourceList');
 const previewTitle = document.getElementById('previewTitle');
 const pdfPreview = document.getElementById('pdfPreview');
 const loadingSpinner = document.getElementById('loadingSpinner');
+const loadingOverlay = document.getElementById('loadingOverlay');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const searchInput = document.getElementById('searchInput');
@@ -1785,6 +1786,7 @@ function loadResource(resource) {
 // Show loading state
 function showLoading() {
     loadingSpinner.style.display = 'flex';
+    if (loadingOverlay) loadingOverlay.style.display = 'block';
     pdfPreview.style.display = 'none';
     // Optionally, reset spinner content
     loadingSpinner.innerHTML = `
@@ -1797,12 +1799,14 @@ function showLoading() {
 function loadPDFPreview(url) {
     pdfPreview.onload = function () {
         loadingSpinner.style.display = 'none';
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
         pdfPreview.style.display = 'block';
     };
-    // Fallback: hide spinner after 10s if PDF fails to load
+    // Fallback: hide spinner/overlay after 10s if PDF fails to load
     setTimeout(() => {
         if (loadingSpinner.style.display !== 'none') {
             loadingSpinner.style.display = 'none';
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
             pdfPreview.style.display = 'block';
         }
     }, 10000);

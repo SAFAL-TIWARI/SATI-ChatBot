@@ -618,6 +618,17 @@ body {
     margin-bottom: 10px;
 }
 
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.85); /* dark, semi-transparent */
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
 .preview-container {
     background: var(--card-bg);
     border-radius: 12px;
@@ -627,7 +638,6 @@ body {
     overflow: hidden;
     border: 1px solid var(--border-color);
 }
-
 .loading-spinner {
     display: flex;
     flex-direction: column;
@@ -635,6 +645,11 @@ body {
     justify-content: center;
     height: 100%;
     color: var(--text-secondary);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
 }
 
 .loading-spinner i {
