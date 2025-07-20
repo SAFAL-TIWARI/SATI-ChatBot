@@ -5959,9 +5959,15 @@ textarea:focus-visible {
 
 #fileChipContainer {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 2px;
+    max-width: 100%;
+    scrollbar-width: thin;
 }
 .file-chip {
     background: var(--bg-secondary);
@@ -5974,25 +5980,22 @@ textarea:focus-visible {
     font-size: 0.95em;
     color: var(--text-primary);
     box-shadow: var(--shadow-sm);
-    margin-bottom: 4px;
-    max-width: 90%;
+    max-width: 220px;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
-.file-chip i {
-    color: var(--accent-color);
-    margin-right: 2px;
+.input-container {
+    width: 100%;
+    box-sizing: border-box;
 }
-.remove-file-chip-btn {
-    margin-left: 4px;
-    background: none;
-    border: none;
-    color: var(--danger-color);
-    font-size: 1.1em;
-    cursor: pointer;
-    padding: 0 2px;
-    transition: color 0.15s;
+.input-wrapper {
+    flex: 1 1 0%;
+    width: 100%;
+    box-sizing: border-box;
 }
-.remove-file-chip-btn:hover {
-    color: var(--danger-hover);
+#messageInput {
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
 }
