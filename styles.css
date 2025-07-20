@@ -5923,79 +5923,9 @@ textarea:focus-visible {
     }
 }
 
-.file-chip {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 4px 12px 4px 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
-    color: var(--text-primary);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 4px;
-    max-width: 90%;
-    overflow: hidden;
-    white-space: nowrap;
-}
-.file-chip i {
-    color: var(--accent-color);
-    margin-right: 2px;
-}
-.remove-file-chip-btn {
-    margin-left: 4px;
-    background: none;
-    border: none;
-    color: var(--danger-color);
-    font-size: 1.1em;
-    cursor: pointer;
-    padding: 0 2px;
-    transition: color 0.15s;
-}
-.remove-file-chip-btn:hover {
-    color: var(--danger-hover);
-}
-
-#fileChipContainer {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 8px;
-    margin-bottom: 8px;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding-bottom: 2px;
-    max-width: 100%;
-    scrollbar-width: thin;
-}
-.file-chip {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 4px 12px 4px 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95em;
-    color: var(--text-primary);
-    box-shadow: var(--shadow-sm);
-    max-width: 220px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-.input-container {
-    width: 100%;
-    box-sizing: border-box;
-}
-.input-wrapper {
-    flex: 1 1 0%;
-    width: 100%;
-    box-sizing: border-box;
-}
-#messageInput {
-    width: 100%;
-    box-sizing: border-box;
-    resize: none;
+/* Hide mic button on devices with touch displays */
+@media (pointer: coarse) {
+  #micBtn {
+    display: none !important;
+  }
 }

@@ -5,3 +5,7 @@ api-keys.json
 .vercel
 .env.local
 node_modules/
+
+#Android unimportant file go here
+android_client/.gradle/
+android_client/app/build/
