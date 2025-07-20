@@ -6804,8 +6804,11 @@ function initializeFileAttachment() {
     const attachmentBtn = document.getElementById('attachmentBtn');
     const txtFileInput = document.getElementById('txtFileInput');
     const fileTypeWarning = document.getElementById('fileTypeWarning');
+    const fileChip = document.getElementById('fileChip');
+    const fileChipName = document.getElementById('fileChipName');
+    const removeFileChipBtn = document.getElementById('removeFileChipBtn');
 
-    if (!attachmentBtn || !txtFileInput || !fileTypeWarning) return;
+    if (!attachmentBtn || !txtFileInput || !fileTypeWarning || !fileChip || !fileChipName || !removeFileChipBtn) return;
 
     // Show warning card when attachment button is clicked
     attachmentBtn.addEventListener('click', () => {
@@ -6870,19 +6873,13 @@ function initializeFileAttachment() {
                         console.error('[Supabase Delete] Error deleting file after timer:', delErr);
                     }
                 }, 5 * 60 * 1000);
-                // Send extracted text directly to the model as user input
-                if (elements.messageInput) {
-                    elements.messageInput.value = '';
-                    elements.messageInput.style.height = 'auto';
-                }
-                if (window.chatManager && typeof window.chatManager.sendMessage === 'function') {
-                    await window.chatManager.sendMessage(text, chatState.selectedModel);
-                    toast.show('Text extracted and sent!', 'success');
-                    console.log('[File Attachment] .txt file processed, uploaded, and sent:', filePath);
-                } else {
-                    toast.show('Chat manager not available', 'error');
-                    console.error('[ChatManager] sendMessage not available');
-                }
+                // Show file chip and store extracted text
+                attachedFileName = file.name;
+                attachedFileText = text;
+                fileChipName.textContent = file.name;
+                fileChip.style.display = 'inline-flex';
+                toast.show('Text extracted from file. Ready to send.', 'success');
+                console.log('[File Attachment] .txt file processed, uploaded, and chip shown:', filePath);
             } catch (err) {
                 // General error catch
                 toast.show('Unexpected error during file processing', 'error');
@@ -6899,6 +6896,54 @@ function initializeFileAttachment() {
         };
         reader.readAsText(file);
     });
+
+    // Remove file chip
+    removeFileChipBtn.addEventListener('click', () => {
+        attachedFileName = null;
+        attachedFileText = null;
+        fileChip.style.display = 'none';
+    });
 }
+
+// Override sendMessage to handle file chip logic
+async function sendMessage() {
+    const input = elements.messageInput.value.trim();
+    let contentToSend = '';
+    if (attachedFileText && input) {
+        contentToSend = input + '\n' + attachedFileText;
+    } else if (attachedFileText) {
+        contentToSend = attachedFileText;
+    } else {
+        contentToSend = input;
+    }
+    if (!contentToSend || chatManager.isProcessing) return;
+
+    // Stop voice recognition if it's active
+    if (window.voiceRecognition && window.voiceRecognition.isListening) {
+        window.voiceRecognition.stopListening();
+    }
+
+    // Create new conversation if none exists
+    if (!chatState.currentConversationId) {
+        console.log('🔄 Creating new conversation before sending message...');
+        await chatState.createNewConversation();
+        updateConversationsList();
+        console.log('✅ New conversation created:', chatState.currentConversationId);
+    }
+
+    // Clear input and file chip
+    elements.messageInput.value = '';
+    elements.messageInput.style.height = 'auto';
+    if (attachedFileText) {
+        attachedFileName = null;
+        attachedFileText = null;
+        const fileChip = document.getElementById('fileChip');
+        if (fileChip) fileChip.style.display = 'none';
+    }
+
+    // Send message
+    await chatManager.sendMessage(contentToSend, chatState.selectedModel);
+}
+
 // Initialize file attachment after DOM is ready
 window.addEventListener('DOMContentLoaded', initializeFileAttachment);

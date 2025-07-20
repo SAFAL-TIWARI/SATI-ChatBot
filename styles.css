@@ -5922,3 +5922,37 @@ textarea:focus-visible {
         align-self: flex-end;
     }
 }
+
+.file-chip {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 4px 12px 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 4px;
+    max-width: 90%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.file-chip i {
+    color: var(--accent-color);
+    margin-right: 2px;
+}
+.remove-file-chip-btn {
+    margin-left: 4px;
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    font-size: 1.1em;
+    cursor: pointer;
+    padding: 0 2px;
+    transition: color 0.15s;
+}
+.remove-file-chip-btn:hover {
+    color: var(--danger-hover);
+}
