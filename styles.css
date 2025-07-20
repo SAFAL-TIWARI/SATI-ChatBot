@@ -5922,3 +5922,10 @@ textarea:focus-visible {
         align-self: flex-end;
     }
 }
+
+/* Hide mic button on devices with touch displays */
+@media (pointer: coarse) {
+  #micBtn {
+    display: none !important;
+  }
+}

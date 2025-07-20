@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -22,6 +23,7 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
     private WebView mWebView;
+    private String lastTriedUrl = "https://sati-chatbot.vercel.app/index.html";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,14 @@ public class MainActivity extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(false);
 
+        // Add JS interface so offline.html can access lastTriedUrl
+        mWebView.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public String getLastUrl() {
+                return lastTriedUrl;
+            }
+        }, "Android");
+
         mWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
@@ -60,16 +70,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Use custom WebViewClient to intercept page loads
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                lastTriedUrl = url;  // Save the attempted URL
                 if (isNetworkAvailable()) {
                     view.loadUrl(url);
                 } else {
                     view.loadUrl("file:///android_asset/offline.html");
                 }
-                return true; // Indicate that we handled it
+                return true;
             }
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -79,12 +89,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // First page load
-        if (isNetworkAvailable()) {
-            mWebView.loadUrl("https://sati-chatbot.vercel.app/index.html");
-        } else {
-            mWebView.loadUrl("file:///android_asset/offline.html");
-        }
+        // Initial load
+        mWebView.loadUrl(lastTriedUrl);
     }
 
     @Override
@@ -106,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-            // mic permission result (optional handling)
+            // mic permission result
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
