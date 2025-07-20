@@ -2257,6 +2257,7 @@ Or ask me anything about SATI Vidisha!`;
 }
 
 const chatManager = new ChatManager();
+window.chatManager = chatManager;
 
 // Conversation Management
 function updateConversationsList() {
