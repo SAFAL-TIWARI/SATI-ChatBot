@@ -6947,3 +6947,162 @@ async function sendMessage() {
 
 // Initialize file attachment after DOM is ready
 window.addEventListener('DOMContentLoaded', initializeFileAttachment);
+
+// File Attachment State
+let attachedFiles = [];
+// attachedFiles: [{ name: string, text: string, file: File, filePath: string }]
+
+function initializeFileAttachment() {
+    const attachmentBtn = document.getElementById('attachmentBtn');
+    const txtFileInput = document.getElementById('txtFileInput');
+    const fileTypeWarning = document.getElementById('fileTypeWarning');
+    const fileChipContainer = document.getElementById('fileChipContainer');
+
+    if (!attachmentBtn || !txtFileInput || !fileTypeWarning || !fileChipContainer) return;
+
+    // Show warning card when attachment button is clicked
+    attachmentBtn.addEventListener('click', () => {
+        fileTypeWarning.style.display = 'flex';
+        setTimeout(() => { fileTypeWarning.style.display = 'none'; }, 3000);
+        txtFileInput.value = '';
+        txtFileInput.click();
+    });
+
+    // Handle file selection (multiple files)
+    txtFileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        let newFiles = [];
+        for (const file of files) {
+            if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
+                toast.show('Files other than .txt file extension are not accepted currently', 'warning', 4000);
+                console.warn('[File Validation] Non-txt file rejected:', file.name);
+                continue;
+            }
+            // Prevent duplicate file names
+            if (attachedFiles.some(f => f.name === file.name)) {
+                toast.show(`File '${file.name}' is already attached.`, 'info');
+                continue;
+            }
+            // Read file text
+            const text = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = evt => resolve(evt.target.result);
+                reader.onerror = evt => reject(evt);
+                reader.readAsText(file);
+            }).catch(err => {
+                toast.show(`Failed to read file: ${file.name}`, 'error');
+                console.error('[FileReader] Error reading file:', file.name, err);
+                return null;
+            });
+            if (!text || typeof text !== 'string') continue;
+            // Upload to Supabase
+            if (!window.supabaseClient) {
+                toast.show('Supabase not initialized', 'error');
+                console.error('[Supabase] supabaseClient not available');
+                continue;
+            }
+            const userEmail = window.supabaseDB.getCurrentUserEmail && window.supabaseDB.getCurrentUserEmail();
+            if (!userEmail) {
+                toast.show('You must be logged in to upload files', 'warning');
+                console.warn('[Auth] User not logged in for file upload');
+                continue;
+            }
+            const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${file.name}`;
+            let uploadResult;
+            try {
+                uploadResult = await window.supabaseClient.storage.from('user-txt-uploads').upload(filePath, file, { upsert: true, contentType: 'text/plain' });
+            } catch (err) {
+                toast.show('Supabase upload failed (network/client error)', 'error');
+                console.error('[Supabase Upload] Network/client error:', err);
+                continue;
+            }
+            const { error } = uploadResult || {};
+            if (error) {
+                toast.show('Failed to upload file to Supabase', 'error');
+                console.error('[Supabase Upload] API error:', error);
+                continue;
+            }
+            // Schedule deletion after 5 minutes
+            setTimeout(async () => {
+                try {
+                    await window.supabaseClient.storage.from('user-txt-uploads').remove([filePath]);
+                    console.log('[Supabase] File deleted after 5 minutes:', filePath);
+                } catch (delErr) {
+                    console.error('[Supabase Delete] Error deleting file after timer:', delErr);
+                }
+            }, 5 * 60 * 1000);
+            newFiles.push({ name: file.name, text, file, filePath });
+        }
+        if (newFiles.length) {
+            attachedFiles = attachedFiles.concat(newFiles);
+            renderFileChips();
+            toast.show('Text extracted from file(s). Ready to send.', 'success');
+        }
+    });
+
+    // Render file chips
+    function renderFileChips() {
+        fileChipContainer.innerHTML = '';
+        if (!attachedFiles.length) {
+            fileChipContainer.style.display = 'none';
+            return;
+        }
+        fileChipContainer.style.display = 'flex';
+        attachedFiles.forEach((fileObj, idx) => {
+            const chip = document.createElement('div');
+            chip.className = 'file-chip';
+            chip.innerHTML = `<i class="fas fa-file-alt"></i><span>${fileObj.name}</span>`;
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-file-chip-btn';
+            removeBtn.title = 'Remove file';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = () => {
+                attachedFiles.splice(idx, 1);
+                renderFileChips();
+            };
+            chip.appendChild(removeBtn);
+            fileChipContainer.appendChild(chip);
+        });
+    }
+}
+
+// Override sendMessage to handle file chip logic (multiple files)
+async function sendMessage() {
+    const input = elements.messageInput.value.trim();
+    let contentToSend = '';
+    if (attachedFiles.length && input) {
+        contentToSend = input + '\n' + attachedFiles.map(f => f.text).join('\n');
+    } else if (attachedFiles.length) {
+        contentToSend = attachedFiles.map(f => f.text).join('\n');
+    } else {
+        contentToSend = input;
+    }
+    if (!contentToSend || chatManager.isProcessing) return;
+
+    // Stop voice recognition if it's active
+    if (window.voiceRecognition && window.voiceRecognition.isListening) {
+        window.voiceRecognition.stopListening();
+    }
+
+    // Create new conversation if none exists
+    if (!chatState.currentConversationId) {
+        console.log('🔄 Creating new conversation before sending message...');
+        await chatState.createNewConversation();
+        updateConversationsList();
+        console.log('✅ New conversation created:', chatState.currentConversationId);
+    }
+
+    // Clear input and file chips
+    elements.messageInput.value = '';
+    elements.messageInput.style.height = 'auto';
+    attachedFiles = [];
+    const fileChipContainer = document.getElementById('fileChipContainer');
+    if (fileChipContainer) fileChipContainer.style.display = 'none';
+
+    // Send message
+    await chatManager.sendMessage(contentToSend, chatState.selectedModel);
+}
+
+// Initialize file attachment after DOM is ready
+window.addEventListener('DOMContentLoaded', initializeFileAttachment);

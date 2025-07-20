@@ -325,19 +325,15 @@
             <!-- Message Input Area -->
             <div class="input-area">
                 <div class="input-container">
-                    <!-- File chip/tab for attached file -->
-                    <div id="fileChip" class="file-chip" style="display:none;align-items:center;gap:8px;margin-bottom:6px;">
-                        <i class="fas fa-file-alt"></i>
-                        <span id="fileChipName"></span>
-                        <button id="removeFileChipBtn" class="remove-file-chip-btn" title="Remove file" style="background:none;border:none;color:var(--danger-color);font-size:1.1em;cursor:pointer;"><i class="fas fa-times"></i></button>
-                    </div>
+                    <!-- File chip/tab for attached files -->
+                    <div id="fileChipContainer" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:6px;"></div>
                     <div class="input-wrapper">
                         <textarea id="messageInput" placeholder="Ask anything" rows="1" maxlength="2000"></textarea>
                         <div class="input-actions">
                             <button class="attachment-btn" id="attachmentBtn" title="Attach file">
                                 <i class="fas fa-paperclip"></i>
                             </button>
-                            <input type="file" id="txtFileInput" accept=".txt" style="display:none" />
+                            <input type="file" id="txtFileInput" accept=".txt" multiple style="display:none" />
                             <div class="input-actions-right">
                                 <select id="modelSelect" class="model-select" title="Select AI Model">
                                     <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B (Latest)</option>
