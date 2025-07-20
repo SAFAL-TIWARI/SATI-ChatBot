@@ -4167,9 +4167,10 @@ function initializeEventListeners() {
     // Attachment button (placeholder)
     const attachmentBtn = document.getElementById('attachmentBtn');
     if (attachmentBtn) {
-        attachmentBtn.addEventListener('click', () => {
-            toast.show('File attachment feature coming soon', 'info');
-        });
+        // Remove the following line to disable the 'file attachment feature coming soon' toast
+        // attachmentBtn.addEventListener('click', () => {
+        //     toast.show('File attachment feature coming soon', 'info');
+        // });
     }
 
     // Initialize mobile click outside behavior if sidebar is open on mobile
