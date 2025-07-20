@@ -21,7 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
+    // private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
     private WebView mWebView;
     private String lastTriedUrl = "https://sati-chatbot.vercel.app/index.html";
 
@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+		/* Remove mic permission for now
         // Request mic permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                         REQUEST_RECORD_AUDIO_PERMISSION);
             }
         }
+        */
 
         mWebView = new WebView(this);
         setContentView(mWebView);
@@ -109,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+/* Removing mic permission
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
@@ -116,4 +120,5 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+    */
 }
