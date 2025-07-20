@@ -6869,14 +6869,19 @@ function initializeFileAttachment() {
                         console.error('[Supabase Delete] Error deleting file after timer:', delErr);
                     }
                 }, 5 * 60 * 1000);
-                // Pass text to chat as user input
+                // Send extracted text directly to the model as user input
                 if (elements.messageInput) {
-                    elements.messageInput.value = text;
+                    elements.messageInput.value = '';
                     elements.messageInput.style.height = 'auto';
-                    elements.messageInput.style.height = elements.messageInput.scrollHeight + 'px';
                 }
-                toast.show('Text extracted and ready to send!', 'success');
-                console.log('[File Attachment] .txt file processed and uploaded:', filePath);
+                if (window.chatManager && typeof window.chatManager.sendMessage === 'function') {
+                    await window.chatManager.sendMessage(text, chatState.selectedModel);
+                    toast.show('Text extracted and sent!', 'success');
+                    console.log('[File Attachment] .txt file processed, uploaded, and sent:', filePath);
+                } else {
+                    toast.show('Chat manager not available', 'error');
+                    console.error('[ChatManager] sendMessage not available');
+                }
             } catch (err) {
                 // General error catch
                 toast.show('Unexpected error during file processing', 'error');
