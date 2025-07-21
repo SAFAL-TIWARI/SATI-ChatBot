@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private WebView mWebView;
-    private String lastTriedUrl = "http://10.152.240.30:8000";
+    private String lastTriedUrl = "https://sati-chatbot.vercel.app";
     private ValueCallback<Uri[]> filePathCallback;
     private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
 
