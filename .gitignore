@@ -8,4 +8,5 @@ node_modules/
 
 #Android unimportant file go here
 android/.gradle/
+/android/.gradle
 android/app/build/
