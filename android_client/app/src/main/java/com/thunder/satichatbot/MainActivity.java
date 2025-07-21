@@ -82,21 +82,24 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		@Override
-		public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-			if (MainActivity.this.filePathCallback != null) {
-				MainActivity.this.filePathCallback.onReceiveValue(null);
-			}
-			MainActivity.this.filePathCallback = filePathCallback;
+public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+    if (MainActivity.this.filePathCallback != null) {
+        MainActivity.this.filePathCallback.onReceiveValue(null);
+    }
+    MainActivity.this.filePathCallback = filePathCallback;
 
-			Intent intent = fileChooserParams.createIntent();
-			try {
-				startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
-			} catch (Exception e) {
-				MainActivity.this.filePathCallback = null;
-				return false;
-			}
-        return true;
-		}
+    Intent intent = fileChooserParams.createIntent();
+    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // ✅ Enable multiple file selection
+
+    try {
+        startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
+    } catch (Exception e) {
+        MainActivity.this.filePathCallback = null;
+        return false;
+    }
+    return true;
+}
+
 	});
 
 
@@ -147,17 +150,29 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
         if (filePathCallback == null) return;
 
-        Uri[] result = null;
-        if (resultCode == RESULT_OK && data != null) {
-            Uri dataUri = data.getData();
-            if (dataUri != null) {
-                result = new Uri[]{dataUri};
+        Uri[] results = null;
+
+        if (resultCode == RESULT_OK) {
+            if (data != null) {
+                if (data.getClipData() != null) {
+                    // Multiple files selected
+                    final int count = data.getClipData().getItemCount();
+                    results = new Uri[count];
+                    for (int i = 0; i < count; i++) {
+                        results[i] = data.getClipData().getItemAt(i).getUri();
+                    }
+                } else if (data.getData() != null) {
+                    // Single file selected
+                    results = new Uri[]{data.getData()};
+                }
             }
         }
-        filePathCallback.onReceiveValue(result);
+
+        filePathCallback.onReceiveValue(results);
         filePathCallback = null;
     }
 }
+
 
 /* Removing mic permission
 
