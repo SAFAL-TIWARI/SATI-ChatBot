@@ -3448,7 +3448,6 @@ async function exportAllChats() {
     let allMessagesMap = {};
 
     if (chatState.useSupabaseStorage && window.supabaseDB) {
-        // Fetch all messages for each conversation from Supabase
         const fetchPromises = conversationsToExport.map(async (conversation) => {
             const { data: messages, error } = await window.supabaseDB.getConversationMessages(conversation.id);
             if (!error && messages) {
@@ -3483,20 +3482,31 @@ async function exportAllChats() {
         content += '\n' + '='.repeat(60) + '\n\n';
     });
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sati_all_chats_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const filename = `sati_all_chats_${new Date().toISOString().split('T')[0]}.txt`;
 
-    toast.show('All chats exported successfully', 'success');
+    // ✅ Check for Android interface
+    if (typeof AndroidBridge !== "undefined" && AndroidBridge.saveTextFile) {
+        try {
+            AndroidBridge.saveTextFile(content, filename);
+            toast.show('All chats exported to internal storage', 'success');
+        } catch (e) {
+            console.error('AndroidBridge error:', e);
+            toast.show('Failed to save file via AndroidBridge', 'error');
+        }
+    } else {
+        // ✅ Fallback for browser
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.show('All chats exported successfully', 'success');
+    }
 }
-
-
 
 
 // Removed toggleSavedChatsSection - using modal instead
