@@ -25,10 +25,10 @@ com.thunder.satichatbot.app-core-1.9.0-23 /home/aashu/.gradle/caches/transforms-
 com.thunder.satichatbot.app-material-1.11.0-24 /home/aashu/.gradle/caches/transforms-3/db5cf26f999ecbd722d1beb1fa540caa/transformed/material-1.11.0/res
 com.thunder.satichatbot.app-transition-1.2.0-25 /home/aashu/.gradle/caches/transforms-3/f474e87931b42691db90afd229063a02/transformed/transition-1.2.0/res
 com.thunder.satichatbot.app-drawerlayout-1.1.1-26 /home/aashu/.gradle/caches/transforms-3/f5742c9f167c9de3423e86f68b2fa141/transformed/drawerlayout-1.1.1/res
-com.thunder.satichatbot.app-pngs-27 /mnt/Projects/SATI-ChatBot/android_client/app/build/generated/res/pngs/debug
-com.thunder.satichatbot.app-resValues-28 /mnt/Projects/SATI-ChatBot/android_client/app/build/generated/res/resValues/debug
-com.thunder.satichatbot.app-mergeDebugResources-29 /mnt/Projects/SATI-ChatBot/android_client/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-com.thunder.satichatbot.app-mergeDebugResources-30 /mnt/Projects/SATI-ChatBot/android_client/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-com.thunder.satichatbot.app-debug-31 /mnt/Projects/SATI-ChatBot/android_client/app/build/intermediates/merged_res/debug/mergeDebugResources
-com.thunder.satichatbot.app-debug-32 /mnt/Projects/SATI-ChatBot/android_client/app/src/debug/res
-com.thunder.satichatbot.app-main-33 /mnt/Projects/SATI-ChatBot/android_client/app/src/main/res
+com.thunder.satichatbot.app-pngs-27 /mnt/Projects/SATI-ChatBot/android/app/build/generated/res/pngs/debug
+com.thunder.satichatbot.app-resValues-28 /mnt/Projects/SATI-ChatBot/android/app/build/generated/res/resValues/debug
+com.thunder.satichatbot.app-mergeDebugResources-29 /mnt/Projects/SATI-ChatBot/android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+com.thunder.satichatbot.app-mergeDebugResources-30 /mnt/Projects/SATI-ChatBot/android/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+com.thunder.satichatbot.app-debug-31 /mnt/Projects/SATI-ChatBot/android/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.thunder.satichatbot.app-debug-32 /mnt/Projects/SATI-ChatBot/android/app/src/debug/res
+com.thunder.satichatbot.app-main-33 /mnt/Projects/SATI-ChatBot/android/app/src/main/res

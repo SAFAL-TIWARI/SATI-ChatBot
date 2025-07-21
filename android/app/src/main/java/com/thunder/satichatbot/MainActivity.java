@@ -29,6 +29,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends AppCompatActivity {
     private WebView mWebView;
     private String lastTriedUrl = "http://10.54.8.30:8000";
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(false);
 
-        // JS interface to expose lastTriedUrl
+        // Add JS interfaces
         mWebView.addJavascriptInterface(new Object() {
             @JavascriptInterface
             public String getLastUrl() {
@@ -62,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }, "Android");
 
-        // Handle file chooser and mic permissions (mic removed)
+        mWebView.addJavascriptInterface(new JSBridge(this), "AndroidBridge");
+
         mWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
@@ -89,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Handle URL loading
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -109,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Handle file downloads
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
@@ -131,8 +134,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Load initial page
         mWebView.loadUrl(lastTriedUrl);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1001);
+            }
+        }
     }
 
     @Override
@@ -175,6 +186,33 @@ public class MainActivity extends AppCompatActivity {
 
             filePathCallback.onReceiveValue(results);
             filePathCallback = null;
+        }
+    }
+
+    // JavaScript Interface to save text files
+    public static class JSBridge {
+        Context context;
+
+        JSBridge(Context context) {
+            this.context = context;
+        }
+
+        @JavascriptInterface
+        public void saveTextFile(String content, String filename) {
+            try {
+                File path = new File(context.getExternalFilesDir(null), "exports");
+                if (!path.exists()) path.mkdirs();
+
+                File file = new File(path, filename);
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(content.getBytes(StandardCharsets.UTF_8));
+                fos.close();
+
+                Toast.makeText(context, "Saved to: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(context, "Failed to save file", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
