@@ -2227,7 +2227,7 @@ Or ask me anything about SATI Vidisha!`;
         toast.show('Chat cleared', 'success');
     }
 
-   function exportChat() {
+  exportChat() {
     if (chatState.currentMessages.length === 0) {
         toast.show('No messages to export', 'warning');
         return;
