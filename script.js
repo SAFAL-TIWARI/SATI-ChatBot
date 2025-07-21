@@ -2227,26 +2227,39 @@ Or ask me anything about SATI Vidisha!`;
         toast.show('Chat cleared', 'success');
     }
 
-    exportChat() {
-        if (chatState.currentMessages.length === 0) {
-            toast.show('No messages to export', 'warning');
-            return;
+   function exportChat() {
+    if (chatState.currentMessages.length === 0) {
+        toast.show('No messages to export', 'warning');
+        return;
+    }
+
+    let content = 'SATI ChatBot Conversation\n';
+    content += '='.repeat(50) + '\n\n';
+
+    chatState.currentMessages.forEach(message => {
+        const role = message.role === 'user' ? 'You' : 'SATI Bot';
+        const time = utils.formatTime(message.timestamp);
+        content += `[${time}] ${role}: ${message.content}\n\n`;
+    });
+
+    const filename = `sati_chat_${new Date().toISOString().split('T')[0]}.txt`;
+
+    // Check if running inside Android WebView with a bridge
+    if (window.AndroidBridge && typeof window.AndroidBridge.saveTextFile === 'function') {
+        try {
+            window.AndroidBridge.saveTextFile(content, filename);
+            toast.show('Chat exported to device storage', 'success');
+        } catch (e) {
+            console.error("AndroidBridge error:", e);
+            toast.show('Failed to export chat (app)', 'error');
         }
-
-        let content = 'SATI ChatBot Conversation\n';
-        content += '='.repeat(50) + '\n\n';
-
-        chatState.currentMessages.forEach(message => {
-            const role = message.role === 'user' ? 'You' : 'SATI Bot';
-            const time = utils.formatTime(message.timestamp);
-            content += `[${time}] ${role}: ${message.content}\n\n`;
-        });
-
+    } else {
+        // Fallback to regular browser download
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `sati_chat_${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
