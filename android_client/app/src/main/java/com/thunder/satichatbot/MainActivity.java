@@ -1,56 +1,43 @@
 package com.thunder.satichatbot;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebChromeClient.FileChooserParams;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.URLUtil;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-//File upload extensions
-import android.content.Intent;
-import android.net.Uri;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebChromeClient.FileChooserParams;
-
-
 public class MainActivity extends AppCompatActivity {
-    // private static final int REQUEST_RECORD_AUDIO_PERMISSION = 1;
     private WebView mWebView;
-    private String lastTriedUrl = "https://sati-chatbot.vercel.app/index.html";
-	private ValueCallback<Uri[]> filePathCallback;
-	private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
+    private String lastTriedUrl = "http://10.54.8.30:8000";
+    private ValueCallback<Uri[]> filePathCallback;
+    private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-		/* Remove mic permission for now
-        // Request mic permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        REQUEST_RECORD_AUDIO_PERMISSION);
-            }
-        }
-        */
-
         mWebView = new WebView(this);
         setContentView(mWebView);
 
@@ -67,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(false);
 
-        // Add JS interface so offline.html can access lastTriedUrl
+        // JS interface to expose lastTriedUrl
         mWebView.addJavascriptInterface(new Object() {
             @JavascriptInterface
             public String getLastUrl() {
@@ -75,38 +62,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }, "Android");
 
-	mWebView.setWebChromeClient(new WebChromeClient() {
-		@Override
-		public void onPermissionRequest(final PermissionRequest request) {
-			runOnUiThread(() -> request.grant(request.getResources()));
-		}
+        // Handle file chooser and mic permissions (mic removed)
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(() -> request.grant(request.getResources()));
+            }
 
-		@Override
-public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-    if (MainActivity.this.filePathCallback != null) {
-        MainActivity.this.filePathCallback.onReceiveValue(null);
-    }
-    MainActivity.this.filePathCallback = filePathCallback;
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                if (MainActivity.this.filePathCallback != null) {
+                    MainActivity.this.filePathCallback.onReceiveValue(null);
+                }
+                MainActivity.this.filePathCallback = filePathCallback;
 
-    Intent intent = fileChooserParams.createIntent();
-    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // ✅ Enable multiple file selection
+                Intent intent = fileChooserParams.createIntent();
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
-    try {
-        startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
-    } catch (Exception e) {
-        MainActivity.this.filePathCallback = null;
-        return false;
-    }
-    return true;
-}
+                try {
+                    startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
+                } catch (Exception e) {
+                    MainActivity.this.filePathCallback = null;
+                    return false;
+                }
+                return true;
+            }
+        });
 
-	});
-
-
+        // Handle URL loading
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                lastTriedUrl = url;  // Save the attempted URL
+                lastTriedUrl = url;
                 if (isNetworkAvailable()) {
                     view.loadUrl(url);
                 } else {
@@ -122,7 +109,29 @@ public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathC
             }
         });
 
-        // Initial load
+        // Handle file downloads
+        mWebView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                request.setMimeType(mimetype);
+                request.addRequestHeader("User-Agent", userAgent);
+                request.setDescription("Downloading file...");
+                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
+
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                if (dm != null) {
+                    dm.enqueue(request);
+                    Toast.makeText(getApplicationContext(), "Download started", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Download failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Load initial page
         mWebView.loadUrl(lastTriedUrl);
     }
 
@@ -136,52 +145,36 @@ public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathC
     }
 
     private boolean isNetworkAvailable() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm != null ? cm.getActiveNetworkInfo() : null;
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-@Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
+            if (filePathCallback == null) return;
 
-    if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
-        if (filePathCallback == null) return;
+            Uri[] results = null;
 
-        Uri[] results = null;
-
-        if (resultCode == RESULT_OK) {
-            if (data != null) {
-                if (data.getClipData() != null) {
-                    // Multiple files selected
-                    final int count = data.getClipData().getItemCount();
-                    results = new Uri[count];
-                    for (int i = 0; i < count; i++) {
-                        results[i] = data.getClipData().getItemAt(i).getUri();
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    if (data.getClipData() != null) {
+                        int count = data.getClipData().getItemCount();
+                        results = new Uri[count];
+                        for (int i = 0; i < count; i++) {
+                            results[i] = data.getClipData().getItemAt(i).getUri();
+                        }
+                    } else if (data.getData() != null) {
+                        results = new Uri[]{data.getData()};
                     }
-                } else if (data.getData() != null) {
-                    // Single file selected
-                    results = new Uri[]{data.getData()};
                 }
             }
+
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null;
         }
-
-        filePathCallback.onReceiveValue(results);
-        filePathCallback = null;
     }
-}
-
-
-/* Removing mic permission
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-            // mic permission result
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-    */
 }
