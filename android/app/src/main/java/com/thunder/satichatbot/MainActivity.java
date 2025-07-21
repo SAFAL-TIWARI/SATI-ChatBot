@@ -2,6 +2,8 @@ package com.thunder.satichatbot;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
@@ -31,11 +34,12 @@ import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private WebView mWebView;
-    private String lastTriedUrl = "http://10.54.8.30:8000";
+    private String lastTriedUrl = "http://10.152.240.30:8000";
     private ValueCallback<Uri[]> filePathCallback;
     private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
 
@@ -136,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
 
         mWebView.loadUrl(lastTriedUrl);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // Ask for storage permission for Android 9 and below
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
@@ -200,18 +205,47 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void saveTextFile(String content, String filename) {
             try {
-                File path = new File(context.getExternalFilesDir(null), "exports");
-                if (!path.exists()) path.mkdirs();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Android 10 and above – use MediaStore
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
 
-                File file = new File(path, filename);
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(content.getBytes(StandardCharsets.UTF_8));
-                fos.close();
+                    ContentResolver resolver = context.getContentResolver();
+                    Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
 
-                Toast.makeText(context, "Saved to: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    if (uri != null) {
+                        try (OutputStream out = resolver.openOutputStream(uri)) {
+                            out.write(content.getBytes(StandardCharsets.UTF_8));
+                        }
+                        Toast.makeText(context, "Saved to Downloads ", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, "Failed to create file", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Android 9 and below – direct filesystem access
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions((MainActivity) context,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                        Toast.makeText(context, "Please allow storage permission and try again", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    if (!downloadsDir.exists()) downloadsDir.mkdirs();
+
+                    File file = new File(downloadsDir, filename);
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(content.getBytes(StandardCharsets.UTF_8));
+                    fos.close();
+
+                    Toast.makeText(context, "Saved to: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(context, "Failed to save file", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Save failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
