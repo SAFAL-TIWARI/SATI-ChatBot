@@ -7,5 +7,5 @@ api-keys.json
 node_modules/
 
 #Android unimportant file go here
-android_client/.gradle/
-android_client/app/build/
+android/.gradle/
+android/app/build/
