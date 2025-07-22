@@ -489,7 +489,7 @@ class ChatBotState {
         const accentHover = increaseBrightness(accentColor, 0.1);
         document.documentElement.style.setProperty('--accent-hover', accentHover);
         /*
-        The way this works: accentColor first gets converted to HSV format, then the V(value) is increased by 10%, then the increased value is yet again converted to HEX and finally get written to css on variable --accent-hover
+        accentColor first gets converted to HSV format, then the V(value) is increased by 10%, then the increased value is yet again converted to HEX and finally get written to css on variable --accent-hover
         */
 
         // Apply font size
