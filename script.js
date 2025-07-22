@@ -2242,18 +2242,33 @@ Or ask me anything about SATI Vidisha!`;
             content += `[${time}] ${role}: ${message.content}\n\n`;
         });
 
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `sati_chat_${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const filename = `sati_chat_${new Date().toISOString().split('T')[0]}.txt`;
 
-        toast.show('Chat exported successfully', 'success');
+        // Check if running inside Android WebView with a bridge
+        if (window.AndroidBridge && typeof window.AndroidBridge.saveTextFile === 'function') {
+            try {
+                window.AndroidBridge.saveTextFile(content, filename);
+                toast.show('Chat exported to device storage', 'success');
+            } catch (e) {
+                console.error("AndroidBridge error:", e);
+                toast.show('Failed to export chat (app)', 'error');
+            }
+        } else {
+            // Fallback to regular browser download
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            toast.show('Chat exported successfully', 'success');
+        }
     }
+
 }
 
 const chatManager = new ChatManager();
@@ -3433,7 +3448,6 @@ async function exportAllChats() {
     let allMessagesMap = {};
 
     if (chatState.useSupabaseStorage && window.supabaseDB) {
-        // Fetch all messages for each conversation from Supabase
         const fetchPromises = conversationsToExport.map(async (conversation) => {
             const { data: messages, error } = await window.supabaseDB.getConversationMessages(conversation.id);
             if (!error && messages) {
@@ -3468,20 +3482,31 @@ async function exportAllChats() {
         content += '\n' + '='.repeat(60) + '\n\n';
     });
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sati_all_chats_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const filename = `sati_all_chats_${new Date().toISOString().split('T')[0]}.txt`;
 
-    toast.show('All chats exported successfully', 'success');
+    // ✅ Check for Android interface
+    if (typeof AndroidBridge !== "undefined" && AndroidBridge.saveTextFile) {
+        try {
+            AndroidBridge.saveTextFile(content, filename);
+            toast.show('All chats exported to internal storage', 'success');
+        } catch (e) {
+            console.error('AndroidBridge error:', e);
+            toast.show('Failed to save file via AndroidBridge', 'error');
+        }
+    } else {
+        // ✅ Fallback for browser
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.show('All chats exported successfully', 'success');
+    }
 }
-
-
 
 
 // Removed toggleSavedChatsSection - using modal instead
@@ -6830,7 +6855,7 @@ function initializeFileAttachment() {
         }
         // Read file text
         const reader = new FileReader();
-        reader.onload = async function(evt) {
+        reader.onload = async function (evt) {
             try {
                 const text = evt.target.result;
                 if (!text || typeof text !== 'string') {
@@ -6891,7 +6916,7 @@ function initializeFileAttachment() {
                 }
             }
         };
-        reader.onerror = function(evt) {
+        reader.onerror = function (evt) {
             toast.show('Error reading file', 'error');
             console.error('[FileReader] Error reading file:', evt);
         };

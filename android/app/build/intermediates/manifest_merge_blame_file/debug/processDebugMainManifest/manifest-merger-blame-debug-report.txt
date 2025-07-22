@@ -9,26 +9,26 @@
 9        android:targetSdkVersion="34" />
 10
 11    <uses-permission android:name="android.permission.INTERNET" />
-11-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:4:5-67
-11-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:4:22-64
+11-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:4:5-67
+11-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:4:22-64
 12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-12-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:5:5-79
-12-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:5:22-76
+12-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:5:5-79
+12-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:5:22-76
 13    <uses-permission android:name="android.permission.INTERNET" />
-13-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:4:5-67
-13-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:4:22-64
+13-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:4:5-67
+13-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:4:22-64
 14    <uses-permission
-14-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:7:1-8:33
+14-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:7:1-8:33
 15        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-15-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:7:18-74
+15-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:7:18-74
 16        android:maxSdkVersion="28" />
-16-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:8:5-31
+16-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:8:5-31
 17    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-17-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:9:1-75
-17-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:9:18-73
+17-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:9:1-75
+17-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:9:18-73
 18    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-18-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:5:5-79
-18-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:5:22-76
+18-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:5:5-79
+18-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:5:22-76
 19
 20    <permission
 20-->[androidx.core:core:1.9.0] /home/aashu/.gradle/caches/transforms-3/c919e84cf21a5073ea88f45ff1a29b85/transformed/core-1.9.0/AndroidManifest.xml:22:5-24:47
@@ -41,36 +41,36 @@
 24-->[androidx.core:core:1.9.0] /home/aashu/.gradle/caches/transforms-3/c919e84cf21a5073ea88f45ff1a29b85/transformed/core-1.9.0/AndroidManifest.xml:26:5-97
 24-->[androidx.core:core:1.9.0] /home/aashu/.gradle/caches/transforms-3/c919e84cf21a5073ea88f45ff1a29b85/transformed/core-1.9.0/AndroidManifest.xml:26:22-94
 25    <application
-25-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:13:5-28:19
+25-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:13:5-28:19
 26        android:allowBackup="true"
-26-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:14:9-35
+26-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:14:9-35
 27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 27-->[androidx.core:core:1.9.0] /home/aashu/.gradle/caches/transforms-3/c919e84cf21a5073ea88f45ff1a29b85/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
 28        android:debuggable="true"
 29        android:extractNativeLibs="false"
 30        android:icon="@mipmap/ic_launcher"
-30-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:15:9-43
+30-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:15:9-43
 31        android:label="@string/app_name"
-31-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:16:3-35
+31-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:16:3-35
 32        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-32-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:17:9-65
+32-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:17:9-65
 33        android:usesCleartextTraffic="true" >
-33-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:18:9-44
+33-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:18:9-44
 34        <activity
-34-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:20:9-27:20
+34-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:20:9-27:20
 35            android:name="com.thunder.satichatbot.MainActivity"
-35-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:21:13-41
+35-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:21:13-41
 36            android:exported="true" >
-36-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:22:13-36
+36-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:22:13-36
 37            <intent-filter>
-37-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:23:13-26:29
+37-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:23:13-26:29
 38                <action android:name="android.intent.action.MAIN" />
-38-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:24:17-69
-38-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:24:25-66
+38-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:24:17-69
+38-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:24:25-66
 39
 40                <category android:name="android.intent.category.LAUNCHER" />
-40-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:25:17-77
-40-->/mnt/Projects/SATI-ChatBot/android_client/app/src/main/AndroidManifest.xml:25:27-74
+40-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:25:17-77
+40-->/mnt/Projects/SATI-ChatBot/android/app/src/main/AndroidManifest.xml:25:27-74
 41            </intent-filter>
 42        </activity>
 43

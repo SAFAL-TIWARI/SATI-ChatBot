@@ -169,23 +169,6 @@
                     }
                 },
                 {
-                    "source": "/mnt/Projects/SATI-ChatBot/android_client/app/src/main/res/values/strings.xml",
-                    "from": {
-                        "startLines": "1",
-                        "startColumns": "4",
-                        "startOffsets": "16",
-                        "endColumns": "49",
-                        "endOffsets": "61"
-                    },
-                    "to": {
-                        "startLines": "1883",
-                        "startColumns": "4",
-                        "startOffsets": "126468",
-                        "endColumns": "49",
-                        "endOffsets": "126513"
-                    }
-                },
-                {
                     "source": "/home/aashu/.gradle/caches/transforms-3/82edfea6d7b5cc49b239b28489b18ee3/transformed/recyclerview-1.1.0/res/values/values.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
@@ -293,6 +276,23 @@
                         "startOffsets": "117430,119455",
                         "endColumns": "41,59",
                         "endOffsets": "117467,119510"
+                    }
+                },
+                {
+                    "source": "/mnt/Projects/SATI-ChatBot/android/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "16",
+                        "endColumns": "49",
+                        "endOffsets": "61"
+                    },
+                    "to": {
+                        "startLines": "1883",
+                        "startColumns": "4",
+                        "startOffsets": "126468",
+                        "endColumns": "49",
+                        "endOffsets": "126513"
                     }
                 },
                 {
