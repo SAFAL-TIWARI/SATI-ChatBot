@@ -510,15 +510,14 @@ body {
     justify-content: center;
     gap: var(--spacing-2);
     overflow: hidden;
-    /* background: linear-gradient(135deg, #6366f1, #8b5cf6); */
     background: var(--accent-color);
-    box-shadow:
+    /* box-shadow:
         inset 6px 6px 12px rgba(0, 0, 0, 0.1),
         inset -6px -6px 12px rgba(255, 255, 255, 0.1),
         6px 6px 12px rgba(0, 0, 0, 0.1),
-        -6px -6px 12px rgba(255, 255, 255, 0.05);
+        -6px -6px 12px rgba(255, 255, 255, 0.05); */
     transition:
-        box-shadow 0.3s ease,
+        /* box-shadow 0.3s ease, */
         transform 0.1s ease,
         background var(--transition-normal);
     position: relative;
@@ -580,11 +579,11 @@ body {
 .resources-btn:hover {
     /* background: linear-gradient(135deg, #5855eb, #7c3aed); */
     background: var(--accent-color);
-    box-shadow:
+    /* box-shadow:
         inset 3px 3px 6px rgba(0, 0, 0, 0.15),
         inset -3px -3px 6px rgba(255, 255, 255, 0.15),
         4px 4px 10px rgba(0, 0, 0, 0.15),
-        -4px -4px 10px rgba(255, 255, 255, 0.1);
+        -4px -4px 10px rgba(255, 255, 255, 0.1); */
 }
 
 .resources-btn:hover:after {
@@ -609,21 +608,21 @@ body {
 }
 
 .resources-btn:active {
-    box-shadow:
+    /* box-shadow:
         inset 2px 2px 4px rgba(0, 0, 0, 0.2),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+        inset -2px -2px 4px rgba(255, 255, 255, 0.1); */
     transform: scale(0.98);
 }
 
 /* Light theme adjustments for Resources button */
-[data-theme="light"] .resources-btn {
+/* [data-theme="light"] .resources-btn {
     /* background: linear-gradient(135deg, #3b82f6, #8b5cf6); */
-    box-shadow:
+    /* box-shadow:
         inset 1px 1px 1px var(--accent-color),
         inset -6px -6px 12px rgba(113, 131, 130, 0.9),
         1px 1px 1px rgba(78, 109, 91, 0.282),
         -6px -6px 5px rgba(255, 255, 255, 0.9);
-}
+} */ 
 
 [data-theme="light"] .resources-btn:after {
     background: rgba(255, 255, 255, 0.95);
@@ -649,14 +648,13 @@ body {
         0 0 10px rgba(245, 158, 11, 0.6);
 }
 
-[data-theme="light"] .resources-btn:hover {
-    /* background: linear-gradient(135deg, #2563eb, #7c3aed); */
+/* [data-theme="light"] .resources-btn:hover {
     box-shadow:
         inset 3px 3px 6px rgba(0, 0, 0, 0.12),
         inset -3px -3px 6px rgba(255, 255, 255, 0.95),
         4px 4px 10px rgba(0, 0, 0, 0.12),
         -4px -4px 10px rgba(255, 255, 255, 0.95);
-}
+} */
 
 [data-theme="light"] .resources-btn:hover i {
     color: #1a202c;
@@ -669,16 +667,15 @@ body {
 }
 
 [data-theme="light"] .resources-btn:hover .resources-text span:hover {
-    /* color: #3b82f6; */
     color: var(--accent-color);
     transform: translateY(-7px);
 }
 
-[data-theme="light"] .resources-btn:active {
+/* [data-theme="light"] .resources-btn:active {
     box-shadow:
         inset 2px 2px 4px rgba(0, 0, 0, 0.18),
         inset -2px -2px 4px rgba(255, 255, 255, 0.9);
-}
+} */
 
 /* Search Container */
 .search-container {
