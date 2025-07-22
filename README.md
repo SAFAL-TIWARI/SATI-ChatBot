@@ -140,6 +140,14 @@ Built for FluxWave Hackathon by Flux Club, [SATI Vidisha](https://satiengg.in/)
 
 **Application**: [https://sati-chatbot.vercel.app/](https://sati-chatbot.vercel.app/)
 
+## 🧹 Supabase Storage Auto-Cleanup
+
+**Repository**: [https://github.com/UtkiVish/supabase_cleaning.git](https://github.com/UtkiVish/supabase_cleaning.git)
+
+Automated Node.js script with GitHub Actions that cleans up user-uploaded files from Supabase Storage every 5 minutes to manage storage costs and maintain privacy.
+
+**Sub-Repo Author**: [Utkarsh Vishwakarma](https://github.com/UtkiVish)
+
 ## 📄 License
 
 MIT License
