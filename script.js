@@ -1,6 +1,65 @@
 // Global State Management
 let supabase = null;
 
+// Converts HEX to HSV, increases brightness, and converts back to HEX
+function increaseBrightness(hex, increaseBy = 0.1) {
+    const hsv = hexToHsv(hex);
+    hsv.v = Math.min(1, hsv.v + increaseBy); // clamp to max 1
+    return hsvToHex(hsv);
+}
+
+function hexToHsv(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+    }
+
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, v = max;
+
+    const d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if (max === min) {
+        h = 0; // achromatic
+    } else {
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    return { h, s, v };
+}
+
+function hsvToHex({ h, s, v }) {
+    let r, g, b;
+
+    const i = Math.floor(h * 6);
+    const f = h * 6 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+    }
+
+    const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
 // Initialize Supabase if credentials are available
 function initializeSupabase() {
     try {
@@ -425,6 +484,13 @@ class ChatBotState {
         // Apply accent color
         const accentColor = this.settings.appearance?.accentColor || '#10a37f';
         document.documentElement.style.setProperty('--accent-color', accentColor);
+
+        // Apply accent hover
+        const accentHover = increaseBrightness(accentColor, 0.1);
+        document.documentElement.style.setProperty('--accent-hover', accentHover);
+        /*
+        accentColor first gets converted to HSV format, then the V(value) is increased by 10%, then the increased value is yet again converted to HEX and finally get written to css on variable --accent-hover
+        */
 
         // Apply font size
         const fontSize = this.settings.appearance?.fontSize || 16;
@@ -3197,8 +3263,13 @@ function addSettingsEventListeners() {
             chatState.settings.appearance.accentColor = color;
             chatState.saveSettings();
 
-            // Apply the change
+            // Apply accent color
             document.documentElement.style.setProperty('--accent-color', color);
+
+            // Convert HEX to HSV, increase V, convert back to HEX
+            const accentHover = increaseBrightness(color, 0.1);
+            document.documentElement.style.setProperty('--accent-hover', accentHover);
+
             toast.show('Accent color updated', 'success');
         });
     });
