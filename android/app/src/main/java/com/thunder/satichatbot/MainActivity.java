@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private WebView mWebView;
-    private String lastTriedUrl = "https://sati-chatbot.vercel.app";
+    private String lastTriedUrl = "https://sati-chatbot.vercel.app/";
     private ValueCallback<Uri[]> filePathCallback;
     private static final int FILE_CHOOSER_REQUEST_CODE = 1000;
 
@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(false);
 
-        // Add JS interfaces
         mWebView.addJavascriptInterface(new Object() {
             @JavascriptInterface
             public String getLastUrl() {
@@ -96,18 +95,59 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             }
+
+            @Override
+            public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, android.os.Message resultMsg) {
+                WebView.HitTestResult result = view.getHitTestResult();
+                String data = result != null ? result.getExtra() : null;
+                if (data != null) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data));
+                    startActivity(browserIntent);
+                }
+                return false;
+            }
         });
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 lastTriedUrl = url;
-                if (isNetworkAvailable()) {
-                    view.loadUrl(url);
-                } else {
-                    view.loadUrl("file:///android_asset/offline.html");
+                Uri uri = Uri.parse(url);
+                String scheme = uri.getScheme();
+
+                if (scheme != null && (
+                        scheme.equals("mailto") ||
+                        scheme.equals("tel") ||
+                        scheme.equals("sms") ||
+                        url.startsWith("https://wa.me/") ||
+                        url.startsWith("whatsapp:") ||
+                        url.startsWith("https://t.me/") ||
+                        url.startsWith("intent://")
+                )) {
+                    try {
+                        Intent intent;
+
+                        if (url.startsWith("intent://")) {
+                            intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                        } else {
+                            intent = new Intent(Intent.ACTION_VIEW, uri);
+                        }
+
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "No app found to handle this link", Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
                 }
-                return true;
+
+                if (url.contains("sati-chatbot.vercel.app")) {
+                    return false;
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                    return true;
+                }
             }
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -140,13 +180,11 @@ public class MainActivity extends AppCompatActivity {
 
         mWebView.loadUrl(lastTriedUrl);
 
-        // Ask for storage permission for Android 9 and below
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1001);
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
             }
         }
     }
@@ -194,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // JavaScript Interface to save text files
     public static class JSBridge {
         Context context;
 
@@ -206,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         public void saveTextFile(String content, String filename) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Android 10 and above – use MediaStore
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
                     values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain");
@@ -224,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(context, "Failed to create file", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    // Android 9 and below – direct filesystem access
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions((MainActivity) context,
