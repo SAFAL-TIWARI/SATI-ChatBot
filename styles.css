@@ -409,9 +409,10 @@ body {
     cursor: pointer;
     font-family: var(--font-family);
     font-size: var(--font-size-sm);
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1;
     text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
     margin: 0;
     padding: var(--spacing-3) var(--spacing-4);
@@ -427,6 +428,8 @@ body {
     align-items: center;
     gap: var(--spacing-2);
     justify-content: center;
+
+    letter-spacing: 2px
 }
 
 .new-chat-btn:disabled {
@@ -511,13 +514,8 @@ body {
     gap: var(--spacing-2);
     overflow: hidden;
     background: var(--accent-color);
-    /* box-shadow:
-        inset 6px 6px 12px rgba(0, 0, 0, 0.1),
-        inset -6px -6px 12px rgba(255, 255, 255, 0.1),
-        6px 6px 12px rgba(0, 0, 0, 0.1),
-        -6px -6px 12px rgba(255, 255, 255, 0.05); */
     transition:
-        /* box-shadow 0.3s ease, */
+        /* What are these? makes no effect even if removed */
         transform 0.1s ease,
         background var(--transition-normal);
     position: relative;
@@ -539,7 +537,9 @@ body {
 
 .resources-btn i {
     color: #ffffff;
+
     font-size: var(--font-size-base);
+
     z-index: 2;
     position: relative;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -577,13 +577,8 @@ body {
 }
 
 .resources-btn:hover {
-    /* background: linear-gradient(135deg, #5855eb, #7c3aed); */
     background: var(--accent-color);
-    /* box-shadow:
-        inset 3px 3px 6px rgba(0, 0, 0, 0.15),
-        inset -3px -3px 6px rgba(255, 255, 255, 0.15),
-        4px 4px 10px rgba(0, 0, 0, 0.15),
-        -4px -4px 10px rgba(255, 255, 255, 0.1); */
+    outline: 2px solid var(--accent-color);
 }
 
 .resources-btn:hover:after {
@@ -602,27 +597,9 @@ body {
 }
 
 .resources-btn:hover .resources-text span:hover {
-    /* color: #6366f1; */
     color: var(--accent-color);
     transform: translateY(-7px);
 }
-
-.resources-btn:active {
-    /* box-shadow:
-        inset 2px 2px 4px rgba(0, 0, 0, 0.2),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.1); */
-    transform: scale(0.98);
-}
-
-/* Light theme adjustments for Resources button */
-/* [data-theme="light"] .resources-btn {
-    /* background: linear-gradient(135deg, #3b82f6, #8b5cf6); */
-    /* box-shadow:
-        inset 1px 1px 1px var(--accent-color),
-        inset -6px -6px 12px rgba(113, 131, 130, 0.9),
-        1px 1px 1px rgba(78, 109, 91, 0.282),
-        -6px -6px 5px rgba(255, 255, 255, 0.9);
-} */ 
 
 [data-theme="light"] .resources-btn:after {
     background: rgba(255, 255, 255, 0.95);
@@ -648,14 +625,6 @@ body {
         0 0 10px rgba(245, 158, 11, 0.6);
 }
 
-/* [data-theme="light"] .resources-btn:hover {
-    box-shadow:
-        inset 3px 3px 6px rgba(0, 0, 0, 0.12),
-        inset -3px -3px 6px rgba(255, 255, 255, 0.95),
-        4px 4px 10px rgba(0, 0, 0, 0.12),
-        -4px -4px 10px rgba(255, 255, 255, 0.95);
-} */
-
 [data-theme="light"] .resources-btn:hover i {
     color: #1a202c;
     transition: color 0.5s ease;
@@ -670,12 +639,6 @@ body {
     color: var(--accent-color);
     transform: translateY(-7px);
 }
-
-/* [data-theme="light"] .resources-btn:active {
-    box-shadow:
-        inset 2px 2px 4px rgba(0, 0, 0, 0.18),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.9);
-} */
 
 /* Search Container */
 .search-container {
@@ -1488,7 +1451,7 @@ body {
     top: 0;
     bottom: 0;
     width: 3px;
-    background: var(--success-color);
+    background: var(--accent-color);
     border-radius: 0 2px 2px 0;
 }
 
