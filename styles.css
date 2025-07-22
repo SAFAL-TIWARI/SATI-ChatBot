@@ -396,28 +396,33 @@ body {
 }
 
 .new-chat-btn {
+    --btn-bg: var(--accent-color);
+    --btn-text: rgb(255, 255, 255);
+
     -webkit-tap-highlight-color: transparent;
     -webkit-appearance: button;
     appearance: button;
-    background-color: var(--accent-color);
-    background-image: none;
-    color: #fff;
+
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+
     cursor: pointer;
     font-family: var(--font-family);
     font-size: var(--font-size-sm);
     font-weight: 600;
     line-height: 1;
-    margin: 0;
-    mask-image: -webkit-radial-gradient(#000, #fff);
-    padding: 0;
     text-transform: uppercase;
+
+    margin: 0;
+    padding: var(--spacing-3) var(--spacing-4);
     width: 100%;
+
     border-radius: var(--radius-lg);
     border-width: 2px;
     border-color: var(--accent-color);
-    overflow: hidden;
-    padding: var(--spacing-3) var(--spacing-4);
+
     position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
@@ -440,14 +445,28 @@ body {
     display: none;
 }
 
+/* Text layer stays above animation */
 .new-chat-btn span {
-    mix-blend-mode: difference;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
+    mix-blend-mode: normal; /* Removed blend mode to prevent inversion */
 }
 
-.new-chat-btn:after,
+/* Gradient animation background */
+.new-chat-btn:before,
+.new-chat-btn:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* Below the text */
+    transform: translateY(var(--progress, 100%));
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+
 .new-chat-btn:before {
     background: linear-gradient(90deg,
             #fff 25%,
@@ -456,11 +475,6 @@ body {
             #fff 0,
             #fff 75%,
             transparent 0);
-    content: "";
-    inset: 0;
-    position: absolute;
-    transform: translateY(var(--progress, 100%));
-    transition: transform 0.2s ease;
 }
 
 .new-chat-btn:after {
@@ -473,11 +487,14 @@ body {
             transparent 0,
             transparent 75%,
             #fff 0);
-    z-index: -1;
 }
 
-.new-chat-btn:hover:after,
-.new-chat-btn:hover:before {
+.new-chat-btn:hover {
+    --btn-text: black;
+}
+
+.new-chat-btn:hover:before,
+.new-chat-btn:hover:after {
     --progress: 0;
 }
 
