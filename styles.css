@@ -604,7 +604,7 @@ body {
 
 .resources-btn:hover .resources-text span:hover {
     /* color: #6366f1; */
-    color: var(--accent-hover);
+    color: var(--accent-color);
     transform: translateY(-7px);
 }
 
@@ -617,7 +617,7 @@ body {
 
 /* Light theme adjustments for Resources button */
 [data-theme="light"] .resources-btn {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    /* background: linear-gradient(135deg, #3b82f6, #8b5cf6); */
     box-shadow:
         inset 1px 1px 1px var(--accent-color),
         inset -6px -6px 12px rgba(113, 131, 130, 0.9),
@@ -650,7 +650,7 @@ body {
 }
 
 [data-theme="light"] .resources-btn:hover {
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    /* background: linear-gradient(135deg, #2563eb, #7c3aed); */
     box-shadow:
         inset 3px 3px 6px rgba(0, 0, 0, 0.12),
         inset -3px -3px 6px rgba(255, 255, 255, 0.95),
