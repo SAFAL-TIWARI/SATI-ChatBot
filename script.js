@@ -488,9 +488,19 @@ class ChatBotState {
         // Apply accent hover
         const accentHover = increaseBrightness(accentColor, 0.1);
         document.documentElement.style.setProperty('--accent-hover', accentHover);
-        /*
-        accentColor first gets converted to HSV format, then the V(value) is increased by 10%, then the increased value is yet again converted to HEX and finally get written to css on variable --accent-hover
-        */
+
+        // Apply input focus color to match accent
+        document.documentElement.style.setProperty('--input-focus', accentColor);
+
+        // Force update of input-wrapper border color for focus-within
+        const styleId = 'dynamic-accent-input-style';
+        let styleTag = document.getElementById(styleId);
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = styleId;
+            document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = `.input-wrapper:focus-within { border-color: ${accentColor} !important; }`;
 
         // Apply font size
         const fontSize = this.settings.appearance?.fontSize || 16;
@@ -3269,6 +3279,11 @@ function addSettingsEventListeners() {
             // Convert HEX to HSV, increase V, convert back to HEX
             const accentHover = increaseBrightness(color, 0.1);
             document.documentElement.style.setProperty('--accent-hover', accentHover);
+
+            // Immediately update all accent-related UI (including input outline)
+            if (chatState.applyAppearanceSettings) {
+                chatState.applyAppearanceSettings();
+            }
 
             toast.show('Accent color updated', 'success');
         });
