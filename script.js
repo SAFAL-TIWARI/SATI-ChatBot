@@ -5630,9 +5630,25 @@ function showProfileModal() {
 
 // Show welcome modal with personalized greeting
 function showWelcomeModal(username) {
-    const welcomeUsername = document.getElementById('welcomeUsername');
+    let welcomeUsername = document.getElementById('welcomeUsername');
     const welcomeHeading = document.getElementById('welcomeHeading');
     const welcomeMessage = document.getElementById('welcomeMessage');
+
+    // If the span is missing but the heading exists, reconstruct the heading
+    if (!welcomeUsername && welcomeHeading) {
+        welcomeHeading.innerHTML = `Hello, <span id="welcomeUsername">User</span>!`;
+        welcomeUsername = document.getElementById('welcomeUsername');
+    }
+
+    // Null checks for all required elements
+    if (!welcomeUsername || !welcomeHeading || !welcomeMessage) {
+        console.warn('[showWelcomeModal] One or more welcome modal elements are missing:', {
+            welcomeUsername,
+            welcomeHeading,
+            welcomeMessage
+        });
+        return;
+    }
 
     // Set username
     welcomeUsername.textContent = username || 'User';
@@ -5641,18 +5657,15 @@ function showWelcomeModal(username) {
     const isFirstLogin = !localStorage.getItem('sati_last_login');
 
     if (isFirstLogin) {
-        welcomeHeading.textContent = `Welcome, ${username || 'User'}!`;
+        welcomeHeading.innerHTML = `Welcome, <span id="welcomeUsername">${username || 'User'}</span>!`;
         welcomeMessage.textContent = 'Thank you for joining SATI ChatBot. We\'re here to help with all your academic needs.';
-
-        // Show a welcome toast for first-time users
-        showWelcomeToast(username, true);
     } else {
-        welcomeHeading.textContent = `Welcome back, ${username || 'User'}!`;
+        welcomeHeading.innerHTML = `Welcome back, <span id="welcomeUsername">${username || 'User'}</span>!`;
         welcomeMessage.textContent = 'Great to see you again! Continue your conversations or start a new chat.';
-
-        // Show a welcome back toast for returning users
-        showWelcomeToast(username, false);
     }
+
+    // Show a welcome toast for first-time or returning users
+    showWelcomeToast(username, isFirstLogin);
 
     // Show the modal for all fresh logins (both first-time and returning users)
     modal.show('welcomeModal');
