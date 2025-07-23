@@ -5803,6 +5803,9 @@ async function checkExistingSession() {
             updateLoginStatus();
             afterLoginOrSignup();
 
+            // Clear the fresh login flag on session restoration
+            localStorage.removeItem('sati_fresh_login');
+
             return true;
         }
 
