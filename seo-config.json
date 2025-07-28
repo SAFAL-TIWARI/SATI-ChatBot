@@ -1,0 +1,124 @@
+{
+    "site": {
+        "name": "SATI ChatBot",
+        "title": "SATI ChatBot - Your Institute Guide",
+        "description": "AI-powered assistant for Samrat Ashok Technological Institute (SATI), Vidisha. Get instant answers about admissions, courses, placements, hostel facilities, and more.",
+        "url": "https://sati-chatbot.vercel.app",
+        "logo": "https://sati-chatbot.vercel.app/images/favicon.png",
+        "image": "https://sati-chatbot.vercel.app/images/preview.png",
+        "author": "Team FluxoNauts",
+        "language": "en",
+        "locale": "en_US",
+        "theme_color": "#1a1a1a",
+        "background_color": "#121212"
+    },
+    "organization": {
+        "name": "Team FluxoNauts",
+        "type": "Organization",
+        "url": "https://github.com/SAFAL-TIWARI/SATI-ChatBot",
+        "logo": "https://sati-chatbot.vercel.app/images/preview.png",
+        "description": "Student development team from Samrat Ashok Technological Institute",
+        "foundingDate": "2025",
+        "location": {
+            "name": "SATI Vidisha",
+            "address": "Samrat Ashok Technological Institute, Vidisha, Madhya Pradesh, India"
+        }
+    },
+    "pages": {
+        "home": {
+            "title": "SATI ChatBot - Your Institute Guide",
+            "description": "Get instant answers about SATI Vidisha - admissions, courses, placements, hostel facilities, and more. Your intelligent AI assistant for Samrat Ashok Technological Institute information.",
+            "keywords": "SATI ChatBot, SATI Vidisha, Samrat Ashok Technological Institute, AI chatbot, SATI admissions, SATI courses, SATI placements, engineering college Vidisha, Madhya Pradesh engineering, SATI hostel, SATI facilities, college information assistant",
+            "url": "https://sati-chatbot.vercel.app/",
+            "priority": 1.0,
+            "changefreq": "daily"
+        },
+        "resources": {
+            "title": "SATI Academic Resources - Notes, Assignments & Study Materials",
+            "description": "Access comprehensive academic resources for SATI students. Download notes, assignments, test papers, syllabus, and previous year questions for all engineering branches.",
+            "keywords": "SATI resources, SATI notes, SATI assignments, SATI syllabus, SATI previous year questions, engineering study materials, CSE notes, ECE notes, mechanical engineering resources",
+            "url": "https://sati-chatbot.vercel.app/resources.html",
+            "priority": 0.9,
+            "changefreq": "weekly"
+        },
+        "about": {
+            "title": "About Team FluxoNauts - SATI ChatBot Developers",
+            "description": "Meet Team FluxoNauts, the student developers behind SATI ChatBot. Learn about our mission to enhance the educational experience at Samrat Ashok Technological Institute.",
+            "keywords": "Team FluxoNauts, SATI developers, FluxWave Hackathon, SATI students, chatbot developers, AI development team, Flux Club SATI",
+            "url": "https://sati-chatbot.vercel.app/about.html",
+            "priority": 0.8,
+            "changefreq": "monthly"
+        },
+        "contact": {
+            "title": "Contact SATI ChatBot Team - Support & Feedback",
+            "description": "Get in touch with SATI ChatBot team by Team FluxoNauts. Contact us for support, feedback, feature requests, or inquiries about our AI-powered educational assistant.",
+            "keywords": "Contact SATI ChatBot, Team FluxoNauts contact, SATI ChatBot support, AI chatbot feedback, educational assistant support, SATI student help, technical support, feature requests",
+            "url": "https://sati-chatbot.vercel.app/contact.html",
+            "priority": 0.7,
+            "changefreq": "monthly"
+        }
+    },
+    "features": [
+        "AI-powered chatbot",
+        "Dual AI providers (Gemini & Groq)",
+        "Academic resources hub",
+        "User authentication",
+        "Chat history management",
+        "Mobile responsive design",
+        "Dark/light theme support",
+        "Real-time conversations",
+        "Institute information database",
+        "Student support system"
+    ],
+    "technologies": [
+        "JavaScript",
+        "HTML5",
+        "CSS3",
+        "Google Gemini API",
+        "Groq API",
+        "Supabase",
+        "Vercel",
+        "Progressive Web App",
+        "Serverless Functions",
+        "OAuth Authentication"
+    ],
+    "social": {
+        "github": "https://github.com/SAFAL-TIWARI/SATI-ChatBot",
+        "website": "https://sati-chatbot.vercel.app"
+    },
+    "analytics": {
+        "google_analytics": "G-XXXXXXXXXX",
+        "google_adsense": "ca-pub-1178405148130113"
+    },
+    "structured_data": {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SATI ChatBot",
+        "description": "AI-powered assistant for Samrat Ashok Technological Institute",
+        "url": "https://sati-chatbot.vercel.app",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "Team FluxoNauts",
+            "url": "https://github.com/SAFAL-TIWARI/SATI-ChatBot"
+        },
+        "about": {
+            "@type": "EducationalOrganization",
+            "name": "Samrat Ashok Technological Institute",
+            "alternateName": "SATI Vidisha",
+            "url": "https://satiengg.in",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Vidisha",
+                "addressRegion": "Madhya Pradesh",
+                "addressCountry": "India"
+            }
+        }
+    }
+}

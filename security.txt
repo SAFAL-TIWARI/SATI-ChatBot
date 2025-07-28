@@ -1,0 +1,36 @@
+# SATI ChatBot - Security Policy
+# Team FluxoNauts - FluxWave Hackathon
+# Last Updated: 2025-01-20
+
+Contact: https://sati-chatbot.vercel.app/contact.html
+Contact: mailto:team.fluxonauts@gmail.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: https://github.com/SAFAL-TIWARI/SATI-ChatBot/blob/main/public-key.asc
+Acknowledgments: https://sati-chatbot.vercel.app/about.html
+Preferred-Languages: en, hi
+Canonical: https://sati-chatbot.vercel.app/.well-known/security.txt
+Policy: https://sati-chatbot.vercel.app/privacy-policy.html
+
+# Security Disclosure Information
+# If you discover a security vulnerability in SATI ChatBot, please report it responsibly.
+# We appreciate your efforts to improve the security of our application.
+
+# Scope:
+# - SATI ChatBot web application (https://sati-chatbot.vercel.app)
+# - API endpoints (/api/*)
+# - Authentication system
+# - Data handling and storage
+
+# Out of Scope:
+# - Third-party services (Vercel, Supabase, Google, Groq)
+# - Social engineering attacks
+# - Physical security
+# - Denial of service attacks
+
+# Response Time:
+# We aim to acknowledge security reports within 48 hours
+# and provide updates on resolution progress within 7 days.
+
+# Recognition:
+# Security researchers who responsibly disclose vulnerabilities
+# will be acknowledged on our about page (with permission).

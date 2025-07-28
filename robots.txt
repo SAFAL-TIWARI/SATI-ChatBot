@@ -1,31 +1,97 @@
+# SATI ChatBot - Robots.txt
+# AI-Powered Institute Assistant by Team FluxoNauts
+# Last Updated: 2025-01-20
+
+# Global Rules for All Crawlers
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Sitemap Location
 Sitemap: https://sati-chatbot.vercel.app/sitemap.xml
 
-# Allow all search engines to crawl the site
+# Major Search Engine Specific Rules
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Slurp
 Allow: /
+Crawl-delay: 1
 
-# Disallow crawling of API endpoints and config files
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Social Media Crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Disallow Sensitive Areas
 Disallow: /api/
-Disallow: /*.js$
-Disallow: /*.css$
+Disallow: /.env*
+Disallow: /.git/
+Disallow: /.vercel/
+Disallow: /.vscode/
+Disallow: /node_modules/
+Disallow: /android/.gradle/
+Disallow: /android/build/
+
+# Disallow Configuration Files
 Disallow: /config.js
 Disallow: /localhost-config.js
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /vercel.json
+Disallow: /.gitignore
 
-# Allow crawling of main pages
+# Disallow Database Files
+Disallow: /*.sql$
+Disallow: /supabase-schema.sql
+Disallow: /add_bookmark_column.sql
+
+# Allow Important Static Files
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /ads.txt
+Allow: /favicon.ico
+Allow: /images/
+
+# Allow Main Pages
 Allow: /index.html
 Allow: /about.html
 Allow: /resources.html
 Allow: /contact.html
+Allow: /privacy-policy.html
+Allow: /terms-of-service.html
+Allow: /404.html
 
-# Crawl delay (optional - helps prevent server overload)
+# Disallow Dynamic Scripts (but allow CSS for styling preview)
+Disallow: /*.js$
+Allow: /*.css$
+
+# Crawl Delay Settings
 Crawl-delay: 1
+
+# Host Declaration (helps with canonicalization)
+Host: https://sati-chatbot.vercel.app

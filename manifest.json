@@ -1,0 +1,154 @@
+{
+    "name": "SATI ChatBot - Your Institute Guide",
+    "short_name": "SATI ChatBot",
+    "description": "AI-powered assistant for Samrat Ashok Technological Institute (SATI), Vidisha. Get instant answers about admissions, courses, placements, hostel facilities, and more.",
+    "version": "1.0.0",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "theme_color": "#1a1a1a",
+    "background_color": "#121212",
+    "scope": "/",
+    "lang": "en",
+    "dir": "ltr",
+    "categories": [
+        "education",
+        "productivity",
+        "utilities"
+    ],
+    "icons": [
+        {
+            "src": "/images/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/favicon.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/favicon.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/favicon.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/favicon.png",
+            "sizes": "48x48",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/preview.png",
+            "sizes": "1200x630",
+            "type": "image/png",
+            "label": "SATI ChatBot main interface"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Chat with AI",
+            "short_name": "Chat",
+            "description": "Start a conversation with SATI ChatBot",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "/images/favicon.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Academic Resources",
+            "short_name": "Resources",
+            "description": "Access study materials and resources",
+            "url": "/resources.html",
+            "icons": [
+                {
+                    "src": "/images/favicon.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Contact Support",
+            "short_name": "Contact",
+            "description": "Get help and support",
+            "url": "/contact.html",
+            "icons": [
+                {
+                    "src": "/images/favicon.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "related_applications": [
+        {
+            "platform": "web",
+            "url": "https://sati-chatbot.vercel.app/"
+        },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.fluxonauts.sati_chatbot",
+            "id": "com.fluxonauts.sati_chatbot"
+        }
+    ],
+    "prefer_related_applications": false,
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "launch_handler": {
+        "client_mode": "navigate-existing"
+    },
+    "handle_links": "preferred",
+    "capture_links": "existing-client-navigate",
+    "protocol_handlers": [
+        {
+            "protocol": "web+sati",
+            "url": "/?action=%s"
+        }
+    ],
+    "file_handlers": [
+        {
+            "action": "/",
+            "accept": {
+                "text/plain": [
+                    ".txt"
+                ],
+                "application/pdf": [
+                    ".pdf"
+                ]
+            }
+        }
+    ],
+    "share_target": {
+        "action": "/",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
+}
