@@ -88,6 +88,38 @@ const resourcesData = {
             previewUrl: 'https://drive.google.com/file/d/1ROeOawTiBxfy4LZYUi8r_Slutn6-UE9Y/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1ROeOawTiBxfy4LZYUi8r_Slutn6-UE9Y',
             subject: 'Operating System - Notes'
+        },
+        {
+            id: 'react-cheatsheet',
+            title: 'React CheatSheet',
+            description: 'Comprehensive React CheatSheet for quick reference',
+            previewUrl: 'https://drive.google.com/file/d/1a-VaxWJCNtq1uvfsjUSYQT3CyT8Y3hmC/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1a-VaxWJCNtq1uvfsjUSYQT3CyT8Y3hmC',
+            subject: 'React - CheatSheet'
+        },
+        {
+            id: 'http-headers-web-requests',
+            title: 'HTTP Headers Web Requests And Responses',
+            description: 'Complete guide to HTTP headers, web requests and responses',
+            previewUrl: 'https://drive.google.com/file/d/1Wku-9wwXjXRCRxzEYSyUa-K73eJBeVHs/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1Wku-9wwXjXRCRxzEYSyUa-K73eJBeVHs',
+            subject: 'Web Development - HTTP Headers'
+        },
+        {
+            id: 'it-302-notes',
+            title: 'IT 302 Notes',
+            description: 'Comprehensive notes for Communication Skills',
+            previewUrl: 'https://drive.google.com/file/d/1YIWS4tUFJm7Om0RhpVkfSAiX0ttWoNv4/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1YIWS4tUFJm7Om0RhpVkfSAiX0ttWoNv4',
+            subject: 'IT 302 - Notes'
+        },
+        {
+            id: 'java-book',
+            title: 'JAVA Book',
+            description: 'Complete JAVA programming book for comprehensive learning',
+            previewUrl: 'https://drive.google.com/file/d/12OczJGzjJOQtY0BvS1mCIcC6SMmZ0sRc/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=12OczJGzjJOQtY0BvS1mCIcC6SMmZ0sRc',
+            subject: 'JAVA Programming - Book'
         }
     ],
     practical: [
@@ -188,6 +220,14 @@ const resourcesData = {
             previewUrl: 'https://drive.google.com/file/d/1j6IFGhpdlMXePDV4_v_k5e3RS7fu-8nG/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1j6IFGhpdlMXePDV4_v_k5e3RS7fu-8nG',
             subject: 'Operating System - Objective Type Questions'
+        },
+        {
+            id: '100-backfront-end-interviews',
+            title: '100 BackFront End Interviews',
+            description: '100 comprehensive backend and frontend interview questions and answers',
+            previewUrl: 'https://drive.google.com/file/d/1pGiWTKjJtVDpilXdoR5GYY5DqBQVlzfi/preview',
+            downloadUrl: 'https://drive.google.com/uc?export=download&id=1pGiWTKjJtVDpilXdoR5GYY5DqBQVlzfi',
+            subject: 'Interview Preparation - Backend & Frontend'
         }
     ],
     syllabus: {

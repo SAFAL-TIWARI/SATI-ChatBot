@@ -5924,6 +5924,15 @@ textarea:focus-visible {
     max-width: 100%;
     scrollbar-width: thin;
 }
+
+/* Desktop-only alignment for file chips to match input container */
+@media (min-width: 769px) {
+    #fileChipContainer {
+        max-width: 768px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
 .file-chip {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
