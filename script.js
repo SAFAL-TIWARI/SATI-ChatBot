@@ -843,6 +843,9 @@ function initializeElements() {
         sendBtn: document.getElementById('sendBtn'),
         stopBtn: document.getElementById('stopBtn'),
         micBtn: document.getElementById('micBtn'),
+        voiceModeBtn: document.getElementById('voiceModeBtn'), // Legacy - will be null
+        voiceModeBtnDesktop: document.getElementById('voiceModeBtnDesktop'),
+        voiceModeBtnMobile: document.getElementById('voiceModeBtnMobile'),
         modelSelect: document.getElementById('modelSelect'),
 
         // Top bar
@@ -1407,6 +1410,973 @@ class VoiceRecognition {
     }
 }
 
+// Voice Mode System
+class VoiceMode {
+    constructor() {
+        this.isActive = false;
+        this.isListening = false;
+        this.isSpeaking = false;
+        this.isMuted = false;
+        this.recognition = null;
+        this.synthesis = window.speechSynthesis;
+        this.currentUtterance = null;
+        this.conversationHistory = [];
+        
+        this.initializeVoiceMode();
+    }
+
+    initializeVoiceMode() {
+        // Check for browser support
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.warn('Speech recognition not supported');
+            return;
+        }
+
+        if (!('speechSynthesis' in window)) {
+            console.warn('Speech synthesis not supported');
+            return;
+        }
+
+        // Initialize speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        if (!this.recognition) return;
+
+        // Speech recognition events
+        this.recognition.onstart = () => {
+            console.log('🎤 Voice mode listening started');
+            this.isListening = true;
+            this.updateVoiceOrb('listening');
+            this.updateStatus('Listening...');
+        };
+
+        this.recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.trim();
+            console.log('🎤 Voice input received:', transcript);
+            console.log('🎤 Current state - isSpeaking:', this.isSpeaking, 'isActive:', this.isActive);
+            
+            // Ignore speech input while AI is speaking to prevent feedback
+            if (this.isSpeaking) {
+                console.log('🎤 Ignoring voice input while AI is speaking to prevent feedback');
+                return;
+            }
+            
+            if (transcript && this.isActive) {
+                this.handleUserSpeech(transcript);
+            }
+        };
+
+        this.recognition.onend = () => {
+            console.log('🎤 Voice recognition ended');
+            this.isListening = false;
+            
+            if (this.isActive) {
+                if (!this.isSpeaking) {
+                    this.updateVoiceOrb('idle');
+                    this.updateStatus('Ready');
+                    
+                    // If we're not speaking, restart listening after a short delay
+                    // This handles cases where recognition ends without speech synthesis
+                    setTimeout(() => {
+                        if (this.isActive && !this.isSpeaking && !this.isListening && !this.isMuted) {
+                            console.log('🎤 Auto-restarting listening after recognition ended');
+                            this.startListening();
+                        }
+                    }, 1000);
+                }
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('🎤 Voice recognition error:', event.error);
+            this.isListening = false;
+            
+            if (this.isActive) {
+                this.updateVoiceOrb('idle');
+                
+                // Handle different types of errors
+                if (event.error === 'not-allowed') {
+                    this.updateStatus('Microphone access denied');
+                    this.addVoiceMessage('system', 'Please allow microphone access to use voice mode.');
+                } else if (event.error === 'no-speech') {
+                    this.updateStatus('No speech detected');
+                    // Auto-retry for no-speech errors
+                    setTimeout(() => {
+                        if (this.isActive && !this.isSpeaking && !this.isMuted) {
+                            console.log('🎤 Auto-restarting after no-speech error');
+                            this.startListening();
+                        }
+                    }, 1000);
+                } else {
+                    this.updateStatus('Error - Try again');
+                    // Auto-retry after a short delay for other errors
+                    setTimeout(() => {
+                        if (this.isActive && !this.isSpeaking && !this.isMuted) {
+                            console.log('🎤 Auto-restarting after error:', event.error);
+                            this.startListening();
+                        }
+                    }, 2000);
+                }
+            }
+        };
+
+        // Speech synthesis events
+        if (this.synthesis) {
+            this.synthesis.addEventListener('voiceschanged', () => {
+                console.log('🔊 Voices loaded');
+            });
+        }
+        
+        // Add click handler to voice orb for manual restart
+        const voiceOrb = document.getElementById('voiceOrb');
+        if (voiceOrb) {
+            voiceOrb.addEventListener('click', () => {
+                if (this.isActive && !this.isListening && !this.isSpeaking && !this.isMuted) {
+                    console.log('🎤 Manual restart via voice orb click');
+                    this.startListening();
+                }
+            });
+            
+            // Add double-click handler to manually trigger speech of last assistant message (for testing)
+            voiceOrb.addEventListener('dblclick', () => {
+                if (this.isActive) {
+                    console.log('🔊 Manual trigger: Finding last assistant message to speak');
+                    const chatMessages = document.getElementById('chatMessages');
+                    if (chatMessages) {
+                        const messages = Array.from(chatMessages.children);
+                        const lastAssistantMessage = messages.reverse().find(msg => 
+                            msg.querySelector('.assistant-message')
+                        );
+                        
+                        if (lastAssistantMessage) {
+                            const messageText = lastAssistantMessage.querySelector('.message-text');
+                            if (messageText) {
+                                const responseText = messageText.textContent || messageText.innerText;
+                                const cleanResponse = responseText.replace(/\s+/g, ' ').trim();
+                                
+                                if (cleanResponse) {
+                                    console.log('🔊 Manual trigger: Speaking last assistant message');
+                                    console.log('🔊 Manual trigger: Text to speak:', cleanResponse.substring(0, 100) + '...');
+                                    this.speakText(cleanResponse);
+                                } else {
+                                    console.log('🔊 Manual trigger: No clean response found');
+                                    // Test with a simple message
+                                    this.speakText('This is a test message to verify speech synthesis is working.');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    async activate() {
+        if (this.isActive) return;
+
+        console.log('🎙️ Activating voice mode');
+        this.isActive = true;
+        this.conversationHistory = [];
+
+        // Create a new conversation if one doesn't exist
+        if (!chatState.currentConversationId) {
+            console.log('🔄 No active conversation, creating new one for voice mode...');
+            try {
+                await chatState.createNewConversation('Voice Chat Session');
+                console.log('✅ New conversation created for voice mode:', chatState.currentConversationId);
+                
+                // Update conversations list in sidebar
+                if (typeof updateConversationsList === 'function') {
+                    updateConversationsList();
+                }
+            } catch (error) {
+                console.error('❌ Error creating conversation for voice mode:', error);
+            }
+        } else {
+            console.log('📝 Using existing conversation for voice mode:', chatState.currentConversationId);
+        }
+
+        // Show voice mode modal
+        const modal = document.getElementById('voiceModeModal');
+        const voiceModeBtnDesktop = document.getElementById('voiceModeBtnDesktop');
+        const voiceModeBtnMobile = document.getElementById('voiceModeBtnMobile');
+        
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        // Add active class to both voice mode buttons
+        if (voiceModeBtnDesktop) {
+            voiceModeBtnDesktop.classList.add('active');
+        }
+        if (voiceModeBtnMobile) {
+            voiceModeBtnMobile.classList.add('active');
+        }
+
+        // Initialize voice mode UI
+        this.updateStatus('Ready');
+        this.updateVoiceOrb('idle');
+        this.clearVoiceMessages();
+
+        // Add and speak welcome message
+        const welcomeMessage = 'Hello! I\'m ready to chat with you. What would you like to know about SATI?';
+        this.addVoiceMessage('assistant', welcomeMessage);
+        
+        // Start periodic check to ensure continuous conversation
+        this.startPeriodicCheck();
+        
+        // Request microphone permissions first
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(() => {
+                    console.log('🎤 Microphone permission granted');
+                    // Speak welcome message and then start listening
+                    this.speakText(welcomeMessage);
+                })
+                .catch((error) => {
+                    console.error('🎤 Microphone permission denied:', error);
+                    this.updateStatus('Microphone access required');
+                    // Still try to speak the welcome message
+                    this.speakText(welcomeMessage);
+                });
+        } else {
+            // Fallback for browsers without getUserMedia
+            this.speakText(welcomeMessage);
+        }
+    }
+
+    startPeriodicCheck() {
+        // Clear any existing interval
+        if (this.periodicCheckInterval) {
+            clearInterval(this.periodicCheckInterval);
+        }
+        
+        // Check every 3 seconds if we should be listening but aren't
+        this.periodicCheckInterval = setInterval(() => {
+            if (this.isActive && !this.isListening && !this.isSpeaking && !this.isMuted) {
+                console.log('🔄 Periodic check: Restarting listening');
+                this.startListening();
+            }
+        }, 3000);
+    }
+
+    deactivate() {
+        if (!this.isActive) return;
+
+        console.log('🎙️ Deactivating voice mode');
+        
+        // Clear periodic check
+        if (this.periodicCheckInterval) {
+            clearInterval(this.periodicCheckInterval);
+            this.periodicCheckInterval = null;
+        }
+        this.isActive = false;
+        this.isListening = false;
+        this.isSpeaking = false;
+
+        // Stop any ongoing speech recognition
+        if (this.recognition) {
+            this.recognition.stop();
+        }
+
+        // Stop any ongoing speech synthesis
+        if (this.synthesis) {
+            this.synthesis.cancel();
+        }
+
+        // Clear any listening timeout
+        if (this.listeningTimeout) {
+            clearTimeout(this.listeningTimeout);
+            this.listeningTimeout = null;
+        }
+
+        // Hide voice mode modal
+        const modal = document.getElementById('voiceModeModal');
+        const voiceModeBtnDesktop = document.getElementById('voiceModeBtnDesktop');
+        const voiceModeBtnMobile = document.getElementById('voiceModeBtnMobile');
+        
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        // Remove active class from both voice mode buttons
+        if (voiceModeBtnDesktop) {
+            voiceModeBtnDesktop.classList.remove('active');
+        }
+        if (voiceModeBtnMobile) {
+            voiceModeBtnMobile.classList.remove('active');
+        }
+
+        this.conversationHistory = [];
+    }
+
+    startListening() {
+        console.log('🎤 startListening called - isActive:', this.isActive, 'isListening:', this.isListening, 'isSpeaking:', this.isSpeaking, 'isMuted:', this.isMuted);
+        
+        if (!this.isActive || this.isListening || this.isSpeaking || this.isMuted) {
+            console.log('🎤 startListening blocked - conditions not met');
+            return;
+        }
+
+        try {
+            console.log('🎤 Starting voice recognition...');
+            this.isListening = true;
+            this.updateVoiceOrb('listening');
+            this.updateStatus('Listening...');
+            
+            // Set a timeout to automatically stop listening after 30 seconds
+            this.listeningTimeout = setTimeout(() => {
+                if (this.isListening && this.isActive) {
+                    console.log('🎤 Listening timeout reached');
+                    this.addVoiceMessage('system', 'Listening timeout. I\'m ready when you are.');
+                    this.isListening = false;
+                    this.updateVoiceOrb('idle');
+                    this.updateStatus('Ready');
+                }
+            }, 30000);
+            
+            this.recognition.start();
+        } catch (error) {
+            console.error('Error starting voice recognition:', error);
+            this.isListening = false;
+            this.updateVoiceOrb('idle');
+            this.updateStatus('Error');
+            this.addVoiceMessage('system', 'Error starting voice recognition. Please try again.');
+        }
+    }
+
+    async handleUserSpeech(transcript) {
+        console.log('🎤 handleUserSpeech called with:', transcript);
+        
+        // Stop any ongoing AI speech when user starts speaking
+        if (this.synthesis && this.isSpeaking) {
+            console.log('🎤 Stopping AI speech because user is speaking');
+            this.synthesis.cancel();
+            this.isSpeaking = false;
+        }
+        
+        // Add user message to voice chat
+        this.addVoiceMessage('user', transcript);
+        
+        // Update status
+        this.updateStatus('Thinking...');
+        this.updateVoiceOrb('thinking');
+
+        try {
+            // Ensure we have a conversation
+            if (!chatState.currentConversationId) {
+                console.log('🔄 Creating new conversation for voice message...');
+                await chatState.createNewConversation('Voice Chat Session');
+                if (typeof updateConversationsList === 'function') {
+                    updateConversationsList();
+                }
+            }
+
+            // Send message through the main chat system
+            console.log('🎤 Sending voice message through main chat system:', transcript);
+            
+            // Add to main chat input and trigger send
+            if (elements.messageInput) {
+                elements.messageInput.value = transcript;
+                
+                // Trigger the main chat send function
+                if (typeof sendMessage === 'function') {
+                    await sendMessage();
+                } else {
+                    // Fallback: use chatManager directly
+                    await chatManager.sendMessage(transcript, chatState.selectedModel);
+                }
+            } else {
+                // Fallback: use chatManager directly
+                await chatManager.sendMessage(transcript, chatState.selectedModel);
+            }
+            
+        } catch (error) {
+            console.error('Error sending message to AI:', error);
+            this.addVoiceMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+            this.speakText('Sorry, I encountered an error. Please try again.');
+        }
+    }
+
+    async sendMessageToAI(message) {
+        try {
+            // Store reference to current voice mode instance
+            const voiceModeInstance = this;
+            
+            // Create a temporary observer to watch for new messages
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) {
+                throw new Error('Chat messages container not found');
+            }
+            
+            // Count current messages
+            const initialMessageCount = chatMessages.children.length;
+            
+            // Use the existing chatManager to send message
+            console.log('🤖 Sending message to AI:', message);
+            await chatManager.sendMessage(message, chatState.selectedModel);
+            console.log('🤖 Message sent to AI, waiting for response...');
+            
+            // Use MutationObserver to detect when AI response is added
+            const observer = new MutationObserver((mutations) => {
+                console.log('🔍 MutationObserver triggered, mutations:', mutations.length);
+                
+                mutations.forEach((mutation) => {
+                    console.log('🔍 Mutation type:', mutation.type, 'addedNodes:', mutation.addedNodes.length);
+                    
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        mutation.addedNodes.forEach((node) => {
+                            console.log('🔍 Added node:', node.nodeType, node.className, node.tagName);
+                            
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                // Log the full structure of the added node
+                                console.log('🔍 Node HTML:', node.outerHTML?.substring(0, 200) + '...');
+                                
+                                // Check multiple ways to find assistant message
+                                let assistantElement = null;
+                                
+                                // Method 1: Direct class check
+                                if (node.classList?.contains('assistant-message')) {
+                                    assistantElement = node;
+                                    console.log('🔍 Found assistant via direct class check');
+                                }
+                                
+                                // Method 2: Query selector for assistant-message
+                                if (!assistantElement) {
+                                    assistantElement = node.querySelector?.('.assistant-message');
+                                    if (assistantElement) console.log('🔍 Found assistant via querySelector .assistant-message');
+                  }
+                                              
+                                // Method 3: Check if it's a message container with assistant content
+                                if (!assistantElement) {
+                                    const messageDiv = node.querySelector?.('.message');
+                                    if (messageDiv && messageDiv.className.includes('assistant')) {
+                                        assistantElement = messageDiv;
+                                        console.log('🔍 Found assistant via .message class check');
+                                    }
+                                }
+                                
+                                // Method 4: Check all child elements
+                                if (!assistantElement && node.querySelectorAll) {
+                                    const allElements = node.querySelectorAll('*');
+                                    for (let el of allElements) {
+                                        if (el.className && el.className.includes('assistant')) {
+                                            assistantElement = el;
+                                            console.log('🔍 Found assistant via child element search:', el.className);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                if (assistantElement) {
+                                    console.log('🤖 AI response detected via MutationObserver');
+                                    console.log('🤖 Assistant element class:', assistantElement.className);
+                                    
+                                    // Wait a bit for the content to be fully rendered
+                                    setTimeout(() => {
+                                        // Try multiple selectors for message text
+                                        let messageText = assistantElement.querySelector('.message-text') ||
+                                                        assistantElement.querySelector('.message-content') ||
+                                                        assistantElement.querySelector('[class*="text"]') ||
+                                                        assistantElement;
+                                        
+                                        console.log('🤖 Message text element:', messageText?.tagName, messageText?.className);
+                                        
+                                        if (messageText && voiceModeInstance.isActive) {
+                                            const responseText = messageText.textContent || messageText.innerText;
+                                            console.log('🤖 Raw response text length:', responseText?.length);
+                                            console.log('🤖 Raw response preview:', responseText?.substring(0, 200) + '...');
+                                            
+                                            const cleanResponse = responseText.replace(/\s+/g, ' ').trim();
+                                            
+                                            if (cleanResponse && cleanResponse.length > 5) {
+                                                console.log('🤖 AI Response captured for voice:', cleanResponse.substring(0, 100) + '...');
+                                                
+                                                // Add AI response to voice chat
+                                                voiceModeInstance.addVoiceMessage('assistant', cleanResponse);
+                                                
+                                                // Speak the response
+                                                console.log('🔊 About to speak AI response');
+                                                voiceModeInstance.speakText(cleanResponse);
+                                                
+                                                // Stop observing after we get the response
+                                                observer.disconnect();
+                                                return;
+                                            } else {
+                                                console.log('🤖 Clean response is empty or too short:', cleanResponse?.length);
+                                            }
+                                        } else {
+                                            console.log('🤖 Message text not found or voice mode not active');
+                                            console.log('🤖 messageText:', !!messageText, 'isActive:', voiceModeInstance.isActive);
+                                        }
+                                    }, 1500); // Increased delay to ensure content is fully rendered
+                                } else {
+                                    console.log('🔍 No assistant element found in this node');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Start observing
+            observer.observe(chatMessages, { childList: true, subtree: true });
+            
+            // Fallback: Also check periodically for new assistant messages
+            let checkCount = 0;
+            const maxChecks = 75; // 15 seconds with 200ms intervals
+            
+            const fallbackCheck = () => {
+                checkCount++;
+                console.log(`🔍 Fallback check ${checkCount}/${maxChecks} for AI response`);
+                
+                const currentMessages = Array.from(chatMessages.children);
+                console.log(`🔍 Current message count: ${currentMessages.length}, Initial: ${initialMessageCount}`);
+                
+                // Check if any new messages were added
+                if (currentMessages.length > initialMessageCount) {
+                    console.log('🔍 New messages detected, checking for assistant messages...');
+                    
+                    // Get all messages added after the initial count
+                    const newMessages = currentMessages.slice(initialMessageCount);
+                    console.log(`🔍 New messages: ${newMessages.length}`);
+                    
+                    for (let i = 0; i < newMessages.length; i++) {
+                        const msg = newMessages[i];
+                        console.log(`🔍 Checking message ${i}:`, msg.className, msg.outerHTML?.substring(0, 100) + '...');
+                        
+                        if (msg.hasAttribute('data-voice-processed')) {
+                            console.log('🔍 Message already processed, skipping');
+                            continue;
+                        }
+                        
+                        // Try multiple ways to find assistant content
+                        let assistantElement = null;
+                        let messageText = null;
+                        
+                        // Method 1: Look for assistant-message class
+                        assistantElement = msg.querySelector('.assistant-message');
+                        if (assistantElement) {
+                            console.log('🔍 Found assistant via .assistant-message');
+                            messageText = assistantElement.querySelector('.message-text');
+                        }
+                        
+                        // Method 2: Look for message with assistant in class name
+                        if (!assistantElement) {
+                            const messageDiv = msg.querySelector('.message');
+                            if (messageDiv && messageDiv.className.includes('assistant')) {
+                                console.log('🔍 Found assistant via .message class');
+                                assistantElement = messageDiv;
+                                messageText = messageDiv.querySelector('.message-text');
+                            }
+                        }
+                        
+                        // Method 3: Check if the message itself has assistant class
+                        if (!assistantElement && msg.className.includes('assistant')) {
+                            console.log('🔍 Found assistant via direct class check');
+                            assistantElement = msg;
+                            messageText = msg.querySelector('.message-text') || msg.querySelector('.message-content') || msg;
+                        }
+                        
+                        if (assistantElement && messageText && voiceModeInstance.isActive) {
+                            const responseText = messageText.textContent || messageText.innerText;
+                            console.log('🔍 Found response text length:', responseText?.length);
+                            
+                            const cleanResponse = responseText.replace(/\s+/g, ' ').trim();
+                            
+                            if (cleanResponse && cleanResponse.length > 5) {
+                                console.log('🤖 AI Response captured via fallback:', cleanResponse.substring(0, 100) + '...');
+                                
+                                // Mark as processed
+                                msg.setAttribute('data-voice-processed', 'true');
+                                
+                                // Add AI response to voice chat
+                                voiceModeInstance.addVoiceMessage('assistant', cleanResponse);
+                                
+                                // Speak the response
+                                console.log('🔊 About to speak AI response (fallback)');
+                                voiceModeInstance.speakText(cleanResponse);
+                                
+                                // Stop observing and checking
+                                observer.disconnect();
+                                return;
+                            }
+                        }
+                    }
+                }
+                
+                if (checkCount < maxChecks) {
+                    setTimeout(fallbackCheck, 200);
+                } else {
+                    console.log('🔍 Fallback check exhausted, no assistant message found');
+                }
+            };
+            
+            // Start fallback checking after a short delay
+            setTimeout(fallbackCheck, 1000);
+            
+            // Set a timeout to stop observing if no response comes
+            setTimeout(() => {
+                observer.disconnect();
+                console.log('🤖 Timeout waiting for AI response');
+                if (voiceModeInstance.isActive) {
+                    // voiceModeInstance.addVoiceMessage('system', 'No response received. Please try again.');
+                    // voiceModeInstance.speakText('No response received. Please try again.');
+                }
+            }, 20000); // 20 second timeout (increased since we have multiple detection methods)
+            
+        } catch (error) {
+            console.error('Error getting AI response:', error);
+            
+            if (this.isActive) {
+                const errorMessage = 'Sorry, I encountered an error. Please try again.';
+                this.addVoiceMessage('assistant', errorMessage);
+                this.speakText(errorMessage);
+            }
+            
+        
+            throw error;
+        }
+    }
+
+    handleNewAssistantMessage(responseText) {
+        console.log('🔊 handleNewAssistantMessage called with:', responseText?.substring(0, 100) + '...');
+        
+        if (!this.isActive || !responseText) {
+            console.log('🔊 Voice mode not active or no response text');
+            return;
+        }
+
+        const cleanResponse = responseText.replace(/\s+/g, ' ').trim();
+        
+        if (cleanResponse && cleanResponse.length > 5) {
+            console.log('🔊 Processing assistant message for voice:', cleanResponse.substring(0, 100) + '...');
+            
+            // Add AI response to voice chat
+            this.addVoiceMessage('assistant', cleanResponse);
+            
+            // Speak the response
+            console.log('🔊 About to speak AI response (direct hook)');
+            this.speakText(cleanResponse);
+        } else {
+            console.log('🔊 Response text is empty or too short');
+        }
+    }
+
+    speakText(text) {
+        console.log('🔊 speakText called with text length:', text?.length);
+        console.log('🔊 Text preview:', text?.substring(0, 200) + '...');
+        console.log('🔊 synthesis available:', !!this.synthesis);
+        console.log('🔊 isMuted:', this.isMuted);
+        console.log('🔊 isActive:', this.isActive);
+        
+        if (!this.synthesis || this.isMuted || !text) {
+            console.log('🔊 Speech synthesis blocked - synthesis:', !!this.synthesis, 'muted:', this.isMuted, 'hasText:', !!text);
+            return;
+        }
+
+        // Stop any ongoing voice recognition immediately to prevent feedback
+        if (this.recognition && this.isListening) {
+            console.log('🔊 Stopping voice recognition before speaking to prevent feedback');
+            this.recognition.stop();
+            this.isListening = false;
+            
+            // Add a small delay to ensure recognition has fully stopped
+            setTimeout(() => {
+                this.continueSpeaking(text);
+            }, 200);
+            return;
+        }
+
+        this.continueSpeaking(text);
+    }
+
+    continueSpeaking(text) {
+        // Cancel any ongoing speech
+        this.synthesis.cancel();
+
+        // Clean text for speech (remove markdown, etc.)
+        const cleanText = this.cleanTextForSpeech(text);
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        
+        // Configure voice settings
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        // Try to use a natural-sounding voice
+        const voices = this.synthesis.getVoices();
+        console.log('🔊 Available voices:', voices.length);
+        
+        if (voices.length === 0) {
+            // Voices might not be loaded yet, wait for them to load
+            console.log('🔊 Waiting for voices to load...');
+            
+            // Try to trigger voice loading
+            const tempUtterance = new SpeechSynthesisUtterance('');
+            this.synthesis.speak(tempUtterance);
+            this.synthesis.cancel();
+            
+            // Wait for voices to load
+            const waitForVoices = () => {
+                const newVoices = this.synthesis.getVoices();
+                if (newVoices.length > 0) {
+                    console.log('🔊 Voices loaded, retrying speech...');
+                    this.speakText(text);
+                } else {
+                    // Fallback: just speak without specific voice after 2 seconds
+                    setTimeout(() => {
+                        console.log('🔊 Fallback: Speaking without specific voice');
+                        const fallbackUtterance = new SpeechSynthesisUtterance(this.cleanTextForSpeech(text));
+                        fallbackUtterance.rate = 0.9;
+                        fallbackUtterance.pitch = 1.0;
+                        fallbackUtterance.volume = 1.0;
+                        fallbackUtterance.onstart = () => {
+                            console.log('🔊 Fallback speech synthesis started');
+                            
+                            // Stop any ongoing voice recognition to prevent feedback
+                            if (this.recognition && this.isListening) {
+                                console.log('🔊 Stopping voice recognition to prevent feedback (fallback)');
+                                this.recognition.stop();
+                                this.isListening = false;
+                            }
+                            
+                            this.isSpeaking = true;
+                            this.updateVoiceOrb('speaking');
+                            this.updateStatus('Speaking...');
+                        };
+                        fallbackUtterance.onend = () => {
+                            this.isSpeaking = false;
+                            if (this.isActive) {
+                                this.updateVoiceOrb('idle');
+                                this.updateStatus('Ready');
+                                setTimeout(() => {
+                                    if (this.isActive && !this.isMuted) {
+                                        this.startListening();
+                                    }
+                                }, 1000);
+                            }
+                        };
+                        this.synthesis.speak(fallbackUtterance);
+                    }, 2000);
+                }
+            };
+            
+            this.synthesis.addEventListener('voiceschanged', waitForVoices, { once: true });
+            // Also try after a short delay in case the event doesn't fire
+            setTimeout(waitForVoices, 100);
+            return;
+        }
+        
+        const preferredVoice = voices.find(voice => 
+            voice.name.includes('Natural') || 
+            voice.name.includes('Enhanced') ||
+            voice.name.includes('Premium') ||
+            (voice.lang.startsWith('en') && voice.localService)
+        ) || voices.find(voice => voice.lang.startsWith('en'));
+        
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+            console.log('🔊 Using voice:', preferredVoice.name);
+        }
+
+        utterance.onstart = () => {
+            console.log('🔊 Speech synthesis started');
+            
+            // Stop any ongoing voice recognition to prevent feedback
+            if (this.recognition && this.isListening) {
+                console.log('🔊 Stopping voice recognition to prevent feedback');
+                this.recognition.stop();
+                this.isListening = false;
+            }
+            
+            this.isSpeaking = true;
+            this.updateVoiceOrb('speaking');
+            this.updateStatus('Speaking...');
+        };
+
+        utterance.onend = () => {
+            console.log('🔊 Speech synthesis ended');
+            this.isSpeaking = false;
+            
+            if (this.isActive) {
+                this.updateVoiceOrb('idle');
+                this.updateStatus('Ready');
+                
+                // Start listening again after a longer delay to prevent feedback
+                console.log('🔊 Speech ended, will restart listening in 1000ms');
+                setTimeout(() => {
+                    if (this.isActive && !this.isMuted) {
+                        console.log('🔊 Restarting listening after speech ended');
+                        this.startListening();
+                        
+                        // Double-check after another second in case it didn't start
+                        setTimeout(() => {
+                            if (this.isActive && !this.isListening && !this.isSpeaking && !this.isMuted) {
+                                console.log('🔊 Double-check: Forcing listening restart');
+                                this.startListening();
+                            }
+                        }, 1500);
+                    } else {
+                        console.log('🔊 Not restarting listening - isActive:', this.isActive, 'isMuted:', this.isMuted);
+                    }
+                }, 1000);
+            }
+        };
+
+        utterance.onerror = (event) => {
+            console.error('🔊 Speech synthesis error:', event.error);
+            this.isSpeaking = false;
+            
+            if (this.isActive) {
+                this.updateVoiceOrb('idle');
+                this.updateStatus('Ready');
+                
+                // Continue listening even if speech failed
+                setTimeout(() => {
+                    if (this.isActive && !this.isMuted) {
+                        this.startListening();
+                    }
+                }, 500);
+            }
+        };
+
+        this.currentUtterance = utterance;
+        
+        console.log('🔊 Starting speech synthesis...');
+        console.log('🔊 Text to speak:', cleanText.substring(0, 100) + '...');
+        
+        try {
+            this.synthesis.speak(utterance);
+        } catch (error) {
+            console.error('🔊 Error starting speech synthesis:', error);
+            // Fallback: try without voice selection
+            const fallbackUtterance = new SpeechSynthesisUtterance(cleanText);
+            fallbackUtterance.rate = 0.9;
+            fallbackUtterance.pitch = 1.0;
+            fallbackUtterance.volume = 1.0;
+            
+            fallbackUtterance.onstart = utterance.onstart;
+            fallbackUtterance.onend = utterance.onend;
+            fallbackUtterance.onerror = utterance.onerror;
+            
+            this.synthesis.speak(fallbackUtterance);
+        }
+    }
+
+    cleanTextForSpeech(text) {
+        // Remove markdown formatting
+        let cleanText = text
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+            .replace(/\*(.*?)\*/g, '$1') // Italic
+            .replace(/`(.*?)`/g, '$1') // Inline code
+            .replace(/```[\s\S]*?```/g, '[code block]') // Code blocks
+            .replace(/#{1,6}\s/g, '') // Headers
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
+            .replace(/\n+/g, ' ') // Multiple newlines
+            .replace(/\s+/g, ' ') // Multiple spaces
+            .trim();
+
+        // Limit length for speech
+        if (cleanText.length > 500) {
+            cleanText = cleanText.substring(0, 500) + '...';
+        }
+
+        return cleanText;
+    }
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        
+        const muteBtn = document.getElementById('voiceMuteMicBtn');
+        if (muteBtn) {
+            if (this.isMuted) {
+                muteBtn.classList.add('muted');
+                muteBtn.title = 'Turn on microphone';
+                muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
+            } else {
+                muteBtn.classList.remove('muted');
+                muteBtn.title = 'Turn off microphone';
+                muteBtn.querySelector('i').className = 'fas fa-microphone';
+            }
+        }
+
+        if (this.isMuted) {
+            // Stop listening if currently listening
+            if (this.isListening) {
+                this.recognition.stop();
+            }
+            this.updateStatus('Microphone muted');
+        } else {
+            this.updateStatus('Ready');
+            // Start listening if not currently speaking
+            if (this.isActive && !this.isSpeaking) {
+                setTimeout(() => this.startListening(), 500);
+            }
+        }
+    }
+
+    updateVoiceOrb(state) {
+        const orb = document.getElementById('voiceOrb');
+        if (!orb) return;
+
+        // Remove all state classes
+        orb.classList.remove('listening', 'speaking', 'thinking');
+        
+        // Add current state class
+        if (state !== 'idle') {
+            orb.classList.add(state);
+        }
+    }
+
+    updateStatus(text) {
+        const statusIndicator = document.getElementById('statusIndicator');
+        if (statusIndicator) {
+            statusIndicator.textContent = text;
+            
+            // Update status class
+            statusIndicator.classList.remove('listening', 'speaking');
+            if (text.includes('Listening')) {
+                statusIndicator.classList.add('listening');
+            } else if (text.includes('Speaking')) {
+                statusIndicator.classList.add('speaking');
+            }
+        }
+    }
+
+    addVoiceMessage(sender, content) {
+        // Don't display messages in voice modal - just store in history
+        const now = new Date();
+        
+        // Store in conversation history
+        this.conversationHistory.push({ sender, content, timestamp: now });
+        
+        // Only update status for system messages
+        if (sender === 'system') {
+            this.updateStatus(content);
+        }
+    }
+
+    clearVoiceMessages() {
+        const messagesContainer = document.getElementById('voiceMessages');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = '';
+        }
+        this.conversationHistory = [];
+    }
+}
+
 //delete here above
 
 
@@ -1885,6 +2855,14 @@ class ChatManager {
             };
 
             chatState.currentMessages.push(botMessage);
+
+            // Notify voice agent if active
+            if (window.voiceMode && window.voiceMode.isActive) {
+                console.log('🔊 Notifying voice agent of new assistant message');
+                setTimeout(() => {
+                    window.voiceMode.handleNewAssistantMessage(response);
+                }, 500);
+            }
 
             // Save assistant message to Supabase immediately
             if (chatState.useSupabaseStorage && window.supabaseDB && chatState.currentConversationId) {
@@ -3761,6 +4739,40 @@ function initializeEventListeners() {
         });
     }
 
+    // Voice Mode buttons (both desktop and mobile)
+    const handleVoiceModeClick = () => {
+        console.log('🎤 Voice Mode button clicked');
+        console.log('🎤 window.voiceMode available:', !!window.voiceMode);
+        
+    if (window.voiceMode) {
+            console.log('🎤 Current voice mode state:', window.voiceMode.isActive);
+                if (window.voiceMode.isActive) {
+                console.log('🎤 Deactivating voice mode');
+            window.voiceMode.deactivate();
+            } else {
+            console.log('🎤 Activating voice mode');
+                    window.voiceMode.activate();
+            }
+        } else {
+                console.error('🎤 Voice Mode not initialized');
+        }
+    };
+
+    // Desktop voice mode button
+    if (elements.voiceModeBtnDesktop) {
+        elements.voiceModeBtnDesktop.addEventListener('click', handleVoiceModeClick);
+    }
+
+    // Mobile voice mode button
+    if (elements.voiceModeBtnMobile) {
+        elements.voiceModeBtnMobile.addEventListener('click', handleVoiceModeClick);
+    }
+
+    // Legacy support (if old button still exists)
+    if (elements.voiceModeBtn) {
+        elements.voiceModeBtn.addEventListener('click', handleVoiceModeClick);
+    }
+
     // Stop button
     if (elements.stopBtn) {
         elements.stopBtn.addEventListener('click', () => {
@@ -4080,7 +5092,7 @@ function initializeEventListeners() {
                 const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                 const limitedDistance = Math.min(distance, 100); // Limit how far eyes can look
 
-                const normalizedX = (deltaX / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
+                const normalizedX = (deltaX / distance) *n(limitedDistance / 100, 1) * maxDistance;
                 const normalizedY = (deltaY / distance) * Math.min(limitedDistance / 100, 1) * maxDistance;
 
                 // Apply eye movement
@@ -4214,6 +5226,44 @@ function initializeEventListeners() {
         });
     }
 
+    // Voice Mode modal event listeners
+    const voiceModeClose = document.getElementById('voiceModeClose');
+    if (voiceModeClose) {
+        voiceModeClose.addEventListener('click', () => {
+            if (window.voiceMode) {
+                window.voiceMode.deactivate();
+            }
+        });
+    }
+
+    const voiceModeEndBtn = document.getElementById('voiceModeEndBtn');
+    if (voiceModeEndBtn) {
+        voiceModeEndBtn.addEventListener('click', () => {
+            if (window.voiceMode) {
+                window.voiceMode.deactivate();
+            }
+        });
+    }
+
+    const voiceMuteMicBtn = document.getElementById('voiceMuteMicBtn');
+    if (voiceMuteMicBtn) {
+        voiceMuteMicBtn.addEventListener('click', () => {
+            if (window.voiceMode) {
+                window.voiceMode.toggleMute();
+            }
+        });
+    }
+
+    // Close voice mode modal when clicking outside
+    const voiceModeModal = document.getElementById('voiceModeModal');
+    if (voiceModeModal) {
+        voiceModeModal.addEventListener('click', (e) => {
+            if (e.target === voiceModeModal && window.voiceMode) {
+                window.voiceMode.deactivate();
+            }
+        });
+    }
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         // Ctrl/Cmd + K to focus search
@@ -4261,6 +5311,18 @@ function initializeEventListeners() {
         if (e.ctrlKey && e.key === '/') {
             e.preventDefault();
             showKeyboardShortcuts();
+        }
+
+        // Ctrl + Shift + V for Voice Mode
+        if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+            e.preventDefault();
+            if (window.voiceMode) {
+                if (window.voiceMode.isActive) {
+                    window.voiceMode.deactivate();
+                } else {
+                    window.voiceMode.activate();
+                }
+            }
         }
 
         // Escape to close modals
@@ -4652,6 +5714,18 @@ function handleMobileToggleTranslation() {
     sidebarToggle.offsetHeight;
 }
 
+// Initialize Voice Mode when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    // Initialize Voice Mode
+    if (typeof VoiceMode !== 'undefined') {
+        window.voiceMode = new VoiceMode();
+        console.log('✅ Voice Mode initialized');
+    } else {
+        console.error('❌ VoiceMode class not found');
+    }
+});
+
+
 // Clean up toggle button hover behavior
 function cleanupToggleHoverBehavior() {
     const sidebar = elements.sidebar;
@@ -4717,7 +5791,14 @@ async function signup() {
             return toast.show('Authentication service not available. Please try again later.', 'error');
         }
 
-        toast.show('Creating account...', 'info', 2000);
+// Initialize Voice Mode when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    // Initialize Voice Mode
+    if (typeof VoiceMode !== 'undefined') {
+        window.voiceMode = new VoiceMode();
+        console.log('✅ Voice Mode initialized');
+    }
+}); toast.show('Creating account...', 'info', 2000);
 
         // Try to sign up with Supabase with additional options
         const { data, error } = await supabase.auth.signUp({

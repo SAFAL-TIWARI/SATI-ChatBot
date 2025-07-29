@@ -1931,13 +1931,15 @@ body {
     .app-container:not(.sidebar-collapsed) .input-area {
         padding-left: var(--spacing-6);
         /* Normal padding when sidebar is open */
-        padding-right: 1rem;
+        padding-right: 2rem;
+        /* Increased right padding to account for potential scrollbar */
     }
 
     .app-container.sidebar-collapsed .input-area {
         padding-left: 80px;
         /* Account for toggle button space when collapsed */
-        padding-right: var(--spacing-6);
+        padding-right: 2rem;
+        /* Increased right padding to account for potential scrollbar */
     }
 
     /* Handle hover expansion for collapsed sidebar */
@@ -1945,7 +1947,8 @@ body {
     .sidebar-hover-trigger:hover+.sidebar.collapsed+.main-content .input-area {
         padding-left: var(--spacing-6);
         /* Back to normal padding on hover */
-        padding-right: var(--spacing-6);
+        padding-right: 2rem;
+        /* Increased right padding to account for potential scrollbar */
         transition: padding var(--transition-normal);
     }
 }
@@ -1999,7 +2002,8 @@ body {
     border: none;
     padding: var(--spacing-3) var(--spacing-4);
     padding-left: 50px;
-    padding-right: 140px;
+    padding-right: 160px;
+    /* Increased to account for scrollbar and button spacing */
     font-size: var(--font-size-base);
     font-family: var(--font-family);
     color: var(--text-primary);
@@ -2008,6 +2012,14 @@ body {
     min-height: 44px;
     max-height: 120px;
     line-height: 1.5;
+}
+
+/* Desktop-specific adjustments for scrollbar handling */
+@media (min-width: 769px) {
+    #messageInput {
+        padding-right: 170px;
+        /* Extra space for desktop scrollbar */
+    }
 }
 
 #messageInput::placeholder {
@@ -2028,9 +2040,24 @@ body {
     /* Allow clicks to pass through */
 }
 
+/* Desktop: Always account for potential scrollbar */
+@media (min-width: 769px) {
+    .input-actions {
+        right: 25px;
+        /* Always move actions container left to account for scrollbar */
+    }
+}
+
 .input-actions>* {
     pointer-events: auto;
     /* Re-enable pointer events for child elements */
+}
+
+.input-actions-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    pointer-events: auto;
 }
 
 .input-actions-right {
@@ -2039,6 +2066,28 @@ body {
     gap: var(--spacing-2);
     pointer-events: auto;
     /* Ensure buttons are clickable */
+}
+
+/* Desktop: Show desktop voice button, hide mobile voice button */
+@media (min-width: 769px) {
+    .mobile-voice-btn {
+        display: none !important;
+    }
+
+    .desktop-voice-btn {
+        display: flex !important;
+    }
+}
+
+/* Mobile: Show mobile voice button, hide desktop voice button */
+@media (max-width: 768px) {
+    .mobile-voice-btn {
+        display: flex !important;
+    }
+
+    .desktop-voice-btn {
+        display: none !important;
+    }
 }
 
 .model-select {
@@ -2151,6 +2200,421 @@ body {
 
     100% {
         box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+    }
+}
+
+/* Voice Mode Button Styles */
+.voice-mode-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    margin-left: 4px;
+}
+
+.voice-mode-btn:hover {
+    background-color: var(--bg-secondary);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.voice-mode-btn.active {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+    animation: voicePulse 2s infinite;
+}
+
+@keyframes voicePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+/* Voice Mode Modal Styles */
+.voice-mode-modal {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    width: 90vw;
+    height: 80vh;
+    max-width: 600px;
+    max-height: 700px;
+}
+
+/* Desktop-specific sizing for voice mode modal only */
+@media (min-width: 769px) {
+    .voice-mode-modal {
+        max-width: 60vw;
+        max-height: 50vh;
+        width: 30vw;
+        height: 50vh;
+    }
+}
+
+.voice-mode-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-4) var(--spacing-5);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.voice-mode-status {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.status-text {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.status-indicator {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.status-indicator.listening {
+    color: var(--accent-color);
+}
+
+.status-indicator.speaking {
+    color: var(--success-color);
+}
+
+.voice-mode-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.voice-mode-close:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.voice-mode-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 5vh;
+    gap: var(--spacing-6);
+}
+
+/* Voice Animation Styles */
+.voice-animation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.voice-orb {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all var(--transition-normal);
+}
+
+.voice-orb.listening {
+    animation: orbPulse 2s infinite;
+}
+
+.voice-orb.speaking {
+    animation: orbSpeak 0.5s infinite alternate;
+}
+
+.orb-inner {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.voice-waves {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.wave-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.voice-orb.listening .wave-ring:nth-child(1) {
+    animation: waveExpand 2s infinite;
+}
+
+.voice-orb.listening .wave-ring:nth-child(2) {
+    animation: waveExpand 2s infinite 0.5s;
+}
+
+.voice-orb.listening .wave-ring:nth-child(3) {
+    animation: waveExpand 2s infinite 1s;
+}
+
+.voice-orb.speaking .wave-ring {
+    animation: speakWave 0.3s infinite alternate;
+}
+
+@keyframes orbPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes orbSpeak {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes waveExpand {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes speakWave {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+/* Voice Messages Styles */
+.voice-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    margin: var(--spacing-4) 0;
+}
+
+.voice-messages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2);
+}
+
+.voice-message {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    border-radius: var(--radius-lg);
+    max-width: 80%;
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+.voice-message.user {
+    align-self: flex-end;
+    background: var(--accent-color);
+    color: white;
+    flex-direction: row-reverse;
+}
+
+.voice-message.assistant {
+    align-self: flex-start;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.voice-message-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.voice-message.user .voice-message-avatar {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.voice-message.assistant .voice-message-avatar {
+    background: var(--accent-color);
+    color: white;
+}
+
+.voice-message-content {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+
+.voice-message-time {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Voice Mode Controls */
+.voice-mode-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-4);
+    flex-shrink: 0;
+}
+
+.voice-control-btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.voice-control-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+}
+
+.voice-control-btn.mute-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+.voice-control-btn.mute-btn.muted {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+}
+
+.voice-control-btn.end-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+    padding: var(--spacing-2) var(--spacing-5);
+}
+
+.voice-control-btn.end-btn:hover {
+    background: var(--danger-hover);
+    border-color: var(--danger-hover);
+}
+
+/* Voice Mode Info */
+.voice-mode-info {
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.voice-info-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Responsive Design for Voice Mode */
+@media (max-width: 768px) {
+    .voice-mode-modal {
+        width: 95vw;
+        height: 85vh;
+        position: relative;
+        bottom: 5vh;
+    }
+
+    .voice-orb {
+        width: 100px;
+        height: 100px;
+    }
+
+    .orb-inner {
+        width: 70px;
+        height: 70px;
+    }
+
+    .voice-message {
+        max-width: 90%;
     }
 }
 
@@ -2286,6 +2750,7 @@ body {
     justify-content: center;
     transition: all var(--transition-fast);
     flex-shrink: 0;
+    bottom: 8px;
 }
 
 .stop-btn:hover {
@@ -2388,7 +2853,8 @@ body {
         /* Extend pre blocks closer to copy button */
     }
 
-    .send-btn {
+    .send-btn,
+    .stop-btn {
         bottom: 30px;
         position: relative;
     }
@@ -2437,8 +2903,8 @@ body {
     background-color: var(--bg-primary);
     border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-xl);
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 95vw;
+    max-height: 105vh;
     overflow: hidden;
     transform: scale(0.95);
     transition: transform var(--transition-normal);
@@ -3346,6 +3812,13 @@ body {
         flex-wrap: wrap;
     }
 
+    .input-actions-left {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        flex-wrap: wrap;
+    }
+
     .input-actions-right {
         display: flex;
         align-items: center;
@@ -3405,6 +3878,20 @@ body {
         color: var(--text-primary) !important;
     }
 
+    /* Voice Mode Button Mobile Styles */
+    .voice-mode-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        flex-shrink: 0;
+    }
+
+    .voice-mode-btn.active {
+        animation: voicePulse 1.5s ease-in-out infinite;
+    }
+
     [data-theme="light"] .model-select {
         background-color: var(--input-bg) !important;
         color: var(--text-primary) !important;
@@ -3434,7 +3921,7 @@ body {
 
     .modal-container {
         max-width: 95vw;
-        max-height: 105vh;
+        max-height: 50vh;
         margin: var(--spacing-4);
         width: 90vw;
         min-width: 90vw;
@@ -3445,6 +3932,8 @@ body {
         height: auto;
         min-width: 90vw;
         max-height: 90vh;
+          position: relative;
+        bottom: 5vh;
     }
 
     .settings-modal .modal-body {
