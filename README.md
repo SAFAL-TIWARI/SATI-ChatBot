@@ -143,7 +143,7 @@ vercel --prod
 - **Railway**: Direct deployment with environment variables
 - **Render**: Static site with serverless functions
 
-## � Android WebView App
+## Android WebView App
 
 ### Work In Progress
 - **API Handling | File Attachment | SSO login** : solely inside the app , i.e. no need of redirecting to browsers
@@ -196,9 +196,9 @@ cd android
 
 **Currently App devlopment is in progress :)**
 
-## �👥 Team FluxoNauts
+## 👥 Team FluxoNauts
 
-Built for **FluxWave Hackathon** by Flux Club, [SATI Vidisha](https://satiengg.in/)
+Built for **FluxWave Hackathon** by [Flux Club](https://clubflux.netlify.app/), [SATI Vidisha](https://satiengg.in/)
 
 **Team Members:**
 - [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Frontend Development, Project Architecture
