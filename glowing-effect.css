@@ -1,0 +1,284 @@
+/* Glowing Border Effect CSS */
+.glowing-effect-container {
+    position: relative;
+    display: inline-block;
+    /* Don't inherit border-radius to preserve original element styling */
+}
+
+/* Override display for contact page elements to maintain their original block layout */
+.contact-form.glowing-effect-container,
+.contact-info.glowing-effect-container,
+.faq-section.glowing-effect-container {
+    display: block !important;
+}
+
+/* Inactive border (fallback) */
+.glowing-effect-inactive-border {
+    pointer-events: none;
+    position: absolute;
+    inset: -1px;
+    border-radius: 0.75rem;
+    /* Default radius for prompt boxes (--radius-xl) */
+    border: 1px solid transparent;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Contact page elements use 20px border-radius */
+.contact-form .glowing-effect-inactive-border,
+.contact-info .glowing-effect-inactive-border,
+.faq-section .glowing-effect-inactive-border {
+    border-radius: 20px;
+}
+
+.glowing-effect-container.glow-enabled .glowing-effect-inactive-border {
+    opacity: 1;
+    border-color: var(--border-color, rgba(255, 255, 255, 0.2));
+}
+
+/* Main glowing effect container */
+.glowing-effect-main {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 0.75rem;
+    /* Default radius for prompt boxes (--radius-xl) */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Contact page elements use 20px border-radius */
+.contact-form .glowing-effect-main,
+.contact-info .glowing-effect-main,
+.faq-section .glowing-effect-main {
+    border-radius: 20px;
+}
+
+.glowing-effect-container.disabled .glowing-effect-main {
+    display: none;
+}
+
+/* Glow element */
+.glowing-effect-glow {
+    border-radius: 0.75rem;
+    /* Default radius for prompt boxes (--radius-xl) */
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Contact page elements use 20px border-radius */
+.contact-form .glowing-effect-glow,
+.contact-info .glowing-effect-glow,
+.faq-section .glowing-effect-glow {
+    border-radius: 20px;
+}
+
+.glowing-effect-glow::after {
+    content: "";
+    border-radius: 0.75rem;
+    /* Default radius for prompt boxes (--radius-xl) */
+    position: absolute;
+    inset: calc(-1 * var(--glowingeffect-border-width, 1px));
+    border: var(--glowingeffect-border-width, 1px) solid transparent;
+    background: var(--gradient);
+    background-attachment: fixed;
+    opacity: var(--active, 0);
+    transition: opacity 0.3s ease;
+    mask-clip: padding-box, border-box;
+    mask-composite: intersect;
+    mask-image:
+        linear-gradient(transparent, transparent),
+        conic-gradient(from calc((var(--start, 0) - var(--spread, 20)) * 1deg),
+            transparent 0deg,
+            white,
+            transparent calc(var(--spread, 20) * 2deg));
+    -webkit-mask-clip: padding-box, border-box;
+    -webkit-mask-composite: intersect;
+    -webkit-mask-image:
+        linear-gradient(transparent, transparent),
+        conic-gradient(from calc((var(--start, 0) - var(--spread, 20)) * 1deg),
+            transparent 0deg,
+            white,
+            transparent calc(var(--spread, 20) * 2deg));
+}
+
+/* Contact page elements use 20px border-radius */
+.contact-form .glowing-effect-glow::after,
+.contact-info .glowing-effect-glow::after,
+.faq-section .glowing-effect-glow::after {
+    border-radius: 20px;
+}
+
+/* Default gradient (colorful) */
+.glowing-effect-container:not(.variant-white) {
+    --gradient:
+        radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
+        radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
+        radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
+        radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
+        repeating-conic-gradient(from 236.84deg at 50% 50%,
+            #dd7bbb 0%,
+            #d79f1e calc(25% / var(--repeating-conic-gradient-times, 5)),
+            #5a922c calc(50% / var(--repeating-conic-gradient-times, 5)),
+            #4c7894 calc(75% / var(--repeating-conic-gradient-times, 5)),
+            #dd7bbb calc(100% / var(--repeating-conic-gradient-times, 5)));
+}
+
+/* White variant gradient */
+.glowing-effect-container.variant-white {
+    --gradient:
+        repeating-conic-gradient(from 236.84deg at 50% 50%,
+            var(--black, #000000),
+            var(--black, #000000) calc(25% / var(--repeating-conic-gradient-times, 5)));
+}
+
+/* Blur effect */
+.glowing-effect-main.blur {
+    filter: blur(var(--blur, 0px));
+}
+
+/* CSS Variables for customization */
+.glowing-effect-container {
+    --blur: 0px;
+    --spread: 20;
+    --start: 0;
+    --active: 0;
+    --glowingeffect-border-width: 1px;
+    --repeating-conic-gradient-times: 5;
+}
+
+/* Specific styles for prompt boxes */
+.prompt-box.glowing-effect-container {
+    /* Ensure the glowing effect doesn't interfere with existing styles */
+    isolation: isolate;
+    /* Preserve original border-radius */
+    border-radius: var(--radius-xl) !important;
+}
+
+/* Specific styles for contact page elements */
+.contact-form.glowing-effect-container,
+.contact-info.glowing-effect-container,
+.faq-section.glowing-effect-container {
+    /* Ensure the glowing effect doesn't interfere with existing styles */
+    isolation: isolate;
+    /* Preserve original border-radius (20px from contact.css) */
+    border-radius: 20px !important;
+    /* Ensure proper overflow for glowing effect */
+    overflow: visible !important;
+    /* Preserve original dimensions and styling */
+    width: auto !important;
+    height: auto !important;
+    min-width: unset !important;
+    min-height: unset !important;
+    max-width: unset !important;
+    max-height: unset !important;
+    /* Don't change display or positioning */
+    display: block !important;
+    position: relative !important;
+}
+
+/* Ensure FAQ items don't interfere with the glowing effect */
+.faq-section.glowing-effect-container .faq-item {
+    /* Reset overflow for individual FAQ items if needed */
+    overflow: visible;
+    /* Preserve original FAQ item styling */
+    position: relative;
+}
+
+/* Ensure FAQ section maintains its original padding and spacing */
+.faq-section.glowing-effect-container {
+    /* Preserve original padding from contact.css */
+    padding: 2.5rem !important;
+}
+
+/* Mobile responsive padding override */
+@media (max-width: 768px) {
+    .faq-section.glowing-effect-container {
+        padding: 1rem !important;
+    }
+}
+
+.prompt-box.glowing-effect-container .glowing-effect-main {
+    /* Ensure the glow appears behind the content */
+    z-index: -1;
+}
+
+.prompt-box.glowing-effect-container .glowing-effect-inactive-border {
+    /* Style the inactive border to match the theme */
+    border-color: var(--border-color);
+}
+
+/* Ensure contact page glowing elements don't interfere with content */
+.contact-form.glowing-effect-container .glowing-effect-main,
+.contact-info.glowing-effect-container .glowing-effect-main,
+.faq-section.glowing-effect-container .glowing-effect-main {
+    /* Ensure the glow appears behind the content */
+    z-index: -1;
+    /* Don't affect layout */
+    pointer-events: none;
+}
+
+.contact-form.glowing-effect-container .glowing-effect-inactive-border,
+.contact-info.glowing-effect-container .glowing-effect-inactive-border,
+.faq-section.glowing-effect-container .glowing-effect-inactive-border {
+    /* Style the inactive border to match the theme */
+    border-color: var(--border-color);
+    /* Don't affect layout */
+    pointer-events: none;
+}
+
+/* Enhanced gradient for better visibility in dark theme */
+.prompt-box.glowing-effect-container:not(.variant-white) {
+    --gradient:
+        radial-gradient(circle, rgba(221, 123, 187, 0.8) 10%, rgba(221, 123, 187, 0) 20%),
+        radial-gradient(circle at 40% 40%, rgba(215, 159, 30, 0.8) 5%, rgba(215, 159, 30, 0) 15%),
+        radial-gradient(circle at 60% 60%, rgba(90, 146, 44, 0.8) 10%, rgba(90, 146, 44, 0) 20%),
+        radial-gradient(circle at 40% 60%, rgba(76, 120, 148, 0.8) 10%, rgba(76, 120, 148, 0) 20%),
+        repeating-conic-gradient(from 236.84deg at 50% 50%,
+            rgba(221, 123, 187, 0.9) 0%,
+            rgba(215, 159, 30, 0.9) calc(25% / var(--repeating-conic-gradient-times, 5)),
+            rgba(90, 146, 44, 0.9) calc(50% / var(--repeating-conic-gradient-times, 5)),
+            rgba(76, 120, 148, 0.9) calc(75% / var(--repeating-conic-gradient-times, 5)),
+            rgba(221, 123, 187, 0.9) calc(100% / var(--repeating-conic-gradient-times, 5)));
+}
+
+/* Enhanced gradient for contact page elements */
+.contact-form.glowing-effect-container:not(.variant-white),
+.contact-info.glowing-effect-container:not(.variant-white),
+.faq-section.glowing-effect-container:not(.variant-white) {
+    --gradient:
+        radial-gradient(circle, rgba(16, 163, 127, 0.9) 10%, rgba(16, 163, 127, 0) 25%),
+        radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.8) 8%, rgba(59, 130, 246, 0) 20%),
+        radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.8) 12%, rgba(168, 85, 247, 0) 25%),
+        radial-gradient(circle at 50% 80%, rgba(34, 197, 94, 0.7) 15%, rgba(34, 197, 94, 0) 30%),
+        repeating-conic-gradient(from 180deg at 50% 50%,
+            rgba(16, 163, 127, 0.95) 0%,
+            rgba(59, 130, 246, 0.9) calc(25% / var(--repeating-conic-gradient-times, 5)),
+            rgba(168, 85, 247, 0.9) calc(50% / var(--repeating-conic-gradient-times, 5)),
+            rgba(34, 197, 94, 0.85) calc(75% / var(--repeating-conic-gradient-times, 5)),
+            rgba(16, 163, 127, 0.95) calc(100% / var(--repeating-conic-gradient-times, 5)));
+}
+
+/* Animation for smooth angle transitions */
+.glowing-effect-container {
+    --transition-duration: 1s;
+}
+
+.glowing-effect-glow::after {
+    transition: opacity 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .glowing-effect-container {
+        --spread: 15;
+        --glowingeffect-border-width: 1px;
+    }
+}
+
+@media (max-width: 480px) {
+    .glowing-effect-container {
+        --spread: 12;
+    }
+}

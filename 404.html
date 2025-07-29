@@ -203,6 +203,108 @@
             }
         }
 
+        /* Fade Animation Styles */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .fade-in-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .fade-in-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .fade-in-delay-4 {
+            animation-delay: 0.8s;
+        }
+
+        .fade-in-delay-5 {
+            animation-delay: 1.0s;
+        }
+
+        .fade-in-delay-6 {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scale animation for error icon */
+        .error-icon {
+            opacity: 0;
+            transform: scale(0.5);
+            animation: scaleIn 0.8s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Stagger animation for action buttons */
+        .error-btn {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .error-btn:nth-child(1) {
+            animation-delay: 1.0s;
+        }
+
+        .error-btn:nth-child(2) {
+            animation-delay: 1.2s;
+        }
+
+        .error-btn:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+
+        /* Stagger animation for suggestion list items */
+        .suggestions li {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        .suggestions li:nth-child(1) {
+            animation-delay: 1.6s;
+        }
+
+        .suggestions li:nth-child(2) {
+            animation-delay: 1.8s;
+        }
+
+        .suggestions li:nth-child(3) {
+            animation-delay: 2.0s;
+        }
+
+        .suggestions li:nth-child(4) {
+            animation-delay: 2.2s;
+        }
+
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
         @media (max-width: 768px) {
             .error-content {
                 padding: 1rem;
@@ -230,6 +332,43 @@
             .error-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            /* Reduce animation delays on mobile for better performance */
+            .fade-in-delay-1 {
+                animation-delay: 0.1s;
+            }
+
+            .fade-in-delay-2 {
+                animation-delay: 0.2s;
+            }
+
+            .fade-in-delay-3 {
+                animation-delay: 0.3s;
+            }
+
+            .fade-in-delay-4 {
+                animation-delay: 0.4s;
+            }
+
+            .fade-in-delay-5 {
+                animation-delay: 0.5s;
+            }
+
+            .fade-in-delay-6 {
+                animation-delay: 0.6s;
+            }
+
+            .error-icon {
+                animation-delay: 0.2s;
+            }
+
+            .error-btn:nth-child(n) {
+                animation-delay: 0.7s;
+            }
+
+            .suggestions li:nth-child(n) {
+                animation-delay: 0.9s;
             }
         }
     </style>
@@ -264,10 +403,10 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <i class="fas fa-robot"></i>
                 <span>SATI ChatBot</span>
-            </div>
+            </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="resources.html" class="nav-link">Resources</a>
@@ -326,21 +465,21 @@
     <div class="blur-overlay" id="blurOverlay"></div>
 
     <!-- 404 Error Content -->
-    <div class="error-container">
-        <div class="error-content">
+    <div class="error-container fade-in">
+        <div class="error-content fade-in-delay-1">
             <div class="error-icon">
                 <i class="fas fa-robot"></i>
             </div>
 
-            <h1 class="error-title">404</h1>
-            <h2 class="error-subtitle">Oops! Page Not Found</h2>
+            <h1 class="error-title fade-in-delay-2">404</h1>
+            <h2 class="error-subtitle fade-in-delay-3">Oops! Page Not Found</h2>
 
-            <p class="error-message">
+            <p class="error-message fade-in-delay-4">
                 The page you're looking for seems to have wandered off into the digital void.
                 Don't worry, even our AI assistant gets lost sometimes! Let's get you back on track.
             </p>
 
-            <div class="error-actions">
+            <div class="error-actions fade-in-delay-5">
                 <button onclick="history.back()" class="error-btn secondary">
                     <i class="fas fa-arrow-left"></i>
                     Go Back
@@ -355,7 +494,7 @@
                 </a>
             </div>
 
-            <div class="suggestions">
+            <div class="suggestions fade-in-delay-6">
                 <h3><i class="fas fa-lightbulb"></i> What you can do:</h3>
                 <ul>
                     <li><a href="index.html">Chat with SATI AI Assistant</a> - Get instant answers about SATI</li>

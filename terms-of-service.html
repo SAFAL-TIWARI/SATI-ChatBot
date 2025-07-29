@@ -157,6 +157,87 @@
             margin-top: 2rem;
         }
 
+        /* Fade Animation Styles */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .fade-in-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .fade-in-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .fade-in-delay-4 {
+            animation-delay: 0.8s;
+        }
+
+        .fade-in-delay-5 {
+            animation-delay: 1.0s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stagger animation for sections */
+        .terms-section {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .terms-section:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .terms-section:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .terms-section:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        .terms-section:nth-child(4) {
+            animation-delay: 0.9s;
+        }
+
+        .terms-section:nth-child(5) {
+            animation-delay: 1.1s;
+        }
+
+        .terms-section:nth-child(6) {
+            animation-delay: 1.3s;
+        }
+
+        .terms-section:nth-child(7) {
+            animation-delay: 1.5s;
+        }
+
+        .terms-section:nth-child(8) {
+            animation-delay: 1.7s;
+        }
+
+        .terms-section:nth-child(9) {
+            animation-delay: 1.9s;
+        }
+
+        .terms-section:nth-child(10) {
+            animation-delay: 2.1s;
+        }
+
         @media (max-width: 768px) {
             .terms-container {
                 padding: 1rem;
@@ -169,6 +250,39 @@
 
             .terms-content {
                 padding: 1.5rem;
+            }
+
+            /* Reduce animation delays on mobile for better performance */
+            .fade-in-delay-1 {
+                animation-delay: 0.1s;
+            }
+
+            .fade-in-delay-2 {
+                animation-delay: 0.2s;
+            }
+
+            .fade-in-delay-3 {
+                animation-delay: 0.3s;
+            }
+
+            .fade-in-delay-4 {
+                animation-delay: 0.4s;
+            }
+
+            .fade-in-delay-5 {
+                animation-delay: 0.5s;
+            }
+
+            .terms-section:nth-child(n) {
+                animation-delay: 0.2s;
+            }
+
+            .terms-section:nth-child(2n) {
+                animation-delay: 0.4s;
+            }
+
+            .terms-section:nth-child(3n) {
+                animation-delay: 0.6s;
             }
         }
     </style>
@@ -203,10 +317,10 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <i class="fas fa-robot"></i>
                 <span>SATI ChatBot</span>
-            </div>
+            </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="resources.html" class="nav-link">Resources</a>
@@ -265,15 +379,15 @@
     <div class="blur-overlay" id="blurOverlay"></div>
 
     <!-- Terms of Service Content -->
-    <div class="terms-container">
-        <div class="terms-header">
+    <div class="terms-container fade-in">
+        <div class="terms-header fade-in-delay-1">
             <h1><i class="fas fa-file-contract"></i> Terms of Service</h1>
             <p>Please read these terms carefully before using SATI ChatBot. By using our service, you agree to these
                 terms.</p>
         </div>
 
-        <div class="terms-content">
-            <div class="highlight-box">
+        <div class="terms-content fade-in-delay-2">
+            <div class="highlight-box fade-in-delay-3">
                 <strong>Agreement:</strong> By accessing and using SATI ChatBot, you accept and agree to be bound by the
                 terms and provision of this agreement.
             </div>
@@ -444,7 +558,7 @@
             </div>
 
             <div class="last-updated">
-                <p><strong>Last Updated:</strong> January 17, 2025</p>
+                <p><strong>Last Updated:</strong> August 1st, 2025</p>
                 <p>These Terms of Service are effective as of the date listed above and apply to all users of SATI
                     ChatBot.</p>
             </div>

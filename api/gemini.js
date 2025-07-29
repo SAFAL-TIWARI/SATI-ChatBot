@@ -56,21 +56,21 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             const errorMessage = errorData.error?.message || 'Unknown error';
-            
+
             console.error('Gemini API error:', {
                 status: response.status,
                 statusText: response.statusText,
                 errorData
             });
-            
-            return res.status(response.status).json({ 
+
+            return res.status(response.status).json({
                 error: `Gemini API Error: ${response.status} - ${errorMessage}`,
                 status: response.status
             });
         }
 
         const data = await response.json();
-        
+
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             return res.status(500).json({ error: 'Invalid response from Gemini API' });
         }
@@ -84,9 +84,9 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Serverless function error:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: 'Internal server error',
-            message: error.message 
+            message: error.message
         });
     }
 }

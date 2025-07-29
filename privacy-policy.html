@@ -141,6 +141,87 @@
             margin-top: 2rem;
         }
 
+        /* Fade Animation Styles */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .fade-in-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .fade-in-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .fade-in-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .fade-in-delay-4 {
+            animation-delay: 0.8s;
+        }
+
+        .fade-in-delay-5 {
+            animation-delay: 1.0s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stagger animation for sections */
+        .privacy-section {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .privacy-section:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .privacy-section:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .privacy-section:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        .privacy-section:nth-child(4) {
+            animation-delay: 0.9s;
+        }
+
+        .privacy-section:nth-child(5) {
+            animation-delay: 1.1s;
+        }
+
+        .privacy-section:nth-child(6) {
+            animation-delay: 1.3s;
+        }
+
+        .privacy-section:nth-child(7) {
+            animation-delay: 1.5s;
+        }
+
+        .privacy-section:nth-child(8) {
+            animation-delay: 1.7s;
+        }
+
+        .privacy-section:nth-child(9) {
+            animation-delay: 1.9s;
+        }
+
+        .privacy-section:nth-child(10) {
+            animation-delay: 2.1s;
+        }
+
         @media (max-width: 768px) {
             .privacy-container {
                 padding: 1rem;
@@ -153,6 +234,39 @@
 
             .privacy-content {
                 padding: 1.5rem;
+            }
+
+            /* Reduce animation delays on mobile for better performance */
+            .fade-in-delay-1 {
+                animation-delay: 0.1s;
+            }
+
+            .fade-in-delay-2 {
+                animation-delay: 0.2s;
+            }
+
+            .fade-in-delay-3 {
+                animation-delay: 0.3s;
+            }
+
+            .fade-in-delay-4 {
+                animation-delay: 0.4s;
+            }
+
+            .fade-in-delay-5 {
+                animation-delay: 0.5s;
+            }
+
+            .privacy-section:nth-child(n) {
+                animation-delay: 0.2s;
+            }
+
+            .privacy-section:nth-child(2n) {
+                animation-delay: 0.4s;
+            }
+
+            .privacy-section:nth-child(3n) {
+                animation-delay: 0.6s;
             }
         }
     </style>
@@ -188,10 +302,10 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="index.html" class="nav-logo">
                 <i class="fas fa-robot"></i>
                 <span>SATI ChatBot</span>
-            </div>
+            </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="resources.html" class="nav-link">Resources</a>
@@ -250,15 +364,15 @@
     <div class="blur-overlay" id="blurOverlay"></div>
 
     <!-- Privacy Policy Content -->
-    <div class="privacy-container">
-        <div class="privacy-header">
+    <div class="privacy-container fade-in">
+        <div class="privacy-header fade-in-delay-1">
             <h1><i class="fas fa-shield-alt"></i> Privacy Policy</h1>
             <p>Your privacy is important to us. This policy explains how SATI ChatBot collects, uses, and protects your
                 information.</p>
         </div>
 
-        <div class="privacy-content">
-            <div class="highlight-box">
+        <div class="privacy-content fade-in-delay-2">
+            <div class="highlight-box fade-in-delay-3">
                 <strong>Quick Summary:</strong> SATI ChatBot is designed with privacy in mind. We don't store personal
                 conversations, don't sell your data, and only collect minimal information necessary to provide our
                 service.
@@ -378,8 +492,8 @@
                     please contact us:</p>
                 <ul>
                     <li><strong>Team:</strong> Team FluxoNauts</li>
-                    <li><strong>Website:</strong> <a href="https://sati-chatbot.vercel.app/contact.html">Contact Us
-                            Page</a></li>
+                    <li><strong>Website:</strong> <a href="https://sati-chatbot.vercel.app/contact.html"
+                            style="color: var(--primary-color);">Contact Us Page</a></li>
                     <li><strong>Email:</strong> Through our contact form</li>
                 </ul>
             </div>
@@ -396,7 +510,7 @@
             </div>
 
             <div class="last-updated">
-                <p><strong>Last Updated:</strong> January 17, 2025</p>
+                <p><strong>Last Updated:</strong> August 1st, 2025</p>
                 <p>This Privacy Policy is effective as of the date listed above and applies to all users of SATI
                     ChatBot.</p>
             </div>
