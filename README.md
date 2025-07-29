@@ -201,10 +201,10 @@ cd android
 Built for **FluxWave Hackathon** by Flux Club, [SATI Vidisha](https://satiengg.in/)
 
 **Team Members:**
-- [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Team Lead & Full-Stack Developer
-- [Utkarsh Vishwakarma](https://github.com/UtkiVish) - Frontend Developer & DevOps
-- [Aashutosh Singh Baghel](https://github.com/thunder-thigh) - Backend Developer & Android App Developer
-- [Hardik Kumar Sinha](https://github.com/HKSinha510) - Frontend Developer & UI/UX Designer
+- [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Frontend Development, Project Architecture
+- [Utkarsh Vishwakarma](https://github.com/UtkiVish) - Backend Development, DB Management, API & SSO Integration
+- [Aashutosh Singh Baghel](https://github.com/thunder-thigh) - Presentator, UI/UX Design and Android App dev
+- [Hardik Kumar Sinha](https://github.com/HKSinha510) - Quality Assurance, Professional Tester, Documentation
 
 ## 🌐 Live Demo
 
