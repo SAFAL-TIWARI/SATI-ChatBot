@@ -11,7 +11,7 @@ Modern AI chatbot for Samrat Ashok Technological Institute (SATI) with dual AI p
 - 🎨 **Modern UI**: Dark/light themes with smooth animations
 - 📚 **SATI Knowledge**: Comprehensive institute information
 - 🔧 **Model Switching**: Dynamic AI model selection
-- 🌐 **SEO Optimized**: Complete meta tags, sitemap, robots.txt, security.txt
+- 🌐 **SEO Optimized**: Complete meta tags, sitemap 
 - 📱 **PWA Ready**: Mobile-responsive with app-like experience
 
 ## 🚀 Quick Start
@@ -117,11 +117,7 @@ SATI-ChatBot/
 - **Mobile Responsive**: Access on any device
 
 ### SEO & Performance
-- **Complete Meta Tags**: Open Graph, Twitter Cards, structured data
 - **XML Sitemap**: Search engine optimization
-- **Robots.txt**: Crawler directives
-- **Security.txt**: Security policy and vulnerability disclosure
-- **SEO Configuration**: Centralized SEO settings in JSON format
 - **404 Error Page**: Custom error handling
 - **Privacy Policy & Terms**: Legal compliance pages
 
@@ -149,16 +145,8 @@ vercel --prod
 
 ## � Android WebView App
 
-### Features
-- **Native Android Experience**: Full WebView implementation with native Android features
-- **Offline Functionality**: Cached content available when internet is unavailable
-- **File Management**: Download files directly to device storage with Android Download Manager
-- **File Upload Support**: Access camera, gallery, and file system for uploads
-- **JavaScript Bridge**: Seamless communication between web content and Android native code
-- **Smart URL Handling**: Automatic routing for external links (WhatsApp, Telegram, Email, etc.)
-- **Permission Management**: Automatic handling of storage and network permissions
-- **Back Navigation**: Native Android back button integration with web history
-- **Full-Screen Mode**: Immersive experience without browser UI elements
+### Work In Progress
+- **API Handling | File Attachment | SSO login** : solely inside the app , i.e. no need of redirecting to browsers
 
 ### Build Instructions
 ```bash
@@ -205,35 +193,12 @@ cd android
 3. Install the APK file
 4. Launch "SATI ChatBot" from app drawer
 
-## 🔒 Security & Compliance
 
-### Security Features
-- **OAuth Authentication**: Secure Google and GitHub sign-in
-- **Environment Variables**: Sensitive data protection
-- **HTTPS Enforcement**: Secure data transmission
-- **Input Sanitization**: XSS and injection prevention
-- **Rate Limiting**: API abuse protection
-- **Session Management**: Secure user sessions with Supabase
-
-### Compliance & Policies
-- **Privacy Policy**: Comprehensive data handling disclosure
-- **Terms of Service**: User agreement and service terms
-- **Security.txt**: Vulnerability disclosure policy
-- **GDPR Compliance**: European data protection standards
-- **Responsible Disclosure**: Security vulnerability reporting process
-
-### SEO & Web Standards
-- **Structured Data**: Schema.org markup for search engines
-- **Open Graph**: Social media sharing optimization
-- **Twitter Cards**: Enhanced Twitter link previews
-- **XML Sitemap**: Search engine crawling optimization
-- **Robots.txt**: Search engine crawler directives
-- **Meta Tags**: Complete SEO metadata
-- **Canonical URLs**: Duplicate content prevention
+**Currently App devlopment is in progress :)**
 
 ## �👥 Team FluxoNauts
 
-Built for FluxWave Hackathon by Flux Club, [SATI Vidisha](https://satiengg.in/)
+Built for **FluxWave Hackathon** by Flux Club, [SATI Vidisha](https://satiengg.in/)
 
 **Team Members:**
 - [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Team Lead & Full-Stack Developer
