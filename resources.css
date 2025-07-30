@@ -1217,8 +1217,32 @@ body.mobile-menu-open {
     }
 
     .footer-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+            "about about"
+            "quick-links legal"
+            "social social";
+        gap: 30px;
         text-align: center;
+    }
+
+    /* Mobile-specific footer layout for Quick Links and Legal alignment */
+    .footer-container .footer-section:nth-child(1) {
+        grid-area: about;
+    }
+
+    .footer-container .footer-section:nth-child(2) {
+        grid-area: quick-links;
+        text-align: center;
+    }
+
+    .footer-container .footer-section:nth-child(3) {
+        grid-area: legal;
+        text-align: center;
+    }
+
+    .footer-container .footer-section:nth-child(4) {
+        grid-area: social;
     }
 
     .social-links {

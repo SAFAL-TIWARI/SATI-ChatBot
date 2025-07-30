@@ -1,6 +1,153 @@
 // Global State Management
 let supabase = null;
 
+// Mobile APK Detection
+function isRunningInMobileAPK() {
+    // Check if running in Android WebView
+    const userAgent = navigator.userAgent;
+    const isAndroidWebView = userAgent.includes('wv') || // WebView indicator
+                            userAgent.includes('Version/') && userAgent.includes('Chrome/') && userAgent.includes('Mobile') ||
+                            window.AndroidInterface !== undefined || // Custom Android interface
+                            userAgent.includes('SATIChatBot'); // Custom app identifier
+    
+    // Additional checks for WebView environment
+    const isWebView = !window.chrome || // Chrome object not available in WebView
+                     window.navigator.standalone === false; // iOS WebView check
+    
+    return isAndroidWebView || (isWebView && /Android/i.test(userAgent));
+}
+
+// Global flag for mobile APK
+const IS_MOBILE_APK = isRunningInMobileAPK();
+
+// Override speech synthesis in mobile APK
+if (IS_MOBILE_APK && typeof window !== 'undefined') {
+    console.log('🔇 Disabling speech synthesis for mobile APK');
+    
+    // Create a mock speech synthesis object
+    const mockSpeechSynthesis = {
+        speak: () => console.log('🔇 Speech synthesis disabled in mobile APK'),
+        cancel: () => {},
+        pause: () => {},
+        resume: () => {},
+        getVoices: () => [],
+        speaking: false,
+        pending: false,
+        paused: false
+    };
+    
+    // Override global speechSynthesis
+    Object.defineProperty(window, 'speechSynthesis', {
+        value: mockSpeechSynthesis,
+        writable: false,
+        configurable: false
+    });
+    
+    // Override SpeechSynthesisUtterance constructor
+    window.SpeechSynthesisUtterance = function(text) {
+        console.log('🔇 SpeechSynthesisUtterance creation blocked in mobile APK');
+        return {
+            text: text || '',
+            lang: 'en-US',
+            voice: null,
+            volume: 1,
+            rate: 1,
+            pitch: 1,
+            onstart: null,
+            onend: null,
+            onerror: null,
+            onpause: null,
+            onresume: null,
+            onmark: null,
+            onboundary: null
+        };
+    };
+}
+
+// Function to hide voice features in mobile APK
+function hideVoiceFeaturesForMobileAPK() {
+    if (!IS_MOBILE_APK) return;
+    
+    console.log('🔇 Mobile APK detected, hiding voice features');
+    
+    // Hide voice mode buttons
+    const voiceModeBtnDesktop = document.getElementById('voiceModeBtnDesktop');
+    const voiceModeBtnMobile = document.getElementById('voiceModeBtnMobile');
+    
+    if (voiceModeBtnDesktop) {
+        voiceModeBtnDesktop.style.display = 'none';
+    }
+    if (voiceModeBtnMobile) {
+        voiceModeBtnMobile.style.display = 'none';
+    }
+    
+    // Hide voice settings in general settings
+    const voiceSettingsElements = [
+        'voiceModelSetting',
+        'testVoiceBtn',
+        'voiceRateSlider',
+        'voiceVolumeSlider', 
+        'voicePitchSlider',
+        'voiceSpeedSetting',
+        'voiceVolumeSetting',
+        'voicePitchSetting'
+    ];
+    
+    voiceSettingsElements.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            // Hide the element and its parent container if it's a setting row
+            const settingRow = element.closest('.setting-row') || 
+                              element.closest('.setting-item') || 
+                              element.closest('.voice-setting') ||
+                              element.closest('.form-group') ||
+                              element.closest('div[class*="voice"]');
+            if (settingRow) {
+                settingRow.style.display = 'none';
+                settingRow.setAttribute('data-hidden-mobile-apk', 'true');
+            } else {
+                element.style.display = 'none';
+                element.setAttribute('data-hidden-mobile-apk', 'true');
+            }
+        }
+    });
+    
+    // Hide any voice-related sections or containers
+    const voiceContainers = document.querySelectorAll('.voice-settings, .voice-controls, [data-voice], [class*="voice"]');
+    voiceContainers.forEach(container => {
+        // Only hide if it's specifically voice-related and not a general container
+        if (container.id && (container.id.includes('voice') || container.id.includes('Voice'))) {
+            container.style.display = 'none';
+            container.setAttribute('data-hidden-mobile-apk', 'true');
+        }
+    });
+    
+    // Add CSS to hide voice-related elements more comprehensively
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Hide voice-related elements in mobile APK */
+        body[data-mobile-apk="true"] .voice-mode-btn,
+        body[data-mobile-apk="true"] #voiceModeBtnDesktop,
+        body[data-mobile-apk="true"] #voiceModeBtnMobile,
+        body[data-mobile-apk="true"] #testVoiceBtn,
+        body[data-mobile-apk="true"] #voiceModelSetting,
+        body[data-mobile-apk="true"] #voiceRateSlider,
+        body[data-mobile-apk="true"] #voiceVolumeSlider,
+        body[data-mobile-apk="true"] #voicePitchSlider,
+        body[data-mobile-apk="true"] [data-voice],
+        body[data-mobile-apk="true"] .voice-settings,
+        body[data-mobile-apk="true"] .voice-controls {
+            display: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Add data attribute to body for CSS targeting
+    document.body.setAttribute('data-mobile-apk', 'true');
+    
+    console.log('✅ Voice features hidden for mobile APK');
+}
+
 // Converts HEX to HSV, increases brightness, and converts back to HEX
 function increaseBrightness(hex, increaseBy = 0.1) {
     const hsv = hexToHsv(hex);
@@ -792,13 +939,16 @@ class ChatBotState {
         }
     }
 }
-//delete here above
+
 
 // Initialize global state
 const chatState = new ChatBotState();
 
 // Ensure API manager is initialized when the page loads
 document.addEventListener('DOMContentLoaded', function () {
+    // Hide voice features for mobile APK
+    hideVoiceFeaturesForMobileAPK();
+    
     // Wait a bit for all scripts to load
     setTimeout(() => {
         if (window.apiManager) {
@@ -817,7 +967,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 500);
 });
 
-//delete here below
+
 // DOM Elements - will be initialized after DOM is ready
 let elements = {};
 
@@ -867,9 +1017,9 @@ function initializeElements() {
     console.log('✅ DOM elements initialized');
     console.log('Toast container found:', !!elements.toastContainer);
 }
-//delete here above
 
-//delete here above
+
+
 // Utility Functions
 const utils = {
     formatTime: (date) => {
@@ -1423,6 +1573,13 @@ class VoiceMode {
         this.conversationHistory = [];
         
         this.initializeVoiceMode();
+    }
+
+    updateVoiceSettings() {
+        // This method is called when voice settings are changed in the settings panel
+        // It doesn't need to do anything special since the settings are read dynamically
+        // in the speakText method, but we can use it for any future voice setting updates
+        console.log('🔊 Voice settings updated');
     }
 
     initializeVoiceMode() {
@@ -2110,10 +2267,11 @@ class VoiceMode {
 
         const utterance = new SpeechSynthesisUtterance(cleanText);
         
-        // Configure voice settings
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
+        // Configure voice settings from user preferences
+        const voiceSettings = chatState.settings.voice || {};
+        utterance.rate = voiceSettings.rate || 1.0;
+        utterance.pitch = voiceSettings.pitch || 1.0;
+        utterance.volume = voiceSettings.volume || 1.0;
 
         // Try to use a natural-sounding voice
         const voices = this.synthesis.getVoices();
@@ -2139,9 +2297,10 @@ class VoiceMode {
                     setTimeout(() => {
                         console.log('🔊 Fallback: Speaking without specific voice');
                         const fallbackUtterance = new SpeechSynthesisUtterance(this.cleanTextForSpeech(text));
-                        fallbackUtterance.rate = 0.9;
-                        fallbackUtterance.pitch = 1.0;
-                        fallbackUtterance.volume = 1.0;
+                        const voiceSettings = chatState.settings.voice || {};
+                        fallbackUtterance.rate = voiceSettings.rate || 1.0;
+                        fallbackUtterance.pitch = voiceSettings.pitch || 1.0;
+                        fallbackUtterance.volume = voiceSettings.volume || 1.0;
                         fallbackUtterance.onstart = () => {
                             console.log('🔊 Fallback speech synthesis started');
                             
@@ -2179,16 +2338,35 @@ class VoiceMode {
             return;
         }
         
-        const preferredVoice = voices.find(voice => 
-            voice.name.includes('Natural') || 
-            voice.name.includes('Enhanced') ||
-            voice.name.includes('Premium') ||
-            (voice.lang.startsWith('en') && voice.localService)
-        ) || voices.find(voice => voice.lang.startsWith('en'));
+        // Use user-selected voice or fallback to preferred voice
+        const selectedVoiceName = voiceSettings.selectedVoice;
+        let selectedVoice = null;
         
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-            console.log('🔊 Using voice:', preferredVoice.name);
+        if (selectedVoiceName) {
+            selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+            if (selectedVoice) {
+                console.log('🔊 Using user-selected voice:', selectedVoice.name);
+            } else {
+                console.log('🔊 User-selected voice not found, falling back to default');
+            }
+        }
+        
+        // Fallback to preferred voice if no user selection or selected voice not found
+        if (!selectedVoice) {
+            selectedVoice = voices.find(voice => 
+                voice.name.includes('Natural') || 
+                voice.name.includes('Enhanced') ||
+                voice.name.includes('Premium') ||
+                (voice.lang.startsWith('en') && voice.localService)
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+            
+            if (selectedVoice) {
+                console.log('🔊 Using fallback voice:', selectedVoice.name);
+            }
+        }
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
         }
 
         utterance.onstart = () => {
@@ -2263,9 +2441,10 @@ class VoiceMode {
             console.error('🔊 Error starting speech synthesis:', error);
             // Fallback: try without voice selection
             const fallbackUtterance = new SpeechSynthesisUtterance(cleanText);
-            fallbackUtterance.rate = 0.9;
-            fallbackUtterance.pitch = 1.0;
-            fallbackUtterance.volume = 1.0;
+            const voiceSettings = chatState.settings.voice || {};
+            fallbackUtterance.rate = voiceSettings.rate || 1.0;
+            fallbackUtterance.pitch = voiceSettings.pitch || 1.0;
+            fallbackUtterance.volume = voiceSettings.volume || 1.0;
             
             fallbackUtterance.onstart = utterance.onstart;
             fallbackUtterance.onend = utterance.onend;
@@ -2377,10 +2556,6 @@ class VoiceMode {
     }
 }
 
-//delete here above
-
-
-//delete here below
 // Toast Notification System
 class ToastManager {
     show(message, type = 'info', duration = 3000, actions = []) {
@@ -2597,7 +2772,7 @@ class ToastManager {
         };
     }
 }
-//delete here above
+
 
 const toast = new ToastManager();
 
@@ -2607,7 +2782,7 @@ window.testToast = function (message = 'Test toast notification', type = 'info')
     return toast.show(message, type);
 };
 
-//delete here below
+
 // Modal Management
 class ModalManager {
     show(modalId) {
@@ -2704,13 +2879,13 @@ class ModalManager {
         });
     }
 }
-//delete here above
+
 
 const modal = new ModalManager();
-//delete here above
 
 
-//delete here below
+
+
 // Chat Management
 class ChatManager {
     constructor() {
@@ -3798,7 +3973,7 @@ async function deleteSavedConversation(conversationId) {
     }
 }
 
-//delete here below
+
 async function deleteConversation(id) {
     const confirmed = await modal.confirm(
         'Delete Conversation',
@@ -3817,9 +3992,9 @@ async function deleteConversation(id) {
         toast.show('Conversation deleted', 'success');
     }
 }
-//delete here above
 
-//delete here below
+
+
 // Rename Conversation
 function renameConversation(conversationId) {
     // Close the dropdown
@@ -3848,9 +4023,9 @@ function renameConversation(conversationId) {
         renameInput.select();
     }, 100);
 }
-//delete here above
 
-//delete here below
+
+
 // Handle rename form submission
 async function handleRenameSubmit(event) {
     event.preventDefault();
@@ -3888,7 +4063,7 @@ async function handleRenameSubmit(event) {
     // Close modal
     modal.hide('renameModal');
 }
-//delete here above
+
 
 // Keyboard Shortcuts Functions
 function getCurrentConversationId() {
@@ -3931,7 +4106,7 @@ function showKeyboardShortcuts() {
     }
 }
 
-//delete here below
+
 // Settings Tab Management
 function getActiveSettingsTab() {
     // First check if there's an active tab in the DOM
@@ -3958,6 +4133,12 @@ function updateChatStatistics() {
 
 // Settings Management
 function renderSettingsContent(tab) {
+    // Stop voice test when switching between settings tabs
+    if (isVoiceTestPlaying) {
+        console.log('🔊 Switching settings tab, stopping voice test');
+        stopVoiceTest();
+    }
+    
     const content = document.getElementById('settingsContent');
     const settingsModal = document.querySelector('.settings-modal');
 
@@ -4013,7 +4194,7 @@ function renderSettingsContent(tab) {
     // Add event listeners for settings changes
     addSettingsEventListeners();
 }
-//delete here above
+
 
 
 // API Configuration Functions
@@ -4032,7 +4213,7 @@ function togglePasswordVisibility(inputId) {
 }
 
 
-//delete here below
+
 function updateModelOptions() {
     const providerSelect = document.getElementById('apiProviderSetting');
     const modelSelect = document.getElementById('aiModelSetting');
@@ -4090,10 +4271,10 @@ function updateModelOptions() {
 
 
 }
-//delete here above
 
 
-//delete here below
+
+
 function loadSettingsValues() {
     // Load values from chatState.settings
     const settings = chatState.settings;
@@ -4133,18 +4314,98 @@ function loadSettingsValues() {
         settingsFontSizeSlider.value = currentFontSize;
         settingsFontSizeValue.textContent = currentFontSize + 'px';
     }
+
+    // Voice settings
+    loadVoiceSettings();
+    
+    // Hide voice features for mobile APK
+    hideVoiceFeaturesForMobileAPK();
+    
+    // Add observer to stop voice test when settings modal is closed
+    setupSettingsModalObserver();
 }
-//delete here above
 
+// Function to setup observer for settings modal close events
+function setupSettingsModalObserver() {
+    // Watch for settings modal visibility changes
+    const settingsModal = document.getElementById('settingsModal');
+    if (!settingsModal) return;
+    
+    // Create a MutationObserver to watch for class changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                // Check if modal is being hidden (no longer has 'show' class)
+                if (!target.classList.contains('show') && isVoiceTestPlaying) {
+                    console.log('🔊 Settings modal closed, stopping voice test');
+                    stopVoiceTest();
+                }
+            }
+        });
+    });
+    
+    // Start observing
+    observer.observe(settingsModal, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+    
+    // Also add click event listener to modal overlay to stop voice test
+    const modalOverlay = settingsModal.closest('.modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            // If clicking on the overlay (not the modal content), stop voice test
+            if (e.target === modalOverlay && isVoiceTestPlaying) {
+                console.log('🔊 Modal overlay clicked, stopping voice test');
+                stopVoiceTest();
+            }
+        });
+    }
+    
+    // Add keyboard event listener for Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isVoiceTestPlaying) {
+            // Check if settings modal is open
+            const settingsModalOverlay = document.querySelector('.modal-overlay.show #settingsModal');
+            if (settingsModalOverlay) {
+                console.log('🔊 Escape key pressed, stopping voice test');
+                stopVoiceTest();
+            }
+        }
+    });
+    
+    // Add page unload listener to stop voice test
+    window.addEventListener('beforeunload', () => {
+        if (isVoiceTestPlaying) {
+            console.log('🔊 Page unloading, stopping voice test');
+            stopVoiceTest();
+        }
+    });
+    
+    // Add visibility change listener to stop voice test when tab becomes hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isVoiceTestPlaying) {
+            console.log('🔊 Tab hidden, stopping voice test');
+            stopVoiceTest();
+        }
+    });
+}
 
-//delete here below
 function addSettingsEventListeners() {
     // Add event listeners for all settings controls
     const settingsControls = document.querySelectorAll('#settingsContent input, #settingsContent select');
 
     settingsControls.forEach(control => {
         // Skip special controls that have their own handlers to prevent duplicate events
-        if (control.id === 'apiProviderSetting' || control.id === 'aiModelSetting' || control.id === 'fontStyleSetting') {
+        if (control.id === 'apiProviderSetting' || 
+            control.id === 'aiModelSetting' || 
+            control.id === 'fontStyleSetting' ||
+            control.id === 'voiceModelSetting' ||
+            control.id === 'voiceRateSlider' ||
+            control.id === 'voicePitchSlider' ||
+            control.id === 'voiceVolumeSlider' ||
+            control.id === 'testVoiceBtn') {
             return;
         }
         control.addEventListener('change', saveSettingsFromForm);
@@ -4287,14 +4548,682 @@ function addSettingsEventListeners() {
         });
     }
 
-
-
-
+    // Voice settings event listeners
+    addVoiceSettingsEventListeners();
 }
-//delete here above
 
+// Voice Settings Functions
+function loadVoiceSettings() {
+    const settings = chatState.settings;
+    
+    // Initialize voice settings if not exists
+    if (!settings.voice) {
+        settings.voice = {
+            selectedVoice: '',
+            rate: 1.0,
+            pitch: 1.0,
+            volume: 1.0
+        };
+    }
 
-//delete here below
+    // Populate voice model dropdown
+    populateVoiceModels();
+
+    // Load voice settings values
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    if (voiceModelSetting) {
+        voiceModelSetting.value = settings.voice.selectedVoice || '';
+    }
+
+    // Voice rate slider
+    const voiceRateSlider = document.getElementById('voiceRateSlider');
+    const voiceRateValue = document.getElementById('voiceRateValue');
+    if (voiceRateSlider && voiceRateValue) {
+        voiceRateSlider.value = settings.voice.rate || 1.0;
+        voiceRateValue.textContent = (settings.voice.rate || 1.0) + 'x';
+    }
+
+    // Voice pitch slider
+    const voicePitchSlider = document.getElementById('voicePitchSlider');
+    const voicePitchValue = document.getElementById('voicePitchValue');
+    if (voicePitchSlider && voicePitchValue) {
+        voicePitchSlider.value = settings.voice.pitch || 1.0;
+        voicePitchValue.textContent = (settings.voice.pitch || 1.0) + 'x';
+    }
+
+    // Voice volume slider
+    const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+    const voiceVolumeValue = document.getElementById('voiceVolumeValue');
+    if (voiceVolumeSlider && voiceVolumeValue) {
+        voiceVolumeSlider.value = settings.voice.volume || 1.0;
+        voiceVolumeValue.textContent = Math.round((settings.voice.volume || 1.0) * 100) + '%';
+    }
+}
+
+function populateVoiceModels() {
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    if (!voiceModelSetting) return;
+
+    // Clear existing options
+    voiceModelSetting.innerHTML = '<option value="">🔄 Loading voices...</option>';
+
+    // Function to load voices
+    const loadVoices = () => {
+        const voices = speechSynthesis.getVoices();
+        
+        if (voices.length === 0) {
+            // Voices not loaded yet, try again
+            setTimeout(loadVoices, 100);
+            return;
+        }
+
+        // Clear loading option
+        voiceModelSetting.innerHTML = '';
+
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '🤖 Browser Default Voice';
+        voiceModelSetting.appendChild(defaultOption);
+
+        // Filter voices to keep only US English, Hindi, and browser default
+        const filteredVoices = filterAllowedVoices(voices);
+
+        // Group filtered voices by language
+        const voiceGroups = {};
+        filteredVoices.forEach(voice => {
+            const lang = voice.lang.split('-')[0]; // Get language code (e.g., 'en' from 'en-US')
+            if (!voiceGroups[lang]) {
+                voiceGroups[lang] = [];
+            }
+            voiceGroups[lang].push(voice);
+        });
+
+        // Add US English voices first
+        if (voiceGroups['en']) {
+            const englishGroup = document.createElement('optgroup');
+            englishGroup.label = '🇺🇸 US English Voices';
+            voiceGroups['en'].forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                const gender = voice.name.toLowerCase().includes('female') || 
+                              voice.name.toLowerCase().includes('woman') ||
+                              voice.name.toLowerCase().includes('zira') ||
+                              voice.name.toLowerCase().includes('hazel') ||
+                              voice.name.toLowerCase().includes('samantha') ||
+                              voice.name.includes('Google US English') ? '♀️' : '♂️';
+                option.textContent = `${gender} ${voice.name} (${voice.lang})`;
+                englishGroup.appendChild(option);
+            });
+            voiceModelSetting.appendChild(englishGroup);
+        }
+
+        // Add Hindi voices
+        if (voiceGroups['hi']) {
+            const hindiGroup = document.createElement('optgroup');
+            hindiGroup.label = '🇮🇳 Hindi Voices';
+            voiceGroups['hi'].forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                const gender = voice.name.toLowerCase().includes('female') || 
+                              voice.name.toLowerCase().includes('woman') ||
+                              voice.name.includes('Microsoft Kalpana') ||
+                              voice.name.includes('Google हिन्दी') ? '♀️' : '♂️';
+                option.textContent = `${gender} ${voice.name} (${voice.lang})`;
+                hindiGroup.appendChild(option);
+            });
+            voiceModelSetting.appendChild(hindiGroup);
+        }
+
+        console.log(`✅ Loaded ${filteredVoices.length} filtered voice models (US English, Hindi, and Default only)`);
+    };
+
+    // Load voices immediately if available, otherwise wait for voiceschanged event
+    if (speechSynthesis.getVoices().length > 0) {
+        loadVoices();
+    } else {
+        speechSynthesis.addEventListener('voiceschanged', loadVoices, { once: true });
+    }
+}
+
+function getLanguageName(langCode) {
+    const languages = {
+        'en': 'English',
+        'es': 'Spanish',
+        'fr': 'French',
+        'de': 'German',
+        'it': 'Italian',
+        'pt': 'Portuguese',
+        'ru': 'Russian',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'zh': 'Chinese',
+        'ar': 'Arabic',
+        'hi': 'Hindi'
+    };
+    return languages[langCode] || langCode.toUpperCase();
+}
+
+function addVoiceSettingsEventListeners() {
+    // Voice model selection
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    if (voiceModelSetting) {
+        voiceModelSetting.addEventListener('change', (e) => {
+            console.log('🔊 Voice model changed to:', e.target.value);
+            
+            if (!chatState.settings.voice) chatState.settings.voice = {};
+            chatState.settings.voice.selectedVoice = e.target.value;
+            chatState.saveSettings();
+            
+            // Update voice mode if active
+            if (window.voiceMode) {
+                window.voiceMode.updateVoiceSettings();
+            }
+            
+            // Refresh voice preview with new selection
+            refreshVoicePreview();
+            
+            toast.show('Voice model updated', 'success');
+        });
+    }
+
+    // Test voice button
+    const testVoiceBtn = document.getElementById('testVoiceBtn');
+    if (testVoiceBtn) {
+        testVoiceBtn.addEventListener('click', () => {
+            // Prevent voice test in mobile APK
+            if (IS_MOBILE_APK) {
+                console.log('🔇 Voice test disabled in mobile APK');
+                toast.show('Voice test is not available in mobile app', 'warning');
+                return;
+            }
+            testSelectedVoice();
+        });
+    }
+
+    // Voice rate slider
+    const voiceRateSlider = document.getElementById('voiceRateSlider');
+    const voiceRateValue = document.getElementById('voiceRateValue');
+    if (voiceRateSlider && voiceRateValue) {
+        voiceRateSlider.addEventListener('input', (e) => {
+            const rate = parseFloat(e.target.value);
+            voiceRateValue.textContent = rate + 'x';
+            
+            if (!chatState.settings.voice) chatState.settings.voice = {};
+            chatState.settings.voice.rate = rate;
+            chatState.saveSettings();
+            
+            // Update voice mode if active
+            if (window.voiceMode) {
+                window.voiceMode.updateVoiceSettings();
+            }
+            
+            // Apply real-time settings to voice preview
+            applyRealTimeVoiceSettings();
+        });
+    }
+
+    // Voice pitch slider
+    const voicePitchSlider = document.getElementById('voicePitchSlider');
+    const voicePitchValue = document.getElementById('voicePitchValue');
+    if (voicePitchSlider && voicePitchValue) {
+        voicePitchSlider.addEventListener('input', (e) => {
+            const pitch = parseFloat(e.target.value);
+            voicePitchValue.textContent = pitch + 'x';
+            
+            if (!chatState.settings.voice) chatState.settings.voice = {};
+            chatState.settings.voice.pitch = pitch;
+            chatState.saveSettings();
+            
+            // Update voice mode if active
+            if (window.voiceMode) {
+                window.voiceMode.updateVoiceSettings();
+            }
+            
+            // Apply real-time settings to voice preview
+            applyRealTimeVoiceSettings();
+        });
+    }
+
+    // Voice volume slider
+    const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+    const voiceVolumeValue = document.getElementById('voiceVolumeValue');
+    if (voiceVolumeSlider && voiceVolumeValue) {
+        voiceVolumeSlider.addEventListener('input', (e) => {
+            const volume = parseFloat(e.target.value);
+            voiceVolumeValue.textContent = Math.round(volume * 100) + '%';
+            
+            if (!chatState.settings.voice) chatState.settings.voice = {};
+            chatState.settings.voice.volume = volume;
+            chatState.saveSettings();
+            
+            // Update voice mode if active
+            if (window.voiceMode) {
+                window.voiceMode.updateVoiceSettings();
+            }
+            
+            // Apply real-time settings to voice preview
+            applyRealTimeVoiceSettings();
+        });
+    }
+}
+
+// Global variables to track voice test state
+let isVoiceTestPlaying = false;
+let currentTestUtterance = null;
+let voiceTestTimeout = null;
+let lastSettingsChangeTime = 0;
+
+// Helper function to filter voices to keep only US English, Hindi, and default voices
+function filterAllowedVoices(voices) {
+    return voices.filter(voice => {
+        const lang = voice.lang.toLowerCase();
+        // Keep US English voices (en-US)
+        if (lang.startsWith('en-us')) return true;
+        // Keep Hindi voices (hi, hi-IN)
+        if (lang.startsWith('hi')) return true;
+        // Keep any voice marked as default
+        if (voice.default) return true;
+        return false;
+    });
+}
+
+// Helper function to ensure voices are loaded and apply selected voice
+function applySelectedVoice(utterance, callback) {
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    const selectedVoiceName = voiceModelSetting ? voiceModelSetting.value : '';
+    
+    if (!selectedVoiceName) {
+        console.log('🔊 No voice selected, using default');
+        if (callback) callback();
+        return;
+    }
+    
+    const voices = speechSynthesis.getVoices();
+    console.log('🔊 Applying voice:', selectedVoiceName, 'Available voices:', voices.length);
+    
+    if (voices.length === 0) {
+        // Voices not loaded yet, wait for them
+        console.log('🔊 Waiting for voices to load...');
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            const newVoices = speechSynthesis.getVoices();
+            const selectedVoice = newVoices.find(voice => voice.name === selectedVoiceName);
+            if (selectedVoice && utterance) {
+                utterance.voice = selectedVoice;
+                console.log('🔊 Voice applied after loading:', selectedVoice.name);
+            } else {
+                console.log('🔊 Voice not found after loading:', selectedVoiceName);
+            }
+            if (callback) callback();
+        }, { once: true });
+    } else {
+        const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            console.log('🔊 Voice applied immediately:', selectedVoice.name);
+        } else {
+            console.log('🔊 Voice not found:', selectedVoiceName);
+            console.log('🔊 Available voice names:', voices.map(v => v.name));
+        }
+        if (callback) callback();
+    }
+}
+
+// Force refresh voices and restart preview if active
+function refreshVoicePreview() {
+    console.log('🔊 Refreshing voice preview');
+    
+    // If voice test is currently playing, restart it with new voice
+    if (isVoiceTestPlaying && currentTestUtterance) {
+        console.log('🔊 Restarting voice preview with new voice selection');
+        
+        // Stop current speech
+        speechSynthesis.cancel();
+        
+        // Clear any timeouts
+        if (voiceTestTimeout) {
+            clearTimeout(voiceTestTimeout);
+        }
+        
+        // Restart with new voice after a short delay
+        setTimeout(() => {
+            if (isVoiceTestPlaying) {
+                startContinuousVoiceTest();
+            }
+        }, 100);
+    }
+}
+
+function testSelectedVoice() {
+    // Prevent voice test in mobile APK
+    if (IS_MOBILE_APK) {
+        console.log('🔇 Voice test blocked in mobile APK');
+        return;
+    }
+    
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    const testVoiceBtn = document.getElementById('testVoiceBtn');
+
+    console.log('🔊 testSelectedVoice called');
+    console.log('🔊 voiceModelSetting found:', !!voiceModelSetting);
+    console.log('🔊 testVoiceBtn found:', !!testVoiceBtn);
+    console.log('🔊 isVoiceTestPlaying:', isVoiceTestPlaying);
+    console.log('🔊 speechSynthesis available:', !!window.speechSynthesis);
+
+    if (!voiceModelSetting) {
+        console.log('🔊 Voice model setting element not found (likely hidden on mobile)');
+        // Continue with voice test using default voice on mobile
+    }
+
+    // Check if speech synthesis is supported
+    if (!window.speechSynthesis) {
+        console.error('🔊 Speech synthesis not supported');
+        toast.show('Voice preview not supported in this browser', 'error');
+        return;
+    }
+
+    // If currently playing, stop the test
+    if (isVoiceTestPlaying) {
+        console.log('🔊 Stopping current voice test');
+        stopVoiceTest();
+        return;
+    }
+
+    // Start voice test
+    console.log('🔊 Starting voice test');
+    startVoiceTest();
+}
+
+function startVoiceTest() {
+    const testVoiceBtn = document.getElementById('testVoiceBtn');
+
+    console.log('🔊 startVoiceTest called');
+
+    // Update button state
+    if (testVoiceBtn) {
+        testVoiceBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Test';
+        isVoiceTestPlaying = true;
+        console.log('🔊 Button updated to Stop Test');
+    }
+
+    // Stop any ongoing speech
+    speechSynthesis.cancel();
+    
+    // Clear any existing timeouts
+    if (voiceTestTimeout) {
+        clearTimeout(voiceTestTimeout);
+    }
+    
+    // Try simple voice test first
+    if (!startSimpleVoiceTest()) {
+        // Fallback to continuous voice testing
+        startContinuousVoiceTest();
+    }
+    
+    toast.show('Voice test active - adjust settings in real-time!', 'info', 2000);
+}
+
+function startSimpleVoiceTest() {
+    try {
+        console.log('🔊 Attempting simple voice test');
+        
+        const testText = "Hello! This is a voice test. I am your SATI ChatBot assistant.";
+        const utterance = new SpeechSynthesisUtterance(testText);
+        
+        // Apply basic settings
+        const voiceModelSetting = document.getElementById('voiceModelSetting');
+        const voiceRateSlider = document.getElementById('voiceRateSlider');
+        const voicePitchSlider = document.getElementById('voicePitchSlider');
+        const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+        
+        if (voiceRateSlider) utterance.rate = parseFloat(voiceRateSlider.value) || 1.0;
+        if (voicePitchSlider) utterance.pitch = parseFloat(voicePitchSlider.value) || 1.0;
+        if (voiceVolumeSlider) utterance.volume = parseFloat(voiceVolumeSlider.value) || 1.0;
+        
+        // Apply selected voice using helper function
+        applySelectedVoice(utterance, () => {
+            console.log('🔊 Voice application completed for simple test');
+        });
+        
+        utterance.onstart = () => {
+            console.log('🔊 Simple voice test started');
+            isVoiceTestPlaying = true;
+        };
+        
+        utterance.onend = () => {
+            console.log('🔊 Simple voice test ended');
+            if (isVoiceTestPlaying) {
+                // Continue with continuous testing
+                setTimeout(() => startContinuousVoiceTest(), 500);
+            }
+        };
+        
+        utterance.onerror = (event) => {
+            console.error('🔊 Simple voice test error:', event.error);
+            return false;
+        };
+        
+        speechSynthesis.speak(utterance);
+        currentTestUtterance = utterance;
+        
+        console.log('🔊 Simple voice test started successfully');
+        return true;
+        
+    } catch (error) {
+        console.error('🔊 Simple voice test failed:', error);
+        return false;
+    }
+}
+
+function startContinuousVoiceTest() {
+    if (!isVoiceTestPlaying) return;
+    
+    // Check if speech synthesis is available
+    if (!window.speechSynthesis) {
+        console.error('🔊 Speech synthesis not supported');
+        toast.show('Voice preview not supported in this browser', 'error');
+        resetVoiceTestButton();
+        return;
+    }
+    
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    const voiceRateSlider = document.getElementById('voiceRateSlider');
+    const voicePitchSlider = document.getElementById('voicePitchSlider');
+    const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+
+    // Create a continuous test phrase
+    const testTexts = [
+        "Hello! I'm your SATI ChatBot voice assistant.",
+        "This is a continuous voice test. Try changing the speed, pitch, or volume while I'm speaking.",
+    ];
+    
+    const randomText = testTexts[Math.floor(Math.random() * testTexts.length)];
+    
+    try {
+        currentTestUtterance = new SpeechSynthesisUtterance(randomText);
+    } catch (error) {
+        console.error('🔊 Error creating speech utterance:', error);
+        toast.show('Voice preview error', 'error');
+        resetVoiceTestButton();
+        return;
+    }
+
+    // Apply current settings
+    if (voiceRateSlider) currentTestUtterance.rate = parseFloat(voiceRateSlider.value);
+    if (voicePitchSlider) currentTestUtterance.pitch = parseFloat(voicePitchSlider.value);
+    if (voiceVolumeSlider) currentTestUtterance.volume = parseFloat(voiceVolumeSlider.value);
+
+    // Apply selected voice using helper function
+    applySelectedVoice(currentTestUtterance, () => {
+        console.log('🔊 Voice application completed for continuous test');
+    });
+
+    // Handle utterance events
+    currentTestUtterance.onstart = () => {
+        console.log('🔊 Continuous voice test started');
+        isVoiceTestPlaying = true;
+    };
+
+    currentTestUtterance.onend = () => {
+        console.log('🔊 Continuous voice test ended');
+        // Continue the loop if still active
+        if (isVoiceTestPlaying) {
+            setTimeout(() => {
+                startContinuousVoiceTest();
+            }, 1000); // 1 second pause between iterations
+        }
+    };
+
+    currentTestUtterance.onerror = (event) => {
+        console.error('🔊 Continuous voice test error:', event.error);
+        // Try to continue even after error
+        if (isVoiceTestPlaying) {
+            setTimeout(() => {
+                startContinuousVoiceTest();
+            }, 1000);
+        }
+    };
+
+    // Speak the continuous test
+    try {
+        speechSynthesis.speak(currentTestUtterance);
+        console.log('🔊 Started speaking:', randomText.substring(0, 50) + '...');
+    } catch (error) {
+        console.error('🔊 Error starting speech:', error);
+        toast.show('Voice preview failed to start', 'error');
+        resetVoiceTestButton();
+    }
+}
+
+function stopVoiceTest() {
+    console.log('🔊 Stopping voice test');
+    
+    // Clear any timeouts
+    if (voiceTestTimeout) {
+        clearTimeout(voiceTestTimeout);
+        voiceTestTimeout = null;
+    }
+    
+    // Stop speech synthesis
+    speechSynthesis.cancel();
+    
+    // Reset state
+    resetVoiceTestButton();
+    
+    toast.show('Voice test stopped', 'info', 1000);
+}
+
+function resetVoiceTestButton() {
+    const testVoiceBtn = document.getElementById('testVoiceBtn');
+    if (testVoiceBtn) {
+        testVoiceBtn.innerHTML = '<i class="fas fa-play"></i> Preview Voice';
+        isVoiceTestPlaying = false;
+        currentTestUtterance = null;
+    }
+    
+    // Clear any remaining timeouts
+    if (voiceTestTimeout) {
+        clearTimeout(voiceTestTimeout);
+        voiceTestTimeout = null;
+    }
+}
+
+function updateTestUtteranceSettings() {
+    if (!currentTestUtterance) return;
+
+    const voiceRateSlider = document.getElementById('voiceRateSlider');
+    const voicePitchSlider = document.getElementById('voicePitchSlider');
+    const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+
+    // Apply current settings to the utterance
+    if (voiceRateSlider) currentTestUtterance.rate = parseFloat(voiceRateSlider.value);
+    if (voicePitchSlider) currentTestUtterance.pitch = parseFloat(voicePitchSlider.value);
+    if (voiceVolumeSlider) currentTestUtterance.volume = parseFloat(voiceVolumeSlider.value);
+}
+
+function applyRealTimeVoiceSettings() {
+    // If voice test is playing, provide immediate feedback with debouncing
+    if (isVoiceTestPlaying) {
+        console.log('🔊 Applying real-time voice settings');
+        
+        // Update the timestamp of the last settings change
+        lastSettingsChangeTime = Date.now();
+        
+        // Clear any existing timeout
+        if (voiceTestTimeout) {
+            clearTimeout(voiceTestTimeout);
+        }
+        
+        // Stop current speech immediately for instant feedback
+        speechSynthesis.cancel();
+        
+        // Set a short timeout to avoid rapid-fire changes
+        voiceTestTimeout = setTimeout(() => {
+            if (isVoiceTestPlaying && Date.now() - lastSettingsChangeTime >= 200) {
+                // Start a quick demo with new settings
+                startSettingsDemo();
+            }
+        }, 200); // 200ms debounce for faster response
+    }
+}
+
+function startSettingsDemo() {
+    if (!isVoiceTestPlaying) return;
+    
+    const voiceModelSetting = document.getElementById('voiceModelSetting');
+    const voiceRateSlider = document.getElementById('voiceRateSlider');
+    const voicePitchSlider = document.getElementById('voicePitchSlider');
+    const voiceVolumeSlider = document.getElementById('voiceVolumeSlider');
+
+    // Create a short demo phrase that reflects the current settings
+    const rate = voiceRateSlider ? parseFloat(voiceRateSlider.value) : 1.0;
+    const pitch = voicePitchSlider ? parseFloat(voicePitchSlider.value) : 1.0;
+    const volume = voiceVolumeSlider ? parseFloat(voiceVolumeSlider.value) : 1.0;
+    
+    let demoText = "Settings updated! ";
+
+    // Create demo utterance
+    currentTestUtterance = new SpeechSynthesisUtterance(demoText);
+
+    // Apply current settings
+    currentTestUtterance.rate = rate;
+    currentTestUtterance.pitch = pitch;
+    currentTestUtterance.volume = volume;
+
+    // Apply selected voice using helper function
+    applySelectedVoice(currentTestUtterance, () => {
+        console.log('🔊 Voice application completed for settings demo');
+    });
+
+    // Handle utterance events
+    currentTestUtterance.onstart = () => {
+        console.log('🔊 Settings demo started');
+    };
+
+    currentTestUtterance.onend = () => {
+        console.log('🔊 Settings demo ended, resuming continuous test');
+        // Continue with continuous voice test after demo
+        if (isVoiceTestPlaying) {
+            setTimeout(() => {
+                startContinuousVoiceTest();
+            }, 300);
+        }
+    };
+
+    currentTestUtterance.onerror = (event) => {
+        console.error('🔊 Settings demo error:', event.error);
+        // Continue with continuous test even after error
+        if (isVoiceTestPlaying) {
+            setTimeout(() => {
+                startContinuousVoiceTest();
+            }, 300);
+        }
+    };
+
+    // Speak the demo
+    speechSynthesis.speak(currentTestUtterance);
+}
+
 function saveSettingsFromForm() {
     // Save all settings from form to chatState.settings
     const settings = chatState.settings;
@@ -4326,7 +5255,6 @@ function saveSettingsFromForm() {
     toast.show('Settings saved', 'success');
 }
 
-//delete here below
 // Function to update the main input area model select based on API provider
 function updateMainModelSelect() {
     const modelSelect = document.getElementById('modelSelect');
@@ -4388,7 +5316,7 @@ function updateMainModelSelect() {
 
     chatState.saveState();
 }
-//delete here above
+
 
 // Function to handle model overload and suggest alternatives
 function handleModelOverload(errorMessage) {
@@ -4458,16 +5386,10 @@ function switchToAlternativeModel(alternative) {
 }
 
 
-//delete here below
 // Function to update model selection visibility based on API provider (legacy function - keeping for compatibility)
 function updateModelSelectionVisibility() {
     updateMainModelSelect();
 }
-//delete here above
-
-
-
-
 
 // Utility Functions for Settings
 async function clearAllConversations() {
@@ -5205,8 +6127,6 @@ function initializeEventListeners() {
         });
     }
 
-
-
     // Welcome modal event listeners
     const closeWelcomeBtn = document.getElementById('closeWelcomeBtn');
     if (closeWelcomeBtn) {
@@ -5266,16 +6186,11 @@ function initializeEventListeners() {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        // Ctrl/Cmd + K to focus search
+
+        // Ctrl/Cmd + K to focus conversation search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             elements.searchInput.focus();
-        }
-
-        // Ctrl/Cmd + N for new chat
-        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-            e.preventDefault();
-            elements.newChatBtn.click();
         }
 
         // Ctrl + Shift + O for Open New Chat
@@ -5313,14 +6228,43 @@ function initializeEventListeners() {
             showKeyboardShortcuts();
         }
 
-        // Ctrl + Shift + V for Voice Mode
+        // Ctrl + Shift + V for Voice Input
         if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+            e.preventDefault();
+            if (window.voiceRecognition && !window.voiceRecognition.isListening) {
+                window.voiceRecognition.startListening();
+            }
+        }
+        // Ctrl + Shift + B for Voice Mode
+        if (e.ctrlKey && e.shiftKey && e.key === 'B') {
             e.preventDefault();
             if (window.voiceMode) {
                 if (window.voiceMode.isActive) {
                     window.voiceMode.deactivate();
                 } else {
                     window.voiceMode.activate();
+                }
+            }
+        }
+
+        // Ctrl + Shift + A for Attach File
+        if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+            e.preventDefault();
+            const attachmentBtn = document.getElementById('attachmentBtn');
+            if (attachmentBtn) {
+                attachmentBtn.click();
+            }
+        }
+
+        // Ctrl + Shift + M for AI Model Selection
+        if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+            e.preventDefault();
+            const modelSelect = document.getElementById('modelSelect');
+            if (modelSelect) {
+                modelSelect.focus();
+                // Optionally open the dropdown
+                if (modelSelect.showPicker) {
+                    modelSelect.showPicker();
                 }
             }
         }
@@ -5339,12 +6283,6 @@ function initializeEventListeners() {
 
     // Attachment button (placeholder)
     const attachmentBtn = document.getElementById('attachmentBtn');
-    if (attachmentBtn) {
-        // Remove the following line to disable the 'file attachment feature coming soon' toast
-        // attachmentBtn.addEventListener('click', () => {
-        //     toast.show('File attachment feature coming soon', 'info');
-        // });
-    }
 
     // Initialize mobile click outside behavior if sidebar is open on mobile
     if (window.innerWidth <= 768 && elements.sidebar && elements.sidebar.classList.contains('show')) {
@@ -5555,7 +6493,6 @@ function initializeEventListeners() {
     // Listen for Supabase auth state changes to show login success toast
     document.addEventListener('DOMContentLoaded', listenForAuthChanges);
 }
-//delete here above
 
 // Core Functions
 function toggleSidebar() {
@@ -8315,3 +9252,29 @@ async function sendMessage() {
 
 // Initialize file attachment after DOM is ready
 window.addEventListener('DOMContentLoaded', initializeFileAttachment);
+
+// Debug function to test mobile APK detection (for development)
+window.testMobileAPKDetection = function() {
+    console.log('🔍 Mobile APK Detection Test:');
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Is Mobile APK:', IS_MOBILE_APK);
+    console.log('Speech Synthesis Available:', !!window.speechSynthesis);
+    console.log('Voice Mode Buttons Hidden:', 
+        document.getElementById('voiceModeBtnDesktop')?.style.display === 'none',
+        document.getElementById('voiceModeBtnMobile')?.style.display === 'none'
+    );
+    console.log('Body has mobile APK attribute:', document.body.getAttribute('data-mobile-apk') === 'true');
+    
+    // Test voice features
+    if (IS_MOBILE_APK) {
+        console.log('✅ Voice features should be disabled');
+    } else {
+        console.log('ℹ️ Voice features should be available');
+    }
+};
+
+
+
+
+
+
