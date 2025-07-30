@@ -1983,6 +1983,70 @@ body {
     color: var(--accent-color);
 }
 
+/* Paperclip Icon Animations */
+.paperclip-icon {
+    width: 16px;
+    height: 16px;
+    transition: all var(--transition-fast);
+}
+
+.paperclip-icon .main-path {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.8s ease-in-out 0.2s;
+}
+
+.paperclip-icon .extra-line {
+    stroke-dasharray: 20;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.4s ease-out 0.8s;
+}
+
+/* Animation on hover */
+.attachment-btn:hover .paperclip-icon .main-path {
+    stroke-dashoffset: -100;
+    animation: drawMainPath 0.8s ease-in-out 0.2s forwards;
+}
+
+.attachment-btn:hover .paperclip-icon .extra-line {
+    stroke-dashoffset: -20;
+    animation: drawExtraLine 0.4s ease-out 0.8s forwards;
+}
+
+/* Keyframe animations for drawing effect */
+@keyframes drawMainPath {
+    0% {
+        stroke-dashoffset: 100;
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes drawExtraLine {
+    0% {
+        stroke-dashoffset: 20;
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Reset animation when not hovering */
+.attachment-btn:not(:hover) .paperclip-icon .main-path {
+    stroke-dashoffset: 0;
+    animation: none;
+}
+
+.attachment-btn:not(:hover) .paperclip-icon .extra-line {
+    stroke-dashoffset: 0;
+    animation: none;
+}
+
 .input-wrapper {
     flex: 1;
     position: relative;
@@ -3837,6 +3901,12 @@ body {
         width: 36px;
         height: 36px;
         font-size: 1rem;
+    }
+
+    /* Mobile-specific paperclip icon sizing */
+    .attachment-btn .paperclip-icon {
+        width: 15px;
+        height: 15px;
     }
 
     /* Mobile-specific model select styling to ensure theme compliance */
