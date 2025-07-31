@@ -193,15 +193,6 @@ class APIManager {
                 throw new Error('Invalid response from Groq serverless function');
             }
 
-            // Log API key usage statistics if available
-            if (data.keyUsed !== undefined) {
-                console.log(`✅ Groq request completed using key ${data.keyUsed}`);
-                if (data.stats) {
-                    console.log('📊 Groq API Stats:', data.stats);
-                    this.updateAPIStatus('groq', data.stats, data.keyUsed);
-                }
-            }
-
             // Additional client-side filtering for Deepseek R1 model (fallback)
             let processedResponse = data.response;
             if (this.currentModel === 'deepseek-r1-distill-llama-70b') {
@@ -307,15 +298,6 @@ class APIManager {
 
             if (!data.success || !data.response) {
                 throw new Error('Invalid response from Gemini serverless function');
-            }
-
-            // Log API key usage statistics if available
-            if (data.keyUsed !== undefined) {
-                console.log(`✅ Gemini request completed using key ${data.keyUsed}`);
-                if (data.stats) {
-                    console.log('📊 Gemini API Stats:', data.stats);
-                    this.updateAPIStatus('gemini', data.stats, data.keyUsed);
-                }
             }
 
             return data.response;
@@ -511,104 +493,6 @@ class APIManager {
 
         return alternatives;
     }
-
-    // Update API status display with key statistics
-    updateAPIStatus(provider, stats, keyUsed) {
-        // Store the latest stats for debugging
-        if (!this.apiStats) {
-            this.apiStats = {};
-        }
-        
-        this.apiStats[provider] = {
-            ...stats,
-            lastKeyUsed: keyUsed,
-            lastUpdated: new Date().toISOString()
-        };
-
-        // Update UI if status element exists
-        const statusElement = document.getElementById('api-status');
-        if (statusElement) {
-            this.renderAPIStatus(statusElement);
-        }
-
-        // Show toast notification for key switching (only if different from last used)
-        if (this.lastUsedKey && this.lastUsedKey[provider] !== keyUsed) {
-            if (window.toast) {
-                window.toast.show(
-                    `🔄 Switched to ${provider} key ${keyUsed} (${stats.available}/${stats.total} available)`,
-                    'info',
-                    3000
-                );
-            }
-        }
-
-        // Track last used key
-        if (!this.lastUsedKey) {
-            this.lastUsedKey = {};
-        }
-        this.lastUsedKey[provider] = keyUsed;
-    }
-
-    // Render API status in the UI
-    renderAPIStatus(element) {
-        if (!this.apiStats) return;
-
-        const html = `
-            <div class="api-status-container">
-                <h4>🔑 API Key Status</h4>
-                ${Object.entries(this.apiStats).map(([provider, stats]) => `
-                    <div class="provider-status">
-                        <strong>${provider.toUpperCase()}:</strong>
-                        <span class="key-count">${stats.available}/${stats.total} keys available</span>
-                        <span class="last-key">Last used: Key ${stats.lastKeyUsed}</span>
-                        ${stats.failed > 0 ? `<span class="failed-keys">⚠️ ${stats.failed} failed</span>` : ''}
-                    </div>
-                `).join('')}
-                <div class="status-updated">
-                    Last updated: ${new Date().toLocaleTimeString()}
-                </div>
-            </div>
-        `;
-
-        element.innerHTML = html;
-    }
-
-    // Get comprehensive API status
-    async getAPIStatus() {
-        try {
-            const response = await fetch('/api/api-status');
-            if (response.ok) {
-                const data = await response.json();
-                return data;
-            }
-        } catch (error) {
-            console.error('Failed to fetch API status:', error);
-        }
-        
-        // Fallback to local stats
-        return {
-            success: true,
-            health: { status: 'unknown', percentage: 0 },
-            apiKeys: this.apiStats || {}
-        };
-    }
-
-    // Show API status in console (for debugging)
-    showAPIStatus() {
-        console.log('=== API Key Status ===');
-        if (this.apiStats) {
-            Object.entries(this.apiStats).forEach(([provider, stats]) => {
-                console.log(`${provider.toUpperCase()}:`, {
-                    available: `${stats.available}/${stats.total}`,
-                    lastUsed: `Key ${stats.lastKeyUsed}`,
-                    failed: stats.failed,
-                    lastUpdated: stats.lastUpdated
-                });
-            });
-        } else {
-            console.log('No API statistics available yet');
-        }
-    }
 }
 
 // Initialize API Manager after DOM is loaded to ensure config is available
@@ -649,9 +533,6 @@ window.debugAPIConfig = function () {
         console.log('Current provider:', window.apiManager.currentProvider);
         console.log('Current model:', window.apiManager.currentModel);
         console.log('Provider status:', window.apiManager.getProviderStatus());
-        
-        // Show API key statistics
-        window.apiManager.showAPIStatus();
     }
 
     return {
@@ -660,17 +541,6 @@ window.debugAPIConfig = function () {
         groqKey: window.API_CONFIG?.GROQ_API_KEY ? 'Present' : 'Missing',
         geminiKey: window.API_CONFIG?.GEMINI_API_KEY ? 'Present' : 'Missing'
     };
-};
-
-// Global function to show API status
-window.showAPIStatus = function() {
-    if (window.apiManager) {
-        window.apiManager.showAPIStatus();
-        return window.apiManager.getAPIStatus();
-    } else {
-        console.log('API Manager not initialized yet');
-        return null;
-    }
 };
 
 // Initialize when DOM is ready and API keys are loaded

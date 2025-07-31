@@ -1,5 +1,4 @@
-// Vercel Serverless Function for Groq API with Multiple Key Support
-import apiKeyManager from './api-key-manager.js';
+// Vercel Serverless Function for Groq API
 
 // Function to filter out <think> tags from Deepseek R1 responses
 function filterDeepseekThinkTags(content) {
@@ -48,92 +47,47 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
 
-        // Get API key using the key manager with failover support
-        let selectedKey;
-        let response;
-        let lastError;
-        const maxRetries = 3;
-        
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-            try {
-                selectedKey = apiKeyManager.getNextGroqKey();
-                const apiKey = selectedKey.key;
-                
-                console.log(`Attempt ${attempt + 1}: Using Groq key ${selectedKey.index}`);
-
-                // Make request to Groq API
-                response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: [
-                            {
-                                role: 'user',
-                                content: prompt
-                            }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 1024,
-                        stream: false
-                    })
-                });
-
-                if (response.ok) {
-                    // Success! Break out of retry loop
-                    break;
-                } else {
-                    // Handle API errors
-                    const errorData = await response.json().catch(() => ({}));
-                    const errorMessage = errorData.error?.message || 'Unknown error';
-                    lastError = new Error(`Groq API Error: ${response.status} - ${errorMessage}`);
-                    
-                    console.error('Groq API error:', {
-                        keyIndex: selectedKey.index,
-                        status: response.status,
-                        statusText: response.statusText,
-                        errorData
-                    });
-
-                    // Mark key as failed if it's a rate limit or auth error
-                    if (response.status === 429 || response.status === 401 || response.status === 403) {
-                        apiKeyManager.markKeyAsFailed('groq', selectedKey.index, lastError);
-                    }
-                    
-                    // If this is the last attempt, return the error
-                    if (attempt === maxRetries - 1) {
-                        return res.status(response.status).json({
-                            error: lastError.message,
-                            status: response.status,
-                            keyUsed: selectedKey.index
-                        });
-                    }
-                }
-            } catch (error) {
-                lastError = error;
-                console.error(`Groq API attempt ${attempt + 1} failed:`, error);
-                
-                if (selectedKey) {
-                    apiKeyManager.markKeyAsFailed('groq', selectedKey.index, error);
-                }
-                
-                // If this is the last attempt, continue to error handling
-                if (attempt === maxRetries - 1) {
-                    break;
-                }
-            }
+        // Get API key from environment variables
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey) {
+            console.error('Groq API key not found in environment variables');
+            return res.status(500).json({ error: 'Groq API key not configured' });
         }
 
-        // If we get here and response is not ok, handle the error
-        if (!response || !response.ok) {
-            console.error('All Groq API attempts failed');
-            return res.status(500).json({
-                error: 'All Groq API keys failed',
-                message: lastError?.message || 'Unknown error',
-                attempts: maxRetries
+        // Make request to Groq API
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 1024,
+                stream: false
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.error?.message || 'Unknown error';
+
+            console.error('Groq API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorData
+            });
+
+            return res.status(response.status).json({
+                error: `Groq API Error: ${response.status} - ${errorMessage}`,
+                status: response.status
             });
         }
 
@@ -158,13 +112,11 @@ export default async function handler(req, res) {
             }
         }
 
-        // Return the response with key info
+        // Return the response
         return res.status(200).json({
             success: true,
             response: responseContent,
-            model: model,
-            keyUsed: selectedKey.index,
-            stats: apiKeyManager.getStats().groq
+            model: model
         });
 
     } catch (error) {
