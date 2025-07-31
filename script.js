@@ -1049,15 +1049,26 @@ const utils = {
         return div.innerHTML;
     },
 
+    unescapeHtml: (text) => {
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        return div.textContent || div.innerText || '';
+    },
+
     parseMarkdown: (text) => {
         // Enhanced markdown parsing with code blocks, tables, and structured content
         let html = text;
 
         // Process code blocks first (```language\ncode\n```)
-        html = html.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, language, code) => {
+        html = html.replace(/```([a-zA-Z0-9+#\-_.]*)\n?([\s\S]*?)```/g, (match, language, code) => {
             const lang = language || 'text';
             const langDisplay = utils.getLanguageDisplay(lang);
             const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
+            
+            // Since the entire text is already escaped, we need to unescape the code content
+            // to avoid double-escaping, then escape it properly for display
+            const unescapedCode = utils.unescapeHtml(code.trim());
+            const properlyEscapedCode = utils.escapeHtml(unescapedCode);
 
             return `
                 <div class="code-block-container">
@@ -1074,7 +1085,7 @@ const utils = {
                         </div>
                     </div>
                     <div class="code-block-content">
-                        <pre><code id="${codeId}" class="language-${lang}">${utils.escapeHtml(code.trim())}</code></pre>
+                        <pre><code id="${codeId}" class="language-${lang}">${properlyEscapedCode}</code></pre>
                     </div>
                 </div>
             `;
@@ -1093,7 +1104,9 @@ const utils = {
             // Headers
             tableHtml += '<thead><tr>';
             headers.forEach(header => {
-                tableHtml += `<th>${utils.escapeHtml(header)}</th>`;
+                const unescapedHeader = utils.unescapeHtml(header);
+                const properlyEscapedHeader = utils.escapeHtml(unescapedHeader);
+                tableHtml += `<th>${properlyEscapedHeader}</th>`;
             });
             tableHtml += '</tr></thead>';
 
@@ -1103,7 +1116,11 @@ const utils = {
                 tableHtml += '<tr>';
                 row.forEach((cell, index) => {
                     const headerLabel = headers[index] || `Column ${index + 1}`;
-                    tableHtml += `<td data-label="${utils.escapeHtml(headerLabel)}">${utils.escapeHtml(cell)}</td>`;
+                    const unescapedHeaderLabel = utils.unescapeHtml(headerLabel);
+                    const properlyEscapedHeaderLabel = utils.escapeHtml(unescapedHeaderLabel);
+                    const unescapedCell = utils.unescapeHtml(cell);
+                    const properlyEscapedCell = utils.escapeHtml(unescapedCell);
+                    tableHtml += `<td data-label="${properlyEscapedHeaderLabel}">${properlyEscapedCell}</td>`;
                 });
                 tableHtml += '</tr>';
             });
@@ -1132,7 +1149,7 @@ const utils = {
                         <div class="step-item">
                             <div class="step-number">${step.number}</div>
                             <div class="step-content">
-                                <div class="step-description">${utils.escapeHtml(step.content)}</div>
+                                <div class="step-description">${utils.escapeHtml(utils.unescapeHtml(step.content))}</div>
                             </div>
                         </div>
                     `;
@@ -1157,7 +1174,7 @@ const utils = {
             return `
                 <div class="alert-box ${alertType}">
                     <i class="alert-icon ${icons[alertType] || icons.info}"></i>
-                    <div class="alert-content">${utils.escapeHtml(content.trim())}</div>
+                    <div class="alert-content">${utils.escapeHtml(utils.unescapeHtml(content.trim()))}</div>
                 </div>
             `;
         });
@@ -1168,7 +1185,9 @@ const utils = {
         // Process headers (# Header, ## Header, etc.)
         html = html.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
             const level = hashes.length;
-            return `<h${level}>${utils.escapeHtml(content)}</h${level}>`;
+            const unescapedContent = utils.unescapeHtml(content);
+            const properlyEscapedContent = utils.escapeHtml(unescapedContent);
+            return `<h${level}>${properlyEscapedContent}</h${level}>`;
         });
 
         // Process bold text (**text** or __text__)
@@ -1180,7 +1199,13 @@ const utils = {
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
 
         // Process inline code (`code`)
-        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/`([^`]+)`/g, (match, code) => {
+            // Since the entire text is already escaped, we need to unescape the code content
+            // to avoid double-escaping, then escape it properly for display
+            const unescapedCode = utils.unescapeHtml(code);
+            const properlyEscapedCode = utils.escapeHtml(unescapedCode);
+            return `<code>${properlyEscapedCode}</code>`;
+        });
 
         // Process links ([text](url))
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
@@ -1201,8 +1226,10 @@ const utils = {
             'py': 'Python',
             'java': 'Java',
             'cpp': 'C++',
+            'c++': 'C++',
             'c': 'C',
             'csharp': 'C#',
+            'c#': 'C#',
             'cs': 'C#',
             'php': 'PHP',
             'ruby': 'Ruby',
@@ -1222,11 +1249,16 @@ const utils = {
             'bash': 'Bash',
             'sh': 'Shell',
             'powershell': 'PowerShell',
+            'ps1': 'PowerShell',
             'dockerfile': 'Dockerfile',
             'markdown': 'Markdown',
             'md': 'Markdown',
             'text': 'Text',
-            'txt': 'Text'
+            'txt': 'Text',
+            'objective-c': 'Objective-C',
+            'objc': 'Objective-C',
+            'f#': 'F#',
+            'fsharp': 'F#'
         };
 
         return languages[lang.toLowerCase()] || lang.toUpperCase();
