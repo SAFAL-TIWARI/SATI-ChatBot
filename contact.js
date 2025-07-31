@@ -75,6 +75,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+  // Smooth Scroll with Lenis and ScrollTrigger 
+        // Initialize Lenis smooth scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
+
+        // Register ScrollTrigger plugin
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animation loop
+        function raf(time) {
+            lenis.raf(time);
+            ScrollTrigger.update();
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+
+        // Pin animation
+        const section1 = document.body.querySelector('.section-1');
+        const box = document.body.querySelector('.box');
+
+        if (section1 && box) {
+            const tl = gsap.timeline({ paused: true });
+            tl.fromTo(box, { y: 0 }, { y: '100vh', duration: 1, ease: 'none' }, 0);
+
+            const st = ScrollTrigger.create({
+                animation: tl,
+                trigger: section1,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            });
+        }
+
 // FAQ Toggle Functionality
 function toggleFAQ(element) {
     const faqItem = element.parentElement;
