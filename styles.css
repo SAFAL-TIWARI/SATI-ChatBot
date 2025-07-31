@@ -1172,7 +1172,7 @@ body {
 
     .chat-title {
         font-size: var(--font-size-sm);
-        max-width: 200px;
+        max-width: 150px;
         /* Limit title width more aggressively */
     }
 }
@@ -3991,10 +3991,17 @@ body {
 
     .modal-container {
         max-width: 95vw;
-        max-height: 50vh;
+        max-height: 85vh;
         margin: var(--spacing-4);
         width: 90vw;
         min-width: 90vw;
+    }
+
+    /* Login modal specific mobile styles */
+    .login-modal.modal-container {
+        max-height: 90vh;
+        height: auto;
+        overflow-y: auto;
     }
 
     .settings-modal {
@@ -4165,16 +4172,23 @@ body {
 
     .login-modal {
         max-width: 95vw;
-        padding: var(--spacing-1);
+        padding: var(--spacing-2);
+        max-height: 90vh;
+        overflow-y: auto;
     }
 
-    .modal-body {
-        padding: var(--spacing-2);
+    .login-modal .modal-body {
+        padding: var(--spacing-5);
+        max-height: none;
+        overflow: visible;
     }
 
     .login-content {
         padding: 0;
         margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-2);
     }
 
     .app-branding {
@@ -4187,12 +4201,51 @@ body {
     }
 
     .login-form {
-        gap: var(--spacing-1);
-        margin-bottom: var(--spacing-1);
+        gap: var(--spacing-2);
+        margin-bottom: var(--spacing-3);
     }
 
     .form-group {
-        margin-bottom: var(--spacing-1);
+        margin-bottom: var(--spacing-2);
+    }
+
+    /* Ensure social login buttons are visible on mobile */
+    .or-section {
+        margin: var(--spacing-3) 0;
+    }
+
+    .sso-buttons {
+        display: flex !important;
+        justify-content: center;
+        gap: var(--spacing-4);
+        margin-top: var(--spacing-5);
+    }
+
+    .sso-btn.sso-circle {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+
+    .sso-logo-circle {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sso-logo-circle img {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Ensure all login modal elements are visible */
+    .login-modal .modal-container {
+        overflow: visible;
+        position: relative;
+    }
+    
+    .login-modal .modal-body {
+        overflow: visible;
+        position: relative;
     }
 }
 
