@@ -5145,6 +5145,8 @@ function stopVoiceTest() {
     toast.show('Voice test stopped', 'info', 1000);
 }
 
+
+
 function resetVoiceTestButton() {
     const testVoiceBtn = document.getElementById('testVoiceBtn');
     if (testVoiceBtn) {
@@ -5172,6 +5174,8 @@ function updateTestUtteranceSettings() {
     if (voicePitchSlider) currentTestUtterance.pitch = parseFloat(voicePitchSlider.value);
     if (voiceVolumeSlider) currentTestUtterance.volume = parseFloat(voiceVolumeSlider.value);
 }
+
+// h
 
 function applyRealTimeVoiceSettings() {
     // If voice test is playing, provide immediate feedback with debouncing
