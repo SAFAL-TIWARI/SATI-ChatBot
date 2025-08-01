@@ -1817,7 +1817,7 @@ class VoiceMode {
         this.clearVoiceMessages();
 
         // Add and speak welcome message
-        const welcomeMessage = 'Hello! I\'m ready to chat with you. What would you like to know about SATI?';
+        const welcomeMessage = 'Hello! I\'m ready to chat with you. What would you like to know about S A T I?';
         this.addVoiceMessage('assistant', welcomeMessage);
         
         // Start periodic check to ensure continuous conversation
