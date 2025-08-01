@@ -18,9 +18,6 @@
     --info-color: #3182ce;
     --success-color: #38a169;
 
-    /* Select Arrow Filter for Theme Compliance */
-    --select-arrow-filter: brightness(0) invert(1);
-
     /* Sidebar - Dark Theme */
     --sidebar-bg: #171717;
     --sidebar-text: #ececec;
@@ -2196,7 +2193,6 @@ body {
     background-position: right var(--spacing-2) center;
     background-size: 16px;
     padding-right: var(--spacing-6);
-    filter: var(--select-arrow-filter);
 }
 
 /* Dark theme specific adjustments for better contrast */
@@ -3495,21 +3491,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Form control select elements - ensure proper arrow styling */
-.form-control[type="select"],
-.form-control select,
-select.form-control {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right var(--spacing-2) center;
-    background-size: 16px;
-    padding-right: var(--spacing-6);
-    filter: var(--select-arrow-filter);
-}
-
 .checkbox-group,
 .radio-group {
     display: flex;
@@ -4000,11 +3981,15 @@ select.form-control {
         /* iOS Safari specific fixes */
         -webkit-tap-highlight-color: transparent !important;
         /* Android Chrome specific fixes */
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ececec' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
         background-repeat: no-repeat !important;
         background-position: right var(--spacing-2) center !important;
         background-size: 16px !important;
-        filter: var(--select-arrow-filter) !important;
+    }
+
+    /* Light theme arrow color */
+    [data-theme="light"] .model-select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232d3748' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
     }
 
     .modal-container {
@@ -5567,35 +5552,77 @@ textarea:focus-visible {
 @media (max-width: 768px) {
     .welcome-container {
         grid-template-columns: repeat(2, 1fr);
-        padding: var(--spacing-4);
+        padding: var(--spacing-2);
+        max-height: calc(100vh - 180px);
+        /* Ensure it fits within the chat-messages area */
+        height: fit-content;
+        min-height: 0;
     }
 
-    .prompt-boxes-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-3);
-    }
-
-    .prompt-box {
-        padding: var(--spacing-4);
-    }
-
-    .welcome-header h2 {
-        font-size: var(--font-size-xl);
-    }
-
-    .welcome-header p {
-        font-size: var(--font-size-base);
-    }
-}
-
-@media (max-width: 480px) {
     .prompt-boxes-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--spacing-2);
     }
 
     .prompt-box {
-        padding: var(--spacing-3);
+        padding: var(--spacing-1);
+        min-height: 130px;
+    }
+
+    .welcome-header {
+        margin-bottom: var(--spacing-1);
+    }
+
+    .welcome-header h2 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-2);
+    }
+
+    .welcome-header p {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-3);
+    }
+
+    .welcome-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+        margin-bottom: var(--spacing-2);
+    }
+
+    .welcome-footer {
+        margin-top: var(--spacing-1);
+        margin: -15px;
+    }
+
+    .welcome-footer p {
+        font-size: var(--font-size-sm);
+        margin: -10px 0 0 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-container {
+        padding: var(--spacing-1);
+        max-height: calc(100vh - 150px);
+        /* Even more compact for very small screens */
+    }
+
+    .welcome-header h2 {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-1);
+    }
+
+    .welcome-header p {
+        font-size: var(--font-size-xs);
+        margin-bottom: var(--spacing-2);
+    }
+
+    .welcome-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        margin-bottom: var(--spacing-1);
     }
 
     .prompt-icon {
@@ -5606,11 +5633,12 @@ textarea:focus-visible {
     }
 
     .prompt-title {
-        font-size: var(--font-size-base);
+        font-size: 13px;
+        text-align: center;
     }
 
     .prompt-description {
-        font-size: var(--font-size-xs);
+        font-size: 10px;
     }
 }
 
