@@ -531,7 +531,6 @@ function initOrbitingCircles() {
             'JavaScript': 'Core programming language for interactive web features and dynamic content.',
             'HTML5': 'Modern markup language providing the structure and semantic foundation.',
             'Node.js': 'JavaScript runtime for serverless API functions and backend processing.',
-            'Python': 'Used for AI model integration and data processing capabilities.',
             'CSS3': 'Advanced styling language for responsive design and animations.',
             'GitHub': 'Version control and collaborative development platform.',
             'Vercel': 'Hosting platform for web applications and static sites.',
