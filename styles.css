@@ -2200,12 +2200,24 @@ body {
 }
 
 /* Dark theme specific adjustments for better contrast */
+[data-theme="dark"] .model-select {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
 [data-theme="dark"] .model-select option {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
 }
 
 /* Light theme specific adjustments */
+[data-theme="light"] .model-select {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
 [data-theme="light"] .model-select option {
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -3510,6 +3522,19 @@ select.form-control {
     filter: var(--select-arrow-filter);
 }
 
+/* Theme-specific overrides for form-control select elements */
+[data-theme="dark"] .form-control[type="select"],
+[data-theme="dark"] .form-control select,
+[data-theme="dark"] select.form-control {
+    filter: var(--select-arrow-filter);
+}
+
+[data-theme="light"] .form-control[type="select"],
+[data-theme="light"] .form-control select,
+[data-theme="light"] select.form-control {
+    filter: var(--select-arrow-filter);
+}
+
 .checkbox-group,
 .radio-group {
     display: flex;
@@ -3995,6 +4020,15 @@ select.form-control {
         color: var(--text-primary) !important;
     }
 
+    /* Ensure theme-aware arrow styling for mobile */
+    [data-theme="dark"] .model-select {
+        filter: var(--select-arrow-filter) !important;
+    }
+
+    [data-theme="light"] .model-select {
+        filter: var(--select-arrow-filter) !important;
+    }
+
     /* Additional mobile browser compatibility */
     .model-select {
         /* iOS Safari specific fixes */
@@ -4005,6 +4039,7 @@ select.form-control {
         background-position: right var(--spacing-2) center !important;
         background-size: 16px !important;
         filter: var(--select-arrow-filter) !important;
+        padding-right: var(--spacing-6) !important;
     }
 
     .modal-container {
@@ -4049,7 +4084,7 @@ select.form-control {
         min-width: 100%;
         width: 100%;
         flex-shrink: 0;
-        max-height: 30vh;
+        max-height: 60vh;
         overflow-y: auto;
         padding: var(--spacing-4);
         scroll-behavior: smooth;
@@ -4089,6 +4124,56 @@ select.form-control {
         gap: var(--spacing-3);
     }
 
+    /* Mobile-specific slider improvements for better visibility and touch interaction */
+    .slider {
+        height: 8px;
+        min-height: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: var(--bg-tertiary);
+        border-radius: var(--radius-full);
+        outline: none;
+        cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+        background-color: var(--accent-color);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+        background-color: var(--accent-color);
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .slider-group {
+        margin-bottom: var(--spacing-5);
+        padding: var(--spacing-3);
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .slider-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-3);
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
     /* Ensure consistent width for all settings tabs on mobile */
     .settings-modal .modal-container {
         width: 90vw !important;
@@ -4106,6 +4191,25 @@ select.form-control {
     .settings-modal .modal-body {
         box-sizing: border-box;
         width: 100%;
+    }
+
+    /* Improve settings modal height for mobile */
+    .settings-modal {
+        max-height: 95vh;
+        height: auto;
+        min-height: 80vh;
+    }
+
+    /* Better spacing for mobile settings content */
+    .settings-content {
+        padding: var(--spacing-5);
+    }
+
+    /* Ensure voice settings are fully visible on mobile */
+    .settings-content[data-tab="voice"] {
+        max-height: none;
+        height: auto;
+        overflow-y: visible;
     }
 
     /* Ensure all settings tabs maintain full width */
