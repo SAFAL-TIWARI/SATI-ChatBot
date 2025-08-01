@@ -18,6 +18,9 @@
     --info-color: #3182ce;
     --success-color: #38a169;
 
+    /* Select Arrow Filter for Theme Compliance */
+    --select-arrow-filter: brightness(0) invert(1);
+
     /* Sidebar - Dark Theme */
     --sidebar-bg: #171717;
     --sidebar-text: #ececec;
@@ -92,6 +95,9 @@
     --message-hover: #f0f0f0;
     --input-bg: #fafafa;
     --input-border: #d1d5db;
+
+    /* Select Arrow Filter for Light Theme */
+    --select-arrow-filter: brightness(0) invert(0);
 
     /* Sidebar - Light Theme */
     --sidebar-bg: #f6f7f8;
@@ -2190,6 +2196,7 @@ body {
     background-position: right var(--spacing-2) center;
     background-size: 16px;
     padding-right: var(--spacing-6);
+    filter: var(--select-arrow-filter);
 }
 
 /* Dark theme specific adjustments for better contrast */
@@ -3488,6 +3495,21 @@ body {
     cursor: not-allowed;
 }
 
+/* Form control select elements - ensure proper arrow styling */
+.form-control[type="select"],
+.form-control select,
+select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-2) center;
+    background-size: 16px;
+    padding-right: var(--spacing-6);
+    filter: var(--select-arrow-filter);
+}
+
 .checkbox-group,
 .radio-group {
     display: flex;
@@ -3978,15 +4000,11 @@ body {
         /* iOS Safari specific fixes */
         -webkit-tap-highlight-color: transparent !important;
         /* Android Chrome specific fixes */
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ececec' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
         background-repeat: no-repeat !important;
         background-position: right var(--spacing-2) center !important;
         background-size: 16px !important;
-    }
-
-    /* Light theme arrow color */
-    [data-theme="light"] .model-select {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232d3748' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        filter: var(--select-arrow-filter) !important;
     }
 
     .modal-container {
