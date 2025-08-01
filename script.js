@@ -2961,12 +2961,23 @@ class ChatManager {
         this.shouldStop = false;
         this.showStopButton();
 
+        // Extract user input from content (remove file content for display)
+        let userInputForDisplay = content;
+        let fullContentForAI = content;
+        
+        // Check if content contains file content markers
+        if (content.includes('--- File Content ---')) {
+            const parts = content.split('--- File Content ---');
+            userInputForDisplay = parts[0].trim();
+            fullContentForAI = content; // Keep full content for AI
+        }
+
         // Add user message only if it's not a prompt selection
         if (!isPromptSelection) {
             const userMessage = {
                 id: utils.generateId(),
                 role: 'user',
-                content: content,
+                content: userInputForDisplay, // Only show user input in chat
                 timestamp: new Date().toISOString()
             };
 
@@ -2986,7 +2997,7 @@ class ChatManager {
                     const result = await window.supabaseDB.addMessage(
                         chatState.currentConversationId,
                         'user',
-                        content,
+                        userInputForDisplay, // Save only user input for display
                         chatState.selectedModel
                     );
 
@@ -3014,7 +3025,7 @@ class ChatManager {
         if (!isPromptSelection && chatState.currentConversationId) {
             const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
             if (conversation && conversation.title === 'New Chat') {
-                const newTitle = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+                const newTitle = userInputForDisplay.substring(0, 50) + (userInputForDisplay.length > 50 ? '...' : '');
                 conversation.title = newTitle;
 
                 console.log('🔄 Auto-generating title from first message:', newTitle);
@@ -3051,7 +3062,7 @@ class ChatManager {
             this.currentController = new AbortController();
 
             // Use the new API manager for real API calls
-            const response = await window.apiManager.sendMessage(content, this.currentController);
+            const response = await window.apiManager.sendMessage(fullContentForAI, this.currentController);
 
             // Add bot response
             const botMessage = {
@@ -9090,15 +9101,10 @@ function initializeFileAttachment() {
 // Override sendMessage to handle file chip logic
 async function sendMessage() {
     const input = elements.messageInput.value.trim();
-    let contentToSend = '';
-    if (attachedFileText && input) {
-        contentToSend = input + '\n' + attachedFileText;
-    } else if (attachedFileText) {
-        contentToSend = attachedFileText;
-    } else {
-        contentToSend = input;
-    }
-    if (!contentToSend || chatManager.isProcessing) return;
+    
+    // Only send if there's user input or attached file
+    if (!input && !attachedFileText) return;
+    if (chatManager.isProcessing) return;
 
     // Stop voice recognition if it's active
     if (window.voiceRecognition && window.voiceRecognition.isListening) {
@@ -9116,6 +9122,9 @@ async function sendMessage() {
     // Clear input and file chip
     elements.messageInput.value = '';
     elements.messageInput.style.height = 'auto';
+    
+    // Store file text for background processing
+    const fileTextForAI = attachedFileText;
     if (attachedFileText) {
         attachedFileName = null;
         attachedFileText = null;
@@ -9123,14 +9132,23 @@ async function sendMessage() {
         if (fileChip) fileChip.style.display = 'none';
     }
 
-    // Send message
-    await chatManager.sendMessage(contentToSend, chatState.selectedModel);
+    // Send message with user input only in the prompt, but include file text in background
+    if (fileTextForAI) {
+        // Create enhanced prompt that includes file content but shows only user input
+        const enhancedPrompt = input + (input ? '\n\n--- File Content ---\n' + fileTextForAI : fileTextForAI);
+        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel);
+    } else {
+        // No file attached, send user input as is
+        await chatManager.sendMessage(input, chatState.selectedModel);
+    }
 }
 
 // Initialize file attachment after DOM is ready
 window.addEventListener('DOMContentLoaded', initializeFileAttachment);
 
 // File Attachment State
+let attachedFileText = null;
+let attachedFileName = null;
 let attachedFiles = [];
 // attachedFiles: [{ name: string, text: string, file: File, filePath: string }]
 
@@ -9252,15 +9270,10 @@ function initializeFileAttachment() {
 // Override sendMessage to handle file chip logic (multiple files)
 async function sendMessage() {
     const input = elements.messageInput.value.trim();
-    let contentToSend = '';
-    if (attachedFiles.length && input) {
-        contentToSend = input + '\n' + attachedFiles.map(f => f.text).join('\n');
-    } else if (attachedFiles.length) {
-        contentToSend = attachedFiles.map(f => f.text).join('\n');
-    } else {
-        contentToSend = input;
-    }
-    if (!contentToSend || chatManager.isProcessing) return;
+    
+    // Only send if there's user input or attached files
+    if (!input && !attachedFiles.length) return;
+    if (chatManager.isProcessing) return;
 
     // Stop voice recognition if it's active
     if (window.voiceRecognition && window.voiceRecognition.isListening) {
@@ -9278,12 +9291,23 @@ async function sendMessage() {
     // Clear input and file chips
     elements.messageInput.value = '';
     elements.messageInput.style.height = 'auto';
+    
+    // Store file texts for background processing
+    const fileTextsForAI = attachedFiles.map(f => f.text);
     attachedFiles = [];
     const fileChipContainer = document.getElementById('fileChipContainer');
     if (fileChipContainer) fileChipContainer.style.display = 'none';
 
-    // Send message
-    await chatManager.sendMessage(contentToSend, chatState.selectedModel);
+    // Send message with user input only in the prompt, but include file texts in background
+    if (fileTextsForAI.length) {
+        // Create enhanced prompt that includes file content but shows only user input
+        const fileContent = fileTextsForAI.join('\n\n--- Next File ---\n\n');
+        const enhancedPrompt = input + (input ? '\n\n--- File Content ---\n' + fileContent : fileContent);
+        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel);
+    } else {
+        // No files attached, send user input as is
+        await chatManager.sendMessage(input, chatState.selectedModel);
+    }
 }
 
 // Initialize file attachment after DOM is ready
