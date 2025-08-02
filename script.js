@@ -3021,6 +3021,19 @@ class ChatManager {
             }
         }
 
+        // Enhanced keyword-based prompt generation for SATI-related queries
+        let enhancedPrompt = null;
+        if (!isPromptSelection && this.isSATIRelatedQuery(userInputForDisplay)) {
+            enhancedPrompt = this.generatePromptFromKeywords(userInputForDisplay);
+            if (enhancedPrompt && enhancedPrompt.prompt) {
+                console.log('🎯 Detected SATI-related query, using enhanced prompt:', enhancedPrompt.category);
+                fullContentForAI = enhancedPrompt.prompt;
+                
+                // Show a subtle indicator that enhanced prompt is being used
+                toast.show(`Using enhanced ${enhancedPrompt.category} prompt for better response`, 'info', 2000);
+            }
+        }
+
         // Auto-generate title if this is the first user message in a new chat (skip for prompt selections)
         if (!isPromptSelection && chatState.currentConversationId) {
             const conversation = chatState.conversations.find(c => c.id === chatState.currentConversationId);
@@ -3334,16 +3347,30 @@ class ChatManager {
     }
 
     getDisplayPrompt(promptType) {
-        const displayPrompts = {
-            admissions: "How do I get admission to SATI?",
-            academics: "What courses does SATI offer?",
-            placements: "What are SATI's placement records?",
-            campus: "Tell me about campus facilities",
-            activities: "What activities can I join at SATI?",
-            institute: "Tell me about SATI's background"
-        };
+        // Use the enhanced display prompts from sati-knowledge.js
+        return window.getDisplayPrompt ? window.getDisplayPrompt(promptType) : "Tell me about SATI Vidisha.";
+    }
 
-        return displayPrompts[promptType] || "Tell me about SATI Vidisha.";
+    // Enhanced function to generate prompts based on user input keywords
+    generatePromptFromKeywords(userInput) {
+        if (!window.detectQueryCategory) {
+            return null;
+        }
+
+        const category = window.detectQueryCategory(userInput);
+        if (category && category !== 'general') {
+            return {
+                prompt: window.getEnhancedPrompt ? window.getEnhancedPrompt(category) : null,
+                category: category,
+                displayPrompt: window.getDisplayPrompt ? window.getDisplayPrompt(category) : null
+            };
+        }
+        return null;
+    }
+
+    // Function to check if input is SATI-related
+    isSATIRelatedQuery(userInput) {
+        return window.isSATIRelated ? window.isSATIRelated(userInput) : false;
     }
 
     createMessageElement(message) {
