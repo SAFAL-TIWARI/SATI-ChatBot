@@ -44,7 +44,7 @@
         "about": {
             "title": "About Team FluxoNauts - SATI ChatBot Developers",
             "description": "Meet Team FluxoNauts, the student developers behind SATI ChatBot. Learn about our mission to enhance the educational experience at Samrat Ashok Technological Institute.",
-            "keywords": "Team FluxoNauts, SATI developers, FluxWave Hackathon, SATI students, chatbot developers, AI development team, Flux Club SATI",
+            "keywords": "Team FluxoNauts, SATI developers, SATI students, chatbot developers, AI development team",
             "url": "https://sati-chatbot.vercel.app/about.html",
             "priority": 0.8,
             "changefreq": "monthly"

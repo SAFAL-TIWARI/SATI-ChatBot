@@ -198,8 +198,6 @@ cd android
 
 ## 👥 Team FluxoNauts
 
-Built for **FluxWave Hackathon** by [Flux Club](https://clubflux.netlify.app/), [SATI Vidisha](https://satiengg.in/)
-
 **Team Members:**
 - [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Frontend Development, Project Architecture
 - [Utkarsh Vishwakarma](https://github.com/UtkiVish) - Backend Development, DB Management, API & SSO Integration
@@ -225,5 +223,5 @@ MIT License
 
 ---
 <div align="center">
-<b>Built with ❤️ by Team FluxoNauts for FluxWave Hackathon</b>
+<b>Built with ❤️ by Team FluxoNauts</b>
 </div>
