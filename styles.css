@@ -6623,6 +6623,111 @@ textarea:focus-visible {
     scrollbar-width: thin;
 }
 
+/* File Attachment Styles for Chat Messages */
+.message-attachments {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.file-attachment {
+    background: var(--message-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.file-attachment:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.file-attachment-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.file-attachment i {
+    color: var(--accent-color);
+    font-size: 16px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: var(--text-color);
+    font-weight: 500;
+    flex: 1;
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.download-file-btn,
+.remove-file-btn,
+.remove-deleted-attachment {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-muted);
+}
+
+.download-file-btn:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.remove-file-btn:hover,
+.remove-deleted-attachment:hover {
+    background: var(--error-color);
+    color: white;
+}
+
+.file-attachment-deleted {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.file-attachment-deleted i {
+    color: var(--warning-color);
+}
+
+/* Responsive file attachments */
+@media (max-width: 768px) {
+    .file-attachment {
+        padding: 8px;
+    }
+    
+    .file-name {
+        font-size: 12px;
+    }
+    
+    .file-actions {
+        gap: 4px;
+    }
+    
+    .download-file-btn,
+    .remove-file-btn,
+    .remove-deleted-attachment {
+        padding: 4px;
+        font-size: 12px;
+    }
+}
+
 /* Desktop-only alignment for file chips to match input container */
 @media (min-width: 769px) {
     #fileChipContainer {

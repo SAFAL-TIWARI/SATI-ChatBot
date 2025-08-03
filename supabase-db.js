@@ -331,6 +331,153 @@ async function addMessage(conversationId, role, content, model = null) {
     }
 }
 
+// Add file attachment to a message
+async function addFileAttachment(messageId, fileName, filePath, fileSize = null, fileType = 'text/plain') {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { data: null, error: new Error('Database not initialized') };
+    }
+    
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: null, error: new Error('User not authenticated') };
+    }
+    
+    try {
+        // Verify the message belongs to the current user
+        const { data: message, error: fetchError } = await supabaseDB
+            .from('messages')
+            .select('id')
+            .eq('id', messageId)
+            .single();
+            
+        if (fetchError || !message) {
+            throw new Error('Message not found or access denied');
+        }
+        
+        // Add the file attachment
+        const { data: attachmentData, error: attachmentError } = await supabaseDB
+            .from('file_attachments')
+            .insert([{ 
+                message_id: messageId,
+                file_name: fileName,
+                file_path: filePath,
+                file_size: fileSize,
+                file_type: fileType,
+                created_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+            
+        if (attachmentError) throw attachmentError;
+        
+        return { data: attachmentData, error: null };
+    } catch (error) {
+        console.error('Error adding file attachment:', error);
+        return { data: null, error };
+    }
+}
+
+// Get file attachments for a message
+async function getMessageFileAttachments(messageId) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { data: [], error: new Error('Database not initialized') };
+    }
+    
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { data: [], error: new Error('User not authenticated') };
+    }
+    
+    try {
+        const { data, error } = await supabaseDB
+            .from('file_attachments')
+            .select('*')
+            .eq('message_id', messageId)
+            .order('created_at', { ascending: true });
+            
+        if (error) throw error;
+        return { data, error: null };
+    } catch (error) {
+        console.error('Error fetching file attachments:', error);
+        return { data: [], error };
+    }
+}
+
+// Delete a file attachment
+async function deleteFileAttachment(attachmentId) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { success: false, error: new Error('Database not initialized') };
+    }
+    
+    if (!isUserAuthenticated()) {
+        console.error('❌ User not authenticated');
+        return { success: false, error: new Error('User not authenticated') };
+    }
+    
+    try {
+        // First get the attachment to get the file path
+        const { data: attachment, error: fetchError } = await supabaseDB
+            .from('file_attachments')
+            .select('*')
+            .eq('id', attachmentId)
+            .single();
+            
+        if (fetchError || !attachment) {
+            throw new Error('File attachment not found or access denied');
+        }
+        
+        // Delete the file from storage
+        const { error: storageError } = await supabaseDB.storage
+            .from('user-txt-uploads')
+            .remove([attachment.file_path]);
+            
+        if (storageError) {
+            console.warn('Warning: Could not delete file from storage:', storageError);
+            // Continue with database deletion even if storage deletion fails
+        }
+        
+        // Delete the attachment record
+        const { error: deleteError } = await supabaseDB
+            .from('file_attachments')
+            .delete()
+            .eq('id', attachmentId);
+            
+        if (deleteError) throw deleteError;
+        
+        return { success: true, error: null };
+    } catch (error) {
+        console.error('Error deleting file attachment:', error);
+        return { success: false, error };
+    }
+}
+
+// Check if file exists in storage
+async function checkFileExists(filePath) {
+    if (!supabaseDB) {
+        console.error('❌ Supabase DB not initialized');
+        return { exists: false, error: new Error('Database not initialized') };
+    }
+    
+    try {
+        const { data, error } = await supabaseDB.storage
+            .from('user-txt-uploads')
+            .list('', {
+                search: filePath
+            });
+            
+        if (error) throw error;
+        
+        const exists = data.some(file => file.name === filePath);
+        return { exists, error: null };
+    } catch (error) {
+        console.error('Error checking file existence:', error);
+        return { exists: false, error };
+    }
+}
+
 // Set up real-time subscriptions for conversations
 function subscribeToConversations(callback) {
     if (!supabaseDB || !isUserAuthenticated()) {
@@ -536,6 +683,10 @@ window.supabaseDB = {
     deleteConversation,
     getConversationMessages,
     addMessage,
+    addFileAttachment,
+    getMessageFileAttachments,
+    deleteFileAttachment,
+    checkFileExists,
     subscribeToConversations
 };
 
