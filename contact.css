@@ -291,18 +291,17 @@
 
         .hero-section {
             text-align: center;
-            padding: 2rem 0;
+            padding: 10px 0 20px 0;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 20px;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: white;
             animation: fadeInUp 0.8s ease-out;
         }
 
         .hero-section h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
+            font-size: 2.2rem;
+            font-weight: 600;
         }
 
         .hero-section p {
@@ -601,48 +600,251 @@
 
         @media (max-width: 768px) {
             .contact-container {
-                padding: 1rem;
+                padding: 0.75rem;
+            }
+
+            .hero-section {
+                padding: 1rem 0;
+                margin-bottom: 1.5rem;
+                border-radius: 15px;
             }
 
             .hero-section h1 {
-                font-size: 2rem;
+                font-size: 1.4rem;
+                margin-bottom: 0.5rem;
             }
+             .hero-section p {
+                font-size: 0.8rem;
+                margin: 0;
+             }
 
             .contact-grid {
                 grid-template-columns: 1fr;
-                gap: 2rem;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .contact-form,
+            .contact-info {
+                padding: 1.25rem;
+                border-radius: 15px;
+            }
+
+            .contact-form h2,
+            .contact-info h2 {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Compact form styles for mobile */
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+                margin-bottom: 0.4rem;
+                font-weight: 500;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                border-width: 1px;
+            }
+
+            .form-group textarea {
+                min-height: 100px;
+            }
+
+            .submit-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            /* Compact contact info styles */
+            .contact-item {
+                align-items: flex-start;
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+                border-radius: 10px;
+            }
+
+            .contact-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
+                flex-shrink: 0;
+                margin-right: 0.75rem;
+                margin-top: 0.1rem;
+                font-size: 1rem;
+            }
+
+            .contact-item h3 {
+                font-size: 1rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .contact-item p {
+                font-size: 0.85rem;
+                line-height: 1.4;
+                margin: 0;
+            }
+
+            .social-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            /* Compact FAQ section for mobile */
+            .faq-section {
+                padding: 1.25rem;
+                border-radius: 15px;
+            }
+
+            .faq-section h2 {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+
+            .faq-item {
+                margin-bottom: 1rem;
+                border-radius: 8px;
+            }
+
+            .faq-question {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+
+            .faq-answer {
+                padding: 1rem;
+                font-size: 0.85rem;
+                line-height: 1.5;
+            }
+
+            .faq-icon {
+                font-size: 0.8rem;
+            }
+
+            /* Theme switch mobile styles */
+            .theme-switch {
+                --toggle-size: 16px;
+            }
+        }
+
+        /* Extra small screens optimization */
+        @media (max-width: 480px) {
+            .contact-container {
+                padding: 0.5rem;
+            }
+
+            .hero-section {
+                padding: 0.75rem 0;
+                margin-bottom: 1rem;
+            }
+
+            .hero-section h1 {
+                font-size: 1.2rem;
+            }
+
+            .hero-section p {
+                font-size: 0.8rem;
+                max-width: 330px;
+            }
+
+            .contact-grid {
+                gap: 1rem;
+                margin-bottom: 1.5rem;
             }
 
             .contact-form,
             .contact-info,
             .faq-section {
                 padding: 1rem;
+                border-radius: 12px;
             }
 
-            .social-grid {
-                grid-template-columns: 1fr;
+            .contact-form h2,
+            .contact-info h2,
+            .faq-section h2 {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
             }
 
-            /* Fix contact item icon alignment on mobile */
+            .form-group {
+                margin-bottom: 0.75rem;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .form-group textarea {
+                min-height: 80px;
+            }
+
+            .submit-btn {
+                padding: 0.65rem 1.25rem;
+                font-size: 0.85rem;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
             .contact-item {
-                align-items: flex-start;
-                padding: 1rem;
-                margin-bottom: 10px;
+                padding: 0.6rem;
+                margin-bottom: 0.6rem;
             }
 
             .contact-icon {
-                width: 45px;
-                height: 45px;
-                min-width: 45px;
-                min-height: 45px;
-                flex-shrink: 0;
-                margin-right: 0.75rem;
-                margin-top: 0.25rem;
-                font-size: 1.1rem;
+                width: 35px;
+                height: 35px;
+                min-width: 35px;
+                min-height: 35px;
+                font-size: 0.9rem;
+                margin-right: 0.6rem;
             }
 
-            /* Theme switch mobile styles */
-            .theme-switch {
-                --toggle-size: 16px;
+            .contact-item h3 {
+                font-size: 0.9rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .contact-item p {
+                font-size: 0.8rem;
+            }
+
+            .faq-item {
+                margin-bottom: 0.75rem;
+            }
+
+            .faq-question {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .faq-answer {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .faq-icon {
+                font-size: 0.75rem;
             }
         }
