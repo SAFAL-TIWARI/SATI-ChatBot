@@ -1,6 +1,6 @@
 # SATI ChatBot - Robots.txt
 # AI-Powered Institute Assistant by Team NeoCoders
-# Last Updated: 2025-01-20
+# Last Updated: 2025-08-04
 
 # Global Rules for All Crawlers
 User-agent: *
@@ -111,6 +111,7 @@ Allow: /contact.html
 Allow: /privacy-policy.html
 Allow: /terms-of-service.html
 Allow: /404.html
+Allow: /offline.html
 
 # Disallow Dynamic Scripts (but allow CSS for styling preview)
 Disallow: /*.js$

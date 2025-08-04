@@ -1,6 +1,6 @@
 # SATI ChatBot - Security Policy
 # Team NeoCoders
-# Last Updated: 2025-01-20
+# Last Updated: 2025-07-20
 
 Contact: https://sati-chatbot.vercel.app/contact.html
 Contact: mailto:sati.chatbot@gmail.com
