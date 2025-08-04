@@ -84,19 +84,7 @@
         }
       ]
     },
-    {
-      "source": "/sati-chatbot-indexnow-key-2025.txt",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        }
-      ]
-    },
+ 
     {
       "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
       "headers": [
@@ -128,14 +116,8 @@
       "headers": {
         "Content-Type": "application/xml"
       }
-    },
-    {
-      "src": "/sati-chatbot-indexnow-key-2025.txt",
-      "dest": "/sati-chatbot-indexnow-key-2025.txt",
-      "headers": {
-        "Content-Type": "text/plain"
-      }
     }
+  
   ],
   "redirects": [
     {
