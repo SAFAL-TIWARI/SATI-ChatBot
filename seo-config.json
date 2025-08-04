@@ -2,18 +2,18 @@
     "site": {
         "name": "SATI ChatBot",
         "title": "SATI ChatBot - Your Institute Guide",
-        "description": "AI-powered assistant for Samrat Ashok Technological Institute (SATI), Vidisha. Get instant answers about admissions, courses, placements, hostel facilities, and more.",
+        "description": "Get instant answers about SATI Vidisha - admissions, courses & more. Your AI assistant for institute information.",
         "url": "https://sati-chatbot.vercel.app",
         "logo": "https://sati-chatbot.vercel.app/images/favicon.png",
         "image": "https://sati-chatbot.vercel.app/images/preview.png",
-        "author": "Team FluxoNauts",
+        "author": "Team NeoCoders",
         "language": "en",
         "locale": "en_US",
         "theme_color": "#1a1a1a",
         "background_color": "#121212"
     },
     "organization": {
-        "name": "Team FluxoNauts",
+        "name": "Team NeoCoders",
         "type": "Organization",
         "url": "https://github.com/SAFAL-TIWARI/SATI-ChatBot",
         "logo": "https://sati-chatbot.vercel.app/images/preview.png",
@@ -27,7 +27,7 @@
     "pages": {
         "home": {
             "title": "SATI ChatBot - Your Institute Guide",
-            "description": "Get instant answers about SATI Vidisha - admissions, courses, placements, hostel facilities, and more. Your intelligent AI assistant for Samrat Ashok Technological Institute information.",
+            "description": "Get instant answers about SATI Vidisha - admissions, courses & more. Your AI assistant for institute information.",
             "keywords": "SATI ChatBot, SATI Vidisha, Samrat Ashok Technological Institute, AI chatbot, SATI admissions, SATI courses, SATI placements, engineering college Vidisha, Madhya Pradesh engineering, SATI hostel, SATI facilities, college information assistant",
             "url": "https://sati-chatbot.vercel.app/",
             "priority": 1.0,
@@ -35,24 +35,24 @@
         },
         "resources": {
             "title": "SATI Academic Resources - Notes, Assignments & Study Materials",
-            "description": "Access comprehensive academic resources for SATI students. Download notes, assignments, test papers, syllabus, and previous year questions for all engineering branches.",
+            "description": "Access comprehensive academic resources for SATI students. Download notes, assignments,& many more for all engineering branches.",
             "keywords": "SATI resources, SATI notes, SATI assignments, SATI syllabus, SATI previous year questions, engineering study materials, CSE notes, ECE notes, mechanical engineering resources",
             "url": "https://sati-chatbot.vercel.app/resources.html",
             "priority": 0.9,
             "changefreq": "weekly"
         },
         "about": {
-            "title": "About Team FluxoNauts - SATI ChatBot Developers",
-            "description": "Meet Team FluxoNauts, the student developers behind SATI ChatBot. Learn about our mission to enhance the educational experience at Samrat Ashok Technological Institute.",
-            "keywords": "Team FluxoNauts, SATI developers, SATI students, chatbot developers, AI development team",
+            "title": "About Team NeoCoders - SATI ChatBot Developers",
+            "description": "Meet Team NeoCoders, the student developers behind SATI ChatBot.",
+            "keywords": "Team NeoCoders, SATI developers, SATI students, chatbot developers, AI development team",
             "url": "https://sati-chatbot.vercel.app/about.html",
             "priority": 0.8,
             "changefreq": "monthly"
         },
         "contact": {
             "title": "Contact SATI ChatBot Team - Support & Feedback",
-            "description": "Get in touch with SATI ChatBot team by Team FluxoNauts. Contact us for support, feedback, feature requests, or inquiries about our AI-powered educational assistant.",
-            "keywords": "Contact SATI ChatBot, Team FluxoNauts contact, SATI ChatBot support, AI chatbot feedback, educational assistant support, SATI student help, technical support, feature requests",
+            "description": "Get in touch with SATI ChatBot team by Team NeoCoders.",
+            "keywords": "Contact SATI ChatBot, Team NeoCoders contact, SATI ChatBot support, AI chatbot feedback, educational assistant support, SATI student help, technical support, feature requests",
             "url": "https://sati-chatbot.vercel.app/contact.html",
             "priority": 0.7,
             "changefreq": "monthly"
@@ -105,7 +105,7 @@
         },
         "creator": {
             "@type": "Organization",
-            "name": "Team FluxoNauts",
+            "name": "Team NeoCoders",
             "url": "https://github.com/SAFAL-TIWARI/SATI-ChatBot"
         },
         "about": {

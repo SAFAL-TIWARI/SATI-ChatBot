@@ -110,8 +110,8 @@
         },
         {
             "platform": "play",
-            "url": "https://play.google.com/store/apps/details?id=com.fluxonauts.sati_chatbot",
-            "id": "com.fluxonauts.sati_chatbot"
+            "url": "https://play.google.com/store/apps/details?id=com.NeoCoders.sati_chatbot",
+            "id": "com.NeoCoders.sati_chatbot"
         }
     ],
     "prefer_related_applications": false,

@@ -196,7 +196,7 @@ cd android
 
 **Currently App devlopment is in progress :)**
 
-## 👥 Team FluxoNauts
+## 👥 Team NeoCoders
 
 **Team Members:**
 - [Safal Tiwari](https://github.com/SAFAL-TIWARI) - Frontend Development, Project Architecture
@@ -223,5 +223,5 @@ MIT License
 
 ---
 <div align="center">
-<b>Built with ❤️ by Team FluxoNauts</b>
+<b>Built with ❤️ by Team NeoCoders</b>
 </div>
