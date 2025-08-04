@@ -39,15 +39,17 @@
         content="Get instant answers about SATI Vidisha - admissions, courses, placements, hostel facilities, and more.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
 
-
-    <!-- Verification Tags (Add your actual verification codes) -->
-    <meta name="msvalidate.01" content="2AF756616067ED7120FD62B2A373205C" />
-    <meta name="p:domain_verify" content="887b10e3538b5001194d06d38b9fd41b" />
-    <meta name="yandex-verification" content="4cfae5e8f4da811b" />
-
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="msapplication-TileColor" content="#1a1a1a">
+    <meta name="application-name" content="SATI ChatBot">
+    <meta name="apple-mobile-web-app-title" content="SATI ChatBot">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-
+    
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -88,12 +90,12 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T9E17KXYQ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+        function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
+        
         // Original Google Analytics tag
         gtag('config', 'G-3D2G0PC62C');
-
+        
         // SATI Business Account Google Analytics tag
         gtag('config', 'G-7T9E17KXYQ');
     </script>
@@ -136,8 +138,8 @@
         "isAccessibleForFree": true,
         "browserRequirements": "Requires JavaScript. Requires HTML5.",
         "softwareVersion": "1.0",
-        "datePublished": "2024-07-18",
-        "dateModified": "2025-08-04",
+        "datePublished": "2024-01-01",
+        "dateModified": "2025-01-17"
     }
     </script>
 
@@ -164,8 +166,6 @@
 
     <!-- Glowing Effect Script -->
     <script src="glowing-effect.js"></script>
-
-
 
     <!-- Prevent theme flash by applying theme immediately -->
     <script>
@@ -369,12 +369,9 @@
                         <div class="input-actions">
                             <div class="input-actions-left">
                                 <button class="attachment-btn" id="attachmentBtn" title="Attach file">
-                                    <svg class="paperclip-icon" xmlns="http://www.w3.org/2000/svg" width="20"
-                                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="extra-line" d="M13.234 20.252 21 12.3" />
-                                        <path class="main-path"
-                                            d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486" />
+                                    <svg class="paperclip-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path class="extra-line" d="M13.234 20.252 21 12.3"/>
+                                        <path class="main-path" d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/>
                                     </svg>
                                 </button>
                                 <input type="file" id="txtFileInput" accept=".txt" multiple style="display:none" />
