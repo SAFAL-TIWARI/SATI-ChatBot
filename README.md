@@ -74,6 +74,10 @@ SATI-ChatBot/
 │   ├── gemini.js      # Gemini API endpoint
 │   ├── groq.js        # Groq API endpoint
 │   └── supabase-config.js # Database configuration
+|── resources/            # Academic resources folder
+│   ├──materials.html   # Materials page
+│   ├── materials.css       # Materials CSS stylesheet
+│   └── materials.js            # Materials JS scripts
 ├── android/           # Android WebView App
 │   ├── app/           # Android app source
 │   │   ├── src/main/  # Main source directory
