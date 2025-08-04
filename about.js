@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
             icon.className = 'fas fa-bars';
         });
 
-        // Close mobile menu when clicking on navigation links
-        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+        // Close mobile menu when clicking on navigation links (exclude dropdown toggle)
+        document.querySelectorAll('.mobile-nav-link:not(.mobile-dropdown-toggle)').forEach(link => {
             link.addEventListener('click', function () {
                 mobileNavMenu.classList.remove('show');
                 blurOverlay.classList.remove('show');
@@ -901,3 +901,176 @@ function setupSystemThemeListener() {
         mediaQuery.addListener(window.systemThemeListener);
     }
 }
+
+// Simple Navigation Dropdown with Dynamic Labels
+function initializeNavigationDropdown() {
+    // Handle dropdown item clicks for dynamic label changes
+    const dropdownItems = document.querySelectorAll('.dropdown-item:not(.disabled)');
+    const mobileDropdownItems = document.querySelectorAll('.mobile-dropdown-item:not(.disabled)');
+    
+    // Desktop dropdown items
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const itemText = this.textContent.trim();
+            const href = this.getAttribute('href');
+            
+            // Update the dropdown toggle text
+            updateDropdownLabel(itemText);
+            
+            // Navigate to the page
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+    
+    // Mobile dropdown items
+    mobileDropdownItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const itemText = this.textContent.trim();
+            const href = this.getAttribute('href');
+            
+            // Update the mobile dropdown toggle text
+            updateMobileDropdownLabel(itemText);
+            
+            // Close mobile menu after selection
+            closeMobileMenu();
+            
+            // Navigate to the page
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+    
+    // Mobile dropdown toggle functionality
+    initializeMobileDropdown();
+}
+
+// Initialize mobile dropdown functionality
+function initializeMobileDropdown() {
+    const mobileDropdownToggle = document.querySelector('.mobile-dropdown-toggle');
+    const mobileNavDropdown = document.querySelector('.mobile-nav-dropdown');
+    
+    if (mobileDropdownToggle && mobileNavDropdown) {
+        mobileDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle dropdown open/close
+            const isOpen = mobileNavDropdown.classList.contains('open');
+            
+            if (isOpen) {
+                // Close dropdown
+                mobileNavDropdown.classList.remove('open');
+            } else {
+                // Open dropdown
+                mobileNavDropdown.classList.add('open');
+            }
+            
+            // Rotate arrow icon
+            const arrow = this.querySelector('.mobile-dropdown-arrow');
+            if (arrow) {
+                if (mobileNavDropdown.classList.contains('open')) {
+                    arrow.style.transform = 'rotate(180deg)';
+                } else {
+                    arrow.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+    }
+}
+
+// Close mobile menu function
+function closeMobileMenu() {
+    const mobileMenu = document.getElementById('mobileNavMenu');
+    const blurOverlay = document.getElementById('blurOverlay');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
+    if (mobileMenu) {
+        mobileMenu.classList.remove('show');
+        document.body.classList.remove('mobile-menu-open');
+    }
+    
+    if (blurOverlay) {
+        blurOverlay.classList.remove('show');
+    }
+    
+    // Reset mobile menu toggle icon
+    if (mobileMenuToggle) {
+        const icon = mobileMenuToggle.querySelector('i');
+        if (icon) {
+            icon.className = 'fas fa-bars';
+        }
+    }
+}
+
+// Update desktop dropdown label
+function updateDropdownLabel(newLabel) {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    if (dropdownToggle) {
+        dropdownToggle.innerHTML = `${newLabel} <i class="fas fa-chevron-down"></i>`;
+    }
+}
+
+// Update mobile dropdown label
+function updateMobileDropdownLabel(newLabel) {
+    const mobileDropdownToggle = document.querySelector('.mobile-dropdown-toggle');
+    if (mobileDropdownToggle) {
+        const spanElement = mobileDropdownToggle.querySelector('span');
+        if (spanElement) {
+            spanElement.textContent = newLabel;
+        }
+    }
+}
+
+// Desktop dropdown delay functionality
+function initializeDesktopDropdownDelay() {
+    const navDropdown = document.querySelector('.nav-dropdown');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    let hideTimeout;
+
+    if (navDropdown && dropdownMenu) {
+        // Show dropdown on hover
+        navDropdown.addEventListener('mouseenter', function() {
+            // Clear any existing timeout
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
+            }
+            // Show dropdown immediately
+            dropdownMenu.classList.add('show');
+        });
+
+        // Hide dropdown with delay on mouse leave
+        navDropdown.addEventListener('mouseleave', function() {
+            // Set timeout to hide dropdown after 2 seconds
+            hideTimeout = setTimeout(() => {
+                dropdownMenu.classList.remove('show');
+            }, 500);
+        });
+
+        // If mouse enters dropdown menu, cancel hide timeout
+        dropdownMenu.addEventListener('mouseenter', function() {
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
+            }
+        });
+
+        // If mouse leaves dropdown menu, start hide timeout
+        dropdownMenu.addEventListener('mouseleave', function() {
+            hideTimeout = setTimeout(() => {
+                dropdownMenu.classList.remove('show');
+            }, 500);
+        });
+    }
+}
+
+// Initialize navigation dropdown
+initializeNavigationDropdown();
+
+// Initialize desktop dropdown delay
+initializeDesktopDropdownDelay();

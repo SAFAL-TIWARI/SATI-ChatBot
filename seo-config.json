@@ -37,7 +37,7 @@
             "title": "SATI Academic Resources - Notes, Assignments & Study Materials",
             "description": "Access comprehensive academic resources for SATI students. Download notes, assignments,& many more for all engineering branches.",
             "keywords": "SATI resources, SATI notes, SATI assignments, SATI syllabus, SATI previous year questions, engineering study materials, CSE notes, ECE notes, mechanical engineering resources",
-            "url": "https://sati-chatbot.vercel.app/resources.html",
+            "url": "https://sati-chatbot.vercel.app/resources/materials.html",
             "priority": 0.9,
             "changefreq": "weekly"
         },

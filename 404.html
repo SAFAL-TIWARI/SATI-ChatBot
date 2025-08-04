@@ -34,7 +34,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="resources.css">
+    <link rel="stylesheet" href="/resources/materials.css">
 
     <!-- Google Adsense -->
     <meta name="google-adsense-account" content="ca-pub-1178405148130113">
@@ -463,7 +463,13 @@
             </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="resources.html" class="nav-link">Resources</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Resources <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="resources/materials.html" class="dropdown-item">Materials</a>
+                        <a href="#" class="dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="contact.html" class="nav-link">Contact Us</a>
 
@@ -499,10 +505,17 @@
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
-                <a href="resources.html" class="mobile-nav-link">
-                    <i class="fas fa-book"></i>
-                    <span>Resources</span>
-                </a>
+                <div class="mobile-nav-dropdown">
+                    <a href="#" class="mobile-nav-link mobile-dropdown-toggle">
+                        <i class="fas fa-book"></i>
+                        <span>Resources</span>
+                        <i class="fas fa-chevron-down mobile-dropdown-arrow"></i>
+                    </a>
+                    <div class="mobile-dropdown-menu">
+                        <a href="resources/materials.html" class="mobile-dropdown-item">Materials</a>
+                        <a href="#" class="mobile-dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
                 <a href="about.html" class="mobile-nav-link">
                     <i class="fas fa-info-circle"></i>
                     <span>About</span>
@@ -542,9 +555,9 @@
                     <i class="fas fa-home"></i>
                     Go Home
                 </a>
-                <a href="resources.html" class="error-btn secondary">
+                <a href="resources/materials.html" class="error-btn secondary">
                     <i class="fas fa-book"></i>
-                    Browse Resources
+                    Browse Materials
                 </a>
             </div>
 
@@ -552,7 +565,7 @@
                 <h3><i class="fas fa-lightbulb"></i> What you can do:</h3>
                 <ul>
                     <li><a href="index.html">Chat with SATI AI Assistant</a> - Get instant answers about SATI</li>
-                    <li><a href="resources.html">Explore SATI Resources</a> - Find study materials and information</li>
+                    <li><a href="resources/materials.html">Explore SATI Materials</a> - Find study materials and information</li>
                     <li><a href="about.html">Learn About Us</a> - Discover how SATI ChatBot works</li>
                     <li><a href="contact.html">Contact Support</a> - Report this issue or get help</li>
                 </ul>
@@ -571,7 +584,7 @@
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="resources/materials.html">Materials</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>

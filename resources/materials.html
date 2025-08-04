@@ -4,34 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATI Resources - Study Materials, Syllabus & Academic Information | SATI ChatBot</title>
-    <link rel="shortcut icon" href="/images/favicon.png" type="image/png">
-    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources.html">
+    <title>SATI Materials - Study Materials, Syllabus & Academic Information | SATI ChatBot</title>
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png">
+    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/materials.html">
 
     <!-- Primary Meta Tags -->
-    <meta name="title" content="SATI Resources - Study Materials, Syllabus & Academic Information">
+    <meta name="title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
     <meta name="description"
-        content="Access comprehensive SATI resources including study materials, syllabus, academic calendar, placement information, hostel details, and more. Your one-stop resource hub for Samrat Ashok Technological Institute.">
+        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, hostel details, and more. Your one-stop materials hub for Samrat Ashok Technological Institute.">
     <meta name="keywords"
-        content="SATI resources, SATI study materials, SATI syllabus, SATI academic calendar, SATI placement information, SATI hostel details, engineering resources Vidisha, SATI student resources, academic information SATI">
+        content="SATI materials, SATI study materials, SATI syllabus, SATI academic calendar, SATI placement information, SATI hostel details, engineering materials Vidisha, SATI student materials, academic information SATI">
     <meta name="author" content="Team NeoCoders">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources.html">
-    <meta property="og:title" content="SATI Resources - Study Materials, Syllabus & Academic Information">
+    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/materials.html">
+    <meta property="og:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
     <meta property="og:description"
-        content="Access comprehensive SATI resources including study materials, syllabus, academic calendar, placement information, and more.">
+        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, and more.">
     <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <meta property="og:site_name" content="SATI ChatBot">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources.html">
-    <meta name="twitter:title" content="SATI Resources - Study Materials, Syllabus & Academic Information">
+    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/materials.html">
+    <meta name="twitter:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
     <meta name="twitter:description"
-        content="Access comprehensive SATI resources including study materials, syllabus, academic calendar, and more.">
+        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, and more.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -75,7 +75,7 @@
     </script>
     <!-- End Google Analytics 4 -->
 
-    <link rel="stylesheet" href="resources.css">
+    <link rel="stylesheet" href="/resources/materials.css">
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -139,15 +139,21 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="nav-logo">
+            <a href="../index.html" class="nav-logo">
                 <i class="fas fa-robot"></i>
                 <span>SATI ChatBot</span>
             </a>
             <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="resources.html" class="nav-link active">Resources</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="contact.html" class="nav-link">Contact Us</a>
+                <a href="../index.html" class="nav-link">Home</a>
+                <div class="nav-dropdown">
+                    <span class="dropdown-toggle active">Materials <i class="fas fa-chevron-down"></i></span>
+                    <div class="dropdown-menu">
+                        <a href="materials.html" class="dropdown-item active">Materials</a>
+                        <a href="#" class="dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
+                <a href="../about.html" class="nav-link">About</a>
+                <a href="../contact.html" class="nav-link">Contact Us</a>
 
                 <label class="theme-switch">
                     <input type="checkbox" class="theme-switch__checkbox" id="darkModeToggle">
@@ -177,19 +183,26 @@
             </div>
             <!-- Mobile Navigation Menu -->
             <div class="mobile-nav-menu" id="mobileNavMenu">
-                <a href="index.html" class="mobile-nav-link">
+                <a href="../index.html" class="mobile-nav-link">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
-                <a href="resources.html" class="mobile-nav-link active">
-                    <i class="fas fa-book"></i>
-                    <span>Resources</span>
-                </a>
-                <a href="about.html" class="mobile-nav-link">
+                <div class="mobile-nav-dropdown">
+                    <div class="mobile-nav-link active mobile-dropdown-toggle">
+                        <i class="fas fa-book"></i>
+                        <span>Materials</span>
+                        <i class="fas fa-chevron-down mobile-dropdown-arrow"></i>
+                    </div>
+                    <div class="mobile-dropdown-menu">
+                        <a href="materials.html" class="mobile-dropdown-item active">Materials</a>
+                        <a href="#" class="mobile-dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
+                <a href="../about.html" class="mobile-nav-link">
                     <i class="fas fa-info-circle"></i>
                     <span>About</span>
                 </a>
-                <a href="contact.html" class="mobile-nav-link">
+                <a href="../contact.html" class="mobile-nav-link">
                     <i class="fas fa-envelope"></i>
                     <span>Contact Us</span>
                 </a>
@@ -364,17 +377,18 @@
             <div class="footer-section">
                 <h3>Quick Links</h3>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="resources.html">Resources</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="/resources/materials.html">Materials</a></li>
+                    <li><a href="/resources/programming.html">Programming</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h3>Legal</h3>
                 <ul>
-                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                    <li><a href="terms-of-service.html">Terms of Service</a></li>
+                    <li><a href="../privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="../terms-of-service.html">Terms of Service</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -426,7 +440,8 @@
         </div>
     </div>
 
-    <script src="resources.js"></script>
+
+    <script src="materials.js"></script>
 
 </body>
 

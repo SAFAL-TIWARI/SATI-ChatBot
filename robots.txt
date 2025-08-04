@@ -106,7 +106,7 @@ Allow: /images/
 # Allow Main Pages
 Allow: /index.html
 Allow: /about.html
-Allow: /resources.html
+Allow: /resources/materials.html
 Allow: /contact.html
 Allow: /privacy-policy.html
 Allow: /terms-of-service.html

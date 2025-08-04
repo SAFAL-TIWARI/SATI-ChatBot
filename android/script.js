@@ -5653,7 +5653,7 @@ function initializeEventListeners() {
     if (elements.resourcesBtn) {
         elements.resourcesBtn.addEventListener('click', () => {
             // Redirect to resources page
-            window.location.href = 'resources.html';
+            window.location.href = 'resources/materials.html';
 
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {

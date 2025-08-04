@@ -35,7 +35,7 @@
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="resources.css">
+    <link rel="stylesheet" href="/resources/materials.css">
     <link rel="stylesheet" href="contact.css">
 
     <!-- Glowing Effect Styles -->
@@ -138,7 +138,13 @@
             </a>
             <div class="nav-menu">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="resources.html" class="nav-link">Resources</a>
+                <div class="nav-dropdown">
+                    <span class="dropdown-toggle">Resources <i class="fas fa-chevron-down"></i></span>
+                    <div class="dropdown-menu">
+                        <a href="resources/materials.html" class="dropdown-item">Materials</a>
+                        <a href="#" class="dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="contact.html" class="nav-link active">Contact Us</a>
 
@@ -174,10 +180,17 @@
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
-                <a href="resources.html" class="mobile-nav-link">
-                    <i class="fas fa-book"></i>
-                    <span>Resources</span>
-                </a>
+                <div class="mobile-nav-dropdown">
+                    <a href="#" class="mobile-nav-link mobile-dropdown-toggle">
+                        <i class="fas fa-book"></i>
+                        <span>Resources</span>
+                        <i class="fas fa-chevron-down mobile-dropdown-arrow"></i>
+                    </a>
+                    <div class="mobile-dropdown-menu">
+                        <a href="resources/materials.html" class="mobile-dropdown-item">Materials</a>
+                        <a href="#" class="mobile-dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                    </div>
+                </div>
                 <a href="about.html" class="mobile-nav-link">
                     <i class="fas fa-info-circle"></i>
                     <span>About</span>
@@ -397,7 +410,7 @@
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="resources.html">Resources</a></li>
+                    <li><a href="resources/materials.html">Materials</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>

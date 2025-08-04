@@ -80,7 +80,7 @@
             "name": "Academic Resources",
             "short_name": "Resources",
             "description": "Access study materials and resources",
-            "url": "/resources.html",
+            "url": "/resources/materials.html",
             "icons": [
                 {
                     "src": "/images/favicon.png",
