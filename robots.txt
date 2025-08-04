@@ -34,32 +34,6 @@ User-agent: YandexBot
 Allow: /
 Crawl-delay: 1
 
-# Brave Search Engine
-User-agent: brave-search
-Allow: /
-Crawl-delay: 1
-
-# Additional Search Engines
-User-agent: Applebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: CCBot
-Allow: /
-Crawl-delay: 1
-
-User-agent: ChatGPT-User
-Allow: /
-Crawl-delay: 1
-
-User-agent: GPTBot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Claude-Web
-Allow: /
-Crawl-delay: 1
-
 # Social Media Crawlers
 User-agent: facebookexternalhit
 Allow: /
