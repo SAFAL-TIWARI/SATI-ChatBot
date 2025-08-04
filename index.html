@@ -46,10 +46,41 @@
     <meta name="apple-mobile-web-app-title" content="SATI ChatBot">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+
+    <!-- Enhanced SEO Meta Tags -->
+    <meta name="geo.region" content="IN-MP">
+    <meta name="geo.placename" content="Vidisha, Madhya Pradesh">
+    <meta name="geo.position" content="23.5251;77.8081">
+    <meta name="ICBM" content="23.5251, 77.8081">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <meta name="referrer" content="origin-when-cross-origin">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+
+    <!-- Search Engine Specific Tags -->
+    <meta name="googlebot" content="index,follow,snippet,archive">
+    <meta name="bingbot" content="index,follow,snippet,archive">
+    <meta name="slurp" content="index,follow,snippet,archive">
+    <meta name="duckduckbot" content="index,follow,snippet,archive">
+    <meta name="brave-search" content="index,follow,snippet,archive">
+
+    <!-- Content Classification -->
+    <meta name="category" content="Education, Technology, AI, Chatbot">
+    <meta name="coverage" content="Worldwide">
+    <meta name="target" content="Students, Faculty, Educational Institutions">
+    <meta name="audience" content="Students, Educators, Researchers">
+    <meta name="subject" content="Educational Technology, AI Assistant, Institute Information">
+
+    <!-- Verification Tags (Add your actual verification codes) -->
+    <meta name="msvalidate.01" content="2AF756616067ED7120FD62B2A373205C" />
+    <meta name="p:domain_verify" content="887b10e3538b5001194d06d38b9fd41b" />
+    <meta name="yandex-verification" content="4cfae5e8f4da811b" />
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-    
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -90,12 +121,12 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T9E17KXYQ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        
+
         // Original Google Analytics tag
         gtag('config', 'G-3D2G0PC62C');
-        
+
         // SATI Business Account Google Analytics tag
         gtag('config', 'G-7T9E17KXYQ');
     </script>
@@ -138,8 +169,8 @@
         "isAccessibleForFree": true,
         "browserRequirements": "Requires JavaScript. Requires HTML5.",
         "softwareVersion": "1.0",
-        "datePublished": "2024-01-01",
-        "dateModified": "2025-01-17"
+        "datePublished": "2024-07-18",
+        "dateModified": "2025-08-04",
     }
     </script>
 
@@ -369,9 +400,12 @@
                         <div class="input-actions">
                             <div class="input-actions-left">
                                 <button class="attachment-btn" id="attachmentBtn" title="Attach file">
-                                    <svg class="paperclip-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="extra-line" d="M13.234 20.252 21 12.3"/>
-                                        <path class="main-path" d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/>
+                                    <svg class="paperclip-icon" xmlns="http://www.w3.org/2000/svg" width="20"
+                                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path class="extra-line" d="M13.234 20.252 21 12.3" />
+                                        <path class="main-path"
+                                            d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486" />
                                     </svg>
                                 </button>
                                 <input type="file" id="txtFileInput" accept=".txt" multiple style="display:none" />
