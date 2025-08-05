@@ -70,12 +70,12 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T9E17KXYQ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        
+
         // Original Google Analytics tag
         gtag('config', 'G-3D2G0PC62C');
-        
+
         // SATI Business Account Google Analytics tag
         gtag('config', 'G-7T9E17KXYQ');
     </script>
@@ -138,7 +138,8 @@
                     <a href="#" class="nav-link dropdown-toggle">Resources <i class="fas fa-chevron-down"></i></a>
                     <div class="dropdown-menu">
                         <a href="resources/materials.html" class="dropdown-item">Materials</a>
-                        <a href="#" class="dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                        <a href="#" class="dropdown-item disabled">Programming <span class="coming-soon">(Coming
+                                Soon)</span></a>
                     </div>
                 </div>
                 <a href="about.html" class="nav-link active">About</a>
@@ -184,7 +185,8 @@
                     </a>
                     <div class="mobile-dropdown-menu">
                         <a href="resources/materials.html" class="mobile-dropdown-item">Materials</a>
-                        <a href="#" class="mobile-dropdown-item disabled">Programming <span class="coming-soon">(Coming Soon)</span></a>
+                        <a href="#" class="mobile-dropdown-item disabled">Programming <span class="coming-soon">(Coming
+                                Soon)</span></a>
                     </div>
                 </div>
                 <a href="about.html" class="mobile-nav-link active">
@@ -762,7 +764,8 @@
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="resources/materials.html">Materials</a></li>
+                    <li><a href="/resources/materials.html">Materials</a></li>
+                    <li><a href="/resources/programming.html">Programming</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
@@ -777,10 +780,11 @@
             <div class="footer-section">
                 <h3>Connect with Us</h3>
                 <div class="social-links">
-                    <a href="https://www.instagram.com/itz_safal_/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.instagram.com/sati_chatbot/" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
                             class="fab fa-linkedin"></i></a>
-                    <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://github.com/SAFAL-TIWARI/SATI-ChatBot" target="_blank"><i
+                            class="fab fa-github"></i></a>
                 </div>
             </div>
         </div>
@@ -791,44 +795,6 @@
 
     <script src="script.js"></script>
     <script src="about.js"></script>
-
-    <!-- Smooth Scroll with Lenis and ScrollTrigger -->
-    <script>
-        // Initialize Lenis smooth scroll
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
-
-        // Register ScrollTrigger plugin
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Animation loop
-        function raf(time) {
-            lenis.raf(time);
-            ScrollTrigger.update();
-            requestAnimationFrame(raf);
-        }
-
-        requestAnimationFrame(raf);
-
-        // Pin animation
-        const section1 = document.body.querySelector('.section-1');
-        const box = document.body.querySelector('.box');
-
-        if (section1 && box) {
-            const tl = gsap.timeline({ paused: true });
-            tl.fromTo(box, { y: 0 }, { y: '100vh', duration: 1, ease: 'none' }, 0);
-
-            const st = ScrollTrigger.create({
-                animation: tl,
-                trigger: section1,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true
-            });
-        }
-    </script>
 
     <!-- Smooth Cursor Script -->
     <script src="smooth-cursor.js"></script>
