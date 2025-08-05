@@ -270,6 +270,171 @@ document.addEventListener('click', function (event) {
     }
 });
 
+
+//  Auto Redirect with Toast Countdown Script 
+
+        // Toast notification system
+        class ToastManager {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+                this.toasts = [];
+            }
+
+            show(options = {}) {
+                const {
+                    title = 'Notification',
+                    message = '',
+                    icon = 'fas fa-info-circle',
+                    duration = 5000,
+                    closable = true,
+                    onClose = null
+                } = options;
+
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                
+                toast.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="toast-content">
+                        <div class="toast-title">${title}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    ${closable ? '<button class="toast-close" aria-label="Close"><i class="fas fa-times"></i></button>' : ''}
+                `;
+
+                this.container.appendChild(toast);
+                this.toasts.push(toast);
+
+                // Show animation
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+
+                // Close button functionality
+                if (closable) {
+                    const closeBtn = toast.querySelector('.toast-close');
+                    closeBtn.addEventListener('click', () => {
+                        this.hide(toast, onClose);
+                    });
+                }
+
+                // Auto hide
+                if (duration > 0) {
+                    setTimeout(() => {
+                        this.hide(toast, onClose);
+                    }, duration);
+                }
+
+                return toast;
+            }
+
+            hide(toast, callback = null) {
+                if (!toast || !toast.parentNode) return;
+
+                toast.classList.add('hide');
+                
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                    
+                    const index = this.toasts.indexOf(toast);
+                    if (index > -1) {
+                        this.toasts.splice(index, 1);
+                    }
+
+                    if (callback) callback();
+                }, 300);
+            }
+
+            updateMessage(toast, message) {
+                const messageElement = toast.querySelector('.toast-message');
+                if (messageElement) {
+                    messageElement.innerHTML = message;
+                }
+            }
+        }
+
+        // Initialize toast manager
+        const toastManager = new ToastManager();
+
+        // Auto redirect functionality
+        function startAutoRedirect() {
+            let countdown = 5;
+            let redirectTimer;
+            let countdownInterval;
+
+            // Show initial toast
+            const toast = toastManager.show({
+                title: 'Auto Redirect',
+                message: `Redirecting to Home page in <span class="toast-countdown">${countdown}</span> seconds`,
+                icon: 'fas fa-home',
+                duration: 0, // Don't auto-hide
+                closable: true,
+                onClose: () => {
+                    // Clear timers if user closes the toast
+                    clearTimeout(redirectTimer);
+                    clearInterval(countdownInterval);
+                }
+            });
+
+            // Update countdown every second
+            countdownInterval = setInterval(() => {
+                countdown--;
+                
+                if (countdown > 0) {
+                    toastManager.updateMessage(toast, 
+                        `Redirecting to Home page in <span class="toast-countdown">${countdown}</span> seconds`
+                    );
+                } else {
+                    clearInterval(countdownInterval);
+                    toastManager.updateMessage(toast, 
+                        'Redirecting to Home page now...'
+                    );
+                }
+            }, 1000);
+
+            // Redirect after 5 seconds
+            redirectTimer = setTimeout(() => {
+                // Add a smooth transition effect
+                document.body.style.opacity = '0.8';
+                document.body.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 300);
+            }, 5000);
+        }
+
+        // Start auto redirect when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for page animations to complete
+            setTimeout(() => {
+                startAutoRedirect();
+            }, 2000); // Start after 2 seconds to let user see the 404 page first
+        });
+
+        // Pause redirect on user interaction
+        let userInteracted = false;
+        const interactionEvents = ['click', 'keydown', 'scroll', 'mousemove'];
+        
+        function handleUserInteraction() {
+            if (!userInteracted) {
+                userInteracted = true;
+                // Remove event listeners after first interaction
+                interactionEvents.forEach(event => {
+                    document.removeEventListener(event, handleUserInteraction);
+                });
+            }
+        }
+
+        // Add interaction listeners
+        interactionEvents.forEach(event => {
+            document.addEventListener(event, handleUserInteraction, { passive: true });
+        });
+    
 // Add loading animation for external links
 document.addEventListener('click', function (event) {
     if (event.target.matches('a[href^="http"]') && event.target.target === '_blank') {
