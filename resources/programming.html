@@ -4,34 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATI Materials - Study Materials, Syllabus & Academic Information | SATI ChatBot</title>
+    <title>SATI Programming - Code Editor & Practice Hub | SATI ChatBot</title>
     <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
-    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/materials.html">
+    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/programming.html">
 
     <!-- Primary Meta Tags -->
-    <meta name="title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+    <meta name="title" content="SATI Programming - Code Editor & Practice Hub">
     <meta name="description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, hostel details, and more.">
+        content="Practice programming with SATI's interactive code editor. Write, run, and debug code in multiple languages.">
     <meta name="keywords"
-        content="SATI materials, SATI study materials, SATI syllabus, SATI academic calendar, SATI placement information, SATI hostel details, engineering materials Vidisha, SATI student materials, academic information SATI">
+        content="SATI programming, code editor, online compiler, programming practice, Python editor, C++ compiler, Java IDE, JavaScript editor, coding practice SATI, programming hub Vidisha">
     <meta name="author" content="Team NeoCoders">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/materials.html">
-    <meta property="og:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/programming.html">
+    <meta property="og:title" content="SATI Programming - Code Editor & Practice Hub">
     <meta property="og:description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, and more.">
+        content="Practice programming with SATI's interactive code editor. Write, run, and debug code in multiple languages.">
     <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <meta property="og:site_name" content="SATI ChatBot">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/materials.html">
-    <meta name="twitter:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/programming.html">
+    <meta name="twitter:title" content="SATI Programming - Code Editor & Practice Hub">
     <meta name="twitter:description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, and more.">
+        content="Practice programming with SATI's interactive code editor. Write, run, and debug code in multiple languages.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -64,18 +64,21 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T9E17KXYQ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        
+
         // Original Google Analytics tag
         gtag('config', 'G-3D2G0PC62C');
-        
+
         // SATI Business Account Google Analytics tag
         gtag('config', 'G-7T9E17KXYQ');
     </script>
     <!-- End Google Analytics 4 -->
 
-    <link rel="stylesheet" href="/resources/materials.css">
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+    <link rel="stylesheet" href="/resources/programming.css">
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -146,10 +149,10 @@
             <div class="nav-menu">
                 <a href="../index.html" class="nav-link">Home</a>
                 <div class="nav-dropdown">
-                    <span class="dropdown-toggle active">Materials <i class="fas fa-chevron-down"></i></span>
+                    <span class="dropdown-toggle active">Programming <i class="fas fa-chevron-down"></i></span>
                     <div class="dropdown-menu">
-                        <a href="/resources/materials.html" class="dropdown-item active">Materials</a>
-                        <a href="/resources/programming.html" class="dropdown-item">Programming</a>
+                        <a href="/resources/materials.html" class="dropdown-item">Materials</a>
+                        <a href="/resources/programming.html" class="dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../about.html" class="nav-link">About</a>
@@ -189,13 +192,13 @@
                 </a>
                 <div class="mobile-nav-dropdown">
                     <div class="mobile-nav-link active mobile-dropdown-toggle">
-                        <i class="fas fa-book"></i>
-                        <span>Materials</span>
+                        <i class="fas fa-code"></i>
+                        <span>Programming</span>
                         <i class="fas fa-chevron-down mobile-dropdown-arrow"></i>
                     </div>
                     <div class="mobile-dropdown-menu">
-                        <a href="/resources/materials.html" class="mobile-dropdown-item active">Materials</a>
-                        <a href="/resources/programming.html" class="mobile-dropdown-item">Programming</a>
+                        <a href="materials.html" class="mobile-dropdown-item">Materials</a>
+                        <a href="programming.html" class="mobile-dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../about.html" class="mobile-nav-link">
@@ -221,148 +224,115 @@
                 <h2>Resources</h2>
             </div>
             <div class="sidebar-menu">
-                <div class="menu-item active" data-category="notes">
+                <div class="menu-item disabled" data-category="notes">
                     <i class="fas fa-sticky-note"></i>
                     <span>Notes</span>
+                    <span class="coming-soon-badge">Soon</span>
                 </div>
-                <div class="menu-item" data-category="practical">
-                    <i class="fas fa-laptop-code"></i>
-                    <span>Practical Assignment</span>
+                <div class="menu-item active" data-category="practice">
+                    <i class="fas fa-code"></i>
+                    <span>Practice</span>
                 </div>
-                <div class="menu-item" data-category="test-papers">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Test Papers</span>
+                <div class="menu-item disabled" data-category="components">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>Components</span>
+                    <span class="coming-soon-badge">Soon</span>
                 </div>
-                <div class="menu-item dropdown-item" data-category="syllabus">
-                    <i class="fas fa-book"></i>
-                    <span>Syllabus</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                </div>
-                <div class="sidebar-dropdown-content" id="syllabusDropdown">
-                    <div class="sub-menu-item" data-branch="cse" data-category="syllabus">
-                        <i class="fas fa-code"></i>
-                        <span>CSE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ec" data-category="syllabus">
-                        <i class="fas fa-microchip"></i>
-                        <span>ECE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="me" data-category="syllabus">
-                        <i class="fas fa-cogs"></i>
-                        <span>ME</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ee" data-category="syllabus">
-                        <i class="fas fa-bolt"></i>
-                        <span>EE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ce" data-category="syllabus">
-                        <i class="fas fa-building"></i>
-                        <span>CE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="iot" data-category="syllabus">
-                        <i class="fas fa-wifi"></i>
-                        <span>IoT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="it" data-category="syllabus">
-                        <i class="fas fa-laptop"></i>
-                        <span>IT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="bct" data-category="syllabus">
-                        <i class="fas fa-broadcast-tower"></i>
-                        <span>BCT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiads" data-category="syllabus">
-                        <i class="fas fa-brain"></i>
-                        <span>AIADS</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiaml" data-category="syllabus">
-                        <i class="fas fa-robot"></i>
-                        <span>AIAML</span>
-                    </div>
-                </div>
-                <div class="menu-item dropdown-item" data-category="pyqs">
+                <div class="menu-item disabled" data-category="practice-questions">
                     <i class="fas fa-question-circle"></i>
-                    <span>PYQs</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                </div>
-                <div class="sidebar-dropdown-content" id="pyqsDropdown">
-                    <div class="sub-menu-item" data-branch="cse" data-category="pyqs">
-                        <i class="fas fa-code"></i>
-                        <span>CSE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ec" data-category="pyqs">
-                        <i class="fas fa-microchip"></i>
-                        <span>ECE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="me" data-category="pyqs">
-                        <i class="fas fa-cogs"></i>
-                        <span>ME</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ee" data-category="pyqs">
-                        <i class="fas fa-bolt"></i>
-                        <span>EE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ce" data-category="pyqs">
-                        <i class="fas fa-building"></i>
-                        <span>CE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="iot" data-category="pyqs">
-                        <i class="fas fa-wifi"></i>
-                        <span>IoT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="it" data-category="pyqs">
-                        <i class="fas fa-laptop"></i>
-                        <span>IT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="bct" data-category="pyqs">
-                        <i class="fas fa-broadcast-tower"></i>
-                        <span>BCT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiads" data-category="pyqs">
-                        <i class="fas fa-brain"></i>
-                        <span>AIADS</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiaml" data-category="pyqs">
-                        <i class="fas fa-robot"></i>
-                        <span>AIAML</span>
-                    </div>
+                    <span>Practice Questions</span>
+                    <span class="coming-soon-badge">Soon</span>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Preview Container -->
-        <main class="main-preview">
-            <div class="preview-header">
-                <h1 id="previewTitle">Object Oriented Programming - Notes</h1>
-            </div>
-            <div class="preview-container">
-                <div class="loading-overlay" id="loadingOverlay" style="display:none;"></div>
-                <div class="loading-spinner" id="loadingSpinner">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading preview...</p>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Code Editor Section -->
+            <div class="editor-section">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <h2 id="editorTitle">Coding in JavaScript</h2>
+                    </div>
+                    <div class="language-selector">
+                        <select id="languageSelect">
+                            <option value="c">C</option>
+                            <option value="cpp">C++</option>
+                            <option value="python">Python</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="java">Java</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="ruby">Ruby</option>
+                            <option value="php">PHP</option>
+                            <option value="swift">Swift</option>
+                            <option value="kotlin">Kotlin</option>
+                            <option value="go">Go</option>
+                            <option value="rust">Rust</option>
+                        </select>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="btn btn-run" id="runBtn">
+                            <i class="fas fa-play"></i>
+                            Run
+                        </button>
+                        <button class="btn btn-download" id="downloadBtn">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                        <button class="btn btn-copy" id="copyBtn">
+                            <i class="fas fa-copy"></i>
+                            Copy
+                        </button>
+                        <button class="btn btn-fullscreen" id="fullscreenBtn">
+                            <i class="fas fa-expand"></i>
+                            Full
+                        </button>
+                    </div>
                 </div>
-                <iframe id="pdfPreview" src="" frameborder="0"></iframe>
+                <div class="editor-container">
+                    <div id="monacoEditor"></div>
+                </div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="downloadBtn">
-                    <i class="fas fa-download"></i>
-                    Download PDF
-                </button>
-                <button class="btn btn-secondary" id="shareBtn">
-                    <i class="fas fa-share"></i>
-                    Share PDF
-                </button>
+
+            <!-- Terminal Section -->
+            <div class="terminal-section">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <i class="fas fa-terminal"></i>
+                        <span>Interactive Terminal</span>
+                    </div>
+                    <div class="terminal-actions">
+                        <button class="btn btn-clear" id="clearTerminalBtn">
+                            <i class="fas fa-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="terminal-container">
+                    <div id="terminal">
+                        <div class="terminal-output"></div>
+                        <div class="terminal-input-line">
+                            <span class="terminal-prompt">sati@programming:~$ </span>
+                            <input type="text" id="terminalInput" class="terminal-input" placeholder="Type your command here..." autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
         <!-- Right Sidebar -->
         <aside class="right-sidebar">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search resources...">
-                <i class="fas fa-search"></i>
+            <div class="sidebar-header">
+                <h3>Right Sidebar</h3>
             </div>
-            <div class="resource-list" id="resourceList">
-                <!-- Dynamic content will be loaded here -->
+            <div class="sidebar-content">
+                <div class="placeholder-content">
+                    <i class="fas fa-tools"></i>
+                    <p>Under Construction</p>
+                    <small>More features coming soon!</small>
+                </div>
             </div>
         </aside>
     </div>
@@ -394,10 +364,12 @@
             <div class="footer-section">
                 <h3>Connect with Us</h3>
                 <div class="social-links">
-                    <a href="https://www.instagram.com/sati_chatbot/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.instagram.com/sati_chatbot/" target="_blank"><i
+                            class="fab fa-instagram"></i></a>
                     <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank"><i
                             class="fab fa-linkedin"></i></a>
-                    <a href="https://github.com/SAFAL-TIWARI/SATI-ChatBot" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://github.com/SAFAL-TIWARI/SATI-ChatBot" target="_blank"><i
+                            class="fab fa-github"></i></a>
                 </div>
             </div>
         </div>
@@ -406,43 +378,7 @@
         </div>
     </footer>
 
-    <!-- Share Modal -->
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Share Resource</h3>
-                <span class="close" id="closeModal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Share this resource with others:</p>
-                <div class="share-link-container">
-                    <input type="text" id="shareLink" readonly>
-                    <button class="btn btn-primary" id="copyLinkBtn">
-                        <i class="fas fa-copy"></i>
-                        Copy
-                    </button>
-                </div>
-                <div class="share-options">
-                    <button class="share-btn whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                        WhatsApp
-                    </button>
-                    <button class="share-btn telegram">
-                        <i class="fab fa-telegram"></i>
-                        Telegram
-                    </button>
-                    <button class="share-btn email">
-                        <i class="fas fa-envelope"></i>
-                        Email
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <script src="materials.js"></script>
-
+    <script src="/resources/programming.js"></script>
 </body>
 
 </html>
