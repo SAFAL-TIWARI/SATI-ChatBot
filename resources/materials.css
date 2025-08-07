@@ -1154,7 +1154,7 @@ body {
 .mobile-nav-link.active {
     background: rgba(25, 118, 210, 0.15);
     color: var(--primary-color);
-    transform: translateX(5px);
+    transform: translateX(0);
     border-left: 4px solid var(--primary-color);
     font-weight: 600;
 }
@@ -1255,6 +1255,7 @@ body {
     color: var(--primary-color);
     background: rgba(25, 118, 210, 0.15);
     border-left: 4px solid var(--primary-color);
+    transform: translateX(3px);
     font-weight: 600;
 }
 

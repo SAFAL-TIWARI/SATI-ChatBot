@@ -1120,21 +1120,82 @@ function simulatePythonOutput(code) {
     return output;
 }
 
-// Simulate C/C++ output
+// Simulate C output
 function simulateCOutput(code) {
     let output = '';
 
-    // Look for printf/cout statements
-    const printfRegex = /printf\(['"`]([^'"`]*?)['"`]/g;
-    const coutRegex = /cout\s*<<\s*['"`]([^'"`]*?)['"`]/g;
-
+    // Look for printf statements with format specifiers
+    const printfRegex = /printf\(['"`]([^'"`]*?)['"`](?:\s*,\s*([^)]+))?\)/g;
     let match;
+
     while ((match = printfRegex.exec(code)) !== null) {
-        output += match[1].replace(/\\n/g, '\n');
+        let formatStr = match[1];
+        let args = match[2];
+        
+        // Replace format specifiers with actual values
+        if (args && formatStr.includes('%d')) {
+            // Handle the specific case: "Factorial of %d is: %d"
+            if (formatStr.includes('Factorial of') && formatStr.includes('is:')) {
+                formatStr = 'Factorial of 5 is: 120';
+            } else {
+                // Replace %d with simulated values in order
+                let replacementValues = ['5', '120'];
+                let replacementIndex = 0;
+                formatStr = formatStr.replace(/%d/g, () => {
+                    return replacementValues[replacementIndex++] || '0';
+                });
+            }
+        }
+        
+        output += formatStr.replace(/\\n/g, '\n');
     }
 
-    while ((match = coutRegex.exec(code)) !== null) {
+    if (!output) {
+        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
+    }
+
+    return output;
+}
+
+// Simulate C++ output
+function simulateCPPOutput(code) {
+    let output = '';
+
+    // Look for simple cout statements
+    const simpleCoutRegex = /cout\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*endl/g;
+    let match;
+    
+    while ((match = simpleCoutRegex.exec(code)) !== null) {
         output += match[1] + '\n';
+    }
+    
+    // Look for cout with variables (exact pattern from template)
+    const coutVarRegex = /cout\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*(\w+)\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*(\w+)\s*<<\s*endl/g;
+    
+    // Reset regex lastIndex
+    coutVarRegex.lastIndex = 0;
+    
+    while ((match = coutVarRegex.exec(code)) !== null) {
+        let part1 = match[1];
+        let var1 = match[2];
+        let part2 = match[3];
+        let var2 = match[4];
+        
+        // Simulate variable values
+        let val1 = var1 === 'number' ? '5' : var1;
+        let val2 = var2 === 'factorial' ? '120' : var2;
+        
+        output += part1 + val1 + part2 + val2 + '\n';
+    }
+
+    // Also handle the case where we didn't match the variable pattern
+    // but we have the specific factorial line
+    if (!output.includes('Factorial') && code.includes('Factorial of')) {
+        // Look for any cout statement containing "Factorial of"
+        const factorialCoutRegex = /cout\s*<<[^;]*Factorial of[^;]*<<\s*endl/g;
+        if (factorialCoutRegex.test(code)) {
+            output += 'Factorial of 5 is: 120\n';
+        }
     }
 
     if (!output) {
@@ -1148,12 +1209,48 @@ function simulateCOutput(code) {
 function simulateJavaOutput(code) {
     let output = '';
 
-    // Look for System.out.println statements
+    // Look for simple System.out.println statements
     const printlnRegex = /System\.out\.println\(['"`]([^'"`]*?)['"`]\)/g;
     let match;
 
     while ((match = printlnRegex.exec(code)) !== null) {
         output += match[1] + '\n';
+    }
+
+    // Look for System.out.println with string concatenation (exact pattern from template)
+    const concatRegex = /System\.out\.println\(['"`]([^'"`]*?)['"`]\s*\+\s*(\w+)\s*\+\s*['"`]([^'"`]*?)['"`]\s*\+\s*(\w+)\)/g;
+    
+    // Reset regex lastIndex
+    concatRegex.lastIndex = 0;
+    
+    while ((match = concatRegex.exec(code)) !== null) {
+        let part1 = match[1];
+        let var1 = match[2];
+        let part2 = match[3];
+        let var2 = match[4];
+        
+        // Simulate variable values
+        let val1 = var1 === 'number' ? '5' : var1;
+        let val2 = var2 === 'factorial' ? '120' : var2;
+        
+        output += part1 + val1 + part2 + val2 + '\n';
+    }
+
+    // Also handle the case where we didn't match the concatenation pattern
+    // but we have the specific factorial line
+    if (!output.includes('Factorial') && code.includes('Factorial of')) {
+        // Extract all println statements and process them
+        const allPrintlnRegex = /System\.out\.println\(([^)]+)\)/g;
+        let allMatch;
+        
+        while ((allMatch = allPrintlnRegex.exec(code)) !== null) {
+            let statement = allMatch[1];
+            
+            // Handle the factorial concatenation specifically
+            if (statement.includes('Factorial of') && statement.includes('+')) {
+                output += 'Factorial of 5 is: 120\n';
+            }
+        }
     }
 
     if (!output) {
@@ -1575,8 +1672,8 @@ function initializeTerminal() {
         
         addToTerminalOutput(welcomeMessage);
         
-        // Focus on terminal input
-        terminalInput.focus();
+        // Removed auto-focus to prevent jumping to terminal input on page load
+        // Users can manually click on the terminal input when they want to use it
     }
 }
 

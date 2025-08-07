@@ -2185,36 +2185,15 @@ window.showComingSoon = showComingSoon;
 
 // Navigation Dropdown Functionality
 function initializeDropdownFunctionality() {
-    // Mobile dropdown toggle functionality
+    // Mobile dropdown toggle functionality - simplified approach like programming.js
     const mobileDropdownToggles = document.querySelectorAll('.mobile-dropdown-toggle');
-    
+
     mobileDropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
+        toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            e.stopPropagation();
-            
-            const dropdown = this.closest('.mobile-nav-dropdown');
-            const isOpen = dropdown.classList.contains('open');
-            
-            // Close all other dropdowns
-            document.querySelectorAll('.mobile-nav-dropdown').forEach(d => {
-                d.classList.remove('open');
-            });
-            
-            // Toggle current dropdown
-            if (!isOpen) {
-                dropdown.classList.add('open');
-            }
+            const dropdown = this.parentElement;
+            dropdown.classList.toggle('open');
         });
-    });
-    
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.mobile-nav-dropdown')) {
-            document.querySelectorAll('.mobile-nav-dropdown').forEach(dropdown => {
-                dropdown.classList.remove('open');
-            });
-        }
     });
     
     // Handle disabled dropdown items
@@ -2289,45 +2268,10 @@ function initializeNavigationDropdown() {
         });
     });
     
-    // Mobile dropdown toggle functionality
-    initializeMobileDropdown();
+    // Mobile dropdown functionality is now handled in initializeDropdownFunctionality()
     
     // Set current page active state
     setCurrentPageActive();
-}
-
-// Initialize mobile dropdown functionality
-function initializeMobileDropdown() {
-    const mobileDropdownToggle = document.querySelector('.mobile-dropdown-toggle');
-    const mobileNavDropdown = document.querySelector('.mobile-nav-dropdown');
-    
-    if (mobileDropdownToggle && mobileNavDropdown) {
-        mobileDropdownToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Toggle dropdown open/close
-            const isOpen = mobileNavDropdown.classList.contains('open');
-            
-            if (isOpen) {
-                // Close dropdown
-                mobileNavDropdown.classList.remove('open');
-            } else {
-                // Open dropdown
-                mobileNavDropdown.classList.add('open');
-            }
-            
-            // Rotate arrow icon
-            const arrow = this.querySelector('.mobile-dropdown-arrow');
-            if (arrow) {
-                if (mobileNavDropdown.classList.contains('open')) {
-                    arrow.style.transform = 'rotate(180deg)';
-                } else {
-                    arrow.style.transform = 'rotate(0deg)';
-                }
-            }
-        });
-    }
 }
 
 // Close mobile menu function
@@ -2392,7 +2336,7 @@ function initializeDesktopDropdownDelay() {
 
     if (navDropdown && dropdownMenu) {
         // Show dropdown on hover
-        navDropdown.addEventListener('mouseenter', function() {
+        navDropdown.addEventListener('mouseenter', function () {
             // Clear any existing timeout
             if (hideTimeout) {
                 clearTimeout(hideTimeout);
@@ -2403,14 +2347,14 @@ function initializeDesktopDropdownDelay() {
         });
 
         // Hide dropdown with delay on mouse leave
-        navDropdown.addEventListener('mouseleave', function() {
-            // Set timeout to hide dropdown after 2 seconds
+        navDropdown.addEventListener('mouseleave', function () {
+            // Set timeout to hide dropdown after 500ms
             hideTimeout = setTimeout(() => {
                 dropdownMenu.classList.remove('show');
             }, 500);
         });
 
-        // If mouse enters dropdown menu, cancel hide timeout
+        // If mouse enters dropdown menu, clear hide timeout
         dropdownMenu.addEventListener('mouseenter', function() {
             if (hideTimeout) {
                 clearTimeout(hideTimeout);
