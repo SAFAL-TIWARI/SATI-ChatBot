@@ -21,8 +21,8 @@
     background: var(--card-bg);
     border-right: 1px solid var(--border-color);
     position: sticky;
-    top: 70px;
-    height: calc(100vh - 70px);
+    top: 0px;
+    height: calc(100vh - 0px);
     overflow-y: auto;
     min-height: fit-content;
     animation: fadeInUp 0.8s ease-out;
@@ -43,8 +43,8 @@
     background: var(--card-bg);
     border-left: 1px solid var(--border-color);
     position: sticky;
-    top: 70px;
-    height: calc(100vh - 70px);
+    top: 0px;
+    height: calc(100vh - 0px);
     overflow-y: auto;
     animation: fadeInUp 0.8s ease-out forwards;
 }
@@ -102,6 +102,7 @@
     font-weight: 600;
     margin: 0;
 }
+
 
 .language-selector select {
     padding: 8px 12px;
@@ -175,6 +176,17 @@
     box-shadow: var(--shadow);
 }
 
+.btn-preview {
+    background: #673ab7;
+    color: white;
+}
+
+.btn-preview:hover {
+    background: #5e35b1;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
 .btn-fullscreen {
     background: #9c27b0;
     color: white;
@@ -182,6 +194,17 @@
 
 .btn-fullscreen:hover {
     background: #7b1fa2;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.btn-clear-code {
+    background: #e91e63;
+    color: white;
+}
+
+.btn-clear-code:hover {
+    background: #c2185b;
     transform: translateY(-1px);
     box-shadow: var(--shadow);
 }
@@ -212,7 +235,7 @@
 
 /* Terminal Section */
 .terminal-section {
-    height: 250px;
+    height: 300px;
     display: flex;
     flex-direction: column;
     margin: 0 20px 20px 20px;
@@ -486,6 +509,20 @@
     color: #f44336;
 }
 
+/* Desktop specific styles */
+@media (min-width: 1025px) {
+    .language-selector {
+        position: absolute;
+        right: 360px; /* Adjust this value to position it just left of the run button */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .editor-header {
+        position: relative;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .main-container {
@@ -513,6 +550,10 @@
     .terminal-section {
         height: 200px;
     }
+
+    .language-selector {
+            transform: translateX(135px);
+    }
 }
 
 @media (max-width: 768px) {
@@ -537,7 +578,7 @@
     .btn {
         padding: 6px 12px;
         font-size: 0.8rem;
-        width: 75px;
+        width: 48px;
     }
 
     .editor-actions {
@@ -557,7 +598,7 @@
     }
 
     .editor-container {
-        margin: 0 0 -100px -40px;
+        margin: -30px 0 -100px -40px;
     }
 
     .monaco-editor {
@@ -567,6 +608,10 @@
     .editor-actions {
         flex-wrap: nowrap;
         justify-content: center;
+        transform: translateY(-35px);
+    }
+    .language-selector {
+        transform: translate(200px,-40px);
     }
 }
 

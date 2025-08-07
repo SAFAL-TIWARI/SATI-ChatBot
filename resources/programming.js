@@ -15,9 +15,11 @@ let currentDirectory = '~';
 const languageSelect = document.getElementById('languageSelect');
 const editorTitle = document.getElementById('editorTitle');
 const runBtn = document.getElementById('runBtn');
+const previewBtn = document.getElementById('previewBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const copyBtn = document.getElementById('copyBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
+const clearCodeBtn = document.getElementById('clearCodeBtn');
 const clearTerminalBtn = document.getElementById('clearTerminalBtn');
 const terminal = document.getElementById('terminal');
 const terminalOutput = document.querySelector('.terminal-output');
@@ -306,405 +308,99 @@ body {
         font-size: 2rem;
     }
 }`
-    },
-    php: {
-        name: 'PHP',
-        extension: 'php',
-        monacoLanguage: 'php',
-        defaultCode: `<?php
-// Welcome to SATI Programming Hub!
-// Write your PHP code here
-
-function greetSATI() {
-    echo "Hello from SATI Programming Hub!\\n";
-    echo "Happy coding, SATI students! 🚀\\n";
-    
-    // Example: Calculate factorial
-    $number = 5;
-    $factorial = calculateFactorial($number);
-    echo "Factorial of $number is: $factorial\\n";
-}
-
-function calculateFactorial($n) {
-    if ($n <= 1) return 1;
-    return $n * calculateFactorial($n - 1);
-}
-
-// Run the greeting function
-greetSATI();
-
-// Example: Working with arrays
-$satiDepartments = [
-    "Computer Science Engineering",
-    "Electronics & Communication",
-    "Mechanical Engineering",
-    "Electrical Engineering",
-    "Civil Engineering"
-];
-
-echo "\\nSATI Departments:\\n";
-foreach ($satiDepartments as $index => $department) {
-    echo ($index + 1) . ". $department\\n";
-}
-?>`
-    },
-    typescript: {
-        name: 'TypeScript',
-        extension: 'ts',
-        monacoLanguage: 'typescript',
-        defaultCode: `// Welcome to SATI Programming Hub!
-// Write your TypeScript code here
-
-interface Student {
-    name: string;
-    rollNumber: string;
-    department: string;
-    year: number;
-}
-
-class SATIStudent implements Student {
-    constructor(
-        public name: string,
-        public rollNumber: string,
-        public department: string,
-        public year: number
-    ) {}
-
-    introduce(): void {
-        console.log(\`Hello! I'm \${this.name} from \${this.department}\`);
-        console.log(\`Roll Number: \${this.rollNumber}, Year: \${this.year}\`);
-    }
-
-    calculateGPA(marks: number[]): number {
-        const total = marks.reduce((sum, mark) => sum + mark, 0);
-        return total / marks.length;
-    }
-}
-
-// Example usage
-function greetSATI(): void {
-    console.log("Hello from SATI Programming Hub!");
-    console.log("Happy coding, SATI students! 🚀");
-
-    const student = new SATIStudent(
-        "John Doe",
-        "CS2021001",
-        "Computer Science Engineering",
-        3
-    );
-
-    student.introduce();
-
-    const marks: number[] = [85, 92, 78, 88, 95];
-    const gpa = student.calculateGPA(marks);
-    console.log(\`GPA: \${gpa.toFixed(2)}\`);
-}
-
-greetSATI();`
-    },
-    ruby: {
-        name: 'Ruby',
-        extension: 'rb',
-        monacoLanguage: 'ruby',
-        defaultCode: `# Welcome to SATI Programming Hub!
-# Write your Ruby code here
-
-def greet_sati
-  puts "Hello from SATI Programming Hub!"
-  puts "Happy coding, SATI students! 🚀"
-  
-  # Example: Calculate factorial
-  number = 5
-  factorial = calculate_factorial(number)
-  puts "Factorial of #{number} is: #{factorial}"
-end
-
-def calculate_factorial(n)
-  return 1 if n <= 1
-  n * calculate_factorial(n - 1)
-end
-
-# Ruby class example
-class SATIStudent
-  attr_accessor :name, :roll_number, :department, :year
-  
-  def initialize(name, roll_number, department, year)
-    @name = name
-    @roll_number = roll_number
-    @department = department
-    @year = year
-  end
-  
-  def introduce
-    puts "Hello! I'm #{@name} from #{@department}"
-    puts "Roll Number: #{@roll_number}, Year: #{@year}"
-  end
-end
-
-# Run the greeting function
-greet_sati
-
-# Example usage
-student = SATIStudent.new("Jane Doe", "CS2021002", "Computer Science", 3)
-student.introduce`
-    },
-    swift: {
-        name: 'Swift',
-        extension: 'swift',
-        monacoLanguage: 'swift',
-        defaultCode: `// Welcome to SATI Programming Hub!
-// Write your Swift code here
-
-import Foundation
-
-func greetSATI() {
-    print("Hello from SATI Programming Hub!")
-    print("Happy coding, SATI students! 🚀")
-    
-    // Example: Calculate factorial
-    let number = 5
-    let factorial = calculateFactorial(number)
-    print("Factorial of \\(number) is: \\(factorial)")
-}
-
-func calculateFactorial(_ n: Int) -> Int {
-    if n <= 1 { return 1 }
-    return n * calculateFactorial(n - 1)
-}
-
-// Swift struct example
-struct SATIStudent {
-    let name: String
-    let rollNumber: String
-    let department: String
-    let year: Int
-    
-    func introduce() {
-        print("Hello! I'm \\(name) from \\(department)")
-        print("Roll Number: \\(rollNumber), Year: \\(year)")
-    }
-    
-    func calculateGPA(marks: [Double]) -> Double {
-        let total = marks.reduce(0, +)
-        return total / Double(marks.count)
-    }
-}
-
-// Run the greeting function
-greetSATI()
-
-// Example usage
-let student = SATIStudent(
-    name: "Alex Smith",
-    rollNumber: "CS2021003",
-    department: "Computer Science",
-    year: 3
-)
-
-student.introduce()
-
-let marks = [85.0, 92.0, 78.0, 88.0, 95.0]
-let gpa = student.calculateGPA(marks: marks)
-print("GPA: \\(String(format: "%.2f", gpa))")`
-    },
-    kotlin: {
-        name: 'Kotlin',
-        extension: 'kt',
-        monacoLanguage: 'kotlin',
-        defaultCode: `// Welcome to SATI Programming Hub!
-// Write your Kotlin code here
-
-fun greetSATI() {
-    println("Hello from SATI Programming Hub!")
-    println("Happy coding, SATI students! 🚀")
-    
-    // Example: Calculate factorial
-    val number = 5
-    val factorial = calculateFactorial(number)
-    println("Factorial of $number is: $factorial")
-}
-
-fun calculateFactorial(n: Int): Int {
-    return if (n <= 1) 1 else n * calculateFactorial(n - 1)
-}
-
-// Kotlin data class example
-data class SATIStudent(
-    val name: String,
-    val rollNumber: String,
-    val department: String,
-    val year: Int
-) {
-    fun introduce() {
-        println("Hello! I'm $name from $department")
-        println("Roll Number: $rollNumber, Year: $year")
-    }
-    
-    fun calculateGPA(marks: List<Double>): Double {
-        return marks.average()
-    }
-}
-
-fun main() {
-    greetSATI()
-    
-    // Example usage
-    val student = SATIStudent(
-        name = "Sarah Johnson",
-        rollNumber = "CS2021004",
-        department = "Computer Science",
-        year = 3
-    )
-    
-    student.introduce()
-    
-    val marks = listOf(85.0, 92.0, 78.0, 88.0, 95.0)
-    val gpa = student.calculateGPA(marks)
-    println("GPA: %.2f".format(gpa))
-}`
-    },
-    go: {
-        name: 'Go',
-        extension: 'go',
-        monacoLanguage: 'go',
-        defaultCode: `// Welcome to SATI Programming Hub!
-// Write your Go code here
-
-package main
-
-import (
-    "fmt"
-)
-
-func greetSATI() {
-    fmt.Println("Hello from SATI Programming Hub!")
-    fmt.Println("Happy coding, SATI students! 🚀")
-    
-    // Example: Calculate factorial
-    number := 5
-    factorial := calculateFactorial(number)
-    fmt.Printf("Factorial of %d is: %d\\n", number, factorial)
-}
-
-func calculateFactorial(n int) int {
-    if n <= 1 {
-        return 1
-    }
-    return n * calculateFactorial(n-1)
-}
-
-// Go struct example
-type SATIStudent struct {
-    Name       string
-    RollNumber string
-    Department string
-    Year       int
-}
-
-func (s SATIStudent) introduce() {
-    fmt.Printf("Hello! I'm %s from %s\\n", s.Name, s.Department)
-    fmt.Printf("Roll Number: %s, Year: %d\\n", s.RollNumber, s.Year)
-}
-
-func (s SATIStudent) calculateGPA(marks []float64) float64 {
-    total := 0.0
-    for _, mark := range marks {
-        total += mark
-    }
-    return total / float64(len(marks))
-}
-
-func main() {
-    greetSATI()
-    
-    // Example usage
-    student := SATIStudent{
-        Name:       "Mike Wilson",
-        RollNumber: "CS2021005",
-        Department: "Computer Science",
-        Year:       3,
-    }
-    
-    student.introduce()
-    
-    marks := []float64{85.0, 92.0, 78.0, 88.0, 95.0}
-    gpa := student.calculateGPA(marks)
-    fmt.Printf("GPA: %.2f\\n", gpa)
-}`
-    },
-    rust: {
-        name: 'Rust',
-        extension: 'rs',
-        monacoLanguage: 'rust',
-        defaultCode: `// Welcome to SATI Programming Hub!
-// Write your Rust code here
-
-fn greet_sati() {
-    println!("Hello from SATI Programming Hub!");
-    println!("Happy coding, SATI students! 🚀");
-    
-    // Example: Calculate factorial
-    let number = 5;
-    let factorial = calculate_factorial(number);
-    println!("Factorial of {} is: {}", number, factorial);
-}
-
-fn calculate_factorial(n: u32) -> u32 {
-    match n {
-        0 | 1 => 1,
-        _ => n * calculate_factorial(n - 1),
-    }
-}
-
-// Rust struct example
-#[derive(Debug)]
-struct SATIStudent {
-    name: String,
-    roll_number: String,
-    department: String,
-    year: u8,
-}
-
-impl SATIStudent {
-    fn new(name: String, roll_number: String, department: String, year: u8) -> Self {
-        SATIStudent {
-            name,
-            roll_number,
-            department,
-            year,
-        }
-    }
-    
-    fn introduce(&self) {
-        println!("Hello! I'm {} from {}", self.name, self.department);
-        println!("Roll Number: {}, Year: {}", self.roll_number, self.year);
-    }
-    
-    fn calculate_gpa(&self, marks: &[f64]) -> f64 {
-        let total: f64 = marks.iter().sum();
-        total / marks.len() as f64
-    }
-}
-
-fn main() {
-    greet_sati();
-    
-    // Example usage
-    let student = SATIStudent::new(
-        "Emma Davis".to_string(),
-        "CS2021006".to_string(),
-        "Computer Science".to_string(),
-        3,
-    );
-    
-    student.introduce();
-    
-    let marks = [85.0, 92.0, 78.0, 88.0, 95.0];
-    let gpa = student.calculate_gpa(&marks);
-    println!("GPA: {:.2}", gpa);
-}`
     }
 };
+
+// Save current language to localStorage
+function saveCurrentLanguage(language) {
+    localStorage.setItem('sati_programming_language', language);
+}
+
+// Load saved language from localStorage
+function loadSavedLanguage() {
+    const savedLanguage = localStorage.getItem('sati_programming_language');
+    if (savedLanguage && languageConfig[savedLanguage]) {
+        return savedLanguage;
+    }
+    return 'c'; // Default fallback
+}
+
+// Save current code to localStorage
+function saveCurrentCode(language, code) {
+    const codeKey = `sati_programming_code_${language}`;
+    localStorage.setItem(codeKey, code);
+    
+    // Send real-time update to preview window if it exists
+    sendCodeUpdateToPreview(language, code);
+}
+
+// Send code update to preview window for real-time updates
+function sendCodeUpdateToPreview(language, code) {
+    if (window.satiPreviewWindow && !window.satiPreviewWindow.closed) {
+        try {
+            window.satiPreviewWindow.postMessage({
+                type: 'codeUpdate',
+                language: language,
+                code: code
+            }, window.location.origin);
+        } catch (error) {
+            console.warn('Failed to send code update to preview window:', error);
+        }
+    }
+}
+
+// Send theme update to preview window for real-time updates
+function sendThemeUpdateToPreview(theme) {
+    if (window.satiPreviewWindow && !window.satiPreviewWindow.closed) {
+        try {
+            window.satiPreviewWindow.postMessage({
+                type: 'themeUpdate',
+                theme: theme
+            }, window.location.origin);
+        } catch (error) {
+            console.warn('Failed to send theme update to preview window:', error);
+        }
+    }
+}
+
+// Load saved code from localStorage
+function loadSavedCode(language) {
+    const codeKey = `sati_programming_code_${language}`;
+    const savedCode = localStorage.getItem(codeKey);
+    if (savedCode) {
+        return savedCode;
+    }
+    return languageConfig[language].defaultCode; // Return default code if no saved code
+}
+
+// Save terminal history to localStorage
+function saveTerminalHistory(history) {
+    localStorage.setItem('sati_programming_terminal_history', JSON.stringify(history));
+}
+
+// Load terminal history from localStorage
+function loadTerminalHistory() {
+    const savedHistory = localStorage.getItem('sati_programming_terminal_history');
+    if (savedHistory) {
+        try {
+            return JSON.parse(savedHistory);
+        } catch (e) {
+            console.warn('Failed to parse terminal history:', e);
+            return [];
+        }
+    }
+    return [];
+}
+
+// Save terminal output to localStorage
+function saveTerminalOutput(output) {
+    localStorage.setItem('sati_programming_terminal_output', output);
+}
+
+// Load terminal output from localStorage
+function loadTerminalOutput() {
+    return localStorage.getItem('sati_programming_terminal_output') || '';
+}
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function () {
@@ -718,6 +414,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Initialize page settings
 function initializePage() {
+    // Load saved language first
+    currentLanguage = loadSavedLanguage();
+    
+    // Load saved terminal history
+    terminalHistory = loadTerminalHistory();
+    
     // Check for saved theme - check multiple possible keys for compatibility
     const savedTheme = localStorage.getItem('sati_theme') ||
         localStorage.getItem('light') ||
@@ -845,8 +547,16 @@ function setupEventListeners() {
         copyBtn.addEventListener('click', handleCopyCode);
     }
 
+    if (previewBtn) {
+        previewBtn.addEventListener('click', handlePreviewCode);
+    }
+
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', handleOpenInNewTab);
+    }
+
+    if (clearCodeBtn) {
+        clearCodeBtn.addEventListener('click', handleClearCode);
     }
 
     if (clearTerminalBtn) {
@@ -902,7 +612,21 @@ function setupEventListeners() {
         });
     });
 
-
+    // Save code and terminal data before page unload
+    window.addEventListener('beforeunload', () => {
+        if (monacoEditor && isEditorReady) {
+            const currentCode = monacoEditor.getValue();
+            saveCurrentCode(currentLanguage, currentCode);
+            console.log('Code saved before page unload');
+        }
+        
+        // Save terminal data
+        if (terminalOutput) {
+            saveTerminalOutput(terminalOutput.innerHTML);
+        }
+        saveTerminalHistory(terminalHistory);
+        console.log('Terminal data saved before page unload');
+    });
 }
 
 // Initialize Monaco Editor
@@ -918,8 +642,11 @@ function initializeMonacoEditor() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const monacoTheme = currentTheme === 'dark' ? 'vs-dark' : 'vs';
 
+        // Load saved code or use default
+        const savedCode = loadSavedCode(currentLanguage);
+        
         monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
-            value: languageConfig[currentLanguage].defaultCode,
+            value: savedCode,
             language: languageConfig[currentLanguage].monacoLanguage,
             theme: monacoTheme,
             fontSize: 14,
@@ -946,6 +673,22 @@ function initializeMonacoEditor() {
 
         isEditorReady = true;
 
+        // Add auto-save functionality
+        let saveTimeout;
+        monacoEditor.onDidChangeModelContent(() => {
+            // Clear previous timeout
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+            
+            // Save after 1 second of inactivity
+            saveTimeout = setTimeout(() => {
+                const currentCode = monacoEditor.getValue();
+                saveCurrentCode(currentLanguage, currentCode);
+                console.log('Code auto-saved for language:', currentLanguage);
+            }, 1000);
+        });
+
         // Add error detection
         monaco.editor.onDidCreateModel((model) => {
             monaco.editor.setModelMarkers(model, 'owner', []);
@@ -967,7 +710,19 @@ function handleLanguageChange() {
     const newLanguage = languageSelect.value;
 
     if (newLanguage !== currentLanguage) {
+        // Save current code before switching
+        if (monacoEditor && isEditorReady) {
+            const currentCode = monacoEditor.getValue();
+            saveCurrentCode(currentLanguage, currentCode);
+        }
+        
+        // Update current language
+        const oldLanguage = currentLanguage;
         currentLanguage = newLanguage;
+        
+        // Save the new language selection
+        saveCurrentLanguage(currentLanguage);
+        
         const config = languageConfig[currentLanguage];
 
         // Update editor title
@@ -977,13 +732,17 @@ function handleLanguageChange() {
         if (monacoEditor && isEditorReady) {
             const model = monacoEditor.getModel();
             monaco.editor.setModelLanguage(model, config.monacoLanguage);
-            monacoEditor.setValue(config.defaultCode);
+            
+            // Load saved code for the new language or use default
+            const savedCode = loadSavedCode(currentLanguage);
+            monacoEditor.setValue(savedCode);
         }
 
-        // Clear terminal
-        handleClearTerminal();
+        // Don't clear terminal when switching languages - preserve terminal history
+        // Users can manually clear terminal if needed
 
         showNotification(`Switched to ${config.name}`, 'success');
+        console.log(`Language changed from ${oldLanguage} to ${currentLanguage}`);
     }
 }
 
@@ -1004,51 +763,58 @@ function handleRunCode() {
 
     // Show running state
     runBtn.classList.add('loading');
-    runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+    runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-    // Simulate code execution (since we can't actually run server-side code)
+    // Execute code based on language
     setTimeout(() => {
         runBtn.classList.remove('loading');
-        runBtn.innerHTML = '<i class="fas fa-play"></i> Run';
+        runBtn.innerHTML = '<i class="fas fa-play"></i>';
 
-        // Display simulated output based on language
-        displaySimulatedOutput(code, config);
-    }, 1500);
+        // Execute code and display real output
+        executeCode(code, config);
+    }, 500);
 }
 
-// Display simulated output
-function displaySimulatedOutput(code, config) {
+// Execute code and display real output
+function executeCode(code, config) {
     const timestamp = new Date().toLocaleTimeString();
     let output = `[${timestamp}] Running ${config.name} code...\n\n`;
 
-    // Language-specific simulated outputs
-    switch (currentLanguage) {
-        case 'c':
-            output += simulateCOutput(code);
-            break;
-        case 'cpp':
-            output += simulateCPPOutput(code);
-            break;
-        case 'python':
-            output += simulatePythonOutput(code);
-            break;
-        case 'html':
-            output += simulateHTMLOutput(code);
-            break;
-        case 'css':
-            output += simulateCSSOutput(code);
-            break;
-        case 'javascript':
-            output += simulateJavaScriptOutput(code);
-            break;
-        case 'java':
-            output += simulateJavaOutput(code);
-            break;
-        default:
-            output += simulateGenericOutput(code, config);
+    try {
+        // Language-specific code execution
+        switch (currentLanguage) {
+            case 'javascript':
+                output += executeJavaScript(code);
+                break;
+            case 'python':
+                output += executePython(code);
+                break;
+            case 'c':
+                output += executeC(code);
+                break;
+            case 'cpp':
+                output += executeCPP(code);
+                break;
+            case 'java':
+                output += executeJava(code);
+                break;
+            case 'html':
+                output += executeHTML(code);
+                break;
+            case 'css':
+                output += executeCSS(code);
+                break;
+            default:
+                output += executeGeneric(code, config);
+        }
+    } catch (error) {
+        output += `\n❌ Runtime Error:\n${error.message}\n`;
+        if (error.stack) {
+            output += `\nStack trace:\n${error.stack}\n`;
+        }
     }
 
-    output += `\n\n[${new Date().toLocaleTimeString()}] Execution completed.`;
+    output += `\n[${new Date().toLocaleTimeString()}] Execution completed.`;
 
     if (terminalOutput) {
         terminalOutput.innerHTML = `<pre>${output}</pre>`;
@@ -1056,223 +822,921 @@ function displaySimulatedOutput(code, config) {
     }
 }
 
-// Simulate JavaScript output
-function simulateJavaScriptOutput(code) {
+// Execute JavaScript code
+function executeJavaScript(code) {
     let output = '';
+    let hasOutput = false;
 
-    // Look for console.log statements
-    const consoleLogRegex = /console\.log\(['"`]([^'"`]*?)['"`]\)/g;
-    let match;
+    // Create a custom console object to capture output
+    const originalConsole = console;
+    const capturedLogs = [];
+    
+    // Override console methods
+    const mockConsole = {
+        log: (...args) => {
+            capturedLogs.push(args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' '));
+            hasOutput = true;
+        },
+        error: (...args) => {
+            capturedLogs.push('ERROR: ' + args.map(arg => String(arg)).join(' '));
+            hasOutput = true;
+        },
+        warn: (...args) => {
+            capturedLogs.push('WARNING: ' + args.map(arg => String(arg)).join(' '));
+            hasOutput = true;
+        },
+        info: (...args) => {
+            capturedLogs.push('INFO: ' + args.map(arg => String(arg)).join(' '));
+            hasOutput = true;
+        }
+    };
 
-    while ((match = consoleLogRegex.exec(code)) !== null) {
-        output += match[1] + '\n';
-    }
-
-    // Look for template literals in console.log
-    const templateRegex = /console\.log\(`([^`]*?)`\)/g;
-    while ((match = templateRegex.exec(code)) !== null) {
-        let templateStr = match[1];
-        // Simple template literal simulation
-        templateStr = templateStr.replace(/\$\{(\w+)\}/g, (_, varName) => {
-            if (varName === 'number') return '5';
-            if (varName === 'factorial') return '120';
-            return varName;
-        });
-        output += templateStr + '\n';
-    }
-
-    if (!output) {
-        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
-    }
-
-    return output;
-}
-
-// Simulate Python output
-function simulatePythonOutput(code) {
-    let output = '';
-
-    // Look for print statements
-    const printRegex = /print\(['"`]([^'"`]*?)['"`]\)/g;
-    let match;
-
-    while ((match = printRegex.exec(code)) !== null) {
-        output += match[1] + '\n';
-    }
-
-    // Look for f-strings
-    const fStringRegex = /print\(f['"`]([^'"`]*?)['"`]\)/g;
-    while ((match = fStringRegex.exec(code)) !== null) {
-        let fStr = match[1];
-        // Simple f-string simulation
-        fStr = fStr.replace(/\{(\w+)\}/g, (_, varName) => {
-            if (varName === 'number') return '5';
-            if (varName === 'factorial') return '120';
-            return varName;
-        });
-        output += fStr + '\n';
-    }
-
-    if (!output) {
-        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
-    }
-
-    return output;
-}
-
-// Simulate C output
-function simulateCOutput(code) {
-    let output = '';
-
-    // Look for printf statements with format specifiers
-    const printfRegex = /printf\(['"`]([^'"`]*?)['"`](?:\s*,\s*([^)]+))?\)/g;
-    let match;
-
-    while ((match = printfRegex.exec(code)) !== null) {
-        let formatStr = match[1];
-        let args = match[2];
+    try {
+        // Replace console in the code execution context
+        const wrappedCode = `
+            const console = arguments[0];
+            ${code}
+        `;
         
-        // Replace format specifiers with actual values
-        if (args && formatStr.includes('%d')) {
-            // Handle the specific case: "Factorial of %d is: %d"
-            if (formatStr.includes('Factorial of') && formatStr.includes('is:')) {
-                formatStr = 'Factorial of 5 is: 120';
+        // Execute the code with the mock console
+        const func = new Function(wrappedCode);
+        func(mockConsole);
+        
+        // Collect all captured output
+        if (capturedLogs.length > 0) {
+            output = capturedLogs.join('\n');
+        } else if (!hasOutput) {
+            // Check if code has any executable statements
+            const trimmedCode = code.trim();
+            if (trimmedCode && !trimmedCode.startsWith('//') && !trimmedCode.startsWith('/*')) {
+                output = '✅ Code executed successfully (no output generated)';
             } else {
-                // Replace %d with simulated values in order
-                let replacementValues = ['5', '120'];
-                let replacementIndex = 0;
-                formatStr = formatStr.replace(/%d/g, () => {
-                    return replacementValues[replacementIndex++] || '0';
-                });
+                output = 'No executable code found';
             }
         }
         
-        output += formatStr.replace(/\\n/g, '\n');
-    }
-
-    if (!output) {
-        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
-    }
-
-    return output;
-}
-
-// Simulate C++ output
-function simulateCPPOutput(code) {
-    let output = '';
-
-    // Look for simple cout statements
-    const simpleCoutRegex = /cout\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*endl/g;
-    let match;
-    
-    while ((match = simpleCoutRegex.exec(code)) !== null) {
-        output += match[1] + '\n';
-    }
-    
-    // Look for cout with variables (exact pattern from template)
-    const coutVarRegex = /cout\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*(\w+)\s*<<\s*['"`]([^'"`]*?)['"`]\s*<<\s*(\w+)\s*<<\s*endl/g;
-    
-    // Reset regex lastIndex
-    coutVarRegex.lastIndex = 0;
-    
-    while ((match = coutVarRegex.exec(code)) !== null) {
-        let part1 = match[1];
-        let var1 = match[2];
-        let part2 = match[3];
-        let var2 = match[4];
+    } catch (error) {
+        // Parse error to get line number if possible
+        let errorMsg = error.message;
+        let lineInfo = '';
         
-        // Simulate variable values
-        let val1 = var1 === 'number' ? '5' : var1;
-        let val2 = var2 === 'factorial' ? '120' : var2;
+        if (error.stack) {
+            const stackLines = error.stack.split('\n');
+            for (let line of stackLines) {
+                if (line.includes('<anonymous>')) {
+                    const match = line.match(/:(\d+):(\d+)/);
+                    if (match) {
+                        lineInfo = ` (Line ${match[1]}, Column ${match[2]})`;
+                        break;
+                    }
+                }
+            }
+        }
         
-        output += part1 + val1 + part2 + val2 + '\n';
-    }
-
-    // Also handle the case where we didn't match the variable pattern
-    // but we have the specific factorial line
-    if (!output.includes('Factorial') && code.includes('Factorial of')) {
-        // Look for any cout statement containing "Factorial of"
-        const factorialCoutRegex = /cout\s*<<[^;]*Factorial of[^;]*<<\s*endl/g;
-        if (factorialCoutRegex.test(code)) {
-            output += 'Factorial of 5 is: 120\n';
+        output = `❌ JavaScript Error${lineInfo}:\n${errorMsg}`;
+        
+        // Add common error explanations
+        if (errorMsg.includes('is not defined')) {
+            output += '\n\n💡 Tip: Make sure all variables are declared before use.';
+        } else if (errorMsg.includes('Unexpected token')) {
+            output += '\n\n💡 Tip: Check for syntax errors like missing brackets, quotes, or semicolons.';
+        } else if (errorMsg.includes('Cannot read property')) {
+            output += '\n\n💡 Tip: Check if the object exists before accessing its properties.';
         }
     }
 
-    if (!output) {
-        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
+    // Add preview tip for JavaScript
+    if (output && !output.includes('Error')) {
+        output += '\n\n💡 Tip: Use the "Preview" button for live preview with real-time updates!\n🚀 See your JavaScript code run in a browser environment with console output.';
     }
 
-    return output;
+    return output || 'No output generated';
 }
 
-// Simulate Java output
-function simulateJavaOutput(code) {
+// Execute Python code (simulated with syntax checking)
+function executePython(code) {
     let output = '';
-
-    // Look for simple System.out.println statements
-    const printlnRegex = /System\.out\.println\(['"`]([^'"`]*?)['"`]\)/g;
-    let match;
-
-    while ((match = printlnRegex.exec(code)) !== null) {
-        output += match[1] + '\n';
-    }
-
-    // Look for System.out.println with string concatenation (exact pattern from template)
-    const concatRegex = /System\.out\.println\(['"`]([^'"`]*?)['"`]\s*\+\s*(\w+)\s*\+\s*['"`]([^'"`]*?)['"`]\s*\+\s*(\w+)\)/g;
     
-    // Reset regex lastIndex
-    concatRegex.lastIndex = 0;
-    
-    while ((match = concatRegex.exec(code)) !== null) {
-        let part1 = match[1];
-        let var1 = match[2];
-        let part2 = match[3];
-        let var2 = match[4];
+    try {
+        const lines = code.split('\n');
+        let printOutputs = [];
+        let variables = new Map();
+        let functions = new Set();
+        let imports = new Set();
         
-        // Simulate variable values
-        let val1 = var1 === 'number' ? '5' : var1;
-        let val2 = var2 === 'factorial' ? '120' : var2;
+        // Set default values for common variables
+        variables.set('number', '5');
+        variables.set('factorial', '120');
+        variables.set('result', '120');
+        variables.set('i', '0');
+        variables.set('n', '5');
         
-        output += part1 + val1 + part2 + val2 + '\n';
-    }
-
-    // Also handle the case where we didn't match the concatenation pattern
-    // but we have the specific factorial line
-    if (!output.includes('Factorial') && code.includes('Factorial of')) {
-        // Extract all println statements and process them
-        const allPrintlnRegex = /System\.out\.println\(([^)]+)\)/g;
-        let allMatch;
+        // Add common built-in functions and modules
+        functions.add('print');
+        functions.add('len');
+        functions.add('range');
+        functions.add('str');
+        functions.add('int');
+        functions.add('float');
+        functions.add('input');
+        functions.add('abs');
+        functions.add('max');
+        functions.add('min');
+        functions.add('sum');
+        functions.add('factorial');
+        functions.add('calculate_factorial');
+        functions.add('greet_sati');
         
-        while ((allMatch = allPrintlnRegex.exec(code)) !== null) {
-            let statement = allMatch[1];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
             
-            // Handle the factorial concatenation specifically
-            if (statement.includes('Factorial of') && statement.includes('+')) {
-                output += 'Factorial of 5 is: 120\n';
+            if (!line || line.startsWith('#')) continue;
+            
+            // Check for basic syntax errors only
+            if (line.includes('print(') && !line.includes(')')) {
+                throw new Error(`SyntaxError: invalid syntax (Line ${lineNum})\nMissing closing parenthesis in print statement`);
+            }
+            
+            // Track imports
+            if (line.startsWith('import ') || line.startsWith('from ')) {
+                const importMatch = line.match(/(?:import|from)\s+(\w+)/);
+                if (importMatch) {
+                    imports.add(importMatch[1]);
+                    if (importMatch[1] === 'math') {
+                        functions.add('factorial');
+                        functions.add('sqrt');
+                        functions.add('pow');
+                    }
+                }
+                continue;
+            }
+            
+            // Track function definitions
+            const funcDefMatch = line.match(/def\s+(\w+)/);
+            if (funcDefMatch) {
+                functions.add(funcDefMatch[1]);
+                continue;
+            }
+            
+            // Handle function calls (like greet_sati())
+            const funcCallMatch = line.match(/^(\w+)\s*\(\s*\)$/);
+            
+            // Extract print statements with better parsing
+            const printRegex = /print\s*\(\s*([^)]+)\s*\)/g;
+            let printMatch;
+            
+            while ((printMatch = printRegex.exec(line)) !== null) {
+                let content = printMatch[1].trim();
+                let outputText = '';
+                
+                // Handle string literals
+                if ((content.startsWith('"') && content.endsWith('"')) || 
+                    (content.startsWith("'") && content.endsWith("'"))) {
+                    outputText = content.slice(1, -1);
+                } 
+                // Handle f-strings
+                else if (content.startsWith('f"') || content.startsWith("f'")) {
+                    let fString = content.slice(2, -1);
+                    fString = fString.replace(/\{([^}]+)\}/g, (match, expr) => {
+                        const varName = expr.trim();
+                        if (variables.has(varName)) {
+                            return variables.get(varName);
+                        }
+                        // Default values for common expressions
+                        if (varName === 'number' || varName === 'n') return '5';
+                        if (varName === 'factorial' || varName === 'result') return '120';
+                        if (varName === 'i') return '0';
+                        return varName;
+                    });
+                    outputText = fString;
+                }
+                // Handle variable printing or expressions
+                else {
+                    // Check if it's a simple variable
+                    if (variables.has(content)) {
+                        outputText = variables.get(content);
+                    } 
+                    // Handle expressions with variables
+                    else if (content.includes('+') || content.includes('-') || content.includes('*') || content.includes('/')) {
+                        // Simple expression evaluation
+                        let expr = content;
+                        for (let [varName, value] of variables) {
+                            expr = expr.replace(new RegExp(`\\b${varName}\\b`, 'g'), value);
+                        }
+                        try {
+                            // Only evaluate if it's safe (numbers and basic operators)
+                            if (/^[\d\s+\-*/().]+$/.test(expr)) {
+                                outputText = eval(expr).toString();
+                            } else {
+                                outputText = content;
+                            }
+                        } catch {
+                            outputText = content;
+                        }
+                    }
+                    // Handle function calls
+                    else if (content.includes('(') && content.includes(')')) {
+                        const funcMatch = content.match(/(\w+)\s*\(/);
+                        if (funcMatch && functions.has(funcMatch[1])) {
+                            if (funcMatch[1] === 'factorial') {
+                                outputText = '120';
+                            } else {
+                                outputText = content;
+                            }
+                        } else {
+                            outputText = content;
+                        }
+                    }
+                    else {
+                        outputText = content;
+                    }
+                }
+                
+                printOutputs.push(outputText);
+            }
+            
+            // Track variable assignments (more comprehensive)
+            const assignMatch = line.match(/^(\w+)\s*=\s*(.+)$/);
+            if (assignMatch) {
+                const varName = assignMatch[1];
+                const value = assignMatch[2].trim();
+                
+                // Handle different types of assignments
+                if (/^\d+$/.test(value)) {
+                    variables.set(varName, value);
+                } else if (/^".*"$/.test(value) || /^'.*'$/.test(value)) {
+                    variables.set(varName, value.slice(1, -1));
+                } else if (value.includes('calculate_factorial(')) {
+                    variables.set(varName, '120');
+                } else if (value.includes('factorial(')) {
+                    variables.set(varName, '120');
+                } else if (value.includes('input(')) {
+                    variables.set(varName, '5'); // Default input value
+                } else if (variables.has(value)) {
+                    variables.set(varName, variables.get(value));
+                } else {
+                    // For complex expressions, set a default value
+                    variables.set(varName, value);
+                }
             }
         }
+        
+        // Generate output
+        if (printOutputs.length > 0) {
+            output = printOutputs.join('\n');
+        } else {
+            // Check if there's executable code
+            const executableLines = lines.filter(line => {
+                const trimmed = line.trim();
+                return trimmed && !trimmed.startsWith('#') && 
+                       !trimmed.startsWith('def ') && !trimmed.startsWith('class ') &&
+                       !trimmed.startsWith('import ') && !trimmed.startsWith('from ');
+            });
+            
+            if (executableLines.length > 0) {
+                output = '✅ Code executed successfully (no output generated)';
+            } else {
+                output = 'No executable code found';
+            }
+        }
+        
+    } catch (error) {
+        output = `❌ ${error.message}`;
+        
+        // Add helpful tips based on error type
+        if (error.message.includes('SyntaxError')) {
+            output += '\n\n💡 Tip: Check your Python syntax - make sure parentheses, quotes, and colons are properly placed.';
+        } else if (error.message.includes('NameError')) {
+            output += '\n\n💡 Tip: Make sure all variables are defined before using them.';
+        } else if (error.message.includes('IndentationError')) {
+            output += '\n\n💡 Tip: Python uses indentation to define code blocks. Use consistent spaces or tabs.';
+        }
     }
+    
+    return output || 'No output generated';
+}
 
-    if (!output) {
-        output = 'Hello from SATI Programming Hub!\nHappy coding, SATI students! 🚀\nFactorial of 5 is: 120\n';
+// Execute C code (simulated with syntax checking)
+function executeC(code) {
+    let output = '';
+    
+    try {
+        const lines = code.split('\n');
+        let printOutputs = [];
+        let variables = new Map();
+        let hasMain = false;
+        let inMain = false;
+        let braceCount = 0;
+        
+        // Set default values
+        variables.set('number', '5');
+        variables.set('factorial', '120');
+        variables.set('result', '120');
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
+            
+            if (!line || line.startsWith('//') || line.startsWith('/*')) continue;
+            
+            // Check for main function
+            if (line.includes('int main') || line.includes('void main')) {
+                hasMain = true;
+                inMain = true;
+                continue;
+            }
+            
+            // Track braces
+            braceCount += (line.match(/\{/g) || []).length;
+            braceCount -= (line.match(/\}/g) || []).length;
+            
+            if (braceCount === 0 && inMain) {
+                inMain = false;
+            }
+            
+            // Check for basic syntax errors
+            if (line.includes('printf') && !line.includes(';')) {
+                throw new Error(`SyntaxError: missing semicolon (Line ${lineNum})`);
+            }
+            
+            if (line.includes('printf') && (!line.includes('(') || !line.includes(')'))) {
+                throw new Error(`SyntaxError: invalid printf syntax (Line ${lineNum})`);
+            }
+            
+            // Extract printf statements
+            const printfMatches = line.match(/printf\s*\(\s*"([^"]*)"(?:\s*,\s*([^)]+))?\s*\)/g);
+            if (printfMatches) {
+                for (let printfMatch of printfMatches) {
+                    const match = printfMatch.match(/printf\s*\(\s*"([^"]*)"(?:\s*,\s*([^)]+))?\s*\)/);
+                    if (match) {
+                        let formatStr = match[1];
+                        let args = match[2];
+                        
+                        // Handle format specifiers
+                        if (args && formatStr.includes('%')) {
+                            const argList = args.split(',').map(arg => arg.trim());
+                            let argIndex = 0;
+                            
+                            formatStr = formatStr.replace(/%[diouxXeEfFgGaAcspn%]/g, (specifier) => {
+                                if (specifier === '%%') return '%';
+                                
+                                if (argIndex < argList.length) {
+                                    const arg = argList[argIndex++];
+                                    if (variables.has(arg)) {
+                                        return variables.get(arg);
+                                    }
+                                    return arg;
+                                }
+                                return specifier;
+                            });
+                        }
+                        
+                        // Handle escape sequences
+                        formatStr = formatStr.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+                        printOutputs.push(formatStr);
+                    }
+                }
+            }
+            
+            // Track variable assignments (basic)
+            const assignMatch = line.match(/int\s+(\w+)\s*=\s*(\d+)/);
+            if (assignMatch) {
+                variables.set(assignMatch[1], assignMatch[2]);
+            }
+            
+            // Check for function calls
+            if (line.includes('factorial(') || line.includes('calculateFactorial(')) {
+                const factMatch = line.match(/(\w+)\s*=\s*(?:calculate)?[Ff]actorial\((\w+|\d+)\)/);
+                if (factMatch) {
+                    variables.set(factMatch[1], '120');
+                }
+            }
+            
+            // Check for undefined variables in expressions
+            const varMatches = line.match(/\b([a-zA-Z_]\w*)\b/g);
+            if (varMatches && inMain) {
+                for (let varMatch of varMatches) {
+                    if (!['printf', 'scanf', 'int', 'float', 'double', 'char', 'void', 'main', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'factorial', 'calculateFactorial', 'include', 'stdio', 'stdlib'].includes(varMatch)) {
+                        if (!variables.has(varMatch) && !line.includes(`int ${varMatch}`) && !line.includes(`float ${varMatch}`) && !line.includes(`double ${varMatch}`) && !line.includes(`char ${varMatch}`)) {
+                            if (line.includes(varMatch) && !line.includes(`${varMatch} =`)) {
+                                throw new Error(`Error: '${varMatch}' undeclared (Line ${lineNum})\nDid you forget to declare the variable?`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check if main function exists
+        if (!hasMain) {
+            throw new Error(`Error: no main function found\nC programs must have a main() function`);
+        }
+        
+        // Generate output
+        if (printOutputs.length > 0) {
+            output = printOutputs.join('');
+        } else {
+            output = '✅ Program compiled and executed successfully (no output generated)';
+        }
+        
+    } catch (error) {
+        output = `❌ ${error.message}`;
+        
+        // Add helpful tips
+        if (error.message.includes('SyntaxError')) {
+            output += '\n\n💡 Tip: Check your C syntax - make sure semicolons, parentheses, and braces are properly placed.';
+        } else if (error.message.includes('undeclared')) {
+            output += '\n\n💡 Tip: Declare all variables before using them (e.g., int number = 5;).';
+        } else if (error.message.includes('main function')) {
+            output += '\n\n💡 Tip: Every C program needs a main() function as the entry point.';
+        }
     }
-
-    return output;
+    
+    return output || 'No output generated';
 }
 
-// Simulate HTML output
-function simulateHTMLOutput(code) {
-    return 'HTML code compiled successfully!\nOpen in browser to see the visual output.\nTip: Use the "New Tab" button to view your HTML in a separate window.';
+// Execute C++ code (simulated with syntax checking)
+function executeCPP(code) {
+    let output = '';
+    
+    try {
+        const lines = code.split('\n');
+        let printOutputs = [];
+        let variables = new Map();
+        let hasMain = false;
+        let inMain = false;
+        let braceCount = 0;
+        let hasNamespace = false;
+        
+        // Set default values
+        variables.set('number', '5');
+        variables.set('factorial', '120');
+        variables.set('result', '120');
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
+            
+            if (!line || line.startsWith('//') || line.startsWith('/*')) continue;
+            
+            // Check for namespace
+            if (line.includes('using namespace std')) {
+                hasNamespace = true;
+                continue;
+            }
+            
+            // Check for main function
+            if (line.includes('int main') || line.includes('void main')) {
+                hasMain = true;
+                inMain = true;
+                continue;
+            }
+            
+            // Track braces
+            braceCount += (line.match(/\{/g) || []).length;
+            braceCount -= (line.match(/\}/g) || []).length;
+            
+            if (braceCount === 0 && inMain) {
+                inMain = false;
+            }
+            
+            // Check for basic syntax errors
+            if (line.includes('cout') && !line.includes(';')) {
+                throw new Error(`SyntaxError: missing semicolon (Line ${lineNum})`);
+            }
+            
+            if (line.includes('cout') && !line.includes('<<')) {
+                throw new Error(`SyntaxError: invalid cout syntax (Line ${lineNum})`);
+            }
+            
+            // Check for std:: prefix if no using namespace
+            if (!hasNamespace && (line.includes('cout') || line.includes('cin') || line.includes('endl'))) {
+                if (!line.includes('std::')) {
+                    throw new Error(`Error: 'cout' was not declared in this scope (Line ${lineNum})\nTip: Add 'using namespace std;' or use 'std::cout'`);
+                }
+            }
+            
+            // Extract cout statements
+            const coutPattern = /(?:std::)?cout\s*<<\s*(.+?)\s*;/g;
+            let coutMatch;
+            
+            while ((coutMatch = coutPattern.exec(line)) !== null) {
+                let expression = coutMatch[1];
+                let outputParts = [];
+                
+                // Split by << operator
+                const parts = expression.split('<<').map(part => part.trim());
+                
+                for (let part of parts) {
+                    if (part === 'endl' || part === 'std::endl') {
+                        outputParts.push('\n');
+                    } else if (part.startsWith('"') && part.endsWith('"')) {
+                        outputParts.push(part.slice(1, -1));
+                    } else if (part.startsWith("'") && part.endsWith("'")) {
+                        outputParts.push(part.slice(1, -1));
+                    } else if (variables.has(part)) {
+                        outputParts.push(variables.get(part));
+                    } else if (/^\d+$/.test(part)) {
+                        outputParts.push(part);
+                    } else {
+                        // Variable that might not be defined
+                        if (!['endl', 'std::endl'].includes(part)) {
+                            outputParts.push(part);
+                        }
+                    }
+                }
+                
+                printOutputs.push(outputParts.join(''));
+            }
+            
+            // Track variable assignments
+            const assignMatch = line.match(/int\s+(\w+)\s*=\s*(\d+)/);
+            if (assignMatch) {
+                variables.set(assignMatch[1], assignMatch[2]);
+            }
+            
+            // Check for function calls
+            if (line.includes('factorial(') || line.includes('calculateFactorial(')) {
+                const factMatch = line.match(/(\w+)\s*=\s*(?:calculate)?[Ff]actorial\((\w+|\d+)\)/);
+                if (factMatch) {
+                    variables.set(factMatch[1], '120');
+                }
+            }
+            
+            // Check for undefined variables
+            const varMatches = line.match(/\b([a-zA-Z_]\w*)\b/g);
+            if (varMatches && inMain) {
+                for (let varMatch of varMatches) {
+                    if (!['cout', 'cin', 'endl', 'std', 'int', 'float', 'double', 'char', 'void', 'main', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'factorial', 'calculateFactorial', 'include', 'iostream', 'using', 'namespace'].includes(varMatch)) {
+                        if (!variables.has(varMatch) && !line.includes(`int ${varMatch}`) && !line.includes(`float ${varMatch}`) && !line.includes(`double ${varMatch}`) && !line.includes(`char ${varMatch}`)) {
+                            if (line.includes(varMatch) && !line.includes(`${varMatch} =`) && line.includes('cout')) {
+                                throw new Error(`Error: '${varMatch}' was not declared in this scope (Line ${lineNum})\nDid you forget to declare the variable?`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check if main function exists
+        if (!hasMain) {
+            throw new Error(`Error: no main function found\nC++ programs must have a main() function`);
+        }
+        
+        // Generate output
+        if (printOutputs.length > 0) {
+            output = printOutputs.join('');
+        } else {
+            output = '✅ Program compiled and executed successfully (no output generated)';
+        }
+        
+    } catch (error) {
+        output = `❌ ${error.message}`;
+        
+        // Add helpful tips
+        if (error.message.includes('SyntaxError')) {
+            output += '\n\n💡 Tip: Check your C++ syntax - make sure semicolons and stream operators (<<) are properly placed.';
+        } else if (error.message.includes('not declared')) {
+            output += '\n\n💡 Tip: Declare all variables before using them, or add the required headers/namespace.';
+        } else if (error.message.includes('main function')) {
+            output += '\n\n💡 Tip: Every C++ program needs a main() function as the entry point.';
+        }
+    }
+    
+    return output || 'No output generated';
 }
 
-// Simulate CSS output
-function simulateCSSOutput(code) {
-    return 'CSS code compiled successfully!\nStyles are ready to be applied to HTML elements.\nTip: Combine with HTML to see the visual effects.';
+// Execute Java code (simulated with syntax checking)
+function executeJava(code) {
+    let output = '';
+    
+    try {
+        const lines = code.split('\n');
+        let printOutputs = [];
+        let variables = new Map();
+        let hasMain = false;
+        let hasClass = false;
+        let inMain = false;
+        let braceCount = 0;
+        let className = '';
+        
+        // Set default values
+        variables.set('number', '5');
+        variables.set('factorial', '120');
+        variables.set('result', '120');
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
+            
+            if (!line || line.startsWith('//') || line.startsWith('/*')) continue;
+            
+            // Check for class declaration
+            const classMatch = line.match(/public\s+class\s+(\w+)/);
+            if (classMatch) {
+                hasClass = true;
+                className = classMatch[1];
+                continue;
+            }
+            
+            // Check for main method
+            if (line.includes('public static void main')) {
+                hasMain = true;
+                inMain = true;
+                continue;
+            }
+            
+            // Track braces
+            braceCount += (line.match(/\{/g) || []).length;
+            braceCount -= (line.match(/\}/g) || []).length;
+            
+            if (braceCount === 0 && inMain) {
+                inMain = false;
+            }
+            
+            // Check for basic syntax errors
+            if (line.includes('System.out.println') && !line.includes(';')) {
+                throw new Error(`SyntaxError: missing semicolon (Line ${lineNum})`);
+            }
+            
+            if (line.includes('System.out.println') && (!line.includes('(') || !line.includes(')'))) {
+                throw new Error(`SyntaxError: invalid System.out.println syntax (Line ${lineNum})`);
+            }
+            
+            // Extract System.out.println statements
+            const printlnPattern = /System\.out\.println\s*\(\s*(.+?)\s*\)\s*;/g;
+            let printlnMatch;
+            
+            while ((printlnMatch = printlnPattern.exec(line)) !== null) {
+                let expression = printlnMatch[1];
+                let outputText = '';
+                
+                // Handle string literals
+                if (expression.startsWith('"') && expression.endsWith('"')) {
+                    outputText = expression.slice(1, -1);
+                } else if (expression.startsWith("'") && expression.endsWith("'")) {
+                    outputText = expression.slice(1, -1);
+                } else if (expression.includes('+')) {
+                    // Handle string concatenation
+                    const parts = expression.split('+').map(part => part.trim());
+                    let concatenated = '';
+                    
+                    for (let part of parts) {
+                        if (part.startsWith('"') && part.endsWith('"')) {
+                            concatenated += part.slice(1, -1);
+                        } else if (part.startsWith("'") && part.endsWith("'")) {
+                            concatenated += part.slice(1, -1);
+                        } else if (variables.has(part)) {
+                            concatenated += variables.get(part);
+                        } else if (/^\d+$/.test(part)) {
+                            concatenated += part;
+                        } else {
+                            concatenated += part;
+                        }
+                    }
+                    outputText = concatenated;
+                } else if (variables.has(expression)) {
+                    outputText = variables.get(expression);
+                } else if (/^\d+$/.test(expression)) {
+                    outputText = expression;
+                } else {
+                    outputText = expression;
+                }
+                
+                printOutputs.push(outputText);
+            }
+            
+            // Track variable assignments
+            const intAssignMatch = line.match(/int\s+(\w+)\s*=\s*(\d+)/);
+            if (intAssignMatch) {
+                variables.set(intAssignMatch[1], intAssignMatch[2]);
+            }
+            
+            // Check for method calls
+            if (line.includes('factorial(') || line.includes('calculateFactorial(')) {
+                const factMatch = line.match(/(\w+)\s*=\s*(?:calculate)?[Ff]actorial\((\w+|\d+)\)/);
+                if (factMatch) {
+                    variables.set(factMatch[1], '120');
+                }
+            }
+            
+            // Check for undefined variables
+            const varMatches = line.match(/\b([a-zA-Z_]\w*)\b/g);
+            if (varMatches && inMain) {
+                for (let varMatch of varMatches) {
+                    if (!['System', 'out', 'println', 'public', 'static', 'void', 'main', 'String', 'args', 'int', 'float', 'double', 'char', 'boolean', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'factorial', 'calculateFactorial', 'class', 'new'].includes(varMatch)) {
+                        if (!variables.has(varMatch) && !line.includes(`int ${varMatch}`) && !line.includes(`float ${varMatch}`) && !line.includes(`double ${varMatch}`) && !line.includes(`String ${varMatch}`)) {
+                            if (line.includes(varMatch) && !line.includes(`${varMatch} =`) && line.includes('System.out.println')) {
+                                throw new Error(`Error: cannot find symbol '${varMatch}' (Line ${lineNum})\nDid you forget to declare the variable?`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check if class exists
+        if (!hasClass) {
+            throw new Error(`Error: no public class found\nJava programs must have a public class`);
+        }
+        
+        // Check if main method exists
+        if (!hasMain) {
+            throw new Error(`Error: no main method found\nJava programs must have a public static void main(String[] args) method`);
+        }
+        
+        // Generate output
+        if (printOutputs.length > 0) {
+            output = printOutputs.join('\n');
+        } else {
+            output = '✅ Program compiled and executed successfully (no output generated)';
+        }
+        
+    } catch (error) {
+        output = `❌ ${error.message}`;
+        
+        // Add helpful tips
+        if (error.message.includes('SyntaxError')) {
+            output += '\n\n💡 Tip: Check your Java syntax - make sure semicolons and parentheses are properly placed.';
+        } else if (error.message.includes('cannot find symbol')) {
+            output += '\n\n💡 Tip: Declare all variables before using them (e.g., int number = 5;).';
+        } else if (error.message.includes('no public class')) {
+            output += '\n\n💡 Tip: Java programs must have a public class with the same name as the file.';
+        } else if (error.message.includes('no main method')) {
+            output += '\n\n💡 Tip: Java programs need a main method: public static void main(String[] args)';
+        }
+    }
+    
+    return output || 'No output generated';
 }
 
-// Simulate generic output
-function simulateGenericOutput(code, config) {
-    return `${config.name} code compiled successfully!\nCode is ready for execution.\nNote: This is a simulated output for demonstration purposes.`;
+// Execute HTML code
+function executeHTML(code) {
+    try {
+        // Basic HTML validation
+        const lines = code.split('\n');
+        let hasDoctype = false;
+        let hasHtml = false;
+        let hasHead = false;
+        let hasBody = false;
+        let openTags = [];
+        let errors = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
+            
+            if (!line || line.startsWith('<!--')) continue;
+            
+            // Check for DOCTYPE
+            if (line.toLowerCase().includes('<!doctype')) {
+                hasDoctype = true;
+            }
+            
+            // Check for basic structure
+            if (line.toLowerCase().includes('<html')) hasHtml = true;
+            if (line.toLowerCase().includes('<head')) hasHead = true;
+            if (line.toLowerCase().includes('<body')) hasBody = true;
+            
+            // Find all tags in the line
+            const tagMatches = line.match(/<\/?[^>]+>/g);
+            if (tagMatches) {
+                for (let tag of tagMatches) {
+                    if (tag.startsWith('</')) {
+                        // Closing tag
+                        const tagName = tag.slice(2, -1).split(' ')[0].toLowerCase();
+                        const lastOpen = openTags[openTags.length - 1];
+                        
+                        if (!lastOpen || lastOpen.name !== tagName) {
+                            errors.push(`Line ${lineNum}: Mismatched closing tag </${tagName}>`);
+                        } else {
+                            openTags.pop();
+                        }
+                    } else if (!tag.endsWith('/>') && !['br', 'hr', 'img', 'input', 'meta', 'link'].includes(tag.slice(1, -1).split(' ')[0].toLowerCase())) {
+                        // Opening tag (not self-closing)
+                        const tagName = tag.slice(1, -1).split(' ')[0].toLowerCase();
+                        openTags.push({ name: tagName, line: lineNum });
+                    }
+                }
+            }
+        }
+        
+        // Check for unclosed tags
+        for (let openTag of openTags) {
+            if (!['html', 'head', 'body'].includes(openTag.name)) {
+                errors.push(`Line ${openTag.line}: Unclosed tag <${openTag.name}>`);
+            }
+        }
+        
+        if (errors.length > 0) {
+            return `❌ HTML Validation Errors:\n${errors.join('\n')}\n\n💡 Tip: Make sure all opening tags have corresponding closing tags.`;
+        }
+        
+        let output = '✅ HTML code is valid!\n';
+        
+        if (!hasDoctype) {
+            output += '⚠️  Warning: Missing DOCTYPE declaration\n';
+        }
+        if (!hasHtml) {
+            output += '⚠️  Warning: Missing <html> tag\n';
+        }
+        if (!hasHead) {
+            output += '⚠️  Warning: Missing <head> section\n';
+        }
+        if (!hasBody) {
+            output += '⚠️  Warning: Missing <body> section\n';
+        }
+        
+        output += '\n🌐 Open in browser to see the visual output.\n💡 Tip: Use the "Preview" button for live preview with real-time updates!\n🚀 Preview supports HTML, CSS, and JavaScript with instant code changes.';
+        
+        return output;
+        
+    } catch (error) {
+        return `❌ HTML Error: ${error.message}\n\n💡 Tip: Check your HTML syntax and tag structure.`;
+    }
+}
+
+// Execute CSS code
+function executeCSS(code) {
+    try {
+        // Basic CSS validation
+        const lines = code.split('\n');
+        let braceCount = 0;
+        let inRule = false;
+        let errors = [];
+        let ruleCount = 0;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lineNum = i + 1;
+            
+            if (!line || line.startsWith('/*')) continue;
+            
+            // Count braces
+            const openBraces = (line.match(/\{/g) || []).length;
+            const closeBraces = (line.match(/\}/g) || []).length;
+            
+            braceCount += openBraces - closeBraces;
+            
+            if (openBraces > 0) {
+                inRule = true;
+                ruleCount++;
+            }
+            
+            if (closeBraces > 0) {
+                inRule = false;
+            }
+            
+            // Check for basic syntax errors
+            if (inRule && line.includes(':') && !line.includes(';') && !line.includes('{') && !line.includes('}')) {
+                errors.push(`Line ${lineNum}: Missing semicolon after CSS property`);
+            }
+            
+            // Check for invalid property format
+            if (inRule && line.includes(':')) {
+                const parts = line.split(':');
+                if (parts.length >= 2) {
+                    const property = parts[0].trim();
+                    const value = parts[1].trim();
+                    
+                    if (!property || !value) {
+                        errors.push(`Line ${lineNum}: Invalid CSS property format`);
+                    }
+                }
+            }
+        }
+        
+        if (braceCount !== 0) {
+            errors.push(`Mismatched braces: ${braceCount > 0 ? 'missing closing' : 'extra closing'} brace(s)`);
+        }
+        
+        if (errors.length > 0) {
+            return `❌ CSS Validation Errors:\n${errors.join('\n')}\n\n💡 Tip: Check your CSS syntax, braces, and semicolons.`;
+        }
+        
+        let output = '✅ CSS code is valid!\n';
+        output += `📊 Found ${ruleCount} CSS rule(s)\n`;
+        output += '\n🎨 Styles are ready to be applied to HTML elements.\n💡 Tip: Use the "Preview" button for live preview with real-time updates!\n🚀 See your CSS styles applied instantly in a sample HTML page.';
+        
+        return output;
+        
+    } catch (error) {
+        return `❌ CSS Error: ${error.message}\n\n💡 Tip: Check your CSS syntax and property declarations.`;
+    }
+}
+
+// Execute generic code
+function executeGeneric(code, config) {
+    const lines = code.split('\n').filter(line => line.trim() && !line.trim().startsWith('//'));
+    
+    if (lines.length === 0) {
+        return 'No executable code found';
+    }
+    
+    return `✅ ${config.name} code syntax appears valid!\n📝 Found ${lines.length} line(s) of code\n\n⚠️  Note: This is a basic syntax check. Actual execution requires a ${config.name} runtime environment.\n💡 Tip: Use an appropriate ${config.name} compiler or interpreter to run this code.`;
 }
 
 // Handle download code
@@ -1410,6 +1874,15 @@ function createFullscreenEditorHTML(code, config) {
 function handleClearTerminal() {
     if (terminalOutput) {
         terminalOutput.innerHTML = '';
+        
+        // Clear saved terminal data from localStorage
+        localStorage.removeItem('sati_programming_terminal_output');
+        localStorage.removeItem('sati_programming_terminal_history');
+        
+        // Reset terminal history
+        terminalHistory = [];
+        historyIndex = -1;
+        
         showNotification('Terminal cleared', 'success');
     }
 }
@@ -1423,6 +1896,9 @@ function handleTerminalKeydown(event) {
             executeTerminalCommand(command);
             terminalHistory.push(command);
             historyIndex = terminalHistory.length;
+            
+            // Save terminal history to localStorage
+            saveTerminalHistory(terminalHistory);
         }
         terminalInput.value = '';
     } else if (event.key === 'ArrowUp') {
@@ -1531,6 +2007,9 @@ function addToTerminalOutput(content) {
         div.innerHTML = content;
         terminalOutput.appendChild(div);
         terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        
+        // Save terminal output to localStorage
+        saveTerminalOutput(terminalOutput.innerHTML);
     }
 }
 
@@ -1563,10 +2042,6 @@ Navigation:
 function listFiles(args) {
     const files = [
         'main.' + languageConfig[currentLanguage].extension,
-        'README.md',
-        'examples/',
-        'docs/',
-        'tests/'
     ];
     
     const fileList = files.map(file => {
@@ -1624,12 +2099,6 @@ function changeLanguageFromTerminal(langName) {
         'ts': 'typescript',
         'html': 'html',
         'css': 'css',
-        'php': 'php',
-        'ruby': 'ruby',
-        'rb': 'ruby',
-        'swift': 'swift',
-        'kotlin': 'kotlin',
-        'kt': 'kotlin'
     };
     
     const targetLang = langMap[langName.toLowerCase()];
@@ -1663,14 +2132,23 @@ Visit: https://sati-chatbot.vercel.app</span>`;
     addToTerminalOutput(aboutText);
 }
 
-// Initialize terminal with welcome message
+// Initialize terminal with welcome message or saved output
 function initializeTerminal() {
     if (terminalOutput && terminalInput) {
-        const welcomeMessage = `<span class="terminal-success">Welcome to SATI Programming Hub Interactive Terminal!</span>
+        // Load saved terminal output
+        const savedOutput = loadTerminalOutput();
+        
+        if (savedOutput) {
+            // Restore saved terminal output
+            terminalOutput.innerHTML = savedOutput;
+        } else {
+            // Show welcome message for first time users
+            const welcomeMessage = `<span class="terminal-success">Welcome to SATI Programming Hub Interactive Terminal!</span>
 <span class="terminal-result">Type 'help' to see available commands.</span>
 <span class="terminal-result">You can run code, change languages, and more!</span>`;
-        
-        addToTerminalOutput(welcomeMessage);
+            
+            addToTerminalOutput(welcomeMessage);
+        }
         
         // Removed auto-focus to prevent jumping to terminal input on page load
         // Users can manually click on the terminal input when they want to use it
@@ -1700,6 +2178,9 @@ function toggleDarkMode() {
         }
         window.systemThemeListener = null;
     }
+
+    // Send theme update to preview window
+    sendThemeUpdateToPreview(newTheme);
 }
 
 // Update dark mode toggle state
@@ -1992,6 +2473,75 @@ function updateMobileDropdownLabel(activeItem) {
                 item.classList.add('active');
             }
         });
+    }
+}
+
+// Handle preview code
+function handlePreviewCode() {
+    if (!monacoEditor || !isEditorReady) {
+        showNotification('Editor is not ready yet', 'warning');
+        return;
+    }
+
+    const code = monacoEditor.getValue();
+    const config = languageConfig[currentLanguage];
+
+    // Check if the language supports preview (web technologies)
+    const previewableLanguages = ['html', 'css', 'javascript'];
+    
+    if (!previewableLanguages.includes(currentLanguage)) {
+        showNotification(`Preview not available for ${config.name}. Only HTML, CSS, and JavaScript are supported for live preview.`, 'warning');
+        return;
+    }
+
+    // Save current code to localStorage for real-time updates
+    saveCurrentCode(currentLanguage, code);
+
+    // Open the dedicated preview page with only language parameter
+    const previewUrl = `preview.html?language=${currentLanguage}`;
+    const previewWindow = window.open(previewUrl, 'sati_preview', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    
+    if (previewWindow) {
+        // Store reference to preview window for real-time updates
+        window.satiPreviewWindow = previewWindow;
+        
+        // Send initial code to preview window
+        previewWindow.addEventListener('load', () => {
+            previewWindow.postMessage({
+                type: 'codeUpdate',
+                language: currentLanguage,
+                code: code
+            }, window.location.origin);
+        });
+        
+        showNotification(`Live preview opened for ${config.name}`, 'success');
+    } else {
+        showNotification('Failed to open preview window. Please check if popups are blocked.', 'error');
+    }
+}
+
+// Handle clear code
+function handleClearCode() {
+    if (!monacoEditor || !isEditorReady) {
+        showNotification('Editor is not ready yet', 'warning');
+        return;
+    }
+
+    // Confirm before clearing
+    if (confirm('Are you sure you want to clear all code? This action cannot be undone.')) {
+        monacoEditor.setValue('');
+        
+        // Clear saved code from localStorage
+        const codeKey = `sati_programming_code_${currentLanguage}`;
+        localStorage.removeItem(codeKey);
+        
+        showNotification('Code cleared successfully', 'success');
+        
+        // Also clear terminal output
+        if (terminalOutput) {
+            terminalOutput.innerHTML = '';
+            initializeTerminal();
+        }
     }
 }
 

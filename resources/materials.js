@@ -1504,6 +1504,30 @@ const resourcesData = {
 let currentCategory = 'notes';
 let currentBranch = null;
 let currentResource = null;
+
+// Save current state to localStorage
+function saveCurrentState() {
+    localStorage.setItem('sati_materials_category', currentCategory);
+    localStorage.setItem('sati_materials_branch', currentBranch || '');
+    localStorage.setItem('sati_materials_resource', currentResource || '');
+}
+
+// Load saved state from localStorage
+function loadSavedState() {
+    const savedCategory = localStorage.getItem('sati_materials_category');
+    const savedBranch = localStorage.getItem('sati_materials_branch');
+    const savedResource = localStorage.getItem('sati_materials_resource');
+    
+    if (savedCategory) {
+        currentCategory = savedCategory;
+    }
+    if (savedBranch) {
+        currentBranch = savedBranch || null;
+    }
+    if (savedResource) {
+        currentResource = savedResource || null;
+    }
+}
 let filteredResources = [];
 
 // DOM Elements
@@ -1535,6 +1559,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Initialize page settings
 function initializePage() {
+    // Load saved state first
+    loadSavedState();
+    
     // Check for saved theme - check multiple possible keys for compatibility
     const savedTheme = localStorage.getItem('sati_theme') ||
         localStorage.getItem('light') ||
@@ -1666,6 +1693,12 @@ function setupEventListeners() {
     if (blurOverlay) {
         blurOverlay.addEventListener('click', closeMobileMenu);
     }
+
+    // Save state before page unload
+    window.addEventListener('beforeunload', () => {
+        saveCurrentState();
+        console.log('Materials state saved before page unload');
+    });
 }
 
 // Handle menu item clicks
@@ -1686,6 +1719,10 @@ function handleMenuClick(event) {
     // Update current category
     currentCategory = category;
     currentBranch = null;
+    currentResource = null; // Reset resource when changing category
+
+    // Save current state
+    saveCurrentState();
 
     // Load resources for this category
     loadResources(category);
@@ -1704,6 +1741,10 @@ function handleSubMenuClick(event) {
     // Update current category and branch
     currentCategory = category;
     currentBranch = branch;
+    currentResource = null; // Reset resource when changing branch
+
+    // Save current state
+    saveCurrentState();
 
     // Load resources for this category and branch
     loadResources(category, branch);
@@ -1747,9 +1788,19 @@ function loadResources(category, branch = null) {
     filteredResources = resources;
     displayResources(resources);
 
-    // Load first resource by default
+    // Try to load saved resource, otherwise load first resource by default
     if (resources.length > 0) {
-        loadResource(resources[0]);
+        let resourceToLoad = resources[0]; // Default to first resource
+        
+        // If there's a saved resource, try to find it
+        if (currentResource) {
+            const savedResource = resources.find(r => r.id === currentResource);
+            if (savedResource) {
+                resourceToLoad = savedResource;
+            }
+        }
+        
+        loadResource(resourceToLoad);
     } else {
         showEmptyState();
     }
@@ -1771,7 +1822,9 @@ function displayResources(resources) {
 
     resources.forEach((resource, index) => {
         const resourceItem = document.createElement('div');
-        resourceItem.className = `resource-item ${index === 0 ? 'active' : ''}`;
+        // Set active based on saved resource or default to first
+        const isActive = currentResource ? (resource.id === currentResource) : (index === 0);
+        resourceItem.className = `resource-item ${isActive ? 'active' : ''}`;
         resourceItem.setAttribute('data-resource-id', resource.id);
 
         resourceItem.innerHTML = `
@@ -1788,6 +1841,10 @@ function displayResources(resources) {
             });
             resourceItem.classList.add('active');
 
+            // Update current resource ID and save state
+            currentResource = resource.id;
+            saveCurrentState();
+
             // Load this resource
             loadResource(resource);
         });
@@ -1798,7 +1855,10 @@ function displayResources(resources) {
 
 // Load a specific resource in the preview area
 function loadResource(resource) {
-    currentResource = resource;
+    currentResource = resource.id; // Store the ID for persistence
+    
+    // Save current state
+    saveCurrentState();
 
     // Update title
     previewTitle.textContent = resource.subject;
@@ -2039,14 +2099,54 @@ function closeMobileMenu() {
 
 // Load default content on page load
 function loadDefaultContent() {
-    // Set Notes as active by default
-    const notesMenuItem = document.querySelector('[data-category="notes"]');
-    if (notesMenuItem) {
-        notesMenuItem.classList.add('active');
+    // Restore saved state or use default
+    restoreSavedUIState();
+    
+    // Load resources for current category and branch
+    loadResources(currentCategory, currentBranch);
+    
+    // If there's a saved resource, try to select it
+    if (currentResource) {
+        setTimeout(() => {
+            selectSavedResource();
+        }, 500); // Small delay to ensure resources are loaded
     }
+}
 
-    // Load notes resources
-    loadResources('notes');
+// Restore the UI state based on saved values
+function restoreSavedUIState() {
+    // Clear all active states first
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelectorAll('.sub-menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Set the correct menu item as active
+    const menuItem = document.querySelector(`[data-category="${currentCategory}"]`);
+    if (menuItem) {
+        menuItem.classList.add('active');
+        
+        // If it's a dropdown category, open the dropdown and set branch active
+        if ((currentCategory === 'syllabus' || currentCategory === 'pyqs') && currentBranch) {
+            toggleDropdown(currentCategory);
+            const subMenuItem = document.querySelector(`[data-category="${currentCategory}"][data-branch="${currentBranch}"]`);
+            if (subMenuItem) {
+                subMenuItem.classList.add('active');
+            }
+        }
+    }
+}
+
+// Select the saved resource if it exists
+function selectSavedResource() {
+    if (currentResource) {
+        const resourceItem = document.querySelector(`[data-resource-id="${currentResource}"]`);
+        if (resourceItem) {
+            resourceItem.click();
+        }
+    }
 }
 
 // Show notification

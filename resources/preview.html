@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATI Code Preview - Live Preview | SATI ChatBot</title>
+    <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
+    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/preview.html">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="SATI Code Preview - Live Preview">
+    <meta name="description"
+        content="Real-time code preview for SATI Programming Hub. See your code changes instantly with live updates.">
+    <meta name="keywords"
+        content="SATI code preview, live preview, real-time coding, code editor preview, programming preview SATI, live coding Vidisha">
+    <meta name="author" content="Team NeoCoders">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/preview.html">
+    <meta property="og:title" content="SATI Code Preview - Live Preview">
+    <meta property="og:description"
+        content="Real-time code preview for SATI Programming Hub. See your code changes instantly with live updates.">
+    <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
+    <meta property="og:site_name" content="SATI ChatBot">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/preview.html">
+    <meta name="twitter:title" content="SATI Code Preview - Live Preview">
+    <meta name="twitter:description"
+        content="Real-time code preview for SATI Programming Hub. See your code changes instantly with live updates.">
+    <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Adsense -->
+    <meta name="google-adsense-account" content="ca-pub-1178405148130113">
+
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="upBWjLz2WyzNX61wGZ5zMT1dxQtWHtiltxl8MyYN20E" />
+    <meta name="google-site-verification" content="zB6GcCt1AW09iFthg2PTOuJk0xignUSqiJ9YOgAA92g" />
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1178405148130113"
+        crossorigin="anonymous">
+        </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-MZSJ5XNX');
+    </script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3D2G0PC62C"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T9E17KXYQ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        // Original Google Analytics tag
+        gtag('config', 'G-3D2G0PC62C');
+
+        // SATI Business Account Google Analytics tag
+        gtag('config', 'G-7T9E17KXYQ');
+    </script>
+    <!-- End Google Analytics 4 -->
+
+    <style>
+        /* Prevent flash of unstyled content */
+        html,
+        body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        html[data-theme="light"],
+        html[data-theme="light"] body {
+            background-color: #f5f7f9 !important;
+            color: #2c3e50 !important;
+        }
+
+        /* Preview Container */
+        .preview-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .preview-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 1000;
+        }
+
+        .preview-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .preview-title i {
+            color: var(--accent-color);
+        }
+
+        .preview-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-color);
+        }
+
+        .control-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Preview Content */
+        .preview-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Live Preview Frame */
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            display: block;
+        }
+
+        /* Console Output */
+        .console-output {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #333;
+            white-space: pre-wrap;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        .console-output.show {
+            transform: translateY(0);
+        }
+
+        .console-output.show ~ .preview-frame {
+            height: calc(100% - 200px);
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 200;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error-message {
+            background: #ff4444;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* No Preview State */
+        .no-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-preview i {
+            font-size: 4rem;
+            opacity: 0.5;
+        }
+
+        .no-preview h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .no-preview p {
+            margin: 0;
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Theme Variables */
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --bg-hover: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #333333;
+            --accent-color: #1976d2;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f5f7f9;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f2f5;
+            --bg-hover: #e8eaed;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color: #1976d2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .preview-header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .preview-title {
+                font-size: 1rem;
+            }
+
+            .control-btn {
+                padding: 6px 5px;
+                font-size: 0.8rem;
+            }
+
+            .console-output {
+                max-height: 150px;
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+
+            .console-output.show ~ .preview-frame {
+                height: calc(100% - 150px);
+            }
+        
+        }
+    </style>
+
+    <script>
+        (function () {
+            // Get theme from localStorage - check multiple possible keys for compatibility
+            const savedTheme = localStorage.getItem('sati_theme') ||
+                localStorage.getItem('light') ||
+                localStorage.getItem('theme') ||
+                'dark';
+
+            // Apply theme immediately to prevent flash
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
+            document.documentElement.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+
+            // Also apply to body when it's available
+            if (document.body) {
+                document.body.style.backgroundColor = savedTheme === 'dark' ? '#121212' : '#f5f7f9';
+                document.body.style.color = savedTheme === 'dark' ? '#ffffff' : '#2c3e50';
+            }
+
+            // Ensure consistency across all storage keys
+            localStorage.setItem('sati_theme', savedTheme);
+            localStorage.setItem('light', savedTheme);
+        })();
+    </script>
+
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <!-- Vercel Speed Insights -->
+    <script>
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MZSJ5XNX" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div class="preview-container">
+        <!-- Header -->
+        <div class="preview-header">
+            <div class="preview-title">
+                <i class="fas fa-eye"></i>
+                <span id="previewTitle">SATI Code Preview</span>
+            </div>
+            <div class="preview-controls">
+                <button class="control-btn" id="refreshBtn" title="Refresh Preview">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh</span>
+                </button>
+                <button class="control-btn" id="consoleBtn" title="Toggle Console">
+                    <i class="fas fa-terminal"></i>
+                    <span>Console</span>
+                </button>
+                <button class="control-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+                    <i class="fas fa-expand"></i>
+                    <span>Fullscreen</span>
+                </button>
+                <button class="control-btn" id="backBtn" title="Back to Editor">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Preview Content -->
+        <div class="preview-content">
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+                <p>Loading preview...</p>
+            </div>
+
+            <!-- No Preview State -->
+            <div class="no-preview" id="noPreview">
+                <i class="fas fa-code"></i>
+                <h2>No Preview Available</h2>
+                <p>Preview is only available for HTML and web technologies. Switch to HTML in the editor to see live preview.</p>
+            </div>
+
+            <!-- Preview Frame -->
+            <iframe class="preview-frame" id="previewFrame" style="display: none;"></iframe>
+
+            <!-- Console Output -->
+            <div class="console-output" id="consoleOutput">
+                <div style="color: #4CAF50; margin-bottom: 10px;">
+                    <i class="fas fa-terminal"></i> SATI Programming Console
+                </div>
+                <div id="consoleContent">Console output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <template id="jsPreviewTemplate">
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>SATI JavaScript Preview</title>
+            <style>
+                body { 
+                    font-family: 'Inter', sans-serif; 
+                    margin: 20px; 
+                    background: #f5f7f9;
+                    color: #2c3e50;
+                }
+                .console-output {
+                    background: #1e1e1e;
+                    color: #ffffff;
+                    padding: 15px;
+                    border-radius: 8px;
+                    font-family: 'Courier New', monospace;
+                    margin-top: 20px;
+                    white-space: pre-wrap;
+                    min-height: 100px;
+                }
+                h1 { color: #1976d2; }
+                .error { color: #ff4444; }
+                .success { color: #4CAF50; }
+            </style>
+        </head>
+        <body>
+            <h1>🚀 SATI JavaScript Preview</h1>
+            <p>Check the console output below and browser console (F12) for results:</p>
+            <div class="console-output" id="consoleOutput">Console output will appear here...</div>
+            
+            <script id="userScript">
+                // User JavaScript will be inserted here
+            </script>
+        </body>
+        </html>
+    </template>
+
+    <script src="preview.js"></script>
+</body>
+
+</html>
