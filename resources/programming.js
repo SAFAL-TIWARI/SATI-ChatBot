@@ -18,7 +18,6 @@ const runBtn = document.getElementById('runBtn');
 const previewBtn = document.getElementById('previewBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const copyBtn = document.getElementById('copyBtn');
-const fullscreenBtn = document.getElementById('fullscreenBtn');
 const clearCodeBtn = document.getElementById('clearCodeBtn');
 const clearTerminalBtn = document.getElementById('clearTerminalBtn');
 const terminal = document.getElementById('terminal');
@@ -549,10 +548,6 @@ function setupEventListeners() {
 
     if (previewBtn) {
         previewBtn.addEventListener('click', handlePreviewCode);
-    }
-
-    if (fullscreenBtn) {
-        fullscreenBtn.addEventListener('click', handleOpenInNewTab);
     }
 
     if (clearCodeBtn) {
@@ -1786,88 +1781,6 @@ function handleCopyCode() {
         document.body.removeChild(textArea);
         showNotification('Code copied to clipboard!', 'success');
     });
-}
-
-// Handle open in new tab
-function handleOpenInNewTab() {
-    if (!monacoEditor || !isEditorReady) {
-        showNotification('Editor is not ready yet', 'warning');
-        return;
-    }
-
-    const code = monacoEditor.getValue();
-    const config = languageConfig[currentLanguage];
-
-    // Create a new window with the code editor
-    const newWindow = window.open('', '_blank');
-    const html = createFullscreenEditorHTML(code, config);
-
-    newWindow.document.write(html);
-    newWindow.document.close();
-
-    showNotification('Code editor opened in new tab', 'success');
-}
-
-// Create fullscreen editor HTML
-function createFullscreenEditorHTML(code, config) {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const isDark = currentTheme === 'dark';
-
-    return `
-<!DOCTYPE html>
-<html lang="en" data-theme="${currentTheme}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATI Code Editor - ${config.name}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: ${isDark ? '#121212' : '#f5f7f9'};
-            color: ${isDark ? '#ffffff' : '#2c3e50'};
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background: ${isDark ? '#1e1e1e' : '#ffffff'};
-            padding: 15px 20px;
-            border-bottom: 1px solid ${isDark ? '#333333' : '#e1e8ed'};
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .title { color: #1976d2; font-weight: 600; }
-        .editor-container { flex: 1; }
-        #editor { width: 100%; height: 100%; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1 class="title">SATI Code Editor - ${config.name}</h1>
-        <span>Fullscreen Mode</span>
-    </div>
-    <div class="editor-container">
-        <div id="editor"></div>
-    </div>
-    <script>
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
-        require(['vs/editor/editor.main'], function () {
-            monaco.editor.create(document.getElementById('editor'), {
-                value: ${JSON.stringify(code)},
-                language: '${config.monacoLanguage}',
-                theme: '${isDark ? 'vs-dark' : 'vs'}',
-                fontSize: 14,
-                automaticLayout: true,
-                minimap: { enabled: true },
-                wordWrap: 'on'
-            });
-        });
-    </script>
-</body>
-</html>`;
 }
 
 // Handle clear terminal

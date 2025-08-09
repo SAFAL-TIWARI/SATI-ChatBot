@@ -28,17 +28,19 @@
     animation: fadeInUp 0.8s ease-out;
 }
 
-/* Main Content Area - 60% width */
+/* Main Content Area - 80% width (expanded to take right sidebar space) */
 .main-content {
-    width: 60%;
+    width: 70%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Changed to row to place editor and terminal side by side */
     background: var(--bg-color);
     animation: fadeInUp 0.8s ease-out forwards;
+    gap: 20px; /* Add gap between editor and terminal */
 }
 
-/* Right Sidebar - 20% width */
+/* Right Sidebar - Hidden on desktop, shown on mobile */
 .right-sidebar {
+    display: none; /* Hide on desktop */
     width: 20%;
     background: var(--card-bg);
     border-left: 1px solid var(--border-color);
@@ -72,17 +74,18 @@
     border-left-color: transparent;
 }
 
-/* Editor Section */
+/* Editor Section - Takes 65% of main content width */
 .editor-section {
-    flex: 1;
+    flex: 0 0 65%; /* Fixed width of 65% */
     display: flex;
     flex-direction: column;
-    margin: 20px;
+    margin: 20px 0 20px 20px; /* Remove right margin */
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     overflow: hidden;
+    min-height: calc(100vh - 140px); /* Full height minus margins */
 }
 
 .editor-header {
@@ -187,16 +190,6 @@
     box-shadow: var(--shadow);
 }
 
-.btn-fullscreen {
-    background: #9c27b0;
-    color: white;
-}
-
-.btn-fullscreen:hover {
-    background: #7b1fa2;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
-}
 
 .btn-clear-code {
     background: #e91e63;
@@ -223,8 +216,8 @@
 /* Editor Container */
 .editor-container {
     flex: 1;
-    min-height: 400px;
     position: relative;
+    min-height: 0; /* Allow flex shrinking */
 }
 
 #monacoEditor {
@@ -233,17 +226,18 @@
     min-height: 400px;
 }
 
-/* Terminal Section */
+/* Terminal Section - Takes 40% of main content width, positioned on right */
 .terminal-section {
-    height: 300px;
+    flex: 0 0 45%; /* Fixed width of 40% */
     display: flex;
     flex-direction: column;
-    margin: 0 20px 20px 20px;
+    margin: 20px 20px 20px 0; /* Remove left margin */
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     overflow: hidden;
+    min-height: calc(100vh - 140px); /* Full height minus margins */
 }
 
 .terminal-header {
@@ -279,6 +273,7 @@
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     overflow-y: auto;
     position: relative;
+    min-height: 0; /* Allow flex shrinking */
 }
 
 [data-theme="light"] .terminal-container {
@@ -510,10 +505,10 @@
 }
 
 /* Desktop specific styles */
-@media (min-width: 1025px) {
+@media (min-width: 1455px) {
     .language-selector {
         position: absolute;
-        right: 360px; /* Adjust this value to position it just left of the run button */
+        right: 305px; /* Adjust this value to position it just left of the run button */
         top: 50%;
         transform: translateY(-50%);
     }
@@ -537,6 +532,32 @@
         height: auto;
     }
 
+    /* Show right sidebar on mobile */
+    .right-sidebar {
+        display: block;
+    }
+
+    /* Revert main content to column layout on mobile */
+    .main-content {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    /* Revert editor section to original mobile layout */
+    .editor-section {
+        flex: 1;
+        margin: 20px;
+        min-height: auto;
+    }
+
+    /* Revert terminal section to original mobile layout */
+    .terminal-section {
+        flex: none;
+        height: 200px;
+        margin: 0 20px 20px 20px;
+        min-height: auto;
+    }
+
     .editor-header {
         flex-direction: column;
         align-items: stretch;
@@ -547,10 +568,6 @@
         justify-content: center;
     }
 
-    .terminal-section {
-        height: 200px;
-    }
-
     .language-selector {
             transform: translateX(135px);
     }
@@ -559,11 +576,15 @@
 @media (max-width: 768px) {
     .editor-section {
         margin: 10px;
+        flex: 1;
+        min-height: auto;
     }
 
     .terminal-section {
         margin: 0 10px 10px 10px;
         height: 180px;
+        flex: none;
+        min-height: auto;
     }
 
     .editor-header,
@@ -578,7 +599,7 @@
     .btn {
         padding: 6px 12px;
         font-size: 0.8rem;
-        width: 48px;
+        width: 55px;
     }
 
     .editor-actions {
@@ -635,6 +656,13 @@
 
     .terminal-section {
         height: 250px;
+        flex: none;
+        min-height: auto;
+    }
+
+    .editor-section {
+        flex: 1;
+        min-height: auto;
     }
 
     #terminal {
