@@ -272,6 +272,7 @@
     color: #ffffff;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
     position: relative;
     min-height: 0; /* Allow flex shrinking */
 }
@@ -288,14 +289,19 @@
     flex-direction: column;
     font-size: 0.9rem;
     line-height: 1.4;
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+    max-width: 100%; /* Ensure content doesn't exceed container width */
 }
 
 .terminal-output {
     flex: 1;
     white-space: pre-wrap;
     word-wrap: break-word;
+    word-break: break-word; /* Additional word breaking for long strings */
     overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
     margin-bottom: 10px;
+    max-width: 100%; /* Ensure content doesn't exceed container width */
 }
 
 .terminal-input-line {
@@ -303,6 +309,8 @@
     align-items: center;
     gap: 5px;
     margin-top: auto;
+    max-width: 100%; /* Ensure input line doesn't exceed container width */
+    overflow: hidden; /* Prevent overflow */
 }
 
 .terminal-prompt {
@@ -321,6 +329,8 @@
     font-size: inherit;
     padding: 0;
     margin: 0;
+    min-width: 0; /* Allow input to shrink below its content width */
+    overflow: hidden; /* Prevent input from causing horizontal scroll */
 }
 
 .terminal-input::placeholder {
@@ -341,6 +351,10 @@
 
 .terminal-command {
     color: #ffffff;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 [data-theme="light"] .terminal-command {
@@ -350,6 +364,10 @@
 .terminal-result {
     color: #cccccc;
     margin-left: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: calc(100% - 20px); /* Account for margin */
 }
 
 [data-theme="light"] .terminal-result {
@@ -359,11 +377,19 @@
 .terminal-error {
     color: #ff6b6b;
     margin-left: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: calc(100% - 20px); /* Account for margin */
 }
 
 .terminal-success {
     color: #51cf66;
     margin-left: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: calc(100% - 20px); /* Account for margin */
 }
 
 /* Terminal input focus states */
@@ -392,6 +418,38 @@
 @keyframes blink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
+}
+
+/* Comprehensive terminal text wrapping - prevent horizontal scrollbars */
+.terminal-container *,
+.terminal-output *,
+#terminal * {
+    max-width: 100%;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Ensure pre elements in terminal also wrap */
+.terminal-container pre,
+.terminal-output pre,
+#terminal pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Ensure code elements in terminal also wrap */
+.terminal-container code,
+.terminal-output code,
+#terminal code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 /* Scrollbar for terminal output */

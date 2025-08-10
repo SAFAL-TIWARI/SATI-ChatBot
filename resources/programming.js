@@ -1645,7 +1645,7 @@ function executeHTML(code) {
             output += '⚠️  Warning: Missing <body> section\n';
         }
         
-        output += '\n🌐 Open in browser to see the visual output.\n💡 Tip: Use the "Preview" button for live preview with real-time updates!\n🚀 Preview supports HTML, CSS, and JavaScript with instant code changes.';
+        output += '\n🌐 Open in browser to see the visual output.\n💡 Tip: Use the "Preview" button for live preview with real-time updates!\n🚀 Preview supports HTML and JavaScript with instant code changes.';
         
         return output;
         
@@ -2400,10 +2400,10 @@ function handlePreviewCode() {
     const config = languageConfig[currentLanguage];
 
     // Check if the language supports preview (web technologies)
-    const previewableLanguages = ['html', 'css', 'javascript'];
+    const previewableLanguages = ['html', 'javascript'];
     
     if (!previewableLanguages.includes(currentLanguage)) {
-        showNotification(`Preview not available for ${config.name}. Only HTML, CSS, and JavaScript are supported for live preview.`, 'warning');
+        showNotification(`Preview not available for ${config.name}. Only HTML and JavaScript are supported for live preview.`, 'warning');
         return;
     }
 

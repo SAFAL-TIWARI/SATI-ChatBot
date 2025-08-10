@@ -10,7 +10,7 @@
 
 <!-- SATI ChatBot - AI-Powered Institute Assistant -->
 <!-- Generated: 2025-08-04T19:17:26+05:30 -->
-<!-- Team NeoCoders -->
+<!-- Team FluxoNauts -->
 
 <!-- Main Application Page -->
 <url>
@@ -38,7 +38,7 @@
   </image:image>
 </url>
 
-<!-- About Team NeoCoders -->
+<!-- About Team FluxoNauts -->
 <url>
   <loc>https://sati-chatbot.vercel.app/about.html</loc>
   <lastmod>2025-08-04T19:17:26+05:30</lastmod>
@@ -46,7 +46,7 @@
   <priority>0.8</priority>
   <image:image>
     <image:loc>https://sati-chatbot.vercel.app/images/preview.png</image:loc>
-    <image:title>Team NeoCoders</image:title>
+    <image:title>Team FluxoNauts</image:title>
     <image:caption>Meet the developers behind SATI ChatBot</image:caption>
   </image:image>
 </url>

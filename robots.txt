@@ -1,5 +1,5 @@
 # SATI ChatBot - Robots.txt
-# AI-Powered Institute Assistant by Team NeoCoders
+# AI-Powered Institute Assistant by Team FluxoNauts
 # Last Updated: 2025-08-04
 
 # Global Rules for All Crawlers

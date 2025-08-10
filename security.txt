@@ -1,5 +1,5 @@
 # SATI ChatBot - Security Policy
-# Team NeoCoders
+# Team FluxoNauts
 # Last Updated: 2025-07-20
 
 Contact: https://sati-chatbot.vercel.app/contact.html
