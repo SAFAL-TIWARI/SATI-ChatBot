@@ -635,7 +635,7 @@
     }
 
     #monacoEditor {
-        min-height: 300px;
+        min-height: 460px;
     }
 
     .placeholder-content {
@@ -647,7 +647,7 @@
     }
 
     .editor-container {
-        margin: -30px 0 -100px -40px;
+        margin: -30px 0 5px -40px;
     }
 
     .monaco-editor {
@@ -678,12 +678,12 @@
         font-size: 0.75rem;
     }
 
-    #monacoEditor {
+    /* #monacoEditor {
         min-height: 250px;
-    }
+    } */
 
     .terminal-section {
-        height: 250px;
+        height: 400px;
         flex: none;
         min-height: auto;
     }
