@@ -218,6 +218,9 @@
         <!-- Left Sidebar -->
         <aside class="left-sidebar">
             <div class="sidebar-header">
+                <button class="mobile-right-sidebar-toggle" id="mobileRightSidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h2>Resources - 3<sup>rd</sup> Semester</h2>
             </div>
             <div class="sidebar-menu">
@@ -366,6 +369,28 @@
             </div>
         </aside>
     </div>
+
+    <!-- Mobile Right Sidebar -->
+    <aside class="mobile-right-sidebar" id="mobileRightSidebar">
+        <div class="mobile-sidebar-header">
+            <h3>Search Resources</h3>
+            <button class="mobile-sidebar-close" id="mobileRightSidebarClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-sidebar-content">
+            <div class="search-container">
+                <input type="text" id="mobileSearchInput" placeholder="Search resources...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="resource-list" id="mobileResourceList">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Right Sidebar Overlay -->
+    <div class="mobile-right-sidebar-overlay" id="mobileRightSidebarOverlay"></div>
 
     <!-- Footer -->
     <footer class="footer">

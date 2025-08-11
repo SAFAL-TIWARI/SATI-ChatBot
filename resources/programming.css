@@ -38,18 +38,6 @@
     gap: 20px; /* Add gap between editor and terminal */
 }
 
-/* Right Sidebar - Hidden on desktop, shown on mobile */
-.right-sidebar {
-    display: none; /* Hide on desktop */
-    width: 20%;
-    background: var(--card-bg);
-    border-left: 1px solid var(--border-color);
-    position: sticky;
-    top: 0px;
-    height: calc(100vh - 0px);
-    overflow-y: auto;
-    animation: fadeInUp 0.8s ease-out forwards;
-}
 
 /* Coming Soon Badge */
 .coming-soon-badge {
@@ -79,7 +67,7 @@
     flex: 0 0 65%; /* Fixed width of 65% */
     display: flex;
     flex-direction: column;
-    margin: 20px 0 20px 20px; /* Remove right margin */
+    margin: 20px -10px 20px 20px; /* Remove right margin */
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow);
@@ -482,19 +470,6 @@
     background: rgba(0, 0, 0, 0.5);
 }
 
-/* Right Sidebar Content */
-.right-sidebar .sidebar-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.right-sidebar .sidebar-header h3 {
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-}
-
 .sidebar-content {
     padding: 20px;
 }
@@ -583,17 +558,12 @@
     }
 
     .left-sidebar,
-    .right-sidebar,
     .main-content {
         width: 100%;
         position: static;
         height: auto;
     }
 
-    /* Show right sidebar on mobile */
-    .right-sidebar {
-        display: block;
-    }
 
     /* Revert main content to column layout on mobile */
     .main-content {

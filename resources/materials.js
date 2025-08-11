@@ -2327,9 +2327,9 @@ function initializeDropdownFunctionality() {
 
 // Simple Navigation Dropdown with Dynamic Labels
 function initializeNavigationDropdown() {
-    // Handle dropdown item clicks for dynamic label changes
-    const dropdownItems = document.querySelectorAll('.dropdown-item:not(.disabled)');
-    const mobileDropdownItems = document.querySelectorAll('.mobile-dropdown-item:not(.disabled)');
+    // Handle dropdown item clicks for dynamic label changes (only navbar dropdown items)
+    const dropdownItems = document.querySelectorAll('.nav-dropdown .dropdown-item:not(.disabled)');
+    const mobileDropdownItems = document.querySelectorAll('.mobile-nav-dropdown .mobile-dropdown-item:not(.disabled)');
     
     // Desktop dropdown items
     dropdownItems.forEach(item => {
@@ -2471,9 +2471,129 @@ function initializeDesktopDropdownDelay() {
     }
 }
 
+// Mobile Right Sidebar Functionality
+function initializeMobileRightSidebar() {
+    const mobileToggle = document.getElementById('mobileRightSidebarToggle');
+    const mobileClose = document.getElementById('mobileRightSidebarClose');
+    const mobileSidebar = document.getElementById('mobileRightSidebar');
+    const mobileOverlay = document.getElementById('mobileRightSidebarOverlay');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileResourceList = document.getElementById('mobileResourceList');
+    const desktopSearchInput = document.getElementById('searchInput');
+    const desktopResourceList = document.getElementById('resourceList');
+
+    console.log('Mobile sidebar elements:', {
+        mobileToggle,
+        mobileClose,
+        mobileSidebar,
+        mobileOverlay
+    });
+
+    if (!mobileToggle || !mobileClose || !mobileSidebar || !mobileOverlay) {
+        console.warn('Some mobile sidebar elements not found');
+        return;
+    }
+
+    // Function to sync content from desktop to mobile sidebar
+    function syncSidebarContent() {
+        if (desktopSearchInput && mobileSearchInput) {
+            mobileSearchInput.value = desktopSearchInput.value;
+        }
+        if (desktopResourceList && mobileResourceList) {
+            mobileResourceList.innerHTML = desktopResourceList.innerHTML;
+        }
+    }
+
+    // Function to sync search from mobile to desktop
+    function syncSearchToDesktop() {
+        if (mobileSearchInput && desktopSearchInput) {
+            desktopSearchInput.value = mobileSearchInput.value;
+            // Trigger search event on desktop input
+            const event = new Event('input', { bubbles: true });
+            desktopSearchInput.dispatchEvent(event);
+        }
+    }
+
+    // Open mobile sidebar
+    function openMobileSidebar() {
+        console.log('Opening mobile sidebar');
+        syncSidebarContent();
+        mobileSidebar.classList.add('active');
+        mobileOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        console.log('Mobile sidebar classes:', mobileSidebar.className);
+    }
+
+    // Close mobile sidebar
+    function closeMobileSidebar() {
+        mobileSidebar.classList.remove('active');
+        mobileOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Event listeners
+    mobileToggle.addEventListener('click', function(e) {
+        console.log('Mobile toggle clicked');
+        e.preventDefault();
+        e.stopPropagation();
+        openMobileSidebar();
+    });
+    mobileClose.addEventListener('click', closeMobileSidebar);
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Sync mobile search with desktop
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', syncSearchToDesktop);
+    }
+
+    // Handle resource item clicks in mobile sidebar
+    if (mobileResourceList) {
+        mobileResourceList.addEventListener('click', function(e) {
+            const resourceItem = e.target.closest('.resource-item');
+            if (resourceItem) {
+                // Close mobile sidebar when resource is selected
+                closeMobileSidebar();
+                
+                // Trigger click on corresponding desktop resource item
+                const resourceId = resourceItem.dataset.resourceId;
+                if (resourceId && desktopResourceList) {
+                    const desktopItem = desktopResourceList.querySelector(`[data-resource-id="${resourceId}"]`);
+                    if (desktopItem) {
+                        desktopItem.click();
+                    }
+                }
+            }
+        });
+    }
+
+    // Close sidebar on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
+            closeMobileSidebar();
+        }
+    });
+
+    // Sync content when desktop content changes
+    if (desktopResourceList) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    syncSidebarContent();
+                }
+            });
+        });
+        
+        observer.observe(desktopResourceList, {
+            childList: true,
+            subtree: true
+        });
+    }
+}
+
 // Initialize dropdown functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeDropdownFunctionality();
     initializeNavigationDropdown();
     initializeDesktopDropdownDelay();
+    initializeMobileRightSidebar();
 });
