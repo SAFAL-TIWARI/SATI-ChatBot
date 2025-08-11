@@ -4028,13 +4028,19 @@ body {
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         flex-shrink: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding:0;
+        /* overflow-x: auto; */
+        /* -webkit-overflow-scrolling: touch; */
     }
 
     .settings-content {
         min-width: 100%;
         width: 100%;
         flex-shrink: 0;
-        max-height: 30vh;
+        max-height: 100vh;
         overflow-y: auto;
         padding: var(--spacing-4);
         scroll-behavior: smooth;
@@ -4093,11 +4099,66 @@ body {
         width: 100%;
     }
 
-    /* Ensure all settings tabs maintain full width */
+    /* Mobile settings tabs - icon only */
     .settings-tab {
-        white-space: nowrap;
-        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border-left: none;
+        padding: 0;
+        margin: 0 1px;
         flex-shrink: 0;
+        position: relative;
+    }
+
+    .settings-tab i {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .settings-tab-text {
+        display: none;
+    }
+
+    .settings-tab.active {
+        background-color: var(--accent-color);
+        color: white;
+        border-left: none;
+    }
+
+    .settings-tab:hover {
+        background-color: var(--bg-tertiary);
+        transform: scale(1.05);
+    }
+
+    .settings-tab.active:hover {
+        background-color: var(--accent-color);
+        opacity: 0.9;
+    }
+
+    /* Settings tab header in content area */
+    .settings-tab-header {
+        margin-bottom: var(--spacing-4);
+        padding-bottom: var(--spacing-3);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .settings-tab-header h2 {
+        color: var(--text-primary);
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+    }
+
+    .settings-tab-header h2 i {
+        color: var(--accent-color);
+        font-size: var(--font-size-base);
     }
 
     /* Customize Modal - Mobile scrolling */
@@ -4138,7 +4199,7 @@ body {
 
     .settings-modal.tab-general .settings-content,
     .settings-modal.tab-chat .settings-content {
-        max-height: calc(60vh - 240px) !important;
+        max-height: calc(90vh - 280px) !important;
         overflow-y: auto;
     }
 }
@@ -4249,6 +4310,52 @@ body {
     .login-modal .modal-body {
         overflow: visible;
         position: relative;
+    }
+}
+
+/* Desktop styles for settings - ensure text is visible */
+@media (min-width: 769px) {
+    .settings-sidebar {
+        display: block;
+        padding: var(--spacing-4) 0;
+    }
+
+    .settings-tab {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-3);
+        padding: var(--spacing-3) var(--spacing-4);
+        border-radius: 0;
+        height: auto;
+        min-width: auto;
+        margin: 0;
+        border-left: 3px solid transparent;
+    }
+
+    .settings-tab-text {
+        display: inline;
+    }
+
+    .settings-tab i {
+        font-size: var(--font-size-sm);
+    }
+
+    .settings-tab.active {
+        background-color: var(--bg-primary);
+        color: var(--accent-color);
+        border-left-color: var(--accent-color);
+    }
+
+    .settings-tab:hover {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        transform: none;
+    }
+
+    /* Hide settings tab header on desktop since text is in sidebar */
+    .settings-tab-header {
+        display: none;
     }
 }
 
