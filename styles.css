@@ -1239,7 +1239,7 @@ body {
 }
 
 .profile-avatar.logged-in .avatar-text {
-    color: white;
+    color: var(--text-primary);
 }
 
 /* Profile Menu */

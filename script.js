@@ -9040,6 +9040,13 @@ function initializeFileAttachment() {
                 if (!userEmail) {
                     toast.show('You must be logged in to upload files', 'warning');
                     console.warn('[Auth] User not logged in for file upload');
+                    
+                    // Automatically show login modal after 2 seconds when user needs to login for file upload
+                    setTimeout(() => {
+                        modal.show('loginModal');
+                        setTimeout(addLoginModalEventListeners, 0);
+                    }, 1500);
+                    
                     return;
                 }
                 const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
@@ -9206,6 +9213,13 @@ function initializeFileAttachment() {
             if (!userEmail) {
                 toast.show('You must be logged in to upload files', 'warning');
                 console.warn('[Auth] User not logged in for file upload');
+                
+                // Automatically show login modal after 2 seconds when user needs to login for file upload
+                    setTimeout(() => {
+                        modal.show('loginModal');
+                        setTimeout(addLoginModalEventListeners, 0);
+                    }, 1500);
+                
                 continue;
             }
             const filePath = `user-txt-uploads/${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}_${file.name}`;
