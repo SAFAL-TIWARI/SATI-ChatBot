@@ -6848,7 +6848,7 @@ textarea:focus-visible {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 4px 12px 4px 8px;
+    padding: 4px 8px 4px 8px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -6856,14 +6856,20 @@ textarea:focus-visible {
     color: var(--text-primary);
     box-shadow: var(--shadow-sm);
     max-width: 220px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 .file-chip i {
     color: var(--accent-color);
     margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.file-chip span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
 }
 
 .remove-file-chip-btn {
@@ -6875,10 +6881,78 @@ textarea:focus-visible {
     cursor: pointer;
     padding: 0 2px;
     transition: color 0.15s;
+    flex-shrink: 0;
 }
 
 .remove-file-chip-btn:hover {
     color: var(--danger-hover);
+}
+
+/* Message Attachments Styles */
+.message-attachments {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message-attachment {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    max-width: 280px;
+}
+
+.message-attachment i {
+    color: var(--accent-color);
+    font-size: 1.1em;
+    flex-shrink: 0;
+}
+
+.message-attachment .attachment-name {
+    flex: 1;
+    font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.message-attachment .attachment-type {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    background: var(--accent-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+/* Light theme styles for message attachments */
+[data-theme="light"] .message-attachment {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    color: #1c2638;
+}
+
+[data-theme="light"] .message-attachment i {
+    color: var(--accent-color);
+}
+
+[data-theme="light"] .message-attachment .attachment-name {
+    color: #1c2638;
+}
+
+[data-theme="light"] .message-attachment .attachment-type {
+    background: var(--accent-color);
+    color: white;
 }
 
 [data-theme="light"] .file-chip {

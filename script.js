@@ -2926,7 +2926,7 @@ class ChatManager {
         this.currentController = null;
     }
 
-    async sendMessage(content, model, isPromptSelection = false) {
+    async sendMessage(content, model, isPromptSelection = false, attachments = null) {
         if (this.isProcessing) return;
 
         // Ensure API manager is available
@@ -2974,11 +2974,12 @@ class ChatManager {
 
         // Add user message only if it's not a prompt selection
         if (!isPromptSelection) {
-            const userMessage = {
+                        const userMessage = {
                 id: utils.generateId(),
                 role: 'user',
-                content: userInputForDisplay, // Only show user input in chat
-                timestamp: new Date().toISOString()
+                content: userInputForDisplay,
+                timestamp: new Date().toISOString(),
+                attachments: attachments
             };
 
             chatState.currentMessages.push(userMessage);
@@ -3278,7 +3279,7 @@ class ChatManager {
         }
 
         // Add the enhanced prompt as user message (visible to user)
-        const userMessage = {
+                    const userMessage = {
             role: 'user',
             content: prompt, // Enhanced prompt visible to user
             timestamp: new Date().toISOString(),
@@ -3356,6 +3357,28 @@ class ChatManager {
         // Use displayContent for user messages if available, otherwise use content
         const contentToDisplay = message.displayContent || message.content;
         messageElement.querySelector('.message-text').innerHTML = utils.parseMarkdown(utils.escapeHtml(contentToDisplay));
+
+        // Add file attachments display for user messages
+        console.log('🎨 Rendering message:', { role: message.role, attachments: message.attachments });
+        if (message.role === 'user' && message.attachments && message.attachments.length > 0) {
+            const attachmentsContainer = document.createElement('div');
+            attachmentsContainer.className = 'message-attachments';
+            
+            message.attachments.forEach(attachment => {
+                const attachmentElement = document.createElement('div');
+                attachmentElement.className = 'message-attachment';
+                attachmentElement.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <span class="attachment-name">${attachment.name}</span>
+                    <span class="attachment-type">File</span>
+                `;
+                attachmentsContainer.appendChild(attachmentElement);
+            });
+            
+            // Insert attachments before the message text
+            const messageText = messageElement.querySelector('.message-text');
+            messageText.parentNode.insertBefore(attachmentsContainer, messageText);
+        }
         messageElement.querySelector('.message-timestamp').textContent = utils.formatTime(message.timestamp);
         messageElement.querySelector('.copy-btn').setAttribute('data-message-id', message.id);
 
@@ -9143,7 +9166,7 @@ async function sendMessage() {
     if (fileTextForAI) {
         // Create enhanced prompt that includes file content but shows only user input
         const enhancedPrompt = input + (input ? '\n\n--- File Content ---\n' + fileTextForAI : fileTextForAI);
-        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel);
+        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel, false, attachedFilesForDisplay);
     } else {
         // No file attached, send user input as is
         await chatManager.sendMessage(input, chatState.selectedModel);
@@ -9306,6 +9329,9 @@ async function sendMessage() {
     elements.messageInput.value = '';
     elements.messageInput.style.height = 'auto';
     
+    // Store file information for display in chat
+    const attachedFilesForDisplay = attachedFiles.map(f => ({ name: f.name, size: f.file?.size }));
+    
     // Store file texts for background processing
     const fileTextsForAI = attachedFiles.map(f => f.text);
     attachedFiles = [];
@@ -9317,7 +9343,7 @@ async function sendMessage() {
         // Create enhanced prompt that includes file content but shows only user input
         const fileContent = fileTextsForAI.join('\n\n--- Next File ---\n\n');
         const enhancedPrompt = input + (input ? '\n\n--- File Content ---\n' + fileContent : fileContent);
-        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel);
+        await chatManager.sendMessage(enhancedPrompt, chatState.selectedModel, false, attachedFilesForDisplay);
     } else {
         // No files attached, send user input as is
         await chatManager.sendMessage(input, chatState.selectedModel);
