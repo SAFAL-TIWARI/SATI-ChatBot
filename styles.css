@@ -3677,6 +3677,7 @@ body {
     .app-container:not(.sidebar-collapsed) .sidebar-toggle,
     .app-container.sidebar-collapsed .sidebar-toggle {
         left: 20px !important;
+        top:12px;
     }
 
     /* Mobile: Move toggle button with sidebar when open */
@@ -3819,6 +3820,7 @@ body {
     .input-container {
         width: 100% !important;
         box-sizing: border-box !important;
+        margin-bottom: -10px;
     }
 
     /* Ensure input wrapper takes full width */
@@ -5850,6 +5852,7 @@ textarea:focus-visible {
     font-size: var(--font-size-sm);
     line-height: 1.6;
     overflow-x: auto;
+    color: var(--text-primary);
 }
 
 .code-block-content code {
@@ -5857,6 +5860,7 @@ textarea:focus-visible {
     padding: 0 !important;
     border-radius: 0 !important;
     font-family: inherit;
+    color: var(--text-primary);
 }
 
 /* Inline Code */
@@ -6236,18 +6240,18 @@ textarea:focus-visible {
 /* Light Theme Adjustments */
 [data-theme="light"] .code-block-container {
     background: #f8f9fa;
-    border-color: #e9ecef;
+    border-color: #d1d2d4;
 }
 
 [data-theme="light"] .code-block-header {
-    background: #ffffff;
+    background: #d1d2d4;
     border-color: #e9ecef;
-    color: #6c757d;
+    color: var(--text-primary);
 }
 
 [data-theme="light"] .code-action-btn {
     border-color: #e9ecef;
-    color: #6c757d;
+    color: var(--text-primary);
 }
 
 [data-theme="light"] .message-text code:not(.code-block-content code) {
