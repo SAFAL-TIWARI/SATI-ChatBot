@@ -1,5 +1,5 @@
 /* Import base styles from materials.css */
-@import url('./materials.css');
+@import url('/resources/materials/materials.css');
 
 /* Ensure dropdown functionality works properly */
 .dropdown-menu.show {

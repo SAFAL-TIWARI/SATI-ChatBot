@@ -2422,7 +2422,7 @@ function setCurrentPageActive() {
     const currentPath = window.location.pathname;
     
     // Handle materials page
-    if (currentPath.includes('/resources/materials.html')) {
+    if (currentPath.includes('materials.html')) {
         updateDropdownLabel('Materials');
         updateMobileDropdownLabel('Materials');
     }
@@ -2590,10 +2590,78 @@ function initializeMobileRightSidebar() {
     }
 }
 
+// Semester Dropdown Functionality
+function initializeSemesterDropdown() {
+    const semesterDropdown = document.querySelector('.semester-dropdown');
+    const semesterSelected = document.getElementById('semesterSelected');
+    const semesterOptions = document.getElementById('semesterOptions');
+    const semesterOptionItems = document.querySelectorAll('.semester-option');
+
+    if (!semesterDropdown || !semesterSelected || !semesterOptions) {
+        return;
+    }
+
+    // Handle mobile click functionality
+    function handleMobileClick() {
+        if (window.innerWidth <= 768) {
+            semesterDropdown.classList.toggle('mobile-active');
+        }
+    }
+
+    // Handle option selection
+    function handleOptionSelect(option) {
+        const semester = option.getAttribute('data-semester');
+        const semesterText = option.innerHTML;
+        
+        // Update selected text
+        semesterSelected.innerHTML = semesterText;
+        
+        // Update active state
+        semesterOptionItems.forEach(item => item.classList.remove('active'));
+        option.classList.add('active');
+        
+        // Close dropdown
+        semesterDropdown.classList.remove('mobile-active');
+        
+        // Here you can add navigation logic based on semester
+        // For now, we'll just log the selection
+        console.log(`Selected semester: ${semester}`);
+        
+        // You can add navigation logic here, for example:
+        // navigateToSemester(semester);
+    }
+
+    // Add click event to selected element for mobile
+    semesterSelected.addEventListener('click', handleMobileClick);
+
+    // Add click events to options
+    semesterOptionItems.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            handleOptionSelect(this);
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!semesterDropdown.contains(e.target)) {
+            semesterDropdown.classList.remove('mobile-active');
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            semesterDropdown.classList.remove('mobile-active');
+        }
+    });
+}
+
 // Initialize dropdown functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     initializeDropdownFunctionality();
     initializeNavigationDropdown();
     initializeDesktopDropdownDelay();
     initializeMobileRightSidebar();
+    initializeSemesterDropdown();
 });
