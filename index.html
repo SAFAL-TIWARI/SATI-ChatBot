@@ -509,7 +509,7 @@
     <div class="modal-overlay" id="loginModal">
         <div class="modal-container login-modal monkey-login-card">
             <div class="modal-header">
-                <h2>🔐 Sign In</h2>
+                <h2><i class="fas fa-lock" style="color: #3b82f6;"></i> Sign In</h2>
                 <button class="close-btn" id="closeLoginBtn">
                     <i class="fas fa-times"></i>
                 </button>
@@ -722,7 +722,7 @@
             <div class="modal-body">
                 <div class="welcome-container">
                     <div class="welcome-icon">
-                        <i class="fas fa-robot"></i>
+                        <i class="fas fa-user-graduate" style="color: #3b82f6;"></i>
                     </div>
                     <h3 id="welcomeHeading">Hello, <span id="welcomeUsername">User</span>!</h3>
                     <p id="welcomeMessage">Welcome back to SATI ChatBot. We're excited to assist you today!</p>
@@ -774,7 +774,7 @@
                                 <div class="wave-ring"></div>
                             </div>
                             <div class="voice-avatar">
-                                <i class="fas fa-robot"></i>
+                                <i class="fas fa-microphone-alt" style="color: #10b981;"></i>
                             </div>
                         </div>
                     </div>
@@ -832,46 +832,46 @@
             <div class="welcome-container">
                 <div class="welcome-header">
                     <div class="welcome-avatar">
-                        <i class="fas fa-robot"></i>
+                        <i class="fas fa-chalkboard-teacher" style="color: #8b5cf6;"></i>
                     </div>
-                    <h2>🎓 Hello! I'm your SATI AI Assistant</h2>
+                    <h2><i class="fas fa-graduation-cap" style="color: #f59e0b;"></i> Hello! I'm your SATI AI Assistant</h2>
                     <p>I'm specialized in providing information about <strong>Samrat Ashok Technological Institute
                             (SATI), Vidisha</strong>. Choose a topic to get started:</p>
                 </div>
 
                 <div class="prompt-boxes-grid">
                     <div class="prompt-box" data-prompt="admissions">
-                        <div class="prompt-icon">🎯</div>
+                        <div class="prompt-icon"><i class="fas fa-bullseye" style="color: #ef4444;"></i></div>
                         <div class="prompt-title">How do I get admission to SATI?</div>
                         <div class="prompt-description">JEE cutoffs, procedures, and eligibility criteria</div>
                     </div>
 
                     <div class="prompt-box" data-prompt="academics">
-                        <div class="prompt-icon">📚</div>
+                        <div class="prompt-icon"><i class="fas fa-book-open" style="color: #3b82f6;"></i></div>
                         <div class="prompt-title">What courses does SATI offer?</div>
                         <div class="prompt-description">B.Tech, M.Tech programs and curriculum details</div>
                     </div>
 
                     <div class="prompt-box" data-prompt="placements">
-                        <div class="prompt-icon">💼</div>
+                        <div class="prompt-icon"><i class="fas fa-briefcase" style="color: #10b981;"></i></div>
                         <div class="prompt-title">What are SATI's placement records?</div>
                         <div class="prompt-description">Top recruiters and career opportunities</div>
                     </div>
 
                     <div class="prompt-box" data-prompt="campus">
-                        <div class="prompt-icon">🏠</div>
+                        <div class="prompt-icon"><i class="fas fa-university" style="color: #8b5cf6;"></i></div>
                         <div class="prompt-title">Tell me about campus facilities</div>
                         <div class="prompt-description">Hostel, mess, and campus amenities</div>
                     </div>
 
                     <div class="prompt-box" data-prompt="activities">
-                        <div class="prompt-icon">🏆</div>
+                        <div class="prompt-icon"><i class="fas fa-trophy" style="color: #f59e0b;"></i></div>
                         <div class="prompt-title">What activities can I join at SATI?</div>
                         <div class="prompt-description">Technical clubs, cultural events, and sports</div>
                     </div>
 
                     <div class="prompt-box" data-prompt="institute">
-                        <div class="prompt-icon">📖</div>
+                        <div class="prompt-icon"><i class="fas fa-book" style="color: #06b6d4;"></i></div>
                         <div class="prompt-title">Tell me about SATI's background</div>
                         <div class="prompt-description">History, achievements, and faculty information</div>
                     </div>
@@ -937,8 +937,8 @@
                     <div class="form-col">
                         <label>API Provider</label>
                         <select class="form-control" id="apiProviderSetting">
-                            <option value="groq">☁️ Groq (Recommended)</option>
-                            <option value="gemini">🧠 Google Gemini</option>
+                            <option value="groq"><i class="fas fa-cloud" style="color: #06b6d4;"></i> Groq (Recommended)</option>
+                            <option value="gemini"><i class="fas fa-brain" style="color: #8b5cf6;"></i> Google Gemini</option>
                         </select>
                     </div>
                     <div class="form-col">
@@ -951,12 +951,12 @@
             </div>
 
             <div class="form-section">
-                <h3>🎤 Voice Agent Configuration</h3>
+                <h3><i class="fas fa-microphone" style="color: #ef4444;"></i> Voice Agent Configuration</h3>
                 <div class="form-row">
                     <div class="form-col voice-model-col">
                         <label>Voice Model</label>
                         <select class="form-control" id="voiceModelSetting">
-                            <option value="">🔄 Loading voices...</option>
+                            <option value=""><i class="fas fa-spinner fa-spin" style="color: #6b7280;"></i> Loading voices...</option>
                         </select>
                     </div>
                     <div class="form-col">
