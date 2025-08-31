@@ -513,18 +513,6 @@ body {
     flex-wrap: nowrap;
 }
 
-.resources-toggle-icon {
-    color: var(--primary-color);
-    cursor: pointer;
-    transition: var(--transition);
-    margin-right: 8px;
-}
-
-.resources-toggle-icon:hover {
-    color: var(--accent-color);
-    transform: scale(1.1);
-}
-
 /* Semester Dropdown Styles */
 .semester-dropdown {
     position: relative;
