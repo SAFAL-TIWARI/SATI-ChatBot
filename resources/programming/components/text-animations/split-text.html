@@ -4,37 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATI Materials - Study Materials, Syllabus & Academic Information | SATI ChatBot</title>
+    <title>Split Text Animation - Text Animations | SATI ChatBot</title>
     <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
-    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/materials/2nd-year/3rd-sem/materials.html">
+    <link rel="canonical"
+        href="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
 
     <!-- Primary Meta Tags -->
-    <meta name="title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+    <meta name="title" content="Split Text Animation - Text Animations">
     <meta name="description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, hostel details, and more.">
+        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions and scroll triggers.">
     <meta name="keywords"
-        content="SATI materials, SATI study materials, SATI syllabus, SATI academic calendar, SATI placement information, SATI hostel details, engineering materials Vidisha, SATI student materials, academic information SATI">
+        content="split text animation, GSAP animation, text effects, character animation, scroll trigger, web animations, SATI programming">
     <meta name="author" content="Team FluxoNauts">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url"
-        content="https://sati-chatbot.vercel.app/resources/materials/2nd-year/3rd-sem/materials.html">
-    <meta property="og:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
+    <meta property="og:title" content="Split Text Animation - Text Animations">
     <meta property="og:description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, placement information, and more.">
+        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions.">
     <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <meta property="og:site_name" content="SATI ChatBot">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url"
-        content="https://sati-chatbot.vercel.app/resources/materials/2nd-year/3rd-sem/materials.html">
-    <meta name="twitter:title" content="SATI Materials - Study Materials, Syllabus & Academic Information">
+        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
+    <meta name="twitter:title" content="Split Text Animation - Text Animations">
     <meta name="twitter:description"
-        content="Access comprehensive SATI materials including study materials, syllabus, academic calendar, and more.">
+        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -77,7 +79,12 @@
     </script>
     <!-- End Google Analytics 4 -->
 
-    <link rel="stylesheet" href="/resources/materials/materials.css">
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+
+    <link rel="stylesheet" href="split-text.css">
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -148,11 +155,11 @@
             <div class="nav-menu">
                 <a href="../../../../index.html" class="nav-link">Home</a>
                 <div class="nav-dropdown">
-                    <span class="dropdown-toggle active">Materials <i class="fas fa-chevron-down"></i></span>
+                    <span class="dropdown-toggle active">Programming <i class="fas fa-chevron-down"></i></span>
                     <div class="dropdown-menu">
                         <a href="/resources/materials/2nd-year/3rd-sem/materials.html"
-                            class="dropdown-item active">Materials</a>
-                        <a href="/resources/programming/practice.html" class="dropdown-item">Programming</a>
+                            class="dropdown-item">Materials</a>
+                        <a href="/resources/programming/practice.html" class="dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../../../../about.html" class="nav-link">About</a>
@@ -192,14 +199,15 @@
                 </a>
                 <div class="mobile-nav-dropdown">
                     <div class="mobile-nav-link active mobile-dropdown-toggle">
-                        <i class="fas fa-book"></i>
-                        <span>Materials</span>
+                        <i class="fas fa-code"></i>
+                        <span>Programming</span>
                         <i class="fas fa-chevron-down mobile-dropdown-arrow"></i>
                     </div>
                     <div class="mobile-dropdown-menu">
                         <a href="/resources/materials/2nd-year/3rd-sem/materials.html"
-                            class="mobile-dropdown-item active">Materials</a>
-                        <a href="/resources/programming/practice.html" class="mobile-dropdown-item">Programming</a>
+                            class="mobile-dropdown-item">Materials</a>
+                        <a href="/resources/programming/practice.html"
+                            class="mobile-dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../../../../about.html" class="mobile-nav-link">
@@ -222,186 +230,204 @@
         <!-- Left Sidebar -->
         <aside class="left-sidebar">
             <div class="sidebar-header">
-                <button class="mobile-right-sidebar-toggle" id="mobileRightSidebarToggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13.5" viewBox="0 0 17 13.5"
-                        crxemulator="" foxified="">
-                        <rect x="3" y="3" width="1.5" height="1.5" fill="currentColor" />
-                        <rect x="3" y="6" width="1.5" height="1.5" fill="currentColor" />
-                        <rect x="3" y="9" width="1.5" height="1.5" fill="currentColor" />
-                        <path
-                            d="M15,0H1A1,1,0,0,0,0,1V12.5a1,1,0,0,0,1,1H15a1,1,0,0,0,1-1V1A1,1,0,0,0,15,0ZM1.5,1.5H6V12H1.5ZM14.5,12h-7V1.5h7Z"
-                            fill="currentColor" />
+                  <button class="mobile-right-sidebar-toggle" id="mobileRightSidebarToggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13.5" viewBox="0 0 17 13.5" crxemulator="" foxified="">
+                        <rect x="3" y="3" width="1.5" height="1.5" fill="currentColor"/>
+                        <rect x="3" y="6" width="1.5" height="1.5" fill="currentColor"/>
+                        <rect x="3" y="9" width="1.5" height="1.5" fill="currentColor"/>
+                        <path d="M15,0H1A1,1,0,0,0,0,1V12.5a1,1,0,0,0,1,1H15a1,1,0,0,0,1-1V1A1,1,0,0,0,15,0ZM1.5,1.5H6V12H1.5ZM14.5,12h-7V1.5h7Z" fill="currentColor"/>
                     </svg>
                 </button>
-                <h2>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13.5" viewBox="0 0 17 13.5"
-                        class="resources-toggle-icon">
-                        <rect x="3" y="3" width="1.5" height="1.5" fill="currentColor" />
-                        <rect x="3" y="6" width="1.5" height="1.5" fill="currentColor" />
-                        <rect x="3" y="9" width="1.5" height="1.5" fill="currentColor" />
-                        <path
-                            d="M15,0H1A1,1,0,0,0,0,1V12.5a1,1,0,0,0,1,1H15a1,1,0,0,0,1-1V1A1,1,0,0,0,15,0ZM1.5,1.5H6V12H1.5ZM14.5,12h-7V1.5h7Z"
-                            fill="currentColor" />
-                    </svg>
-                    Resources - 
-                    <span class="semester-dropdown">
-                        <span class="semester-selected" id="semesterSelected">3<sup>rd</sup> Semester</span>
-                        <div class="semester-options" id="semesterOptions">
-                            <div class="semester-option disabled" data-semester="1">1<sup>st</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="2">2<sup>nd</sup> Semester</div>
-                            <div class="semester-option active" data-semester="3">3<sup>rd</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="4">4<sup>th</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="5">5<sup>th</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="6">6<sup>th</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="7">7<sup>th</sup> Semester</div>
-                            <div class="semester-option disabled" data-semester="8">8<sup>th</sup> Semester</div>
-                        </div>
-                    </span>
-                </h2>
+                <h2>Resources</h2>
             </div>
             <div class="sidebar-menu">
-                <div class="menu-item active" data-category="notes">
+                <div class="menu-item disabled" data-category="notes">
                     <i class="fas fa-sticky-note"></i>
                     <span>Notes</span>
+                    <span class="coming-soon-badge">Soon</span>
                 </div>
-                <div class="menu-item" data-category="practical">
-                    <i class="fas fa-laptop-code"></i>
-                    <span>Practical Assignment</span>
+                <div class="menu-item" data-category="practice">
+                    <i class="fas fa-code"></i>
+                    <span>Practice</span>
                 </div>
-                <div class="menu-item" data-category="test-papers">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Test Papers</span>
-                </div>
-                <div class="menu-item dropdown-item" data-category="syllabus">
-                    <i class="fas fa-book"></i>
-                    <span>Syllabus</span>
+                <div class="menu-item dropdown-item active" data-category="components">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>Components</span>
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
-                <div class="sidebar-dropdown-content" id="syllabusDropdown">
-                    <div class="sub-menu-item" data-branch="cse" data-category="syllabus">
-                        <i class="fas fa-code"></i>
-                        <span>CSE</span>
+                <div class="submenu-container show">
+                    <div class="submenu-item active" data-subcategory="text-animations">
+                        <i class="fas fa-font"></i>
+                        <span>Text Animations</span>
                     </div>
-                    <div class="sub-menu-item" data-branch="ec" data-category="syllabus">
-                        <i class="fas fa-microchip"></i>
-                        <span>ECE</span>
+                    <div class="submenu-item" data-subcategory="special-effects">
+                        <i class="fas fa-magic"></i>
+                        <span>Special Effects</span>
+                        <span class="coming-soon-badge">Soon</span>
                     </div>
-                    <div class="sub-menu-item" data-branch="me" data-category="syllabus">
-                        <i class="fas fa-cogs"></i>
-                        <span>ME</span>
+                    <div class="submenu-item" data-subcategory="animations">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Animations</span>
+                        <span class="coming-soon-badge">Soon</span>
                     </div>
-                    <div class="sub-menu-item" data-branch="ee" data-category="syllabus">
-                        <i class="fas fa-bolt"></i>
-                        <span>EE</span>
+                    <div class="submenu-item" data-subcategory="elements">
+                        <i class="fas fa-shapes"></i>
+                        <span>Elements</span>
+                        <span class="coming-soon-badge">Soon</span>
                     </div>
-                    <div class="sub-menu-item" data-branch="ce" data-category="syllabus">
-                        <i class="fas fa-building"></i>
-                        <span>CE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="iot" data-category="syllabus">
-                        <i class="fas fa-wifi"></i>
-                        <span>IoT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="it" data-category="syllabus">
-                        <i class="fas fa-laptop"></i>
-                        <span>IT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="bct" data-category="syllabus">
-                        <i class="fas fa-broadcast-tower"></i>
-                        <span>BCT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiads" data-category="syllabus">
-                        <i class="fas fa-brain"></i>
-                        <span>AIADS</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiaml" data-category="syllabus">
-                        <i class="fas fa-robot"></i>
-                        <span>AIAML</span>
+                    <div class="submenu-item" data-subcategory="backgrounds">
+                        <i class="fas fa-image"></i>
+                        <span>Backgrounds</span>
+                        <span class="coming-soon-badge">Soon</span>
                     </div>
                 </div>
-                <div class="menu-item dropdown-item" data-category="pyqs">
+                <div class="menu-item disabled" data-category="practice-questions">
                     <i class="fas fa-question-circle"></i>
-                    <span>PYQs</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                </div>
-                <div class="sidebar-dropdown-content" id="pyqsDropdown">
-                    <div class="sub-menu-item" data-branch="cse" data-category="pyqs">
-                        <i class="fas fa-code"></i>
-                        <span>CSE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ec" data-category="pyqs">
-                        <i class="fas fa-microchip"></i>
-                        <span>ECE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="me" data-category="pyqs">
-                        <i class="fas fa-cogs"></i>
-                        <span>ME</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ee" data-category="pyqs">
-                        <i class="fas fa-bolt"></i>
-                        <span>EE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="ce" data-category="pyqs">
-                        <i class="fas fa-building"></i>
-                        <span>CE</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="iot" data-category="pyqs">
-                        <i class="fas fa-wifi"></i>
-                        <span>IoT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="it" data-category="pyqs">
-                        <i class="fas fa-laptop"></i>
-                        <span>IT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="bct" data-category="pyqs">
-                        <i class="fas fa-broadcast-tower"></i>
-                        <span>BCT</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiads" data-category="pyqs">
-                        <i class="fas fa-brain"></i>
-                        <span>AIADS</span>
-                    </div>
-                    <div class="sub-menu-item" data-branch="aiaml" data-category="pyqs">
-                        <i class="fas fa-robot"></i>
-                        <span>AIAML</span>
-                    </div>
+                    <span>Practice Questions</span>
+                    <span class="coming-soon-badge">Soon</span>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Preview Container -->
-        <main class="main-preview">
-            <div class="preview-header">
-                <h1 id="previewTitle">Object Oriented Programming - Notes</h1>
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="component-header">
+                <h1>Split Text Animation</h1>
+                <p>Beautiful text animation that splits text into characters and animates them with smooth transitions
+                    and scroll triggers.</p>
             </div>
-            <div class="preview-container">
-                <div class="loading-overlay" id="loadingOverlay" style="display:none;"></div>
-                <div class="loading-spinner" id="loadingSpinner">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading preview...</p>
+
+            <div class="component-controls">
+                <div class="control-buttons">
+                    <button class="btn btn-preview active" id="previewBtn">
+                        <i class="fas fa-eye"></i>
+                        Preview
+                    </button>
+                    <button class="btn btn-code" id="codeBtn">
+                        <i class="fas fa-code"></i>
+                        Code
+                    </button>
+                    <div class="language-selector">
+                        <select id="languageSelect">
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="js">JavaScript</option>
+                        </select>
+                    </div>
                 </div>
-                <iframe id="pdfPreview" src="" frameborder="0"></iframe>
+
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="downloadBtn">
-                    <i class="fas fa-download"></i>
-                    Download PDF
+
+            <!-- Preview Container -->
+            <div class="preview-container" id="previewContainer">
+                <button class="restart-animation-btn" id="restartBtn" title="Restart Animation">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                            fill="currentColor" />
+                    </svg>
                 </button>
-                <button class="btn btn-secondary" id="shareBtn">
-                    <i class="fas fa-share"></i>
-                    Share PDF
-                </button>
+                <div class="animation-demo">
+                    <div class="split-text-demo" id="splitTextDemo">
+                        Hello World!
+                    </div>
+                </div>
             </div>
-        </main>
+
+            <!-- Customize Section -->
+            <div class="customize-section" id="customizeSection">
+                <h3 class="customize-title">Customize</h3>
+
+                <div class="customize-controls">
+                    <!-- Split Type -->
+                    <div class="control-group">
+                        <label class="control-label">Split Type</label>
+                        <div class="language-selector">
+                            <select id="splitTypeSelect">
+                                <option value="words" selected>words</option>
+                                <option value="chars">chars</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ease -->
+                    <div class="control-group">
+                        <label class="control-label">Ease</label>
+                        <div class="language-selector">
+                            <select id="easeSelect">
+                                <option value="elastic.out(1, 0.3)" selected>elastic.out(1, 0.3)</option>
+                                <option value="power3.out">power3.out</option>
+                                <option value="power2.out">power2.out</option>
+                                <option value="power4.out">power4.out</option>
+                                <option value="back.out(1.7)">back.out(1.7)</option>
+                                <option value="bounce.out">bounce.out</option>
+                                <option value="circ.out">circ.out</option>
+                                <option value="expo.out">expo.out</option>
+                                <option value="sine.out">sine.out</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="control-group">
+                        <label class="control-label">Duration (s)</label>
+                        <div class="slider-control">
+                            <input type="range" id="duration" class="slider-input" min="0.1" max="3" value="2"
+                                step="0.1">
+                            <div class="slider-track">
+                                <div class="slider-fill"></div>
+                                <div class="slider-thumb"></div>
+                            </div>
+                            <span class="slider-value">2</span>
+                        </div>
+                    </div>
+
+                    <!-- Threshold -->
+                    <div class="control-group">
+                        <label class="control-label">Threshold</label>
+                        <div class="slider-control">
+                            <input type="range" id="threshold" class="slider-input" min="0" max="1" value="0.1"
+                                step="0.1">
+                            <div class="slider-track">
+                                <div class="slider-fill"></div>
+                                <div class="slider-thumb"></div>
+                            </div>
+                            <span class="slider-value">0.1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Container -->
+            <div class="code-container" id="codeContainer" style="display: none;">
+                <div class="code-header">
+                    <span class="code-language" id="codeLanguage">HTML</span>
+                    <button class="copy-code-btn" id="copyBtn" title="Copy Code">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"
+                                fill="currentColor" />
+                        </svg>
+                    </button>
+                </div>
+                <pre><code id="codeContent"></code></pre>
+            </div>
+        </div>
 
         <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search resources...">
-                <i class="fas fa-search"></i>
+        <aside class="right-sidebar" id="rightSidebar">
+            <div class="sidebar-header">
+                <h3>Text Animations</h3>
+                <div class="search-container">
+                    <input type="text" placeholder="Search animations..." id="searchInput">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
             </div>
-            <div class="resource-list" id="resourceList">
-                <!-- Dynamic content will be loaded here -->
+            <div class="file-list">
+                <div class="file-item active" data-file="split-text">
+                    <i class="fas fa-font"></i>
+                    <span>Split Text</span>
+                </div>
             </div>
         </aside>
     </div>
@@ -409,18 +435,21 @@
     <!-- Mobile Right Sidebar -->
     <aside class="mobile-right-sidebar" id="mobileRightSidebar">
         <div class="mobile-sidebar-header">
-            <h3>Search Resources</h3>
+            <h3>Text Animations</h3>
             <button class="mobile-sidebar-close" id="mobileRightSidebarClose">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="mobile-sidebar-content">
             <div class="search-container">
-                <input type="text" id="mobileSearchInput" placeholder="Search resources...">
-                <i class="fas fa-search"></i>
+                <input type="text" id="mobileSearchInput" placeholder="Search animations...">
+                <i class="fas fa-search search-icon"></i>
             </div>
-            <div class="resource-list" id="mobileResourceList">
-                <!-- Dynamic content will be loaded here -->
+            <div class="file-list" id="mobileFileList">
+                <div class="file-item active" data-file="split-text">
+                    <i class="fas fa-font"></i>
+                    <span>Split Text</span>
+                </div>
             </div>
         </div>
     </aside>
@@ -438,18 +467,18 @@
             <div class="footer-section">
                 <h3>Quick Links</h3>
                 <ul>
-                    <li><a href="../../../../index.html">Home</a></li>
+                    <li><a href="../../index.html">Home</a></li>
                     <li><a href="/resources/materials/2nd-year/3rd-sem/materials.html">Materials</a></li>
                     <li><a href="/resources/programming/practice.html">Programming</a></li>
-                    <li><a href="../../../../about.html">About Us</a></li>
-                    <li><a href="../../../../contact.html">Contact Us</a></li>
+                    <li><a href="../../about.html">About Us</a></li>
+                    <li><a href="../../contact.html">Contact Us</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h3>Legal</h3>
                 <ul>
-                    <li><a href="../../../../privacy-policy.html">Privacy Policy</a></li>
-                    <li><a href="../../../../terms-of-service.html">Terms of Service</a></li>
+                    <li><a href="../../privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="../../terms-of-service.html">Terms of Service</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -469,43 +498,7 @@
         </div>
     </footer>
 
-    <!-- Share Modal -->
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Share Resource</h3>
-                <span class="close" id="closeModal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Share this resource with others:</p>
-                <div class="share-link-container">
-                    <input type="text" id="shareLink" readonly>
-                    <button class="btn btn-primary" id="copyLinkBtn">
-                        <i class="fas fa-copy"></i>
-                        Copy
-                    </button>
-                </div>
-                <div class="share-options">
-                    <button class="share-btn whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                        WhatsApp
-                    </button>
-                    <button class="share-btn telegram">
-                        <i class="fab fa-telegram"></i>
-                        Telegram
-                    </button>
-                    <button class="share-btn email">
-                        <i class="fas fa-envelope"></i>
-                        Email
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <script src="/resources/materials/2nd-year/3rd-sem/materials.js"></script>
-
+    <script src="split-text.js"></script>
 </body>
 
 </html>

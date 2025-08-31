@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SATI Programming - Code Editor & Practice Hub | SATI ChatBot</title>
     <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
-    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/programming.html">
+    <link rel="canonical" href="https://sati-chatbot.vercel.app/resources/programming/practice.html">
 
     <!-- Primary Meta Tags -->
     <meta name="title" content="SATI Programming - Code Editor & Practice Hub">
@@ -19,7 +19,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/programming.html">
+    <meta property="og:url" content="https://sati-chatbot.vercel.app/resources/programming/practice.html">
     <meta property="og:title" content="SATI Programming - Code Editor & Practice Hub">
     <meta property="og:description"
         content="Practice programming with SATI's interactive code editor. Write, run, and debug code in multiple languages.">
@@ -28,7 +28,7 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/resources/programming/programming.html">
+    <meta name="twitter:url" content="https://sati-chatbot.vercel.app/resources/resources/programming/practice.html">
     <meta name="twitter:title" content="SATI Programming - Code Editor & Practice Hub">
     <meta name="twitter:description"
         content="Practice programming with SATI's interactive code editor. Write, run, and debug code in multiple languages.">
@@ -78,7 +78,7 @@
     <!-- Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
 
-    <link rel="stylesheet" href="/resources/programming/programming.css">
+    <link rel="stylesheet" href="/resources/programming/practice.css">
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -152,7 +152,7 @@
                     <span class="dropdown-toggle active">Programming <i class="fas fa-chevron-down"></i></span>
                     <div class="dropdown-menu">
                         <a href="/resources/materials/2nd-year/3rd-sem/materials.html" class="dropdown-item">Materials</a>
-                        <a href="/resources/programming/programming.html" class="dropdown-item active">Programming</a>
+                        <a href="/resources/programming/practice.html" class="dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../../about.html" class="nav-link">About</a>
@@ -198,7 +198,7 @@
                     </div>
                     <div class="mobile-dropdown-menu">
                         <a href="/resources/materials/2nd-year/3rd-sem/materials.html" class="mobile-dropdown-item">Materials</a>
-                        <a href="programming.html" class="mobile-dropdown-item active">Programming</a>
+                        <a href="/resources/programming/practice.html" class="mobile-dropdown-item active">Programming</a>
                     </div>
                 </div>
                 <a href="../about.html" class="mobile-nav-link">
@@ -233,10 +233,36 @@
                     <i class="fas fa-code"></i>
                     <span>Practice</span>
                 </div>
-                <div class="menu-item disabled" data-category="components">
+                <div class="menu-item dropdown-item" data-category="components">
                     <i class="fas fa-puzzle-piece"></i>
                     <span>Components</span>
-                    <span class="coming-soon-badge">Soon</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="sidebar-dropdown-content" id="componentsDropdown">
+                    <div class="sub-menu-item" data-component="text-animations" data-category="components">
+                        <i class="fas fa-font"></i>
+                        <span>Text Animations</span>
+                    </div>
+                    <div class="sub-menu-item" data-component="special-effects" data-category="components">
+                        <i class="fas fa-magic"></i>
+                        <span>Special Effects</span>
+                        <span class="coming-soon-badge">Soon</span>
+                    </div>
+                    <div class="sub-menu-item" data-component="animations" data-category="components">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Animations</span>
+                        <span class="coming-soon-badge">Soon</span>
+                    </div>
+                    <div class="sub-menu-item" data-component="elements" data-category="components">
+                        <i class="fas fa-shapes"></i>
+                       <span>Elements</span>
+                       <span class="coming-soon-badge">Soon</span>
+                    </div>
+                    <div class="sub-menu-item" data-component="backgrounds" data-category="components">
+                        <i class="fas fa-image"></i>
+                        <span>Backgrounds</span>
+                        <span class="coming-soon-badge">Soon</span>
+                    </div>
                 </div>
                 <div class="menu-item disabled" data-category="practice-questions">
                     <i class="fas fa-question-circle"></i>
@@ -333,7 +359,7 @@
                 <ul>
                     <li><a href="../../index.html">Home</a></li>
                     <li><a href="/resources/materials/2nd-year/3rd-sem/materials.html">Materials</a></li>
-                    <li><a href="/resources/programming/programming.html">Programming</a></li>
+                    <li><a href="/resources/programming/practice.html">Programming</a></li>
                     <li><a href="../../about.html">About Us</a></li>
                     <li><a href="../../contact.html">Contact Us</a></li>
                 </ul>
@@ -362,7 +388,7 @@
         </div>
     </footer>
 
-    <script src="/resources/programming/programming.js"></script>
+    <script src="/resources/programming/practice.js"></script>
 </body>
 
 </html>

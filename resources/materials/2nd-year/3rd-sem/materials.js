@@ -2285,7 +2285,7 @@ window.showComingSoon = showComingSoon;
 
 // Navigation Dropdown Functionality
 function initializeDropdownFunctionality() {
-    // Mobile dropdown toggle functionality - simplified approach like programming.js
+    // Mobile dropdown toggle functionality - simplified approach like practice.js
     const mobileDropdownToggles = document.querySelectorAll('.mobile-dropdown-toggle');
 
     mobileDropdownToggles.forEach(toggle => {
@@ -2570,6 +2570,16 @@ function initializeMobileRightSidebar() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && mobileSidebar.classList.contains('active')) {
             closeMobileSidebar();
+        }
+    });
+
+    // Close sidebar when clicking outside of it
+    document.addEventListener('click', function(e) {
+        if (mobileSidebar.classList.contains('active')) {
+            // Check if click is outside the sidebar and not on the toggle button
+            if (!mobileSidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                closeMobileSidebar();
+            }
         }
     });
 

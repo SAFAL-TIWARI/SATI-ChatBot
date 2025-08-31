@@ -199,7 +199,7 @@ function setupEventListeners() {
         if (window.opener) {
             window.close();
         } else {
-            window.location.href = 'programming.html';
+            window.location.href = 'practice.html';
         }
     });
 

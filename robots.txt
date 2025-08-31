@@ -107,7 +107,7 @@ Allow: /images/
 Allow: /index.html
 Allow: /about.html
 Allow: /resources/materials/2nd-year/3rd-sem/materials.html
-Allow: /resources/programming/programming.html
+Allow: /resources/programming/practice.html
 Allow: /contact.html
 Allow: /privacy-policy.html
 Allow: /terms-of-service.html

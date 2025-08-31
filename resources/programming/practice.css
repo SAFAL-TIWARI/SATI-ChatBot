@@ -662,6 +662,12 @@
     .language-selector {
         transform: translate(200px,-40px);
     }
+
+    .sub-menu-item{
+         margin-left: 20px !important;
+        padding: 5px 0px !important;
+        font-size: 0.8rem !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -825,4 +831,94 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* Sidebar Dropdown Styles */
+.dropdown-item {
+    position: relative;
+    cursor: pointer;
+}
+
+.dropdown-arrow {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.dropdown-item.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: var(--sidebar-bg);
+    /* border-left: 3px solid var(--primary-color); */
+    margin-left: 1rem;
+}
+
+.sidebar-dropdown-content.show {
+    max-height: 500px;
+}
+
+.sub-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.sub-menu-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    transform: translateX(5px);
+}
+
+.sub-menu-item.active {
+    background: var(--primary-color);
+    color: white;
+    transform: translateX(5px);
+}
+
+.sub-menu-item i {
+    font-size: 0.9rem;
+    width: 16px;
+    text-align: center;
+}
+
+/* Dark theme adjustments for dropdown */
+[data-theme="dark"] .sidebar-dropdown-content {
+    background: var(--bg-color);
+    /* border-left-color: var(--primary-color); */
+}
+
+[data-theme="dark"] .sub-menu-item {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .sub-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+/* Light theme adjustments for dropdown */
+[data-theme="light"] .sidebar-dropdown-content {
+    background: var(--sidebar-bg);
+    border-left-color: var(--primary-color);
+}
+
+[data-theme="light"] .sub-menu-item {
+    color: black;
+}
+
+[data-theme="light"] .sub-menu-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
 }

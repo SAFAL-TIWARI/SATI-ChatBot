@@ -408,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeMonacoEditor();
     initializeDropdownFunctionality();
     initializeDesktopDropdownDelay();
+    initializeSidebarDropdowns();
     setCurrentPageActive();
 });
 
@@ -2334,7 +2335,7 @@ function setCurrentPageActive() {
     const currentPath = window.location.pathname;
 
     // Handle programming page
-    if (currentPath.includes('/resources/programming.html')) {
+    if (currentPath.includes('/resources/programming/practice.html')) {
         updateDropdownLabel('Programming');
         updateMobileDropdownLabel('Programming');
     }
@@ -2456,6 +2457,79 @@ function handleClearCode() {
             initializeTerminal();
         }
     }
+}
+
+// Toggle dropdown menus for sidebar
+function toggleDropdown(category) {
+    const dropdown = document.getElementById(category + 'Dropdown');
+    const menuItem = document.querySelector(`[data-category="${category}"]`);
+
+    if (dropdown && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+        menuItem.classList.remove('active');
+    } else if (dropdown) {
+        // Close other dropdowns
+        document.querySelectorAll('.sidebar-dropdown-content').forEach(dd => {
+            dd.classList.remove('show');
+        });
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Open this dropdown
+        dropdown.classList.add('show');
+        menuItem.classList.add('active');
+    }
+}
+
+// Handle menu item clicks for sidebar
+function handleSidebarMenuClick(event) {
+    const menuItem = event.currentTarget;
+    const category = menuItem.getAttribute('data-category');
+
+    // Handle dropdown items
+    if (menuItem.classList.contains('dropdown-item')) {
+        toggleDropdown(category);
+        return;
+    }
+
+    // Handle regular menu items
+    document.querySelectorAll('.menu-item').forEach(item => item.assList.remove('active'));
+    menuItem.classList.add('active');
+}
+
+// Handle sub-menu item clicks for components
+function handleComponentClick(event) {
+    const subMenuItem = event.currentTarget;
+    const component = subMenuItem.getAttribute('data-component');
+    const category = subMenuItem.getAttribute('data-category');
+
+    // Update active sub-menu item
+    document.querySelectorAll('.sub-menu-item').forEach(item => item.classList.remove('active'));
+    subMenuItem.classList.add('active');
+
+    // Handle navigation to component pages
+    if (component === 'text-animations') {
+        // Navigate to text animations page
+        window.location.href = '/resources/programming/components/text-animations/split-text.html';
+    } else {
+        // For other components, show coming soon notification
+        console.log(`Selected component: ${component} in category: ${category}`);
+        showNotification(`${component.replace('-', ' ')} examples coming soon...`, 'info');
+    }
+}
+
+// Initialize sidebar dropdown functionality
+function initializeSidebarDropdowns() {
+    // Add click event listeners to menu items
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', handleSidebarMenuClick);
+    });
+
+    // Add click event listeners to sub-menu items
+    document.querySelectorAll('.sub-menu-item').forEach(item => {
+        item.addEventListener('click', handleComponentClick);
+    });
 }
 
 // Export functions for external use
