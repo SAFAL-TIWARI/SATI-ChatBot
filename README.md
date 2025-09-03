@@ -1,6 +1,6 @@
 # SATI ChatBot 🤖
 
-> Modern AI-powered chatbot for Samrat Ashok Technological Institute (SATI) with dual AI providers, academic resources, and seamless user experience.
+> Modern AI-powered chatbot for Samrat Ashok Technological Institute (SATI) with dual AI providers, comprehensive academic resources, interactive code editor, and seamless user experience across web and mobile platforms.
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://sati-chatbot.vercel.app/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
@@ -10,10 +10,10 @@
 
 - 🤖 **Dual AI Integration** - Google Gemini & Groq APIs with smart model switching
 - 🔐 **Secure Authentication** - Google & GitHub OAuth with Supabase backend
-- 📚 **Academic Resources** - Branch-wise notes, assignments, PYQs with PDF preview
-- 🧑🏻‍💻 **Code Editor & Compiler** - Multi-language programming environment with terminal
-- 💬 **Smart Chat Management** - Save, bookmark, search conversations
-- 🎨 **Modern UI/UX** - Dark/light themes, smooth animations, PWA support
+- 📚 **Academic Resources Hub** - Branch-wise notes, assignments, PYQs with PDF preview & download
+- 🧑🏻‍💻 **Interactive Code Editor** - Multi-language programming environment with live compilation
+- 💬 **Smart Chat Management** - Save, bookmark, search, and export conversations
+- 🎨 **Modern UI/UX** - Dark/light themes, smooth animations, cool mode effects
 - 💻 **Cross-Platform** - Web app + Android WebView application
 
 ## 🚀 Quick Start
@@ -47,19 +47,27 @@ Get keys from: [Google AI Studio](https://aistudio.google.com/) • [Groq Consol
 ## 📁 Core Structure
 
 ```
-├── index.html              # Main chatbot interface
-├── resources.html          # Academic resources hub
-├── script.js              # Core functionality
-├── api-integration.js     # AI provider management
-├── sati-knowledge.js      # Institute knowledge base
-├── supabase-db.js         # Database operations
-├── api/                   # Serverless functions
-│   ├── gemini.js         # Gemini API endpoint
-│   └── groq.js           # Groq API endpoint
-├── android/              # Android WebView app
-└── resources/            # Academic materials & programming
-    ├── materials.html    # Academic resources page
-    ├── programming.html  # Code editor & compiler
+├── index.html                    # Main chatbot interface
+├── about.html                    # Team and project information
+├── contact.html                  # Contact form and support
+├── privacy-policy.html           # Privacy policy and data protection
+├── terms-of-service.html         # Terms of service and user agreement
+├── offline.html                  # PWA offline fallback page
+├── script.js                     # Core chatbot functionality
+├── api-integration.js            # AI provider management
+├── sati-knowledge.js             # Institute knowledge base
+├── supabase-db.js                # Database operations
+├── manifest.json                 # PWA configuration
+├── api/                          # Serverless functions
+│   ├── gemini.js                # Gemini API endpoint
+│   ├── groq.js                  # Groq API endpoint
+│   └── supabase-config.js       # Database configuration
+├── android/                      # Android WebView app
+├── resources/                    # Academic materials & programming
+│   ├── materials/               # Branch-wise academic resources
+│   │   ├── 2nd-year/           # Second year materials
+│   └── programming/             # Interactive code editor
+└── images/                       # Icons, logos, and visual assets
 ```
 
 ## 🚀 Deployment
