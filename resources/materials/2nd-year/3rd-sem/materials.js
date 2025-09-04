@@ -1675,6 +1675,26 @@ function setupEventListeners() {
         if (!event.target.closest('.nav-menu') && !event.target.closest('.mobile-nav-menu')) {
             closeMobileMenu();
         }
+        
+        // Close dropdowns when clicking outside with 500ms delay
+        const clickedInsideDropdown = event.target.closest('.sidebar-dropdown-content') || 
+                                     event.target.closest('.dropdown-item');
+        
+        if (!clickedInsideDropdown) {
+            const openDropdowns = document.querySelectorAll('.sidebar-dropdown-content.show');
+            const activeMenuItems = document.querySelectorAll('.dropdown-item.active');
+            
+            if (openDropdowns.length > 0 || activeMenuItems.length > 0) {
+                setTimeout(() => {
+                    openDropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                    activeMenuItems.forEach(item => {
+                        item.classList.remove('active');
+                    });
+                }, 500); // 500ms delay
+            }
+        }
     });
 
     // Share buttons
@@ -1748,6 +1768,17 @@ function handleSubMenuClick(event) {
 
     // Load resources for this category and branch
     loadResources(category, branch);
+
+    // Auto-close the dropdown after selection with 1 second delay
+    const dropdown = document.getElementById(category + 'Dropdown');
+    const menuItem = document.querySelector(`[data-category="${category}"]`);
+    
+    if (dropdown && dropdown.classList.contains('show')) {
+        setTimeout(() => {
+            dropdown.classList.remove('show');
+            menuItem.classList.remove('active');
+        }, 500); // 1 second delay
+    }
 }
 
 // Toggle dropdown menus

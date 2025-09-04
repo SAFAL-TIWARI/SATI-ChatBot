@@ -705,6 +705,7 @@ body {
 .sidebar-dropdown-content.show {
     max-height: 500px;
     border-top: 1px solid var(--border-color);
+    line-height: 1.2;
 }
 
 .sub-menu-item {
@@ -1881,7 +1882,7 @@ body.mobile-menu-open {
     .sub-menu-item {
         margin-left: 20px;
         padding: 10px 15px;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
     }
 
     .sidebar-dropdown-content {
