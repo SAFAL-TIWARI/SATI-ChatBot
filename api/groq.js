@@ -41,10 +41,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { prompt, model = 'llama-3.1-8b-instant' } = req.body;
+        const { prompt, model = 'llama-3.1-8b-instant', audioData, requestType = 'chat' } = req.body;
 
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
+        if (!prompt && !audioData) {
+            return res.status(400).json({ error: 'Prompt or audioData is required' });
         }
 
         // Get API key from environment variables
@@ -54,14 +54,39 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Groq API key not configured' });
         }
 
-        // Make request to Groq API
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
+        // Determine the appropriate API endpoint and request format based on model type
+        let apiUrl, requestBody, headers;
+
+        if (model.includes('whisper')) {
+            // Whisper models - Speech to Text
+            apiUrl = 'https://api.groq.com/openai/v1/audio/transcriptions';
+            headers = {
+                'Authorization': `Bearer ${apiKey}`,
+                // Note: For audio, we'll need multipart/form-data, not JSON
+            };
+            // For now, return an error as we need to implement proper audio handling
+            return res.status(501).json({ 
+                error: 'Whisper models require audio file upload - not yet implemented',
+                suggestion: 'Use chat models for text conversations'
+            });
+        } else if (model === 'playai-tts') {
+            // PlayAI TTS - Text to Speech
+            // For TTS, we'll return the text with a special flag indicating it should be spoken
+            return res.status(200).json({
+                success: true,
+                response: prompt,
+                model: model,
+                type: 'tts',
+                message: 'Text ready for speech synthesis'
+            });
+        } else {
+            // Regular chat completion models
+            apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+            headers = {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+            };
+            requestBody = JSON.stringify({
                 model: model,
                 messages: [
                     {
@@ -72,7 +97,14 @@ export default async function handler(req, res) {
                 temperature: 0.7,
                 max_tokens: 1024,
                 stream: false
-            })
+            });
+        }
+
+        // Make request to Groq API
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: requestBody
         });
 
         if (!response.ok) {

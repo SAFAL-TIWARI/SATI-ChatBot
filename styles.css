@@ -348,12 +348,20 @@ body {
 
 .logo {
     font-size: var(--font-size-2xl);
-    width: 32px;
-    height: 32px;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--accent-color);
+    margin-bottom:5px;
+}
+
+.logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
 }
 
 .logo i {
@@ -361,7 +369,7 @@ body {
 }
 
 .app-name {
-    font-size: 1.5rem;
+    font-size:larger;
     font-weight: 600;
     color: var(--sidebar-text);
     cursor: pointer;

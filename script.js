@@ -4315,7 +4315,7 @@ function updateModelOptions() {
         if (e.target.tagName === 'OPTION' && e.target.disabled) {
             e.preventDefault();
             if (e.target.value === 'gemini-1.5-pro') {
-                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                toast.show('Gemini 1.5 Pro model will add soon', 'info', 4000);
             }
         }
     });
@@ -4489,7 +4489,7 @@ function addSettingsEventListeners() {
                 if (newProvider === 'gemini' && window.apiManager.currentModel === 'gemini-1.5-pro') {
                     window.apiManager.setModel('gemini-1.5-flash');
                     chatState.selectedModel = 'gemini-1.5-flash';
-                    toast.show('🚀 Gemini 1.5 Pro model will add soon. Switched to Gemini 1.5 Flash.', 'info', 4000);
+                    toast.show('Gemini 1.5 Pro model will add soon. Switched to Gemini 1.5 Flash.', 'info', 4000);
                 }
 
                 updateModelOptions();
@@ -4508,7 +4508,7 @@ function addSettingsEventListeners() {
                 if (e.target.value === 'gemini-1.5-pro' &&
                     window.apiManager.currentProvider === 'gemini') {
                     // Show coming soon message
-                    toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                    toast.show('Gemini 1.5 Pro model will add soon', 'info', 4000);
 
                     // Reset to previous valid selection
                     const availableModels = window.apiManager.getAvailableModels();
@@ -5360,7 +5360,7 @@ function updateMainModelSelect() {
         if (e.target.tagName === 'OPTION' && e.target.disabled) {
             e.preventDefault();
             if (e.target.value === 'gemini-1.5-pro') {
-                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                toast.show('Gemini 1.5 Pro model will add soon', 'info', 4000);
             }
         }
     });
@@ -5792,7 +5792,7 @@ function initializeEventListeners() {
             if (e.target.value === 'gemini-1.5-pro' &&
                 chatState.apiProvider === 'gemini') {
                 // Show coming soon message
-                toast.show('🚀 Gemini 1.5 Pro model will add soon', 'info', 4000);
+                toast.show('Gemini 1.5 Pro model will add soon', 'info', 4000);
 
                 // Reset to previous valid selection
                 const availableModels = window.apiManager ? window.apiManager.getAvailableModels() : [];
@@ -5947,18 +5947,10 @@ function initializeEventListeners() {
 
 
 
-    // Share button
+    // Download chat button (formerly share button)
     if (elements.shareBtn) {
         elements.shareBtn.addEventListener('click', () => {
-            if (navigator.share && chatState.currentMessages.length > 0) {
-                navigator.share({
-                    title: 'SATI ChatBot Conversation',
-                    text: 'Check out this conversation with SATI ChatBot',
-                    url: window.location.href
-                });
-            } else {
-                chatManager.exportChat();
-            }
+            chatManager.exportChat();
         });
     }
 
@@ -6406,7 +6398,7 @@ function initializeEventListeners() {
                 }
             } else {
                 console.log('✅ Google SSO initiated:', data);
-                toast.show('Redirecting to Google...', 'info');
+                toast.show('Redirecting to Google Auth...', 'info');
             }
         } catch (err) {
             console.error('❌ Google SSO exception:', err);
@@ -6476,7 +6468,7 @@ function initializeEventListeners() {
                 }
             } else {
                 console.log('✅ GitHub SSO initiated:', data);
-                toast.show('Redirecting to GitHub...', 'info');
+                toast.show('Redirecting to GitHub Auth...', 'info');
             }
         } catch (err) {
             console.error('❌ GitHub SSO exception:', err);

@@ -123,6 +123,15 @@ body {
 
 .nav-logo i {
     font-size: 2rem;
+    
+}
+
+.nav-logo-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 7px;
 }
 
 .nav-menu {
@@ -1665,6 +1674,11 @@ body.mobile-menu-open {
 
     .nav-logo i {
         font-size: 2rem;
+    }
+
+    .nav-logo-image {
+        width: 28px;
+        height: 28px;
     }
 
     .nav-menu {

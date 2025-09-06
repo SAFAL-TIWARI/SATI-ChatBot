@@ -7,12 +7,32 @@ class APIManager {
         this.groqConfig = {
             endpoint: window.API_CONFIG?.GROQ_API_ENDPOINT || '/api/groq',
             models: [
+                // Production Models
                 'llama-3.1-8b-instant',
                 'llama-3.3-70b-versatile',
                 'gemma2-9b-it',
+                // 'llama-guard-3-8b',
+                // 'llama3-70b-8192',
+                // 'llama3-8b-8192',
+                // 'whisper-large-v3',
+                // 'whisper-large-v3-turbo',
+                // 'distil-whisper-large-v3-en',
+
+                // Preview Models
+                'openai/gpt-oss-120b',
+                'openai/gpt-oss-20b',
                 'deepseek-r1-distill-llama-70b',
-                'llama3-8b-8192',
-                'llama3-70b-8192'
+                'allam-2-7b',
+                'meta-llama/llama-4-maverick-17b-128e-instruct',
+                'meta-llama/llama-4-scout-17b-16e-instruct',
+                'moonshotai/kimi-k2-instruct',
+                'moonshotai/kimi-k2-instruct-0905',
+                // 'playai-tts',
+                // 'playai-tts-arabic',
+
+                // Preview Systems
+                'compound-beta-mini',
+                'compound-beta',
             ]
         };
 
@@ -21,6 +41,7 @@ class APIManager {
             models: [
                 'gemini-1.5-flash',
                 'gemini-1.5-pro'
+
             ]
         };
 
@@ -84,6 +105,18 @@ class APIManager {
     // Main function to send message with smart routing
     async sendMessage(userMessage, controller = null) {
         try {
+            // Handle special model instructions
+            if (this.currentModel === 'playai-tts') {
+                // For TTS models, provide usage instructions if the message seems like a question
+                if (userMessage.includes('?') || userMessage.toLowerCase().includes('how') || userMessage.toLowerCase().includes('what')) {
+                    return `🔊 **PlayAI TTS Model Selected**\n\nThis model is designed for **Text-to-Speech synthesis**. \n\n**How to use:**\n1. Type the text you want to be spoken\n2. The text will be converted to speech automatically\n3. Example: "Hello, this is a test of the text-to-speech feature"\n\n**Your message:** "${userMessage}"\n\n*Converting to speech...*`;
+                }
+            }
+
+            if (this.currentModel.includes('whisper')) {
+                return `🎤 **Whisper Model Selected**\n\nThis model is designed for **Speech-to-Text transcription**.\n\n**Note:** Audio file upload functionality is not yet implemented in this interface.\n\n**Your message:** "${userMessage}"\n\n*For now, please use regular chat models for text conversations.*`;
+            }
+
             // Determine if query is SATI-related
             const isSATIQuery = isSATIRelated(userMessage);
 
@@ -193,6 +226,13 @@ class APIManager {
                 throw new Error('Invalid response from Groq serverless function');
             }
 
+            // Handle TTS models
+            if (data.type === 'tts' && this.currentModel === 'playai-tts') {
+                // Trigger text-to-speech synthesis
+                this.handleTTSResponse(data.response);
+                return `🔊 **Text-to-Speech Activated**\n\nSpeaking: "${data.response}"\n\n*The text above is being converted to speech using PlayAI TTS.*`;
+            }
+
             // Additional client-side filtering for Deepseek R1 model (fallback)
             let processedResponse = data.response;
             if (this.currentModel === 'deepseek-r1-distill-llama-70b') {
@@ -218,7 +258,7 @@ class APIManager {
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return await this.sendGroqMessage(prompt, retryCount + 1, controller);
             }
-            
+
             throw error;
         }
     }
@@ -366,17 +406,106 @@ class APIManager {
         return filteredContent;
     }
 
+    // Handle TTS response by triggering browser speech synthesis
+    handleTTSResponse(text) {
+        try {
+            // Use the browser's built-in Speech Synthesis API
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                // Create a new utterance
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                // Configure speech settings
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+
+                // Try to use a high-quality voice if available
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice =>
+                    voice.name.includes('Google') ||
+                    voice.name.includes('Microsoft') ||
+                    voice.lang.startsWith('en')
+                );
+
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+
+                // Add event listeners
+                utterance.onstart = () => {
+                    console.log('🔊 TTS: Speech started');
+                    if (window.toast) {
+                        window.toast.show('🔊 Speech synthesis started', 'info', 2000);
+                    }
+                };
+
+                utterance.onend = () => {
+                    console.log('🔊 TTS: Speech ended');
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('🔊 TTS Error:', event.error);
+                    if (window.toast) {
+                        window.toast.show('❌ Speech synthesis failed', 'error', 3000);
+                    }
+                };
+
+                // Start speaking
+                window.speechSynthesis.speak(utterance);
+
+            } else {
+                console.warn('🔊 TTS: Speech Synthesis not supported in this browser');
+                if (window.toast) {
+                    window.toast.show('⚠️ Speech synthesis not supported in this browser', 'warning', 4000);
+                }
+            }
+        } catch (error) {
+            console.error('🔊 TTS Error:', error);
+            if (window.toast) {
+                window.toast.show('❌ Speech synthesis error', 'error', 3000);
+            }
+        }
+    }
+
     // Format model name for display
     formatModelName(modelName) {
         const modelInfo = {
-            'llama-3.1-8b-instant': '🟢 Llama 3.1 8B (Latest)',
-            'llama-3.3-70b-versatile': '🟢 Llama 3.3 70B (Latest)',
-            'gemma2-9b-it': '🟢 Gemma2 9B (Latest)',
-            'deepseek-r1-distill-llama-70b': '🧠 DeepSeek R1 (Reasoning)',
-            'llama3-8b-8192': '🔵 Llama3 8B (Legacy)',
-            'llama3-70b-8192': '🔵 Llama3 70B (Legacy)',
-            'gemini-1.5-flash': '⚡ Gemini 1.5 Flash',
-            'gemini-1.5-pro': '🚀 Gemini 1.5 Pro'
+            // Production Groq models
+            'llama-3.1-8b-instant': 'Llama 3.1 8B (Latest)',
+            'llama-3.3-70b-versatile': 'Llama 3.3 70B (Latest)',
+            'gemma2-9b-it': 'Gemma2 9B (Latest)',
+            // 'llama-guard-3-8b': 'Llama Guard 3 8B (Safety)',
+            // 'llama3-70b-8192': 'Llama3 70B (Production)',
+            // 'llama3-8b-8192': 'Llama3 8B (Production)',
+            // 'whisper-large-v3': 'Whisper Large v3 (Audio)',
+            // 'whisper-large-v3-turbo': 'Whisper Large v3 Turbo (Audio)',
+            // 'distil-whisper-large-v3-en': 'Distil-Whisper Large v3 EN (Audio)',
+
+            // Preview Groq models
+            'openai/gpt-oss-120b': 'GPT OSS 120B',
+            'openai/gpt-oss-20b': 'GPT OSS 20B',
+            'allam-2-7b': 'Allam 2 7B ',
+            'deepseek-r1-distill-llama-70b': 'DeepSeek R1 (Reasoning)',
+            'meta-llama/llama-4-maverick-17b-128e-instruct': 'Llama 4 Maverick 17B (128K)',
+            'meta-llama/llama-4-scout-17b-16e-instruct': 'Llama 4 Scout 17B (Instruct)',
+            'moonshotai/kimi-k2-instruct': 'Kimi K2 Instruct',
+            'moonshotai/kimi-k2-instruct-0905': 'Kimi K2 Instruct (0905)',
+            // 'mistral-saba-24b': 'Mistral Saba 24B (Preview)',
+            // 'playai-tts': 'PlayAI TTS (Text-to-Speech)',
+            // 'playai-tts-arabic': 'PlayAI TTS Arabic (Text-to-Speech)',
+            // 'qwen-qwq-32b': 'Qwen QwQ 32B (Advanced)',
+
+            // Preview Systems
+            'compound-beta-mini': 'Groq Compound Beta Mini (Ultra Fast)',
+            'compound-beta': 'Groq Compound Beta (Fast)',
+
+            // Existing Gemini models
+            'gemini-1.5-flash': 'Gemini 1.5 Flash',
+            'gemini-1.5-pro': 'Gemini 1.5 Pro'
+
         };
 
         return modelInfo[modelName] || modelName;
