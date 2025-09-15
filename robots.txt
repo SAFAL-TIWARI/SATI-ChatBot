@@ -101,7 +101,7 @@ Allow: /sitemap.xml
 Allow: /robots.txt
 Allow: /ads.txt
 Allow: /favicon.ico
-Allow: /images/
+Allow: /assets/
 
 # Allow Main Pages
 Allow: /index.html

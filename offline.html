@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline - SATI ChatBot</title>
-    <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/assets/favicon.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -167,7 +167,7 @@
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('SATI ChatBot', {
                     body: 'You\'re back online! All features are now available.',
-                    icon: '/images/favicon.png'
+                    icon: '/assets/favicon.png'
                 });
             }
             // Reload after a short delay

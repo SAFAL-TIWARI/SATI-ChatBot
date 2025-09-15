@@ -18,8 +18,8 @@ const STATIC_CACHE_URLS = [
     '/glowing-effect.js',
     '/smooth-cursor.css',
     '/smooth-cursor.js',
-    '/images/favicon.png',
-    '/images/preview.png',
+    '/assets/favicon.png',
+    '/assets/preview.png',
     '/manifest.json',
     // External resources
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
@@ -148,8 +148,8 @@ self.addEventListener('push', (event) => {
     
     const options = {
         body: event.data ? event.data.text() : 'New message from SATI ChatBot',
-        icon: '/images/favicon.png',
-        badge: '/images/favicon.png',
+        icon: '/assets/favicon.png',
+        badge: '/assets/favicon.png',
         vibrate: [100, 50, 100],
         data: {
             dateOfArrival: Date.now(),
@@ -159,12 +159,12 @@ self.addEventListener('push', (event) => {
             {
                 action: 'explore',
                 title: 'Open ChatBot',
-                icon: '/images/favicon.png'
+                icon: '/assets/favicon.png'
             },
             {
                 action: 'close',
                 title: 'Close',
-                icon: '/images/favicon.png'
+                icon: '/assets/favicon.png'
             }
         ]
     };
