@@ -154,7 +154,9 @@ class SplitTextAnimation {
         
         // Split text into words
         const words = text.trim().split(/\s+/);
-        this.chars = words.map((word, index) => {
+        this.chars = [];
+        
+        words.forEach((word, index) => {
             const span = document.createElement('span');
             span.textContent = word;
             span.className = 'split-word';
@@ -163,13 +165,16 @@ class SplitTextAnimation {
             span.style.transform = \`translateY(\${this.options.from.y}px)\`;
             span.style.willChange = 'transform, opacity';
             
+            this.element.appendChild(span);
+            this.chars.push(span);
+            
             // Add space after each word except the last one
             if (index < words.length - 1) {
-                span.style.marginRight = '0.3em';
+                const spaceSpan = document.createElement('span');
+                spaceSpan.textContent = ' ';
+                spaceSpan.style.display = 'inline';
+                this.element.appendChild(spaceSpan);
             }
-            
-            this.element.appendChild(span);
-            return span;
         });
     }
     
@@ -393,7 +398,9 @@ class SplitTextAnimation {
         } else {
             // Split text into words
             const words = text.trim().split(/\s+/);
-            this.chars = words.map((word, index) => {
+            this.chars = [];
+            
+            words.forEach((word, index) => {
                 const span = document.createElement('span');
                 span.textContent = word;
                 span.className = 'split-word';
@@ -402,13 +409,16 @@ class SplitTextAnimation {
                 span.style.transform = `translateY(${this.options.from.y}px)`;
                 span.style.willChange = 'transform, opacity';
                 
+                this.element.appendChild(span);
+                this.chars.push(span);
+                
                 // Add space after each word except the last one
                 if (index < words.length - 1) {
-                    span.style.marginRight = '0.3em';
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.textContent = ' ';
+                    spaceSpan.style.display = 'inline';
+                    this.element.appendChild(spaceSpan);
                 }
-                
-                this.element.appendChild(span);
-                return span;
             });
         }
     }
@@ -1123,6 +1133,21 @@ function handleNavigation() {
             }
         });
     });
+    
+    // File navigation
+    const fileItems = document.querySelectorAll('.file-item[data-file]');
+    fileItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const file = this.dataset.file;
+            
+            if (file === 'text-type') {
+                window.location.href = 'text-type.html';
+            } else if (file === 'split-text') {
+                // Already on split-text page
+                return;
+            }
+        });
+    });
 }
 
 // Dropdown state management
@@ -1307,7 +1332,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize mobile right sidebar
     initializeMobileRightSidebar();
-    
+
     // View switching
     if (previewBtn) {
         previewBtn.addEventListener('click', () => switchView('preview'));

@@ -4,37 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split Text Animation - Text Animations | SATI ChatBot</title>
+    <title>Text Type Animation - Text Animations | SATI ChatBot</title>
     <link rel="shortcut icon" href="https://sati-chatbot.vercel.app/images/favicon.png" type="image/png">
     <link rel="canonical"
-        href="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
+        href="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/text-type.html">
 
     <!-- Primary Meta Tags -->
-    <meta name="title" content="Split Text Animation - Text Animations">
+    <meta name="title" content="Text Type Animation - Text Animations">
     <meta name="description"
-        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions and scroll triggers.">
+        content="Beautiful text typing animation component with GSAP. Create typewriter effects with customizable speed, cursor, and multiple text sequences.">
     <meta name="keywords"
-        content="split text animation, GSAP animation, text effects, character animation, scroll trigger, web animations, SATI programming">
+        content="text type animation, typewriter effect, GSAP animation, text effects, typing animation, web animations, SATI programming">
     <meta name="author" content="Team FluxoNauts">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url"
-        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
-    <meta property="og:title" content="Split Text Animation - Text Animations">
+        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/text-type.html">
+    <meta property="og:title" content="Text Type Animation - Text Animations">
     <meta property="og:description"
-        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions.">
+        content="Beautiful text typing animation component with GSAP. Create typewriter effects with customizable speed and cursor.">
     <meta property="og:image" content="https://sati-chatbot.vercel.app/images/preview.png">
     <meta property="og:site_name" content="SATI ChatBot">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url"
-        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/split-text.html">
-    <meta name="twitter:title" content="Split Text Animation - Text Animations">
+        content="https://sati-chatbot.vercel.app/resources/programming/components/text-animations/text-type.html">
+    <meta name="twitter:title" content="Text Type Animation - Text Animations">
     <meta name="twitter:description"
-        content="Beautiful split text animation component with GSAP. Animate text character by character with smooth transitions.">
+        content="Beautiful text typing animation component with GSAP. Create typewriter effects with customizable speed and cursor.">
     <meta name="twitter:image" content="https://sati-chatbot.vercel.app/images/preview.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -84,7 +84,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
 
-    <link rel="stylesheet" href="split-text.css">
+    <link rel="stylesheet" href="text-type.css">
     <style>
         /* Prevent flash of unstyled content */
         html,
@@ -292,9 +292,8 @@
         <!-- Main Content Area -->
         <div class="main-content">
             <div class="component-header">
-                <h1>Split Text Animation</h1>
-                <p>Beautiful text animation that splits text into characters and animates them with smooth transitions
-                    and scroll triggers.</p>
+                <h1>Text Type Animation</h1>
+                <p>Beautiful typewriter effect that types text character by character with customizable speed, cursor, and multiple text sequences.</p>
             </div>
 
             <div class="component-controls">
@@ -315,7 +314,6 @@
                         </select>
                     </div>
                 </div>
-
             </div>
 
             <!-- Preview Container -->
@@ -327,72 +325,56 @@
                             fill="currentColor" />
                     </svg>
                 </button>
-                <div class="animation-demo">
-                    <div class="split-text-demo" id="splitTextDemo">
-                        Hello World!
+                
+                <!-- Text Type Animation Demo -->
+                <div class="text-type-demo">
+                    <div class="text-type-container" id="textTypeContainer">
+                        <span class="text-type__content" id="textContent">Welcome to SATI ChatBot</span>
+                        <span class="text-type__cursor" id="textCursor">|</span>
                     </div>
                 </div>
             </div>
 
             <!-- Customize Section -->
             <div class="customize-section" id="customizeSection">
-                <h3 class="customize-title">Customize</h3>
-
+                 <h3 class="customize-title">Customize</h3>
+                
                 <div class="customize-controls">
-                    <!-- Split Type -->
+                    <!-- Cursor Character -->
                     <div class="control-group">
-                        <label class="control-label">Split Type</label>
-                        <div class="language-selector">
-                            <select id="splitTypeSelect">
-                                <option value="words" selected>words</option>
-                                <option value="chars">chars</option>
-                            </select>
+                        <label for="cursorCharacterSelect">Cursor Character</label>
+                        <select id="cursorCharacterSelect">
+                            <option value="|">Block ( | )</option>
+                            <option value="_">Underscore ( _ )</option>
+                            <option value="▌">Block ( ▌ )</option>
+                            <option value="●">Dot ( ● )</option>
+                        </select>
+                    </div>
+
+                    <!-- Typing Speed -->
+                    <div class="control-group">
+                        <label for="typingSpeedSlider">Typing Speed</label>
+                        <div class="slider-container">
+                            <input type="range" id="typingSpeedSlider" min="25" max="200" value="75" step="5">
+                            <span class="slider-value" id="typingSpeedValue">75ms</span>
                         </div>
                     </div>
 
-                    <!-- Ease -->
+                    <!-- Pause Duration -->
                     <div class="control-group">
-                        <label class="control-label">Ease</label>
-                        <div class="language-selector">
-                            <select id="easeSelect">
-                                <option value="elastic.out(1, 0.3)" selected>elastic.out(1, 0.3)</option>
-                                <option value="power3.out">power3.out</option>
-                                <option value="power2.out">power2.out</option>
-                                <option value="power4.out">power4.out</option>
-                                <option value="back.out(1.7)">back.out(1.7)</option>
-                                <option value="bounce.out">bounce.out</option>
-                                <option value="circ.out">circ.out</option>
-                                <option value="expo.out">expo.out</option>
-                                <option value="sine.out">sine.out</option>
-                            </select>
+                        <label for="pauseDurationSlider">Pause Duration</label>
+                        <div class="slider-container">
+                            <input type="range" id="pauseDurationSlider" min="500" max="3000" value="1500" step="100">
+                            <span class="slider-value" id="pauseDurationValue">1500ms</span>
                         </div>
                     </div>
 
-                    <!-- Duration -->
+                    <!-- Deleting Speed -->
                     <div class="control-group">
-                        <label class="control-label">Duration (s)</label>
-                        <div class="slider-control">
-                            <input type="range" id="duration" class="slider-input" min="0.1" max="3" value="2"
-                                step="0.1">
-                            <div class="slider-track">
-                                <div class="slider-fill"></div>
-                                <div class="slider-thumb"></div>
-                            </div>
-                            <span class="slider-value">2</span>
-                        </div>
-                    </div>
-
-                    <!-- Threshold -->
-                    <div class="control-group">
-                        <label class="control-label">Threshold</label>
-                        <div class="slider-control">
-                            <input type="range" id="threshold" class="slider-input" min="0" max="1" value="0.1"
-                                step="0.1">
-                            <div class="slider-track">
-                                <div class="slider-fill"></div>
-                                <div class="slider-thumb"></div>
-                            </div>
-                            <span class="slider-value">0.1</span>
+                        <label for="deletingSpeedSlider">Deleting Speed</label>
+                        <div class="slider-container">
+                            <input type="range" id="deletingSpeedSlider" min="20" max="100" value="50" step="5">
+                            <span class="slider-value" id="deletingSpeedValue">50ms</span>
                         </div>
                     </div>
                 </div>
@@ -424,11 +406,11 @@
                 </div>
             </div>
             <div class="file-list">
-                <div class="file-item active" data-file="split-text">
+                <div class="file-item" data-file="split-text">
                     <i class="fas fa-font"></i>
                     <span>Split Text</span>
                 </div>
-                <div class="file-item" data-file="text-type">
+                <div class="file-item active" data-file="text-type">
                     <i class="fas fa-keyboard"></i>
                     <span>Text Type</span>
                 </div>
@@ -450,11 +432,11 @@
                 <i class="fas fa-search search-icon"></i>
             </div>
             <div class="file-list" id="mobileFileList">
-                <div class="file-item active" data-file="split-text">
+                <div class="file-item" data-file="split-text">
                     <i class="fas fa-font"></i>
                     <span>Split Text</span>
                 </div>
-                <div class="file-item" data-file="text-type">
+                <div class="file-item active" data-file="text-type">
                     <i class="fas fa-keyboard"></i>
                     <span>Text Type</span>
                 </div>
@@ -506,7 +488,7 @@
         </div>
     </footer>
 
-    <script src="split-text.js"></script>
+    <script src="text-type.js"></script>
 </body>
 
 </html>
