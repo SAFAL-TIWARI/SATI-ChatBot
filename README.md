@@ -67,7 +67,7 @@ Get keys from: [Google AI Studio](https://aistudio.google.com/) • [Groq Consol
 │   ├── materials/               # Branch-wise academic resources
 │   │   ├── 2nd-year/           # Second year materials
 │   └── programming/             # Interactive code editor
-└── images/                       # Icons, logos, and visual assets
+└── /assets/                       # Icons, logos, and visual assets
 ```
 
 ## 🚀 Deployment
