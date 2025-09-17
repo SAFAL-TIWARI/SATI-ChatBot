@@ -42,28 +42,28 @@ const resourcesData = {
             subject: 'Computer System Organization - Notes'
         },
         {
-            id: 'mab-204-notes-unit-1-4',
-            title: 'MAB 204 Notes Unit 1-4',
-            description: 'MAB 204 notes from unit 1-4',
+            id: 'mab-301-notes-unit-1-4',
+            title: 'MAB 301 Notes Unit 1-4',
+            description: 'MAB 301 notes from unit 1-4',
             previewUrl: 'https://drive.google.com/file/d/1MWTChdXKEvFapitfDcqyXCW77D5LVDYS/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1MWTChdXKEvFapitfDcqyXCW77D5LVDYS',
-            subject: 'MAB 204 - Discrete Mathematics - Notes'
+            subject: 'MAB 301 - Discrete Mathematics - Notes'
         },
         {
-            id: 'mab-204-notes-unit-1-4-2',
-            title: 'MAB 204 Notes Unit 1-4 (2)',
-            description: 'MAB 204 notes from unit 1-4 (alternative version)',
+            id: 'mab-301-notes-unit-1-4-2',
+            title: 'MAB 301 Notes Unit 1-4 (2)',
+            description: 'MAB 301 notes from unit 1-4 (alternative version)',
             previewUrl: 'https://drive.google.com/file/d/1oDRX2YCsOR07hULYhgCHwxb-TVe0cb6l/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1oDRX2YCsOR07hULYhgCHwxb-TVe0cb6l',
-            subject: 'MAB 204 - Discrete Mathematics - Notes'
+            subject: 'MAB 301 - Discrete Mathematics - Notes'
         },
         {
-            id: 'mab-204-notes-unit-5',
-            title: 'MAB 204 Notes Unit 5',
-            description: 'MAB 204 Notes unit 5',
+            id: 'mab-301-notes-unit-5',
+            title: 'MAB 301 Notes Unit 5',
+            description: 'MAB 301 Notes unit 5',
             previewUrl: 'https://drive.google.com/file/d/1_RhT5EYvY5WdHJvsmViimSAKW6fUh3oM/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1_RhT5EYvY5WdHJvsmViimSAKW6fUh3oM',
-            subject: 'MAB 204 - Discrete Mathematics - Notes'
+            subject: 'MAB 301 - Discrete Mathematics - Notes'
         },
         {
             id: 'oop-notes',
@@ -140,12 +140,12 @@ const resourcesData = {
             subject: 'Analysis and Design of Algorithm - Practical Assignment'
         },
         {
-            id: 'mab-204-assignment',
-            title: 'MAB 204 Assignment',
-            description: 'MAB 204 assignment',
+            id: 'mab-301-assignment',
+            title: 'MAB 301 Assignment',
+            description: 'MAB 301 assignment',
             previewUrl: 'https://drive.google.com/file/d/1bWWLxkxH5nIVsVvafLrDpjuxby3PSFcW/preview',
             downloadUrl: 'https://drive.google.com/uc?export=download&id=1bWWLxkxH5nIVsVvafLrDpjuxby3PSFcW',
-            subject: 'MAB 204 - Discrete Mathematics - Practical Assignment'
+            subject: 'MAB 301 - Discrete Mathematics - Practical Assignment'
         },
         {
             id: 'oop-theory-assignment',
@@ -265,20 +265,20 @@ const resourcesData = {
                 subject: 'CS 306 - Internet Programming Syllabus'
             },
             {
-                id: 'mab-204-syllabus-cse',
-                title: 'MAB 204 Syllabus',
+                id: 'mab-301-syllabus-cse',
+                title: 'MAB 301 Syllabus',
                 description: 'Discrete Mathematics syllabus',
                 previewUrl: 'https://drive.google.com/file/d/16vkeopLfKrhszANP5GjVd8yN-00Vw8zD/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=16vkeopLfKrhszANP5GjVd8yN-00Vw8zD',
-                subject: 'MAB 204 - Discrete Mathematics Syllabus'
+                subject: 'MAB 301 - Discrete Mathematics Syllabus'
             },
             {
-                id: 'oe-305-syllabus-cse',
-                title: 'OE 305 Syllabus',
+                id: 'io-305-syllabus-cse',
+                title: 'IO 305 Syllabus',
                 description: 'Computer System Organization syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1Ji8zK_lkzpF4jv4nh3OeISI58YcOOlPR/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1Ji8zK_lkzpF4jv4nh3OeISI58YcOOlPR',
-                subject: 'OE 305 - Computer System Organization Syllabus'
+                subject: 'IO 305 - Computer System Organization Syllabus'
             }
         ],
         ec: [
@@ -474,13 +474,13 @@ const resourcesData = {
             }
         ],
         iot: [
-            {
+               {
                 id: 'io-302-syllabus',
                 title: 'IO 302 Syllabus',
-                description: 'Analysis and Design of Algorithm syllabus',
-                previewUrl: 'https://drive.google.com/file/d/1JlCF-5F11qRt_Q5Hb-bZ1MwWlUtMhYZF/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=1JlCF-5F11qRt_Q5Hb-bZ1MwWlUtMhYZF',
-                subject: 'IO 302 - Analysis and Design of Algorithm Syllabus'
+                description: 'Electronic Devices and Circuits syllabus',
+                previewUrl: 'https://drive.google.com/file/d/1R0HTch1iBaC5dJtpQTdDz-NloVBeBAmY/preview',
+                downloadUrl: 'https://drive.google.com/uc?export=download&id=1R0HTch1iBaC5dJtpQTdDz-NloVBeBAmY',
+                subject: 'IO 302 - Electronic Devices and Circuits Syllabus'
             },
             {
                 id: 'io-303-syllabus',
@@ -493,10 +493,18 @@ const resourcesData = {
             {
                 id: 'io-304-syllabus',
                 title: 'IO 304 Syllabus',
-                description: 'Electronic Devices and Circuits syllabus',
-                previewUrl: 'https://drive.google.com/file/d/1R0HTch1iBaC5dJtpQTdDz-NloVBeBAmY/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=1R0HTch1iBaC5dJtpQTdDz-NloVBeBAmY',
-                subject: 'IO 304 - Electronic Devices and Circuits Syllabus'
+                description: 'Analysis and Design of Algorithm syllabus',
+                previewUrl: 'https://drive.google.com/file/d/1JlCF-5F11qRt_Q5Hb-bZ1MwWlUtMhYZF/preview',
+                downloadUrl: 'https://drive.google.com/uc?export=download&id=1JlCF-5F11qRt_Q5Hb-bZ1MwWlUtMhYZF',
+                subject: 'IO 304 - Analysis and Design of Algorithm Syllabus'
+            },
+           {
+                id: 'io-305-syllabus-iot',
+                title: 'IO 305 Syllabus',
+                description: 'Computer System Organization syllabus',
+                previewUrl: 'https://drive.google.com/file/d/14mPvvAKNabu0wbKbYwEiiGljeIIZtjQL/preview',
+                downloadUrl: 'https://drive.google.com/uc?export=download&id=14mPvvAKNabu0wbKbYwEiiGljeIIZtjQL',
+                subject: 'IO 305 - Computer System Organization Syllabus'
             },
             {
                 id: 'io-306-syllabus',
@@ -507,21 +515,13 @@ const resourcesData = {
                 subject: 'IO 306 - Internet Programming Syllabus'
             },
             {
-                id: 'mab-204-syllabus-iot',
-                title: 'MAB 204 Syllabus',
+                id: 'mab-301-syllabus-iot',
+                title: 'MAB 301 Syllabus',
                 description: 'Discrete Mathematics syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1QsAxuuPHiGV6FRRomxULPl1S90duF2nj/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QsAxuuPHiGV6FRRomxULPl1S90duF2nj',
-                subject: 'MAB 204 - Discrete Mathematics Syllabus'
+                subject: 'MAB 301 - Discrete Mathematics Syllabus'
             },
-            {
-                id: 'oe-305-syllabus-iot',
-                title: 'OE 305 Syllabus',
-                description: 'Computer System Organization syllabus',
-                previewUrl: 'https://drive.google.com/file/d/14mPvvAKNabu0wbKbYwEiiGljeIIZtjQL/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=14mPvvAKNabu0wbKbYwEiiGljeIIZtjQL',
-                subject: 'OE 305 - Computer System Organization Syllabus'
-            }
         ],
         it: [
             {
@@ -557,20 +557,20 @@ const resourcesData = {
                 subject: 'IT 306 - Internet Programming Syllabus'
             },
             {
-                id: 'mab-204-syllabus-it',
-                title: 'MAB 204 Syllabus',
+                id: 'mab-301-syllabus-it',
+                title: 'MAB 301 Syllabus',
                 description: 'Discrete Mathematics syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1Q4Td_s6RW_emY7ordPO-lNGvCL6lIhRy/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1Q4Td_s6RW_emY7ordPO-lNGvCL6lIhRy',
-                subject: 'MAB 204 - Discrete Mathematics Syllabus'
+                subject: 'MAB 301 - Discrete Mathematics Syllabus'
             },
             {
-                id: 'oe-305-syllabus-it',
-                title: 'OE 305 Syllabus',
+                id: 'io-305-syllabus-it',
+                title: 'IO 305 Syllabus',
                 description: 'Computer System Organization syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1p9HfQg0_okduOK6Y8MVvTQNy3H6ME2wG/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1p9HfQg0_okduOK6Y8MVvTQNy3H6ME2wG',
-                subject: 'OE 305 - Computer System Organization Syllabus'
+                subject: 'IO 305 - Computer System Organization Syllabus'
             }
         ],
         bct: [
@@ -591,12 +591,12 @@ const resourcesData = {
                 subject: 'BCC 203 - Object Oriented Programming Syllabus'
             },
             {
-                id: 'bcc-204-syllabus',
-                title: 'BCC 204 Syllabus',
+                id: 'bcc-301-syllabus',
+                title: 'BCC 301 Syllabus',
                 description: 'Operating System syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1gOnmqa9UPfJ4LleqalJApmMyOQ6hxcs9/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1gOnmqa9UPfJ4LleqalJApmMyOQ6hxcs9',
-                subject: 'BCC 204 - Operating System Syllabus'
+                subject: 'BCC 301 - Operating System Syllabus'
             },
             {
                 id: 'bcl-206-syllabus',
@@ -615,12 +615,12 @@ const resourcesData = {
                 subject: 'BCO 205 - Computer System Organization Syllabus'
             },
             {
-                id: 'mab-204-syllabus-bct',
-                title: 'MAB 204 Syllabus',
+                id: 'mab-301-syllabus-bct',
+                title: 'MAB 301 Syllabus',
                 description: 'Discrete Mathematics syllabus',
                 previewUrl: 'https://drive.google.com/file/d/102Jp22y725q6v6BSeHjed2AjGgSMkRyY/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=102Jp22y725q6v6BSeHjed2AjGgSMkRyY',
-                subject: 'MAB 204 - Discrete Mathematics Syllabus'
+                subject: 'MAB 301 - Discrete Mathematics Syllabus'
             }
         ],
         aiads: [
@@ -665,12 +665,12 @@ const resourcesData = {
                 subject: 'AI 306 - Web Application Development Syllabus'
             },
             {
-                id: 'mab-204-syllabus-aiads',
-                title: 'MAB 204 Syllabus',
+                id: 'mab-301-syllabus-aiads',
+                title: 'MAB 301 Syllabus',
                 description: 'Discrete Mathematics syllabus',
                 previewUrl: 'https://drive.google.com/file/d/1ac-160oiYuNPC2rz0M0cbvB6MsJFdejt/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1ac-160oiYuNPC2rz0M0cbvB6MsJFdejt',
-                subject: 'MAB 204 - Discrete Mathematics Syllabus'
+                subject: 'MAB 301 - Discrete Mathematics Syllabus'
             }
         ],
         aiaml: [
@@ -735,12 +735,12 @@ const resourcesData = {
                 subject: 'BC 405 (2024) - Previous Year Question Paper'
             },
             {
-                id: 'bc-mab-204-may-2024',
-                title: 'BC MAB 204 May (2024)',
+                id: 'bc-mab-301-may-2024',
+                title: 'BC MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1kSv_MubWFHOxUxV2AkoDoNgwdfD6IJUt/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1kSv_MubWFHOxUxV2AkoDoNgwdfD6IJUt',
-                subject: 'BC MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'BC MAB 301 May (2024) - Previous Year Question Paper'
             },
             {
                 id: 'all-branch-305-dec-2023',
@@ -775,12 +775,12 @@ const resourcesData = {
                 subject: 'CSE 305 May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'oe-305-bc-305-may-2024',
-                title: 'OE 305 & BC 305 May (2024)',
-                description: 'OE 305 & BC 305 May 2024 paper',
+                id: 'io-305-bc-305-may-2024',
+                title: 'IO 305 & BC 305 May (2024)',
+                description: 'IO 305 & BC 305 May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1amMspAnnSU0AzODTGlj15W09vnWh5UcF/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1amMspAnnSU0AzODTGlj15W09vnWh5UcF',
-                subject: 'OE 305 & BC 305 May (2024) - Previous Year Question Paper'
+                subject: 'IO 305 & BC 305 May (2024) - Previous Year Question Paper'
             },
             {
                 id: 'all-branch-dsa-dec-2023',
@@ -799,52 +799,52 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-2',
-                title: 'All Branch MAB 204 Dec (2023)-2',
+                id: 'all-branch-mab-301-dec-2023-2',
+                title: 'All Branch MAB 301 Dec (2023)-2',
                 description: 'Mathematics December 2023 paper (Version 2)',
                 previewUrl: 'https://drive.google.com/file/d/1FVgN85sYyKkPGZ-MbNsDQfOaHnBnneVO/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1FVgN85sYyKkPGZ-MbNsDQfOaHnBnneVO',
-                subject: 'All Branch MAB 204 Dec (2023)-2 - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023)-2 - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2023-3',
-                title: 'All Branch MAB 204 May (2023)-3',
+                id: 'all-branch-mab-301-may-2023-3',
+                title: 'All Branch MAB 301 May (2023)-3',
                 description: 'Mathematics May 2023 paper (Version 3)',
                 previewUrl: 'https://drive.google.com/file/d/10hyy-cjb5h5gE06ScxT6OuMKqrkfnraH/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=10hyy-cjb5h5gE06ScxT6OuMKqrkfnraH',
-                subject: 'All Branch MAB 204 May (2023)-3 - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2023)-3 - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2023-4',
-                title: 'All Branch MAB 204 May (2023)-4',
+                id: 'all-branch-mab-301-may-2023-4',
+                title: 'All Branch MAB 301 May (2023)-4',
                 description: 'Mathematics May 2023 paper (Version 4)',
                 previewUrl: 'https://drive.google.com/file/d/1tsnBBehvMXIsMFWH0SpbG0VH9Lx17l9i/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1tsnBBehvMXIsMFWH0SpbG0VH9Lx17l9i',
-                subject: 'All Branch MAB 204 May (2023)-4 - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2023)-4 - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-2',
-                title: 'All Branch MAB 204 May (2024)-2',
+                id: 'all-branch-mab-301-may-2024-2',
+                title: 'All Branch MAB 301 May (2024)-2',
                 description: 'Mathematics May 2024 paper (Version 2)',
                 previewUrl: 'https://drive.google.com/file/d/1xOL5razcRgWSlu9Wu1JsQAXKGOZmv6JW/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1xOL5razcRgWSlu9Wu1JsQAXKGOZmv6JW',
-                subject: 'All Branch MAB 204 May (2024)-2 - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024)-2 - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             },
             {
                 id: 'cse-bc-303-dec-2023',
@@ -945,20 +945,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-ece',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-ece',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-ece',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-ece',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         me: [
@@ -1003,20 +1003,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-me',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-me',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-me',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-me',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         ee: [
@@ -1061,20 +1061,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-ee',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-ee',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-ee',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-ee',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         ce: [
@@ -1119,20 +1119,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-ce',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-ce',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-ce',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-ce',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         iot: [
@@ -1185,20 +1185,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-iot',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-iot',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-iot',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-iot',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         it: [
@@ -1243,20 +1243,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-it',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-it',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-it',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-it',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         bct: [
@@ -1301,12 +1301,12 @@ const resourcesData = {
                 subject: 'BC 405 (2024) - Previous Year Question Paper'
             },
             {
-                id: 'oe-305-bc-305-may-2024-bct',
-                title: 'OE 305 & BC 305 May (2024)',
-                description: 'OE 305 & BC 305 May 2024 paper',
+                id: 'io-305-bc-305-may-2024-bct',
+                title: 'IO 305 & BC 305 May (2024)',
+                description: 'IO 305 & BC 305 May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1amMspAnnSU0AzODTGlj15W09vnWh5UcF/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1amMspAnnSU0AzODTGlj15W09vnWh5UcF',
-                subject: 'OE 305 & BC 305 May (2024) - Previous Year Question Paper'
+                subject: 'IO 305 & BC 305 May (2024) - Previous Year Question Paper'
             },
             {
                 id: 'all-branch-dsa-dec-2023-bct',
@@ -1325,20 +1325,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-bct',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-bct',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-bct',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-bct',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             },
             {
                 id: 'cs-304-bc-304-dec-2022-bct',
@@ -1423,20 +1423,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-aiads',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-aiads',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-aiads',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-aiads',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ],
         aiaml: [
@@ -1481,20 +1481,20 @@ const resourcesData = {
                 subject: 'All Branch DSA May (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-dec-2023-aiaml',
-                title: 'All Branch MAB 204 Dec (2023)',
+                id: 'all-branch-mab-301-dec-2023-aiaml',
+                title: 'All Branch MAB 301 Dec (2023)',
                 description: 'Mathematics December 2023 paper',
                 previewUrl: 'https://drive.google.com/file/d/1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1EymWqGcOCo3IUe3bh9p5GmaOr13AugQg',
-                subject: 'All Branch MAB 204 Dec (2023) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-204-may-2024-aiaml',
-                title: 'All Branch MAB 204 May (2024)',
+                id: 'all-branch-mab-301-may-2024-aiaml',
+                title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1QB0y60SiTW4KmP99VhN4NxrnJLKBfJpS',
-                subject: 'All Branch MAB 204 May (2024) - Previous Year Question Paper'
+                subject: 'All Branch MAB 301 May (2024) - Previous Year Question Paper'
             }
         ]
     }
