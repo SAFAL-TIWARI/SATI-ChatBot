@@ -9364,3 +9364,192 @@ window.testMobileAPKDetection = function() {
         console.log('ℹ️ Voice features should be available');
     }
 };
+
+// ===== AUTHENTICATION TOAST FUNCTIONALITY =====
+class AuthToast {
+    constructor() {
+        this.toastElement = null;
+        this.closeButton = null;
+        this.loginButton = null;
+        this.isVisible = false;
+        this.hasBeenShown = false;
+    }
+
+    init() {
+        this.toastElement = document.getElementById('authToast');
+        this.closeButton = document.getElementById('authToastClose');
+        this.loginButton = document.getElementById('toastLoginBtn');
+
+        if (!this.toastElement || !this.closeButton || !this.loginButton) {
+            console.warn('Auth toast elements not found');
+            return;
+        }
+
+        // Add event listeners
+        this.closeButton.addEventListener('click', () => this.hide());
+        this.loginButton.addEventListener('click', () => this.handleLoginClick());
+
+        // Check if we should show the toast
+        this.checkAndShow();
+    }
+
+    checkAndShow() {
+        // Don't show if user is already logged in
+        if (window.chatState && window.chatState.isLoggedIn) {
+            return;
+        }
+
+        // Check if user has dismissed it recently (within 24 hours)
+        const dismissedTime = localStorage.getItem('sati_auth_toast_dismissed_time');
+        if (dismissedTime) {
+            const dismissedTimestamp = parseInt(dismissedTime);
+            const now = Date.now();
+            const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+            
+            if (now - dismissedTimestamp < twentyFourHours) {
+                return;
+            }
+        }
+
+        // Show the toast after a short delay to ensure page is loaded
+        setTimeout(() => {
+            this.show();
+        }, 1000);
+    }
+
+    show() {
+        if (!this.toastElement || this.isVisible) {
+            return;
+        }
+
+        this.toastElement.style.display = 'block';
+        this.isVisible = true;
+        this.hasBeenShown = true;
+
+        // Add slide-in animation
+        requestAnimationFrame(() => {
+            this.toastElement.style.transform = 'translateX(0)';
+            this.toastElement.style.opacity = '1';
+        });
+
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+            if (this.isVisible) {
+                this.hide();
+            }
+        }, 10000);
+    }
+
+    hide() {
+        if (!this.toastElement || !this.isVisible) {
+            return;
+        }
+
+        // Add slide-out animation
+        this.toastElement.style.transform = 'translateX(100%)';
+        this.toastElement.style.opacity = '0';
+
+        // Hide element after animation
+        setTimeout(() => {
+            this.toastElement.style.display = 'none';
+            this.isVisible = false;
+        }, 300);
+
+        // Remember that user dismissed it with timestamp (24 hours)
+        localStorage.setItem('sati_auth_toast_dismissed_time', Date.now().toString());
+    }
+
+    handleLoginClick() {
+        // Hide the toast
+        this.hide();
+        
+        // Open the login modal
+        if (window.modal && window.modal.show) {
+            modal.show('loginModal');
+        } else {
+            // Fallback: try to find and click the login button
+            const loginBtn = document.getElementById('loginLogoutBtn');
+            if (loginBtn) {
+                loginBtn.click();
+            }
+        }
+    }
+
+    // Method to reset the toast (useful for testing or when user logs out)
+    reset() {
+        this.hasBeenShown = false;
+        localStorage.removeItem('sati_auth_toast_dismissed_time');
+        
+        // Show the toast immediately after logout
+        setTimeout(() => {
+            this.checkAndShow();
+        }, 500);
+    }
+
+    // Method to force show the toast (ignores dismissal time)
+    forceShow() {
+        // Don't show if user is already logged in
+        if (window.chatState && window.chatState.isLoggedIn) {
+            return;
+        }
+
+        // Show the toast after a short delay
+        setTimeout(() => {
+            this.show();
+        }, 1000);
+    }
+}
+
+// Initialize auth toast
+const authToast = new AuthToast();
+
+// Initialize auth toast after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit for other scripts to load
+    setTimeout(() => {
+        authToast.init();
+    }, 500);
+});
+
+// Also check when the page becomes visible (handles page refresh/tab switching)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        // Page became visible, check if we should show toast
+        setTimeout(() => {
+            if (authToast.toastElement && !authToast.isVisible) {
+                authToast.checkAndShow();
+            }
+        }, 1000);
+    }
+});
+
+// Listen for storage changes to detect logout events
+window.addEventListener('storage', (e) => {
+    if (e.key === 'sati_logged_in' && e.newValue === 'false') {
+        // User logged out, reset the toast
+        authToast.reset();
+    }
+});
+
+// Also listen for custom logout events
+window.addEventListener('userLoggedOut', () => {
+    authToast.reset();
+});
+
+// Monitor localStorage changes in the same tab (for logout detection)
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+    const oldValue = localStorage.getItem(key);
+    originalSetItem.apply(this, arguments);
+    
+    // Check if user logged out
+    if (key === 'sati_logged_in' && value === 'false' && oldValue === 'true') {
+        // User just logged out, reset and show toast
+        setTimeout(() => {
+            authToast.reset();
+        }, 100);
+    }
+};
+
+// Make authToast available globally for debugging/testing
+window.authToast = authToast;
