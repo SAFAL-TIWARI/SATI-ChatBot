@@ -130,6 +130,13 @@ function toggleFAQ(element) {
     answer.classList.toggle('active');
 }
 
+// Email handling function
+function handleEmail(contact) {
+    if (contact && contact.email) {
+        window.open(`mailto:${contact.email}`, '_blank');
+    }
+}
+
 // Contact Form Submission
 document.getElementById('contactForm').addEventListener('submit', function (e) {
     e.preventDefault();

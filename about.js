@@ -1,4 +1,11 @@
 
+// Email handling function
+function handleEmail(contact) {
+    if (contact && contact.email) {
+        window.open(`mailto:${contact.email}`, '_blank');
+    }
+}
+
 // Dark Mode Toggle Functionality
 document.addEventListener('DOMContentLoaded', function () {
     const darkModeToggle = document.getElementById('darkModeToggle');
@@ -777,11 +784,9 @@ function initTeamCardFunctionality() {
 
                 // Get email based on member name
                 const email = getTeamMemberEmail(memberName);
-                const subject = `Hello from SATI ChatBot Website - ${memberName}`;
-                const body = `Hi ${memberName},\n\nI visited the SATI ChatBot website and would like to get in touch.\n\nBest regards`;
-
-                const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailtoLink;
+                
+                // Use the new handleEmail function
+                handleEmail({email: email});
 
                 // Visual feedback
                 this.style.transform = 'scale(0.9)';
