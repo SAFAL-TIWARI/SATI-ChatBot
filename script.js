@@ -3579,60 +3579,136 @@ function updateConversationsList() {
         return;
     }
 
-    chatState.conversations.forEach(conversation => {
-        const conversationElement = templateHelper.clone('conversationItemTemplate');
-        if (!conversationElement) return;
-        const item = conversationElement.querySelector('.conversation-item');
-        item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
-        // Populate template content
-        const titleElement = conversationElement.querySelector('.conversation-title');
-        titleElement.setAttribute('title', conversation.title);
-        titleElement.textContent = conversation.title;
-        // Setup bookmark button
-        const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
-        if (bookmarkBtn) {
-            if (conversation.is_bookmarked) {
-                bookmarkBtn.classList.add('active');
-                const icon = bookmarkBtn.querySelector('i');
-                if (icon) icon.className = 'fas fa-bookmark';
-            } else {
-                bookmarkBtn.classList.remove('active');
-                const icon = bookmarkBtn.querySelector('i');
-                if (icon) icon.className = 'far fa-bookmark';
-            }
-            bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}', null, false)`);
-        }
-        const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
-        menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
-        const dropdown = conversationElement.querySelector('.conversation-dropdown');
-        dropdown.id = `dropdown-${conversation.id}`;
-        // Add hover out event to close dropdown
-        dropdown.addEventListener('mouseleave', function () {
-            dropdown.classList.remove('show');
-        });
-        // Prevent closing when moving mouse inside dropdown
-        dropdown.addEventListener('mouseenter', function () {
-            // No action needed, but could be used for future logic
-        });
-        const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
-        renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
-        const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
-        deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
-        item.addEventListener('click', async (e) => {
-            if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
-                await chatState.loadConversation(conversation.id);
-                elements.chatTitle.textContent = conversation.title;
-                chatManager.renderMessages();
-                updateConversationsList();
-
-                // Close sidebar on mobile
-                if (window.innerWidth <= 768) {
-                    toggleSidebar();
+    // Group conversations by date
+    const groupedConversations = groupConversationsByDate(chatState.conversations);
+    
+    // Render each date group
+    Object.keys(groupedConversations).forEach(dateKey => {
+        const group = groupedConversations[dateKey];
+        
+        // Create date header
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'conversation-date-header';
+        dateHeader.textContent = group.label;
+        container.appendChild(dateHeader);
+        
+        // Create conversations container for this date
+        const dateGroup = document.createElement('div');
+        dateGroup.className = 'conversation-date-group';
+        
+        // Render conversations for this date
+        group.conversations.forEach(conversation => {
+            const conversationElement = templateHelper.clone('conversationItemTemplate');
+            if (!conversationElement) return;
+            const item = conversationElement.querySelector('.conversation-item');
+            item.className = `conversation-item ${conversation.id === chatState.currentConversationId ? 'active' : ''}`;
+            // Populate template content
+            const titleElement = conversationElement.querySelector('.conversation-title');
+            titleElement.setAttribute('title', conversation.title);
+            titleElement.textContent = conversation.title;
+            // Setup bookmark button
+            const bookmarkBtn = conversationElement.querySelector('.conversation-bookmark-btn');
+            if (bookmarkBtn) {
+                if (conversation.is_bookmarked) {
+                    bookmarkBtn.classList.add('active');
+                    const icon = bookmarkBtn.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bookmark';
+                } else {
+                    bookmarkBtn.classList.remove('active');
+                    const icon = bookmarkBtn.querySelector('i');
+                    if (icon) icon.className = 'far fa-bookmark';
                 }
+                bookmarkBtn.setAttribute('onclick', `toggleBookmark(event, '${conversation.id}', null, false)`);
             }
+            const menuBtn = conversationElement.querySelector('.conversation-menu-btn');
+            menuBtn.setAttribute('onclick', `toggleConversationMenu(event, '${conversation.id}')`);
+            const dropdown = conversationElement.querySelector('.conversation-dropdown');
+            dropdown.id = `dropdown-${conversation.id}`;
+            // Add hover out event to close dropdown
+            dropdown.addEventListener('mouseleave', function () {
+                dropdown.classList.remove('show');
+            });
+            // Prevent closing when moving mouse inside dropdown
+            dropdown.addEventListener('mouseenter', function () {
+                // No action needed, but could be used for future logic
+            });
+            const renameBtn = dropdown.querySelector('.conversation-dropdown-item:first-child');
+            renameBtn.setAttribute('onclick', `renameConversation('${conversation.id}')`);
+            const deleteBtn = dropdown.querySelector('.conversation-dropdown-item.danger');
+            deleteBtn.setAttribute('onclick', `deleteConversation('${conversation.id}')`);
+            item.addEventListener('click', async (e) => {
+                if (!e.target.closest('.conversation-action') && !e.target.closest('.conversation-bookmark-btn')) {
+                    await chatState.loadConversation(conversation.id);
+                    elements.chatTitle.textContent = conversation.title;
+                    chatManager.renderMessages();
+                    updateConversationsList();
+
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 768) {
+                        toggleSidebar();
+                    }
+                }
+            });
+            dateGroup.appendChild(conversationElement);
         });
-        container.appendChild(conversationElement);
+        
+        container.appendChild(dateGroup);
     });
+}
+
+// Date utility functions for conversation grouping
+function formatDateLabel(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const conversationDate = new Date(date);
+    
+    // Reset time to compare only dates
+    today.setHours(0, 0, 0, 0);
+    yesterday.setHours(0, 0, 0, 0);
+    conversationDate.setHours(0, 0, 0, 0);
+    
+    if (conversationDate.getTime() === today.getTime()) {
+        return 'Today';
+    } else if (conversationDate.getTime() === yesterday.getTime()) {
+        return 'Yesterday';
+    } else {
+        // Format as "Monday, Jan 15" or "Saturday, Sep 6" style
+        const options = { 
+            weekday: 'long', 
+            month: 'short', 
+            day: 'numeric' 
+        };
+        return conversationDate.toLocaleDateString('en-US', options);
+    }
+}
+
+function groupConversationsByDate(conversations) {
+    // Sort conversations by creation date (newest first)
+    const sortedConversations = [...conversations].sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.updatedAt);
+        const dateB = new Date(b.createdAt || b.updatedAt);
+        return dateB - dateA;
+    });
+    
+    const groups = {};
+    
+    sortedConversations.forEach(conversation => {
+        const date = conversation.createdAt || conversation.updatedAt;
+        const dateKey = new Date(date).toDateString();
+        
+        if (!groups[dateKey]) {
+            groups[dateKey] = {
+                label: formatDateLabel(date),
+                conversations: []
+            };
+        }
+        
+        groups[dateKey].conversations.push(conversation);
+    });
+    
+    return groups;
 }
 
 // Update saved chats list
@@ -9364,3 +9440,4 @@ window.testMobileAPKDetection = function() {
         console.log('ℹ️ Voice features should be available');
     }
 };
+

@@ -728,6 +728,25 @@ body {
     border-radius: var(--radius-full);
 }
 
+/* Date grouping styles */
+.conversation-date-header {
+    padding: var(--spacing-3) var(--spacing-3) var(--spacing-1) var(--spacing-3);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-2);
+}
+
+.conversation-date-header:first-child {
+    margin-top: 0;
+}
+
+.conversation-date-group {
+    margin-bottom: var(--spacing-2);
+}
+
 .conversation-item {
     padding: var(--spacing-2) var(--spacing-3);
     margin-bottom: var(--spacing-1);
@@ -5536,7 +5555,6 @@ textarea:focus-visible {
 .prompt-box:nth-child(1) {
     animation-delay: 0.1s;
 }
-
 .prompt-box:nth-child(2) {
     animation-delay: 0.2s;
 }
