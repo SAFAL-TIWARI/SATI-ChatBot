@@ -793,30 +793,6 @@ const resourcesData = {
                 subject: 'All Branch MAB 301 Dec (2023) - Previous Year Question Paper'
             },
             {
-                id: 'all-branch-mab-301-may-2023-3',
-                title: 'All Branch MAB 301 May (2023)-3',
-                description: 'Mathematics May 2023 paper (Version 3)',
-                previewUrl: 'https://drive.google.com/file/d/10hyy-cjb5h5gE06ScxT6OuMKqrkfnraH/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=10hyy-cjb5h5gE06ScxT6OuMKqrkfnraH',
-                subject: 'All Branch MAB 301 May (2023)-3 - Previous Year Question Paper'
-            },
-            {
-                id: 'all-branch-mab-301-may-2023-4',
-                title: 'All Branch MAB 301 May (2023)-4',
-                description: 'Mathematics May 2023 paper (Version 4)',
-                previewUrl: 'https://drive.google.com/file/d/1tsnBBehvMXIsMFWH0SpbG0VH9Lx17l9i/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=1tsnBBehvMXIsMFWH0SpbG0VH9Lx17l9i',
-                subject: 'All Branch MAB 301 May (2023)-4 - Previous Year Question Paper'
-            },
-            {
-                id: 'all-branch-mab-301-may-2024-2',
-                title: 'All Branch MAB 301 May (2024)-2',
-                description: 'Mathematics May 2024 paper (Version 2)',
-                previewUrl: 'https://drive.google.com/file/d/1xOL5razcRgWSlu9Wu1JsQAXKGOZmv6JW/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=1xOL5razcRgWSlu9Wu1JsQAXKGOZmv6JW',
-                subject: 'All Branch MAB 301 May (2024)-2 - Previous Year Question Paper'
-            },
-            {
                 id: 'all-branch-mab-301-may-2024',
                 title: 'All Branch MAB 301 May (2024)',
                 description: 'Mathematics May 2024 paper',
