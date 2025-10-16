@@ -879,10 +879,10 @@ const resourcesData = {
             },
             {
                 id: 'io-305-nov-2024-iot',
-                title: 'IO 305 Nov (2024)',
+                title: 'IO 303 Nov (2024)',
                 description: 'Computer System Organization November 2024 paper',
-                previewUrl: 'https://drive.google.com/file/d/1kccMVt9lsCv6qatoh5DgeOkq_ZT7XZYv/preview',
-                downloadUrl: 'https://drive.google.com/uc?export=download&id=1kccMVt9lsCv6qatoh5DgeOkq_ZT7XZYv',
+                previewUrl: 'https://drive.google.com/file/d/1-QYSs8x0-d6-sm9Z_DzQw72xw0Fgq6-d/preview',
+                downloadUrl: 'https://drive.google.com/uc?export=download&id=1-QYSs8x0-d6-sm9Z_DzQw72xw0Fgq6-d',
                 subject: 'Computer System Organization Nov (2024) - Previous Year Question Paper'
             },
             {
