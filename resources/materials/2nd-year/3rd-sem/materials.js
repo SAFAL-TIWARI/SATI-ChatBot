@@ -880,10 +880,10 @@ const resourcesData = {
             {
                 id: 'io-305-nov-2024-iot',
                 title: 'IO 303 Nov (2024)',
-                description: 'Computer System Organization November 2024 paper',
+                description: 'Object Oriented Programming November 2024 paper',
                 previewUrl: 'https://drive.google.com/file/d/1-QYSs8x0-d6-sm9Z_DzQw72xw0Fgq6-d/preview',
                 downloadUrl: 'https://drive.google.com/uc?export=download&id=1-QYSs8x0-d6-sm9Z_DzQw72xw0Fgq6-d',
-                subject: 'Computer System Organization Nov (2024) - Previous Year Question Paper'
+                subject: 'Object Oriented Programming Nov (2024) - Previous Year Question Paper'
             },
             {
                 id: 'cs-302-bc-302-ai-302-io-302-may-2024-iot',
