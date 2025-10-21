@@ -10,7 +10,7 @@ class APIManager {
                 // Production Models
                 'llama-3.1-8b-instant',
                 'llama-3.3-70b-versatile',
-                'gemma2-9b-it',
+                // 'gemma2-9b-it',
                 // 'llama-guard-3-8b',
                 // 'llama3-70b-8192',
                 // 'llama3-8b-8192',
@@ -21,12 +21,16 @@ class APIManager {
                 // Preview Models
                 'openai/gpt-oss-120b',
                 'openai/gpt-oss-20b',
-                'deepseek-r1-distill-llama-70b',
+                // 'deepseek-r1-distill-llama-70b',
                 'allam-2-7b',
                 'meta-llama/llama-4-maverick-17b-128e-instruct',
                 'meta-llama/llama-4-scout-17b-16e-instruct',
                 'moonshotai/kimi-k2-instruct',
                 'moonshotai/kimi-k2-instruct-0905',
+                'meta-llama/llama-guard-4-12b',
+                // 'meta-llama/llama-prompt-guard-2-22m',
+                // 'meta-llama/llama-prompt-guard-2-86m',
+                'qwen/qwen3-32b',
                 // 'playai-tts',
                 // 'playai-tts-arabic',
 
@@ -39,8 +43,8 @@ class APIManager {
         this.geminiConfig = {
             endpoint: window.API_CONFIG?.GEMINI_API_ENDPOINT || '/api/gemini',
             models: [
-                'gemini-1.5-flash',
-                'gemini-1.5-pro'
+                'gemini-2.5-flash',
+                'gemini-2.5-pro'
 
             ]
         };
@@ -269,7 +273,7 @@ class APIManager {
             throw new Error('Gemini serverless function not configured.');
         }
 
-        const model = this.currentModel.includes('gemini') ? this.currentModel : 'gemini-1.5-flash';
+        const model = this.currentModel.includes('gemini') ? this.currentModel : 'gemini-2.5-flash';
         const maxRetries = 3;
         const baseDelay = 1000; // 1 second
 
@@ -295,14 +299,33 @@ class APIManager {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error || 'Unknown error';
+                const errorMessage = errorData.error || errorData.details || 'Unknown error';
 
                 console.error('Gemini serverless API error:', {
                     status: response.status,
                     statusText: response.statusText,
                     errorData,
-                    errorMessage
+                    errorMessage,
+                    model: model,
+                    retryCount: retryCount
                 });
+
+                // Handle 500 Internal Server Error with retry
+                if (response.status === 500 && retryCount < maxRetries) {
+                    const delay = baseDelay * Math.pow(2, retryCount);
+                    console.log(`Gemini API internal error (500), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+
+                    if (window.toast) {
+                        window.toast.show(
+                            `🔄 API error, retrying in ${Math.round(delay / 1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            'warning',
+                            delay
+                        );
+                    }
+
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
+                }
 
                 // Handle 503 Service Unavailable (overloaded) with retry
                 if (response.status === 503 && retryCount < maxRetries) {
@@ -326,6 +349,14 @@ class APIManager {
                 if (response.status === 429 && retryCount < maxRetries) {
                     const delay = baseDelay * Math.pow(2, retryCount);
                     console.log(`Gemini API rate limited (429), retrying in ${delay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+
+                    if (window.toast) {
+                        window.toast.show(
+                            `⏱️ Rate limited, retrying in ${Math.round(delay / 1000)}s... (${retryCount + 1}/${maxRetries})`,
+                            'warning',
+                            delay
+                        );
+                    }
 
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return await this.sendGeminiMessage(prompt, controller, retryCount + 1);
@@ -476,7 +507,7 @@ class APIManager {
             // Production Groq models
             'llama-3.1-8b-instant': 'Llama 3.1 8B (Latest)',
             'llama-3.3-70b-versatile': 'Llama 3.3 70B (Latest)',
-            'gemma2-9b-it': 'Gemma2 9B (Latest)',
+            // 'gemma2-9b-it': 'Gemma2 9B (Latest)',
             // 'llama-guard-3-8b': 'Llama Guard 3 8B (Safety)',
             // 'llama3-70b-8192': 'Llama3 70B (Production)',
             // 'llama3-8b-8192': 'Llama3 8B (Production)',
@@ -488,11 +519,15 @@ class APIManager {
             'openai/gpt-oss-120b': 'GPT OSS 120B',
             'openai/gpt-oss-20b': 'GPT OSS 20B',
             'allam-2-7b': 'Allam 2 7B ',
-            'deepseek-r1-distill-llama-70b': 'DeepSeek R1 (Reasoning)',
+            // 'deepseek-r1-distill-llama-70b': 'DeepSeek R1 (Reasoning)',
             'meta-llama/llama-4-maverick-17b-128e-instruct': 'Llama 4 Maverick 17B (128K)',
             'meta-llama/llama-4-scout-17b-16e-instruct': 'Llama 4 Scout 17B (Instruct)',
             'moonshotai/kimi-k2-instruct': 'Kimi K2 Instruct',
             'moonshotai/kimi-k2-instruct-0905': 'Kimi K2 Instruct (0905)',
+            'meta-llama/llama-guard-4-12b': 'Llama Guard 4 12B (Safety)',
+            // 'meta-llama/llama-prompt-guard-2-22m': 'Llama Prompt Guard 2 22M (Lightweight)',
+            // 'meta-llama/llama-prompt-guard-2-86m': 'Llama Prompt Guard 2 86M (Advanced)',
+            'qwen/qwen3-32b': 'Qwen 3 32B (Multilingual)',
             // 'mistral-saba-24b': 'Mistral Saba 24B (Preview)',
             // 'playai-tts': 'PlayAI TTS (Text-to-Speech)',
             // 'playai-tts-arabic': 'PlayAI TTS Arabic (Text-to-Speech)',
@@ -503,8 +538,8 @@ class APIManager {
             'compound-beta': 'Groq Compound Beta (Fast)',
 
             // Existing Gemini models
-            'gemini-1.5-flash': 'Gemini 1.5 Flash',
-            'gemini-1.5-pro': 'Gemini 1.5 Pro'
+            'gemini-2.5-flash': 'Gemini 2.5 Flash',
+            'gemini-2.5-pro': 'Gemini 2.5 Pro'
 
         };
 
@@ -578,10 +613,10 @@ class APIManager {
 
         if (this.currentProvider === 'gemini') {
             // If using Gemini Flash, suggest Pro
-            if (this.currentModel === 'gemini-1.5-flash') {
+            if (this.currentModel === 'gemini-2.5-flash') {
                 alternatives.push({
                     provider: 'gemini',
-                    model: 'gemini-1.5-pro',
+                    model: 'gemini-2.5-pro',
                     reason: 'More stable, less likely to be overloaded'
                 });
             }
@@ -614,7 +649,7 @@ class APIManager {
             if (this.isGeminiConfigured()) {
                 alternatives.push({
                     provider: 'gemini',
-                    model: 'gemini-1.5-flash',
+                    model: 'gemini-2.5-flash',
                     reason: 'Google AI alternative'
                 });
             }

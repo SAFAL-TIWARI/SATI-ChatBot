@@ -40,7 +40,7 @@ Get keys from: [Google AI Studio](https://aistudio.google.com/) • [Groq Consol
 **Frontend**: Vanilla JavaScript, HTML5, CSS3  
 **Backend**: Node.js Serverless Functions (Vercel)  
 **Database**: Supabase (PostgreSQL)  
-**AI Models**: Gemini 1.5 Flash/Pro, Llama 3.1/3.3, Gemma2, DeepSeek  
+**AI Models**: Gemini 2.5 Flash/Pro, Llama 3.1/3.3, DeepSeek  
 **Authentication**: OAuth (Google, GitHub)  
 **Mobile**: Android WebView App
 
