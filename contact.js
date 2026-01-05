@@ -75,41 +75,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-  // Smooth Scroll with Lenis and ScrollTrigger 
-        // Initialize Lenis smooth scroll
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
+// Smooth Scroll with Lenis and ScrollTrigger 
+// Initialize Lenis smooth scroll
+const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+});
 
-        // Register ScrollTrigger plugin
-        gsap.registerPlugin(ScrollTrigger);
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
-        // Animation loop
-        function raf(time) {
-            lenis.raf(time);
-            ScrollTrigger.update();
-            requestAnimationFrame(raf);
-        }
+// Animation loop
+function raf(time) {
+    lenis.raf(time);
+    ScrollTrigger.update();
+    requestAnimationFrame(raf);
+}
 
-        requestAnimationFrame(raf);
+requestAnimationFrame(raf);
 
-        // Pin animation
-        const section1 = document.body.querySelector('.section-1');
-        const box = document.body.querySelector('.box');
+// Pin animation
+const section1 = document.body.querySelector('.section-1');
+const box = document.body.querySelector('.box');
 
-        if (section1 && box) {
-            const tl = gsap.timeline({ paused: true });
-            tl.fromTo(box, { y: 0 }, { y: '100vh', duration: 1, ease: 'none' }, 0);
+if (section1 && box) {
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo(box, { y: 0 }, { y: '100vh', duration: 1, ease: 'none' }, 0);
 
-            const st = ScrollTrigger.create({
-                animation: tl,
-                trigger: section1,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true
-            });
-        }
+    const st = ScrollTrigger.create({
+        animation: tl,
+        trigger: section1,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+    });
+}
 
 // FAQ Toggle Functionality
 function toggleFAQ(element) {
@@ -154,21 +154,41 @@ document.getElementById('contactForm').addEventListener('submit', function (e) {
     successMsg.style.display = 'none';
     errorMsg.style.display = 'none';
 
-    // Simulate form submission (replace with actual form handling)
-    setTimeout(() => {
-        // Reset button
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
-        submitBtn.disabled = false;
+    // Send email using EmailJS
+    // Service ID: service_tcm690y, Template ID: template_lmivuqa
+    emailjs.sendForm('service_tcm690y', 'template_lmivuqa', this)
+        .then(function () {
+            console.log('SUCCESS!');
+            // Reset button
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            submitBtn.disabled = false;
 
-        // Show success message
-        successMsg.style.display = 'block';
+            // Show success message
+            successMsg.style.display = 'block';
 
-        // Reset form
-        this.reset();
+            // Reset form
+            document.getElementById('contactForm').reset();
 
-        // Scroll to success message
-        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 2000);
+            // Scroll to success message
+            successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Auto hide success message after 5 seconds
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }, function (error) {
+            console.log('FAILED...', error);
+            // Reset button
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+            submitBtn.disabled = false;
+
+            // Show error message
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = 'Sorry, there was an error sending your message. Please try again later.';
+
+            // Scroll to error message
+            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
 });
 
 // Theme initialization and management functions
@@ -251,44 +271,44 @@ function initializeNavigationDropdown() {
     // Handle dropdown item clicks for dynamic label changes
     const dropdownItems = document.querySelectorAll('.dropdown-item:not(.disabled)');
     const mobileDropdownItems = document.querySelectorAll('.mobile-dropdown-item:not(.disabled)');
-    
+
     // Desktop dropdown items
     dropdownItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const itemText = this.textContent.trim();
             const href = this.getAttribute('href');
-            
+
             // Update the dropdown toggle text
             updateDropdownLabel(itemText);
-            
+
             // Navigate to the page
             if (href && href !== '#') {
                 window.location.href = href;
             }
         });
     });
-    
+
     // Mobile dropdown items
     mobileDropdownItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             const itemText = this.textContent.trim();
             const href = this.getAttribute('href');
-            
+
             // Update the mobile dropdown toggle text
             updateMobileDropdownLabel(itemText);
-            
+
             // Close mobile menu after selection
             closeMobileMenu();
-            
+
             // Navigate to the page
             if (href && href !== '#') {
                 window.location.href = href;
             }
         });
     });
-    
+
     // Mobile dropdown toggle functionality
     initializeMobileDropdown();
 }
@@ -297,15 +317,15 @@ function initializeNavigationDropdown() {
 function initializeMobileDropdown() {
     const mobileDropdownToggle = document.querySelector('.mobile-dropdown-toggle');
     const mobileNavDropdown = document.querySelector('.mobile-nav-dropdown');
-    
+
     if (mobileDropdownToggle && mobileNavDropdown) {
-        mobileDropdownToggle.addEventListener('click', function(e) {
+        mobileDropdownToggle.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Toggle dropdown open/close
             const isOpen = mobileNavDropdown.classList.contains('open');
-            
+
             if (isOpen) {
                 // Close dropdown
                 mobileNavDropdown.classList.remove('open');
@@ -313,7 +333,7 @@ function initializeMobileDropdown() {
                 // Open dropdown
                 mobileNavDropdown.classList.add('open');
             }
-            
+
             // Rotate arrow icon
             const arrow = this.querySelector('.mobile-dropdown-arrow');
             if (arrow) {
@@ -332,16 +352,16 @@ function closeMobileMenu() {
     const mobileMenu = document.getElementById('mobileNavMenu');
     const blurOverlay = document.getElementById('blurOverlay');
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    
+
     if (mobileMenu) {
         mobileMenu.classList.remove('show');
         document.body.classList.remove('mobile-menu-open');
     }
-    
+
     if (blurOverlay) {
         blurOverlay.classList.remove('show');
     }
-    
+
     // Reset mobile menu toggle icon
     if (mobileMenuToggle) {
         const icon = mobileMenuToggle.querySelector('i');
@@ -378,7 +398,7 @@ function initializeDesktopDropdownDelay() {
 
     if (navDropdown && dropdownMenu) {
         // Show dropdown on hover
-        navDropdown.addEventListener('mouseenter', function() {
+        navDropdown.addEventListener('mouseenter', function () {
             // Clear any existing timeout
             if (hideTimeout) {
                 clearTimeout(hideTimeout);
@@ -389,7 +409,7 @@ function initializeDesktopDropdownDelay() {
         });
 
         // Hide dropdown with delay on mouse leave
-        navDropdown.addEventListener('mouseleave', function() {
+        navDropdown.addEventListener('mouseleave', function () {
             // Set timeout to hide dropdown after 2 seconds
             hideTimeout = setTimeout(() => {
                 dropdownMenu.classList.remove('show');
@@ -397,7 +417,7 @@ function initializeDesktopDropdownDelay() {
         });
 
         // If mouse enters dropdown menu, cancel hide timeout
-        dropdownMenu.addEventListener('mouseenter', function() {
+        dropdownMenu.addEventListener('mouseenter', function () {
             if (hideTimeout) {
                 clearTimeout(hideTimeout);
                 hideTimeout = null;
@@ -405,7 +425,7 @@ function initializeDesktopDropdownDelay() {
         });
 
         // If mouse leaves dropdown menu, start hide timeout
-        dropdownMenu.addEventListener('mouseleave', function() {
+        dropdownMenu.addEventListener('mouseleave', function () {
             hideTimeout = setTimeout(() => {
                 dropdownMenu.classList.remove('show');
             }, 500);

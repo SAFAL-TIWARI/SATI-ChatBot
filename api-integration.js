@@ -666,13 +666,14 @@ let apiManager;
 function initializeAPIManager(retryCount = 0) {
     if (!apiManager) {
         // Check if API config is available
-        if (!window.API_CONFIG || (!window.API_CONFIG.GROQ_API_KEY && !window.API_CONFIG.GEMINI_API_KEY)) {
+        // Modified to allow initialization if serverless functions are configured, even without client-side keys
+        if (!window.API_CONFIG || (!window.API_CONFIG.GROQ_CONFIGURED && !window.API_CONFIG.GEMINI_CONFIGURED && !window.API_CONFIG.GROQ_API_KEY && !window.API_CONFIG.GEMINI_API_KEY)) {
             if (retryCount < 5) {
-                console.log(`⏳ API keys not yet loaded, retrying in 200ms... (attempt ${retryCount + 1}/5)`);
+                console.log(`⏳ API configuration not ready, retrying in 200ms... (attempt ${retryCount + 1}/5)`);
                 setTimeout(() => initializeAPIManager(retryCount + 1), 200);
                 return;
             } else {
-                console.error('❌ Failed to load API keys after 5 attempts');
+                console.error('❌ Failed to load API configuration after 5 attempts');
             }
         }
 
